@@ -4,12 +4,20 @@ import (
 	"errors"
 	"net/mail"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
 func ValidFormat(email string) bool {
 	_, err := mail.ParseAddress(email)
 	return err == nil
+}
+
+var validate = validator.New()
+
+func ValidateStruct(s interface{}) error {
+	err := validate.Struct(s)
+	return err
 }
 
 /*

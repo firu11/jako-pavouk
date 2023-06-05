@@ -17,17 +17,8 @@ export default {
             return index + 1
         },
         jeDokoncene(index) {
-            return this.info['dokonceno'].includes(index + 1)
+            return this.info['dokoncene'].includes(index + 1)
         }
-    },
-    computed: {
-        formatovany_pismena() {
-            let vratit = "";
-            for (let i = 0; i < this.pismena.length; i++) {
-                vratit += i < this.pismena.length - 1 ? this.pismena.at(i) + ", " : this.pismena.at(i);
-            }
-            return vratit;
-        },
     },
     mounted() {
         axios
@@ -44,38 +35,40 @@ export default {
 </script>
 
 <template>
-    <h1><router-link class="tlacZpet" :to="'/lekce'"><img src="@/assets/icony/sipkaL.svg" alt="Zpět"></router-link>Lekce: {{ formatovany_pismena }}</h1>
+    <h1><router-link class="tlacZpet" :to="'/lekce'"><img src="/icony/sipkaL.svg" alt="Zpět"></router-link>Lekce: {{
+        $format(pismena) }}</h1>
     <div class="kontejnr" v-if="!info.error">
         <div v-if="info.length !== 0" v-for="(cviceni, index) in info['cviceni']">
             <h2>
-                <router-link class="lekceBlok" :class="{dokoncenyBlok: jeDokoncene(index)}" v-if="cviceni[1] === 'nova'" :to="'/lekce/' + pismena + '/' + index1(index)">
+                <router-link class="lekceBlok" :class="{ dokoncenyBlok: jeDokoncene(index) }" v-if="cviceni.typ === 'nova'"
+                    :to="'/lekce/' + pismena + '/' + index1(index)">
                     <h2>{{ index1(index) }}</h2>
                     <hr>
                     <h3>Nová písmenka</h3>
-                    <img class="fajvkaVetsi" v-if="jeDokoncene(index)" src="@/assets/icony/right.svg" alt="Dokonceno!">
-                    <img class="playVetsi" v-else src="@/assets/icony/start.svg" alt="Začít lekci">
+                    <img class="fajvkaVetsi" v-if="jeDokoncene(index)" src="/icony/right.svg" alt="Dokonceno!">
+                    <img class="playVetsi" v-else src="/icony/start.svg" alt="Začít lekci">
                 </router-link>
-                <router-link class="lekceBlok" :class="{dokoncenyBlok: jeDokoncene(index)}" v-else-if="cviceni[1] === 'probrana'" :to="'/lekce/' + pismena + '/' + index1(index)">
+                <router-link class="lekceBlok" :class="{ dokoncenyBlok: jeDokoncene(index) }"
+                    v-else-if="cviceni.typ === 'probrana'" :to="'/lekce/' + pismena + '/' + index1(index)">
                     <h2>{{ index1(index) }}</h2>
                     <hr>
                     <h3>Probraná písmenka</h3>
-                    <img class="fajvkaVetsi" v-if="jeDokoncene(index)" src="@/assets/icony/right.svg" alt="Dokonceno!">
-                    <img class="playVetsi" v-else src="@/assets/icony/start.svg" alt="Začít lekci">
+                    <img class="fajvkaVetsi" v-if="jeDokoncene(index)" src="/icony/right.svg" alt="Dokonceno!">
+                    <img class="playVetsi" v-else src="/icony/start.svg" alt="Začít lekci">
                 </router-link>
-                <router-link v-else class="lekceBlok" :class="{dokoncenyBlok: jeDokoncene(index)}" :to="'/lekce/' + pismena + '/' + index1(index)">
+                <router-link v-else class="lekceBlok" :class="{ dokoncenyBlok: jeDokoncene(index) }"
+                    :to="'/lekce/' + pismena + '/' + index1(index)">
                     <h2>{{ index1(index) }}</h2>
                     <hr>
                     <h3>Se slovy</h3>
-                    <img class="fajvkaVetsi" v-if="jeDokoncene(index)" src="@/assets/icony/right.svg" alt="Dokonceno!">
-                    <img class="playVetsi" v-else src="@/assets/icony/start.svg" alt="Začít lekci">
+                    <img class="fajvkaVetsi" v-if="jeDokoncene(index)" src="/icony/right.svg" alt="Dokonceno!">
+                    <img class="playVetsi" v-else src="/icony/start.svg" alt="Začít lekci">
                 </router-link>
             </h2>
         </div>
         <p v-else>Tato lekce zatím nemá žádná cvičení</p>
     </div>
     <p v-else>{{ info.error }}</p>
-
-
 </template>
 
 <style scoped>

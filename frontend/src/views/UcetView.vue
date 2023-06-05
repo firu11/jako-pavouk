@@ -36,7 +36,7 @@ export default {
 
 <template>
     <div id="ucet">
-        <img src="@/assets/icony/user.svg" alt="uzivatel">
+        <img src="/icony/user.svg" alt="uzivatel">
         <div id="nadpisy">
             <h1>{{ info.jmeno }}</h1>
             <h2>{{ info.email }}</h2>
@@ -50,12 +50,12 @@ export default {
             <h2>Dokonceno: {{ info.dokonceno }}%</h2>
         </div>
         <div class="blok">
-            <img src="@/assets/icony/rychlost.svg" alt="Rychlost">
+            <img src="/icony/rychlost.svg" alt="Rychlost">
             <h2 v-if="info.prumerPreklepu == -1">Zatím nic</h2>
             <h2 v-else>{{ Math.round(info.prumerPreklepu * 10) / 10 }} CPM</h2>
         </div>
         <div class="blok">
-            <img src="@/assets/icony/terc.svg" alt="Rychlost">
+            <img src="/icony/terc.svg" alt="Rychlost">
             <h2 v-if="info.prumerRychlosti == -1">Zatím nic</h2>
             <h2 v-else>{{ Math.round(info.prumerRychlosti * 10) / 10 }}%</h2>
         </div>
@@ -111,6 +111,10 @@ export default {
 
 .tlacitko {
     background-color: var(--tmave-fialova);
+}
+
+.tlacitko:hover {
+    background-color: var(--fialova);
 }
 
 #bloky div img {

@@ -1,6 +1,7 @@
 <script>
 import Klavesnice from "@/components/Klavesnice.vue";
 import VysledekCvic from "@/components/VysledekCvic.vue";
+import axios from 'axios'
 
 export default {
     name: "cviceni",
@@ -34,18 +35,11 @@ export default {
             }
             return pocet
         },
-        formatovany_pismena() {
-            let vratit = "";
-            for (let i = 0; i < this.pismena.length; i++) {
-                vratit += i < this.pismena.length - 1 ? this.pismena.at(i) + ", " : this.pismena.at(i);
-            }
-            return vratit;
-        }
     },
     mounted() {
         this.get()
         document.addEventListener("keydown", this.klik);
-        this.audio = [new Audio('/src/assets/klik1.mp3'), new Audio('/src/assets/klik2.mp3'), new Audio('/src/assets/klik3.mp3')]
+        this.audio = [new Audio('/klik1.mp3'), new Audio('/klik2.mp3'), new Audio('/klik3.mp3')]
     },
     unmounted() {
         document.removeEventListener("keydown", this.klik);
@@ -53,7 +47,7 @@ export default {
     methods: {
         get() {
             axios
-                .get("/cvic" + this.pismena + "/" + this.cislo, {
+                .get("/cvic/" + this.pismena + "/" + this.cislo, {
                     headers: {
                         "Token": this.$ls.getItem("token").value
                     }
@@ -101,6 +95,7 @@ export default {
                     this.dalsi()
                 }
             } else {
+                this.audio[Math.floor(Math.random() * 2.4)].play()
                 this.list_textu[this.counter][2] = true
             }
         },
@@ -129,9 +124,9 @@ export default {
 </script>
 
 <template>
-    <h1 v-if="!dokonceno" style="margin: 0"><router-link class="tlacZpet" :to="'/lekce/' + this.pismena"><img src="@/assets/icony/sipkaL.svg" alt="Zpět"></router-link>Lekce: {{ formatovany_pismena }}</h1>
+    <h1 v-if="!dokonceno" style="margin: 0"><router-link class="tlacZpet" :to="'/lekce/' + this.pismena"><img src="/icony/sipkaL.svg" alt="Zpět"></router-link>Lekce: {{ $format(pismena) }}</h1>
     <h2 v-if="!dokonceno">Cviceni: {{cislo}}</h2>
-    <h1 v-else>Výsledky lekce: {{ formatovany_pismena }}</h1>
+    <h1 v-else>Výsledky lekce: {{ $format(pismena) }}</h1>
     <div id="obsah" v-if="!info.error && !dokonceno">
 
         <div id="cviceniNabidka">

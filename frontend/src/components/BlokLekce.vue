@@ -2,7 +2,8 @@
 export default {
     name: "blokLekce",
     props: {
-        data: Object,
+        pismena: String,
+        je_dokoncena: Boolean
     },
     methods: {
         prihlaste_se() {
@@ -12,8 +13,8 @@ export default {
     computed: {
         formatovany_pismena() {
             let vratit = "";
-            for (let i = 0; i < this.data.pismena.length; i++) {
-                vratit += i < this.data.pismena.length - 1 ? this.data.pismena.at(i) + ", " : this.data.pismena.at(i);
+            for (let i = 0; i < this.pismena.length; i++) {
+                vratit += i < this.pismena.length - 1 ? this.pismena.at(i) + ", " : this.pismena.at(i);
             }
             return vratit;
         }
@@ -22,9 +23,9 @@ export default {
 </script>
 
 <template>
-    <router-link class="lekceBlok" :class="{hotovoBlok: true/* je_dokonceno */}" v-if="$ls.getItem('token')" :to="'/lekce/' + data.pismena">
-        <h2>Lekce: {{ formatovany_pismena }} </h2>
-        <img class="fajvka" v-if="je_dokonceno" src="@/assets/icony/right.svg" alt="Dokonceno!">
+    <router-link class="lekceBlok" :class="{hotovoBlok: je_dokoncena}" v-if="$ls.getItem('token')" :to="'/lekce/' + pismena">
+        <h2>Lekce: {{ formatovany_pismena }}</h2>
+        <img class="fajvka" v-if="je_dokoncena" src="/icony/right.svg" alt="Dokonceno!">
     </router-link>
     <a v-else class="lekceBlok" @click="prihlaste_se"><h2>Lekce: {{ formatovany_pismena }}</h2></a>
 </template>

@@ -1,3 +1,36 @@
+<script>
+import axios from "axios";
+
+export default {
+    name: "VysledekCvic",
+    methods: {
+        znovu() {
+            this.$parent.reset();
+        }
+    },
+    props: ["rychlost", "preklepy", "cas", "delka_textu"],
+    data() {
+        return {
+            pismena: this.$route["params"].pismena,
+            cislo: this.$route["params"].id,
+        }
+    },
+    mounted() {
+        axios.post('/dokonceno/' + this.pismena + '/' + this.cislo, {
+            "cpm": this.rychlost,
+            "preklepy": this.preklepy
+        }, {
+            headers: {
+                "Token": this.$ls.getItem("token").value
+            }
+        }).catch(function (e) {
+            console.log(e)
+        })
+    }
+}
+</script>
+
+
 <template>
     <div id="bloky">
         <div class="blok">
@@ -9,7 +42,7 @@
         <div class="blok">
             <div>
                 <h2>{{ preklepy }}</h2>
-                <h3 class="procento">({{ Math.round(preklepy / delka_textu * 1000) / 10}}%)</h3>
+                <h3 class="procento">({{ Math.round(preklepy / delka_textu * 1000) / 10 }}%)</h3>
             </div>
             <hr>
             <p class="jednotka">&zwnj;</p>
@@ -27,39 +60,6 @@
         <button class="tlacitko" @click="$router.push('/lekce/' + this.pismena)">Pokračovat</button>
     </div>
 </template>
-
-<script>
-import axios from "axios";
-
-export default {
-    name: "VysledekCvic",
-    methods: {
-        znovu(){
-            this.$parent.reset();
-        }
-    },
-    props: ["rychlost", "preklepy", "cas", "delka_textu"],
-    data() {
-        return {
-            pismena: this.$route["params"].pismena,
-            cislo: this.$route["params"].id,
-        }
-    },
-    mounted() {
-        axios
-            .post('/update' + this.pismena + '/' + this.cislo, null, {
-                headers: {
-                    "Token": this.$ls.getItem("token").value
-                },
-                params: {
-                    cas: this.cas[0] * 60 + this.cas[1],
-                    delka_textu: this.delka_textu,
-                    chyby: this.preklepy
-                },
-            })
-    }
-}
-</script>
 
 <style scoped>
 #bloky {

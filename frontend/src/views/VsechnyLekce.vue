@@ -28,13 +28,13 @@ export default {
     <h1>Seznam lekcí</h1>
     <div id="lekce">
         <h2>Střední řada</h2>
-        <BlokLekce v-if="data.hasOwnProperty('lekce')" v-for="lekce in data.lekce[0]" :data="lekce" />
+        <BlokLekce v-if="data.hasOwnProperty('lekce')" v-for="lekce in data.lekce[0]" :pismena="lekce.pismena" :je_dokoncena="data.dokoncene.includes(lekce.id)"/>
         <h2>Spodní řada</h2>
-        <BlokLekce v-if="data.hasOwnProperty('lekce')" v-for="lekce in data.lekce[1]" :data="lekce" />
+        <BlokLekce v-if="data.hasOwnProperty('lekce')" v-for="lekce in data.lekce[1]" :pismena="lekce.pismena" :je_dokoncena="data.dokoncene.includes(lekce.id)"/>
         <h2>Horní řada</h2>
-        <BlokLekce v-if="data.hasOwnProperty('lekce')" v-for="lekce in data.lekce[2]" :data="lekce" />
+        <BlokLekce v-if="data.hasOwnProperty('lekce')" v-for="lekce in data.lekce[2]" :pismena="lekce.pismena" :je_dokoncena="data.dokoncene.includes(lekce.id)"/>
         <h2>Diakritika</h2>
-        <BlokLekce v-if="data.hasOwnProperty('lekce')" v-for="lekce in data.lekce[3]" :data="lekce" />
+        <BlokLekce v-if="data.hasOwnProperty('lekce')" v-for="lekce in data.lekce[3]" :pismena="lekce.pismena" :je_dokoncena="data.dokoncene.includes(lekce.id)"/>
     </div>
 </template>
 

@@ -2,8 +2,6 @@ package databaze
 
 import (
 	"log"
-
-	"github.com/lib/pq"
 )
 
 type Lekce struct {
@@ -18,13 +16,10 @@ type Cviceni struct {
 }
 
 type Uzivatel struct {
-	ID               uint          `json:"id"`
-	Email            string        `json:"email"`
-	Jmeno            string        `json:"jmeno"`
-	Heslo            string        `json:"heslo"`
-	Preklepy         pq.Int32Array `json:"preklepy"` // takhle se dela array z sql wtf
-	Rychlosti        pq.Int32Array `json:"rychlost"`
-	DokonceneCviceni pq.Int32Array `json:"dokoncenecviceni"`
+	ID    uint   `json:"id"`
+	Email string `json:"email"`
+	Jmeno string `json:"jmeno"`
+	Heslo string `json:"heslo"`
 }
 
 type Slovnik struct {
@@ -32,8 +27,15 @@ type Slovnik struct {
 	Slovo string `json:"slovo"`
 }
 
+type Dokoncene struct {
+	UzivID    uint    `json:"id"`
+	CviceniID uint    `json:"cviceni_id"`
+	CPM       float32 `json:"cpm"`
+	Preklepy  uint    `json:"preklepy"`
+}
+
 func GetLekce() ([][]Lekce, error) {
-	rows, err := DB.Query("SELECT * FROM lekce;")
+	rows, err := DB.Query(`SELECT * FROM lekce;`)
 	if err != nil {
 		return [][]Lekce{}, nil
 	}
@@ -66,17 +68,63 @@ func GetLekce() ([][]Lekce, error) {
 }
 
 func GetDokonceneLekce(uzivID uint) ([]int32, error) {
-	var doko pq.Int32Array
-	err := DB.QueryRow("SELECT dokoncenecviceni FROM uzivatele WHERE id = $1;", uzivID).Scan(&doko)
+	lekce, err := GetLekce()
 	if err != nil {
 		return []int32{}, err
 	}
-	return doko, nil //ted mam dokonceny cviceni potrebuju zjistit jestli to je vsechno v ty lekce TODO
+	var lekce_ids []int32 = []int32{}
+	for _, skupina := range lekce {
+		for _, lekce := range skupina {
+			// zjistim kolik ma kazda lekce cviceni
+			rows, err := DB.Query(`SELECT COUNT(*) FROM cviceni WHERE lekce_id = $1;`, lekce.ID)
+			if err != nil {
+				return []int32{}, err
+			}
+			defer rows.Close()
+
+			var pocet int
+			for rows.Next() {
+				if err := rows.Scan(&pocet); err != nil {
+					log.Fatal(err)
+				}
+			}
+
+			cvicVLekci, err := GetDokonceneCvicVLekci(lekce.ID)
+			if err != nil {
+				return []int32{}, err
+			}
+
+			if pocet == len(cvicVLekci) && pocet != 0 {
+				lekce_ids = append(lekce_ids, int32(lekce.ID))
+			}
+		}
+	}
+
+	return lekce_ids, nil //ted mam dokonceny cviceni potrebuju zjistit jestli to je vsechno v ty lekce TODO
+}
+
+func GetDokonceneCvicVLekci(lekceID uint) ([]int32, error) {
+	rows, err := DB.Query(`SELECT d.cviceni_id FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id WHERE lekce_id = $1;`, lekceID)
+	if err != nil {
+		return []int32{}, err
+	}
+	defer rows.Close()
+
+	var cviceni_ids []int32 = []int32{}
+	for rows.Next() {
+		var id int32
+		if err := rows.Scan(&id); err != nil {
+			log.Fatal(err)
+		}
+		cviceni_ids = append(cviceni_ids, id)
+	}
+
+	return cviceni_ids, nil
 }
 
 func GetLekceIDbyPismena(pismena string) (uint, error) {
 	var id uint
-	err := DB.QueryRow("SELECT id FROM lekce WHERE pismena = $1;", pismena).Scan(&id)
+	err := DB.QueryRow(`SELECT id FROM lekce WHERE pismena = $1;`, pismena).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
@@ -84,7 +132,7 @@ func GetLekceIDbyPismena(pismena string) (uint, error) {
 }
 
 func GetCviceniVLekciByID(lekceID uint) ([]Cviceni, error) {
-	rows, err := DB.Query("SELECT id, typ FROM cviceni WHERE lekce_id = $1;", lekceID)
+	rows, err := DB.Query(`SELECT id, typ FROM cviceni WHERE lekce_id = $1;`, lekceID)
 	if err != nil {
 		return []Cviceni{}, err
 	}
@@ -116,18 +164,18 @@ func GetCviceniVLekciByPismena(pismena string) ([]Cviceni, error) {
 
 func GetUzivByID(id uint) (Uzivatel, error) {
 	var uziv Uzivatel
-	err := DB.QueryRow("SELECT id, email, jmeno, heslo, preklepy, rychlosti, dokoncenecviceni FROM uzivatele WHERE id = $1;", id).Scan(&uziv.ID, &uziv.Email, &uziv.Jmeno, &uziv.Heslo, &uziv.Preklepy, &uziv.Rychlosti, &uziv.DokonceneCviceni)
+	err := DB.QueryRow(`SELECT id, email, jmeno, heslo FROM uzivatel WHERE id = $1;`, id).Scan(&uziv.ID, &uziv.Email, &uziv.Jmeno, &uziv.Heslo)
 	return uziv, err
 }
 
 func GetUzivByEmail(email string) (Uzivatel, error) {
 	var uziv = Uzivatel{}
-	err := DB.QueryRow("SELECT id, email, jmeno, heslo, preklepy, rychlosti, dokoncenecviceni FROM uzivatele WHERE email = $1;", email).Scan(&uziv.ID, &uziv.Email, &uziv.Jmeno, &uziv.Heslo, &uziv.Preklepy, &uziv.Rychlosti, &uziv.DokonceneCviceni)
+	err := DB.QueryRow(`SELECT id, email, jmeno, heslo FROM uzivatel WHERE email = $1;`, email).Scan(&uziv.ID, &uziv.Email, &uziv.Jmeno, &uziv.Heslo)
 	return uziv, err
 }
 
 func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
-	_, err := DB.Exec("INSERT INTO uzivatele (email, jmeno, heslo) VALUES ($1, $2, $3)", email, jmeno, hesloHash)
+	_, err := DB.Exec(`INSERT INTO uzivatel (email, jmeno, heslo) VALUES ($1, $2, $3)`, email, jmeno, hesloHash)
 	if err != nil {
 		return 0, err
 	}
@@ -136,4 +184,9 @@ func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
 		return 0, err
 	}
 	return uziv.ID, nil
+}
+
+func PridatDokonceneCvic(cvicID uint, uzivID uint, cpm float32, preklepy int) error {
+	_, err := DB.Query(`INSERT INTO dokoncene (uziv_id, cviceni_id, cpm, preklepy) VALUES ($1, $2, $3, $4);`, uzivID, cvicID, cpm, preklepy)
+	return err
 }

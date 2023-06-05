@@ -54,13 +54,13 @@ export default {
         </nav>
     </header>
 
-    <img id="pavouk" src="@/assets/icony/pavouk.png" alt="Pavouk">
+    <img id="pavouk" src="/icony/pavouk.png" alt="Pavouk">
 
     <div id="kontent">
         <RouterView />
     </div>
 
-    <img id="pavucina1" src="@/assets/pavucina.svg" alt="Pavucina">
+    <img id="pavucina1" src="/pavucina.svg" alt="Pavucina">
 </template>
 
 <style scoped>
