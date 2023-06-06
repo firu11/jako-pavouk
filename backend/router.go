@@ -78,8 +78,11 @@ func getCviceni(c *fiber.Ctx) error {
 	if cislo > len(vsechnyCviceni) {
 		return c.Status(http.StatusBadRequest).JSON("Cviceni neexistuje")
 	}
-	if vsechnyCviceni[cislo-1].Typ == "nova" {
-		var text []string = []string{}
+
+	var text []string = []string{}
+
+	switch vsechnyCviceni[cislo-1].Typ {
+	case "nova":
 		for i := 0; i < pocetSlov; i++ {
 			var slovo string = ""
 			for j := 0; j < pocetPismenVeSlovu; j++ {
@@ -89,10 +92,11 @@ func getCviceni(c *fiber.Ctx) error {
 			text = append(text, slovo)
 		}
 		text[len(text)-1] = text[len(text)-1][:len(text[len(text)-1])-1] // smazat mezeru na konci
-		return c.Status(http.StatusOK).JSON(fiber.Map{"text": text})
-	} else {
+	default:
 		return c.Status(http.StatusOK).JSON(fiber.Map{"text": "Bruh GG"}) //TODO
 	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{"text": text})
 }
 
 func dokoncitCvic(c *fiber.Ctx) error {
@@ -122,7 +126,14 @@ func dokoncitCvic(c *fiber.Ctx) error {
 	}
 
 	if err := databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.CPM, body.Preklepy); err != nil {
-		//uz jsme to cviceni jednou udelali takze jen zmenime hodnoty
+		err = databaze.OdebratDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id)
+		if err != nil {
+			return err
+		}
+		err = databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.CPM, body.Preklepy)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -224,7 +235,7 @@ func prehled(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		"email":           uziv.Email,
 		"jmeno":           uziv.Jmeno,
-		"prumerPreklepu":  utils.Prumer(preklepy),
+		"uspesnost":       (float32(delkaTextu) - utils.Prumer(preklepy)) / float32(delkaTextu) * 100,
 		"prumerRychlosti": utils.Prumer(cpm),
 		"dokonceno":       dokonceno,
 	})

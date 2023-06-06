@@ -54,7 +54,7 @@ export default {
         </nav>
     </header>
 
-    <img id="pavouk" src="/icony/pavouk.png" alt="Pavouk">
+    <!-- <img id="pavouk" src="/icony/pavouk.png" alt="Pavouk"> -->
 
     <div id="kontent">
         <RouterView />
@@ -66,7 +66,7 @@ export default {
 <style scoped>
 #pavouk {
     position: absolute;
-    left: 120px;
+    left: 300px;
     width: 100px;
     pointer-events: none;
 }

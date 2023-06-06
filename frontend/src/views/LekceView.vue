@@ -6,7 +6,8 @@ export default {
     data() {
         return {
             pismena: this.$route["params"].pismena,
-            info: {}
+            info: {},
+            dostal_jsem_data: false
         }
     },
     methods: {
@@ -29,6 +30,7 @@ export default {
             })
             .then(response => {
                 this.info = response.data
+                this.dostal_jsem_data = true
             });
     },
 }
@@ -42,7 +44,7 @@ export default {
         Lekce: {{$format(pismena) }}
     </h1>
     <div class="kontejnr" v-if="!info.error">
-        <div v-if="info['cviceni'] != null && info['cviceni'].length !== 0" v-for="(cviceni, index) in info['cviceni']">
+        <div v-if="dostal_jsem_data && info['cviceni'] !== null && info['cviceni'].length !== 0" v-for="(cviceni, index) in info['cviceni']">
             <h2>
                 <router-link class="lekceBlok" :class="{ dokoncenyBlok: jeDokoncene(cviceni.id) }" v-if="cviceni.typ === 'nova'"
                     :to="'/lekce/' + pismena + '/' + index1(index)">
@@ -70,6 +72,7 @@ export default {
                 </router-link>
             </h2>
         </div>
+        <p v-else-if="!dostal_jsem_data && info['cviceni'] == null"></p>
         <p v-else>Tato lekce zatím nemá žádná cvičení</p>
     </div>
     <p v-else>{{ info.error }}</p>

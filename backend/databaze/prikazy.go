@@ -225,3 +225,8 @@ func PridatDokonceneCvic(cvicID uint, uzivID uint, cpm float32, preklepy int) er
 	_, err := DB.Exec(`INSERT INTO dokoncene (uziv_id, cviceni_id, cpm, preklepy) VALUES ($1, $2, $3, $4);`, uzivID, cvicID, cpm, preklepy)
 	return err
 }
+
+func OdebratDokonceneCvic(cvicID uint, uzivID uint) error {
+	_, err := DB.Exec(`DELETE FROM dokoncene WHERE uziv_id = $1 AND cviceni_id = $2;`, uzivID, cvicID)
+	return err
+}

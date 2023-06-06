@@ -22,7 +22,6 @@ export default {
                 }
             }).then(response => {
                 this.info = response.data
-                console.log(this.info)
             }).catch(function (e) { //nebudeš tam chodit nemas ucet more
                 this.$router.push("/login")
             })
@@ -56,8 +55,8 @@ export default {
         </div>
         <div class="blok">
             <img src="/icony/terc.svg" alt="Rychlost">
-            <h2 v-if="info.prumerPreklepu == -1">Zatím nic</h2>
-            <h2 v-else>{{ Math.round(info.prumerPreklepu * 10) / 10 }}%</h2>
+            <h2 v-if="info.uspesnost == -1">Zatím nic</h2>
+            <h2 v-else>{{ Math.round(info.uspesnost * 10) / 10 }}%</h2>
         </div>
     </div>
 
