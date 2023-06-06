@@ -22,11 +22,7 @@ func setupRouter(app *fiber.App) {
 }
 
 func test(c *fiber.Ctx) error {
-	x, err := databaze.GetDokonceneCvicVLekci(2)
-	if err != nil {
-		return err
-	}
-	return c.JSON(x)
+	return c.JSON("sussy")
 }
 
 func getVsechnyLekce(c *fiber.Ctx) error {
@@ -66,6 +62,10 @@ func getCviceniVLekci(c *fiber.Ctx) error {
 }
 
 func getCviceni(c *fiber.Ctx) error {
+	_, err := utils.Autentizace(c, true)
+	if err != nil {
+		return err
+	}
 	pismena := c.Params("pismena")
 	vsechnyCviceni, err := databaze.GetCviceniVLekciByPismena(pismena)
 	if err != nil {
@@ -121,7 +121,9 @@ func dokoncitCvic(c *fiber.Ctx) error {
 		return err
 	}
 
-	databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.CPM, body.Preklepy)
+	if err := databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.CPM, body.Preklepy); err != nil {
+		//uz jsme to cviceni jednou udelali takze jen zmenime hodnoty
+	}
 
 	return nil
 }
@@ -211,12 +213,19 @@ func prehled(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	/* prumerPreklepu := utils.Prumer(uziv.Preklepy)
-	prumerRychlosti := utils.Prumer(uziv.Rychlosti) */
+	preklepy, cpm, err := databaze.GetPreklepyACPM(id)
+	if err != nil {
+		return err
+	}
+	dokonceno, err := databaze.DokonceneProcento(id)
+	if err != nil {
+		return nil
+	}
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		"email":           uziv.Email,
 		"jmeno":           uziv.Jmeno,
-		"prumerPreklepu":  "prumerPreklepu",
-		"prumerRychlosti": "prumerRychlosti",
+		"prumerPreklepu":  utils.Prumer(preklepy),
+		"prumerRychlosti": utils.Prumer(cpm),
+		"dokonceno":       dokonceno,
 	})
 }

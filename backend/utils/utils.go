@@ -47,10 +47,10 @@ func Autentizace(c *fiber.Ctx, povinna bool) (uint, error) {
 	}
 }
 
-func Prumer(arr []int32) float32 {
+func Prumer(arr []float32) float32 {
 	var soucet float32 = 0
 	for _, v := range arr {
-		soucet += float32(v)
+		soucet += v
 	}
 	if len(arr) == 0 {
 		return -1

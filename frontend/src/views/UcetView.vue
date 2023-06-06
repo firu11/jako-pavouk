@@ -51,13 +51,13 @@ export default {
         </div>
         <div class="blok">
             <img src="/icony/rychlost.svg" alt="Rychlost">
-            <h2 v-if="info.prumerPreklepu == -1">Zatím nic</h2>
-            <h2 v-else>{{ Math.round(info.prumerPreklepu * 10) / 10 }} CPM</h2>
+            <h2 v-if="info.prumerRychlosti == -1">Zatím nic</h2>
+            <h2 v-else>{{ Math.round(info.prumerRychlosti * 10) / 10 }} CPM</h2>
         </div>
         <div class="blok">
             <img src="/icony/terc.svg" alt="Rychlost">
-            <h2 v-if="info.prumerRychlosti == -1">Zatím nic</h2>
-            <h2 v-else>{{ Math.round(info.prumerRychlosti * 10) / 10 }}%</h2>
+            <h2 v-if="info.prumerPreklepu == -1">Zatím nic</h2>
+            <h2 v-else>{{ Math.round(info.prumerPreklepu * 10) / 10 }}%</h2>
         </div>
     </div>
 

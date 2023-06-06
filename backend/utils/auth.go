@@ -9,6 +9,7 @@ import (
 )
 
 var privatniKlic []byte = []byte(os.Getenv("KLIC"))
+var TokenTimeDuration time.Duration
 
 type Data struct {
 	jwt.StandardClaims
@@ -33,7 +34,7 @@ func CheckPassword(hesloRequest string, hesloDB string) error {
 }
 
 func GenerovatToken(email string, id uint) (string, error) {
-	data := Data{Email: email, Id: id, StandardClaims: jwt.StandardClaims{ExpiresAt: time.Now().Add(time.Hour * 24 * 7).Unix() /*Týden asi good*/}}
+	data := Data{Email: email, Id: id, StandardClaims: jwt.StandardClaims{ExpiresAt: time.Now().Add(TokenTimeDuration).Unix()}}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, data)
 	s, err := token.SignedString(privatniKlic)
 	return s, err

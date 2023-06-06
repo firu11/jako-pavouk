@@ -67,7 +67,7 @@ export default {
         <input :class="{ spatnej_input: spatnej_email || email_existuje }" @:input="chekuj_udaje('email')" type="text"
             v-model="email" placeholder="Např: pepa@zdepa.cz">
         <h4 :class="{ opacity0: !email_existuje }" class="chybaExistujee">Uživatel s tímto emailem už existuje</h4>
-        <h3 class="nadpis">Heslo: <img src="@/assets/icony/info.svg" alt="info" @mouseover="open_info"
+        <h3 class="nadpis">Heslo: <img src="/icony/info.svg" alt="info" @mouseover="open_info"
                 @mouseleave="close_info"></h3>
         <input :class="{ spatnej_input: spatny_heslo }" @:input="chekuj_udaje('heslo')" type="text" v-model="heslo"
             placeholder='Rozhodně ne "Pepa123"'>

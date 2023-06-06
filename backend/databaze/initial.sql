@@ -25,6 +25,7 @@ CREATE TABLE cviceni (
 );
 
 CREATE TABLE dokoncene (
+    id SERIAL PRIMARY KEY,
     uziv_id INT,
     cviceni_id INT,
     cpm DECIMAL,
@@ -33,7 +34,8 @@ CREATE TABLE dokoncene (
         REFERENCES uzivatel(id)
         ON DELETE CASCADE,
     FOREIGN KEY (cviceni_id)
-        REFERENCES cviceni(id)
+        REFERENCES cviceni(id),
+    CONSTRAINT unikatni UNIQUE(uziv_id, cviceni_id)
 );
 
 INSERT INTO lekce (pismena, skupina) VALUES ('fjgh', 1), ('dk', 1), ('sl', 1), ('aů', 1), ('tz', 2);

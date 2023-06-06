@@ -28,7 +28,8 @@ type Slovnik struct {
 }
 
 type Dokoncene struct {
-	UzivID    uint    `json:"id"`
+	ID        uint    `json:"id"`
+	UzivID    uint    `json:"uziv_id"`
 	CviceniID uint    `json:"cviceni_id"`
 	CPM       float32 `json:"cpm"`
 	Preklepy  uint    `json:"preklepy"`
@@ -76,17 +77,10 @@ func GetDokonceneLekce(uzivID uint) ([]int32, error) {
 	for _, skupina := range lekce {
 		for _, lekce := range skupina {
 			// zjistim kolik ma kazda lekce cviceni
-			rows, err := DB.Query(`SELECT COUNT(*) FROM cviceni WHERE lekce_id = $1;`, lekce.ID)
+			var pocet int
+			err := DB.QueryRow(`SELECT COUNT(*) FROM cviceni WHERE lekce_id = $1;`, lekce.ID).Scan(&pocet)
 			if err != nil {
 				return []int32{}, err
-			}
-			defer rows.Close()
-
-			var pocet int
-			for rows.Next() {
-				if err := rows.Scan(&pocet); err != nil {
-					log.Fatal(err)
-				}
 			}
 
 			cvicVLekci, err := GetDokonceneCvicVLekci(lekce.ID)
@@ -174,6 +168,47 @@ func GetUzivByEmail(email string) (Uzivatel, error) {
 	return uziv, err
 }
 
+func GetPreklepyACPM(uzivID uint) ([]float32, []float32, error) {
+	var posledni int = 10
+	rows, err := DB.Query(`SELECT preklepy, cpm FROM dokoncene WHERE uziv_id = $1 ORDER BY id DESC LIMIT $2;`, uzivID, posledni)
+	if err != nil {
+		return []float32{}, []float32{}, err
+	}
+	defer rows.Close()
+
+	var preklepy []float32 = []float32{}
+	var cpm []float32 = []float32{}
+
+	for rows.Next() {
+		var preklep float32
+		var cpmko float32
+		err := rows.Scan(&preklep, &cpmko)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		preklepy = append(preklepy, float32(preklep))
+		cpm = append(cpm, cpmko)
+	}
+
+	return preklepy, cpm, nil
+}
+
+func DokonceneProcento(uzivID uint) (float32, error) {
+	var pocet int32
+	err := DB.QueryRow(`SELECT COUNT(*) FROM dokoncene WHERE uziv_id = $1;`, uzivID).Scan(&pocet)
+	if err != nil {
+		return 0, err
+	}
+
+	var pocet2 int32
+	err = DB.QueryRow(`SELECT COUNT(*) FROM cviceni;`).Scan(&pocet2)
+	if err != nil {
+		return 0, err
+	}
+	return float32(pocet) / float32(pocet2) * 100, nil
+}
+
 func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
 	_, err := DB.Exec(`INSERT INTO uzivatel (email, jmeno, heslo) VALUES ($1, $2, $3)`, email, jmeno, hesloHash)
 	if err != nil {
@@ -187,6 +222,6 @@ func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
 }
 
 func PridatDokonceneCvic(cvicID uint, uzivID uint, cpm float32, preklepy int) error {
-	_, err := DB.Query(`INSERT INTO dokoncene (uziv_id, cviceni_id, cpm, preklepy) VALUES ($1, $2, $3, $4);`, uzivID, cvicID, cpm, preklepy)
+	_, err := DB.Exec(`INSERT INTO dokoncene (uziv_id, cviceni_id, cpm, preklepy) VALUES ($1, $2, $3, $4);`, uzivID, cvicID, cpm, preklepy)
 	return err
 }

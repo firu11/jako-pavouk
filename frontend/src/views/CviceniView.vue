@@ -262,6 +262,6 @@ export default {
 h1 {
     display: inline-flex;
     position: relative;
-    right: 22px;
+    right: 25px; /* posunuti o pulku sipky */
 }
 </style>

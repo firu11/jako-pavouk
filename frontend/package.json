@@ -11,6 +11,7 @@
   "dependencies": {
     "@vueuse/core": "^10.1.2",
     "axios": "^1.4.0",
+    "axios-retry": "^3.5.0",
     "next-vue-storage-watcher": "^0.0.7",
     "vue": "^3.2.47",
     "vue-axios": "^3.5.2",

@@ -16,8 +16,8 @@ export default {
         index1(index) {
             return index + 1
         },
-        jeDokoncene(index) {
-            return this.info['dokoncene'].includes(index + 1)
+        jeDokoncene(id) {
+            return this.info['dokoncene'].includes(id)
         }
     },
     mounted() {
@@ -35,33 +35,37 @@ export default {
 </script>
 
 <template>
-    <h1><router-link class="tlacZpet" :to="'/lekce'"><img src="/icony/sipkaL.svg" alt="Zpět"></router-link>Lekce: {{
-        $format(pismena) }}</h1>
+    <h1>
+        <router-link class="tlacZpet" :to="'/lekce'">
+            <img src="/icony/sipkaL.svg" alt="Zpět">
+        </router-link>
+        Lekce: {{$format(pismena) }}
+    </h1>
     <div class="kontejnr" v-if="!info.error">
-        <div v-if="info.length !== 0" v-for="(cviceni, index) in info['cviceni']">
+        <div v-if="info['cviceni'] != null && info['cviceni'].length !== 0" v-for="(cviceni, index) in info['cviceni']">
             <h2>
-                <router-link class="lekceBlok" :class="{ dokoncenyBlok: jeDokoncene(index) }" v-if="cviceni.typ === 'nova'"
+                <router-link class="lekceBlok" :class="{ dokoncenyBlok: jeDokoncene(cviceni.id) }" v-if="cviceni.typ === 'nova'"
                     :to="'/lekce/' + pismena + '/' + index1(index)">
                     <h2>{{ index1(index) }}</h2>
                     <hr>
                     <h3>Nová písmenka</h3>
-                    <img class="fajvkaVetsi" v-if="jeDokoncene(index)" src="/icony/right.svg" alt="Dokonceno!">
+                    <img class="fajvkaVetsi" v-if="jeDokoncene(cviceni.id)" src="/icony/right.svg" alt="Dokonceno!">
                     <img class="playVetsi" v-else src="/icony/start.svg" alt="Začít lekci">
                 </router-link>
-                <router-link class="lekceBlok" :class="{ dokoncenyBlok: jeDokoncene(index) }"
+                <router-link class="lekceBlok" :class="{ dokoncenyBlok: jeDokoncene(cviceni.id) }"
                     v-else-if="cviceni.typ === 'probrana'" :to="'/lekce/' + pismena + '/' + index1(index)">
                     <h2>{{ index1(index) }}</h2>
                     <hr>
                     <h3>Probraná písmenka</h3>
-                    <img class="fajvkaVetsi" v-if="jeDokoncene(index)" src="/icony/right.svg" alt="Dokonceno!">
+                    <img class="fajvkaVetsi" v-if="jeDokoncene(cviceni.id)" src="/icony/right.svg" alt="Dokonceno!">
                     <img class="playVetsi" v-else src="/icony/start.svg" alt="Začít lekci">
                 </router-link>
-                <router-link v-else class="lekceBlok" :class="{ dokoncenyBlok: jeDokoncene(index) }"
+                <router-link v-else class="lekceBlok" :class="{ dokoncenyBlok: jeDokoncene(cviceni.id) }"
                     :to="'/lekce/' + pismena + '/' + index1(index)">
                     <h2>{{ index1(index) }}</h2>
                     <hr>
                     <h3>Se slovy</h3>
-                    <img class="fajvkaVetsi" v-if="jeDokoncene(index)" src="/icony/right.svg" alt="Dokonceno!">
+                    <img class="fajvkaVetsi" v-if="jeDokoncene(cviceni.id)" src="/icony/right.svg" alt="Dokonceno!">
                     <img class="playVetsi" v-else src="/icony/start.svg" alt="Začít lekci">
                 </router-link>
             </h2>
@@ -120,6 +124,6 @@ export default {
 h1 {
     display: inline-flex;
     position: relative;
-    right: 22px;
+    right: 25px; /* posunuti o pulku sipky */
 }
 </style>
