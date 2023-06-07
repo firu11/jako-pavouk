@@ -38,7 +38,7 @@ func main() {
 		AllowHeaders: "Origin, Content-Type, Accept, Token",
 	}))
 
-	setupRouter(app)
+	SetupRouter(app)
 
 	err := app.Listen(":8080")
 	if err != nil {

@@ -46,7 +46,7 @@ export default {
             <div id="nacitani-pozadi">
                 <div id="nacitani" :style="{ width: info.dokonceno + '%' }"></div>
             </div>
-            <h2>Dokonceno: {{ info.dokonceno }}%</h2>
+            <h2>Dokonceno: {{ Math.round(info.dokonceno * 10) / 10 }}%</h2>
         </div>
         <div class="blok">
             <img src="/icony/rychlost.svg" alt="Rychlost">
@@ -102,13 +102,14 @@ export default {
 #ucet {
     display: flex;
     background-color: var(--tmave-fialova);
-    margin-bottom: 25px;
+    margin-bottom: 40px;
     padding: 15px 30px 15px 15px;
     border-radius: 10px;
     gap: 15px;
 }
 
 .tlacitko {
+    margin-top: 20px;
     background-color: var(--tmave-fialova);
 }
 

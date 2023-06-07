@@ -18,7 +18,8 @@ export default {
             capslock: false,
             text_pripraven: false,
             dokonceno: false,
-            pocitadloCasu: null
+            pocitadloCasu: null,
+            audio: []
         }
     },
     computed: {
@@ -39,7 +40,7 @@ export default {
     mounted() {
         this.get()
         document.addEventListener("keydown", this.klik);
-        this.audio = [new Audio('/klik1.mp3'), new Audio('/klik2.mp3'), new Audio('/klik3.mp3')]
+        this.audio = [new Audio('/klik1.mp3'), new Audio('/klik2.mp3'), new Audio('/klik3.mp3'), new Audio('/miss.mp3')]
     },
     unmounted() {
         document.removeEventListener("keydown", this.klik);
@@ -63,6 +64,8 @@ export default {
                     }
                     this.list_textu[0][1] = true //prvni pismeno podtrhu
                     this.text_pripraven = true
+                }).catch(e => {
+                    setTimeout(() => {this.$router.push('/404')}, 2000);
                 });
         },
         klik(e) {
@@ -88,14 +91,14 @@ export default {
                     this.dokonceno = true
                     clearInterval(this.pocitadloCasu)
                     document.removeEventListener("keydown", this.klik);
-                    this.audio[Math.floor(Math.random() * 2.4)].play()
+                    this.audio[Math.floor(Math.random() * 2.4)].cloneNode(true).play()
 
                 } else {
-                    this.audio[Math.floor(Math.random() * 2.4)].play()
+                    this.audio[Math.floor(Math.random() * 2.4)].cloneNode(true).play()
                     this.dalsi()
                 }
             } else {
-                this.audio[Math.floor(Math.random() * 2.4)].play()
+                this.audio[3].cloneNode(true).play()
                 this.list_textu[this.counter][2] = true
             }
         },

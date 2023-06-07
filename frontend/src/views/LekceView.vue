@@ -31,6 +31,8 @@ export default {
             .then(response => {
                 this.info = response.data
                 this.dostal_jsem_data = true
+            }).catch(e => {
+                setTimeout(() => {this.$router.push('/404')}, 2000);
             });
     },
 }
@@ -82,6 +84,9 @@ export default {
 .kontejnr {
     display: flex;
     gap: 15px;
+    max-width: 700px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .lekceBlok {

@@ -3,6 +3,7 @@ package main
 import (
 	"backend/databaze"
 	"backend/utils"
+	"log"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -10,7 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func setupRouter(app *fiber.App) {
+func SetupRouter(app *fiber.App) {
 	app.Get("/lekce", getVsechnyLekce)
 	app.Get("/lekce/:pismena", getCviceniVLekci)
 	app.Get("/cvic/:pismena/:cislo", getCviceni)
@@ -22,6 +23,7 @@ func setupRouter(app *fiber.App) {
 }
 
 func test(c *fiber.Ctx) error {
+	/* databaze.PushSlovnik() */
 	return c.JSON("sussy")
 }
 
@@ -30,14 +32,17 @@ func getVsechnyLekce(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+
 	lekce, err := databaze.GetLekce()
 	if err != nil {
-		return err
+		log.Print(err)
+		return fiber.ErrInternalServerError
 	}
 	if id != 0 {
 		dokoncene, err := databaze.GetDokonceneLekce(id)
 		if err != nil {
-			return err
+			log.Print(err)
+			return fiber.ErrInternalServerError
 		}
 		return c.Status(http.StatusOK).JSON(fiber.Map{"lekce": lekce, "dokoncene": dokoncene})
 	}
@@ -45,20 +50,22 @@ func getVsechnyLekce(c *fiber.Ctx) error {
 }
 
 func getCviceniVLekci(c *fiber.Ctx) error {
-	_, err := utils.Autentizace(c, false)
+	uzivID, err := utils.Autentizace(c, false)
 	if err != nil {
 		return err
 	}
 	cvic, err := databaze.GetCviceniVLekciByPismena(c.Params("pismena"))
 	if err != nil {
-		return err
+		log.Print("Takovy cviceni neexistuje")
+		return fiber.ErrBadRequest
 	}
 	id, _ := databaze.GetLekceIDbyPismena(c.Params("pismena"))
-	doko, err := databaze.GetDokonceneCvicVLekci(id)
+	doko, err := databaze.GetDokonceneCvicVLekci(uzivID, id)
 	if err != nil {
-		return err
+		log.Print(err)
+		return fiber.ErrInternalServerError
 	}
-	return c.Status(http.StatusOK).JSON(fiber.Map{"cviceni": cvic, "dokoncene": doko})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"cviceni": cvic, "dokoncene": doko})
 }
 
 func getCviceni(c *fiber.Ctx) error {
@@ -69,17 +76,19 @@ func getCviceni(c *fiber.Ctx) error {
 	pismena := c.Params("pismena")
 	vsechnyCviceni, err := databaze.GetCviceniVLekciByPismena(pismena)
 	if err != nil {
-		return err
+		log.Print(err)
+		return fiber.ErrInternalServerError
 	}
 	cislo, err := strconv.Atoi(c.Params("cislo")) // str -> int
 	if err != nil {
-		return err
+		log.Print(err)
+		return fiber.ErrInternalServerError
 	}
 	if cislo > len(vsechnyCviceni) {
 		return c.Status(http.StatusBadRequest).JSON("Cviceni neexistuje")
 	}
 
-	var text []string = []string{}
+	var text []string
 
 	switch vsechnyCviceni[cislo-1].Typ {
 	case "nova":
@@ -91,11 +100,30 @@ func getCviceni(c *fiber.Ctx) error {
 			slovo += " "
 			text = append(text, slovo)
 		}
-		text[len(text)-1] = text[len(text)-1][:len(text[len(text)-1])-1] // smazat mezeru na konci
+
+	case "novaSlova":
+		id, err := databaze.GetLekceIDbyPismena(pismena)
+		if err != nil {
+			log.Print(err)
+			return fiber.ErrInternalServerError
+		}
+		slova, err := databaze.GetSlovaProLekci(id, false)
+		if err != nil {
+			log.Print(err)
+			return fiber.ErrInternalServerError
+		}
+		for i := 0; i < pocetSlov; i++ {
+			text = append(text, slova[rand.Intn(len(slova))]+" ")
+		}
+
+	case "probranaSlova":
+		//TODO
 	default:
-		return c.Status(http.StatusOK).JSON(fiber.Map{"text": "Bruh GG"}) //TODO
+		log.Print("Cviceni ma divnej typ")
+		return fiber.ErrInternalServerError
 	}
 
+	text[len(text)-1] = text[len(text)-1][:len(text[len(text)-1])-1] // smazat mezeru na konci
 	return c.Status(http.StatusOK).JSON(fiber.Map{"text": text})
 }
 
@@ -106,33 +134,39 @@ func dokoncitCvic(c *fiber.Ctx) error {
 	}
 	var body struct {
 		CPM      float32 `json:"cpm" validate:"required"`
-		Preklepy int     `json:"preklepy" validate:"required,number"` //sus nebere nulu
+		Preklepy int     `json:"preklepy" validate:"min=0"` //sus reqired nebere nulu takze min=0 asi ok
 	}
 
 	if err := c.BodyParser(&body); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(err)
+		log.Print(err)
+		return fiber.ErrInternalServerError
 	}
 	if err := utils.ValidateStruct(&body); err != nil {
-		return err
+		log.Print(err)
+		return fiber.ErrInternalServerError
 	}
 	cislo, err := strconv.ParseUint(c.Params("cislo"), 10, 32)
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON("Id cviceni je spatne")
+		log.Print(err)
+		return fiber.ErrInternalServerError
 	}
 
 	vsechnyCviceni, err := databaze.GetCviceniVLekciByPismena(c.Params("pismena"))
 	if err != nil {
-		return err
+		log.Print(err)
+		return fiber.ErrInternalServerError
 	}
 
 	if err := databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.CPM, body.Preklepy); err != nil {
 		err = databaze.OdebratDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id)
 		if err != nil {
-			return err
+			log.Print(err)
+			return fiber.ErrInternalServerError
 		}
 		err = databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.CPM, body.Preklepy)
 		if err != nil {
-			return err
+			log.Print(err)
+			return fiber.ErrInternalServerError
 		}
 	}
 
@@ -151,7 +185,8 @@ func registrace(c *fiber.Ctx) error {
 	}
 	err := utils.ValidateStruct(&body)
 	if err != nil {
-		return err
+		log.Print(err)
+		return fiber.ErrInternalServerError
 	}
 	// validace emailu
 	if !utils.ValidFormat(body.Email) {
@@ -163,15 +198,18 @@ func registrace(c *fiber.Ctx) error {
 	if err != nil {
 		hesloHASH, err := utils.HashPassword(body.Heslo)
 		if err != nil {
-			return err
+			log.Print(err)
+			return fiber.ErrInternalServerError
 		}
 		id, err := databaze.CreateUziv(body.Email, hesloHASH, body.Jmeno)
 		if err != nil {
-			return err
+			log.Print(err)
+			return fiber.ErrInternalServerError
 		}
 		token, err := utils.GenerovatToken(body.Email, id)
 		if err != nil {
-			return err
+			log.Print(err)
+			return fiber.ErrInternalServerError
 		} else {
 			return c.Status(http.StatusOK).JSON(fiber.Map{"token": token})
 		}
@@ -191,7 +229,8 @@ func prihlaseni(c *fiber.Ctx) error {
 	}
 	err := utils.ValidateStruct(&body)
 	if err != nil {
-		return err
+		log.Print(err)
+		return fiber.ErrInternalServerError
 	}
 	// validace emailu
 	if !utils.ValidFormat(body.Email) {
@@ -218,20 +257,25 @@ func prihlaseni(c *fiber.Ctx) error {
 func prehled(c *fiber.Ctx) error {
 	id, err := utils.Autentizace(c, true)
 	if err != nil {
-		return err
+		log.Print(err)
+		return fiber.ErrInternalServerError
 	}
 	uziv, err := databaze.GetUzivByID(id)
 	if err != nil {
-		return err
+		log.Print(err)
+		return fiber.ErrInternalServerError
 	}
 	preklepy, cpm, err := databaze.GetPreklepyACPM(id)
 	if err != nil {
-		return err
+		log.Print(err)
+		return fiber.ErrInternalServerError
 	}
 	dokonceno, err := databaze.DokonceneProcento(id)
 	if err != nil {
-		return nil
+		log.Print(err)
+		return fiber.ErrInternalServerError
 	}
+
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		"email":           uziv.Email,
 		"jmeno":           uziv.Jmeno,
