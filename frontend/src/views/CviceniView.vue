@@ -187,13 +187,13 @@ export default {
 #cas {
     float: left;
     width: 150px;
-    display: inline-block;
+    display: block;
     text-align: left;
 }
 
 #preklepy {
     float: right;
-    display: inline-block;
+    display: block;
     width: 150px;
     text-align: right;
 }

@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"unicode/utf8"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -54,9 +55,13 @@ func getCviceniVLekci(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	cvic, err := databaze.GetCviceniVLekciByPismena(c.Params("pismena"))
+	pismena, HTTPerr := utils.DecodeURL(c.Params("pismena"))
 	if err != nil {
-		log.Print("Takovy cviceni neexistuje")
+		return HTTPerr
+	}
+	cvic, err := databaze.GetCviceniVLekciByPismena(pismena)
+	if err != nil {
+		log.Print("Takova lekce neexistuje")
 		return fiber.ErrBadRequest
 	}
 	id, _ := databaze.GetLekceIDbyPismena(c.Params("pismena"))
@@ -73,7 +78,10 @@ func getCviceni(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	pismena := c.Params("pismena")
+	pismena, HTTPerr := utils.DecodeURL(c.Params("pismena"))
+	if err != nil {
+		return HTTPerr
+	}
 	vsechnyCviceni, err := databaze.GetCviceniVLekciByPismena(pismena)
 	if err != nil {
 		log.Print(err)
@@ -95,11 +103,13 @@ func getCviceni(c *fiber.Ctx) error {
 		for i := 0; i < pocetSlov; i++ {
 			var slovo string = ""
 			for j := 0; j < pocetPismenVeSlovu; j++ {
-				slovo += string(pismena[rand.Intn(len(pismena))])
+				r := rand.Intn(utf8.RuneCountInString(pismena)) // utf-8 jsou sus
+				slovo += string([]rune(pismena)[r])
 			}
 			slovo += " "
 			text = append(text, slovo)
 		}
+	case "naucena":
 
 	case "novaSlova":
 		id, err := databaze.GetLekceIDbyPismena(pismena)
@@ -156,7 +166,10 @@ func dokoncitCvic(c *fiber.Ctx) error {
 		log.Print(err)
 		return fiber.ErrInternalServerError
 	}
-
+	if int(cislo-1) >= len(vsechnyCviceni) { // error index out of range nebude
+		log.Print("Takovy cviceni neni")
+		return fiber.ErrBadRequest
+	}
 	if err := databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.CPM, body.Preklepy); err != nil {
 		err = databaze.OdebratDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id)
 		if err != nil {

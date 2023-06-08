@@ -2,7 +2,9 @@ package utils
 
 import (
 	"errors"
+	"log"
 	"net/mail"
+	"net/url"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -56,4 +58,13 @@ func Prumer(arr []float32) float32 {
 		return 0
 	}
 	return soucet / float32(len(arr))
+}
+
+func DecodeURL(s string) (string, error) {
+	x, err := url.QueryUnescape(s)
+	if err != nil {
+		log.Print(err)
+		return "", fiber.ErrBadRequest
+	}
+	return x, nil
 }

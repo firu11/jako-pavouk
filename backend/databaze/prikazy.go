@@ -70,7 +70,7 @@ func GetLekce() ([][]Lekce, error) {
 func GetDokonceneLekce(uzivID uint) ([]int32, error) {
 	var vysledek []int32 = []int32{}
 	// zjistim kolik ma kazda lekce cviceni
-	rows, err := DB.Query(`SELECT id FROM lekce l WHERE (SELECT COUNT(*) FROM cviceni c WHERE c.lekce_id = l.id) != 0 AND 0 = (SELECT COUNT(*) FROM cviceni c WHERE c.lekce_id = l.id) - (SELECT COUNT(*) FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id AND d.uziv_id = 1 AND l.id = c.lekce_id);`)
+	rows, err := DB.Query(`SELECT id FROM lekce l WHERE 0 = (SELECT COUNT(*) FROM cviceni c WHERE c.lekce_id = l.id) - (SELECT COUNT(*) FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id AND d.uziv_id = $1 AND l.id = c.lekce_id);`, uzivID)
 	if err != nil {
 		return vysledek, err
 	}
