@@ -29,7 +29,7 @@ export default {
                 "heslo": this.heslo
             }).then(response => {
                 this.info = response.data
-                this.$ls.setItem("token", this.info.token)
+                this.$ls.setItem("token", this.info.token, this.info.expiryTime)
                 this.$router.push("/ucet")
             }).catch(e => {
                 try {

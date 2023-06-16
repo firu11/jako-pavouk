@@ -140,12 +140,24 @@ func GetCviceniVLekciByID(lekceID uint) ([]Cviceni, error) {
 
 func GetCviceniVLekciByPismena(pismena string) ([]Cviceni, error) {
 	var cviceni []Cviceni
-	id, err := GetLekceIDbyPismena(pismena)
+
+	rows, err := DB.Query(`SELECT id, typ FROM cviceni WHERE lekce_id = (SELECT id FROM lekce where pismena = $1 LIMIT 1);`, pismena)
 	if err != nil {
 		return cviceni, err
 	}
-	cviceni, err = GetCviceniVLekciByID(id)
-	return cviceni, err
+	defer rows.Close()
+
+	for rows.Next() {
+		jednoCviceni := Cviceni{}
+		err := rows.Scan(&jednoCviceni.ID, &jednoCviceni.Typ)
+		if err != nil {
+			return cviceni, err
+		}
+
+		cviceni = append(cviceni, jednoCviceni)
+	}
+
+	return cviceni, nil
 }
 
 func GetUzivByID(id uint) (Uzivatel, error) {
@@ -223,9 +235,31 @@ func OdebratDokonceneCvic(cvicID uint, uzivID uint) error {
 	return err
 }
 
-func GetSlovaProLekci(lekceID uint, vsechny bool) ([]string, error) {
+func GetSlovaProLekci(pismena string) ([]string, error) {
 	var vysledek []string
-	rows, err := DB.Query(`SELECT slovo FROM slovnik WHERE lekce_id = $1;`, lekceID)
+	rows, err := DB.Query(`SELECT slovo FROM slovnik WHERE lekce_id = (SELECT id from lekce WHERE pismena = $1);`, pismena)
+	if err != nil {
+		return vysledek, err
+	}
+	defer rows.Close()
+
+	var slovo string
+	for rows.Next() {
+		slovo = ""
+		err := rows.Scan(&slovo)
+		if err != nil {
+			return vysledek, err
+		}
+
+		vysledek = append(vysledek, slovo)
+	}
+
+	return vysledek, nil
+}
+
+func GetNaucenaPismena(pismena string) (string, error) {
+	var vysledek string
+	rows, err := DB.Query(`SELECT pismena FROM lekce WHERE id <= (SELECT id from lekce WHERE pismena = $1);`, pismena)
 	if err != nil {
 		return vysledek, err
 	}
@@ -239,7 +273,7 @@ func GetSlovaProLekci(lekceID uint, vsechny bool) ([]string, error) {
 			return vysledek, err
 		}
 
-		vysledek = append(vysledek, pismenaJedny)
+		vysledek += pismenaJedny
 	}
 
 	return vysledek, nil

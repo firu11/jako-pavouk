@@ -36,7 +36,7 @@ export default {
                     if (this.info.data['error'] === "email") this.email_existuje = true
                     else if (this.info.data['error'] === "jmeno") this.jmeno_existuje = true
                     else {
-                        this.$ls.setItem("token",this.info.data.token)
+                        this.$ls.setItem("token",this.info.data.token, this.info.expiryTime)
                         this.$router.push("/ucet")
                     }
                 })

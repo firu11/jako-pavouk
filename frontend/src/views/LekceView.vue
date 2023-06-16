@@ -57,7 +57,7 @@ export default {
                     <img class="playVetsi" v-else src="/icony/start.svg" alt="Začít lekci">
                 </router-link>
                 <router-link class="lekceBlok" :class="{ dokoncenyBlok: jeDokoncene(cviceni.id) }"
-                    v-else-if="cviceni.typ === 'probrana'" :to="'/lekce/' + pismena + '/' + index1(index)">
+                    v-else-if="cviceni.typ === 'naucena'" :to="'/lekce/' + pismena + '/' + index1(index)">
                     <h2>{{ index1(index) }}</h2>
                     <hr>
                     <h3>Probraná písmenka</h3>

@@ -2,9 +2,6 @@
 
 export default {
     name: 'app',
-    mounted() {
-        // tady bych chtěl checknout jestli token je furt funkcni
-    },
 }
 </script>
 

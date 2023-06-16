@@ -10,7 +10,7 @@ export default {
     },
     methods: {
         odhlasit() {
-            this.$ls.removeItem("token")
+            this.$ls.clear()
             this.$router.push("/")
         }
     },
@@ -41,22 +41,22 @@ export default {
             <h2>{{ info.email }}</h2>
         </div>
     </div>
+    <div id="progres">
+        <div id="nacitani-pozadi">
+            <div id="nacitani" :style="{ width: info.dokonceno + '%' }"></div>
+        </div>
+        <span class="popis" style="width: 100%;">Dokončeno: <span class="cislo">{{ Math.round(info.dokonceno * 10) / 10 }}%</span></span>
+    </div>
     <div id="bloky">
         <div class="blok">
-            <div id="nacitani-pozadi">
-                <div id="nacitani" :style="{ width: info.dokonceno + '%' }"></div>
-            </div>
-            <h2>Dokonceno: {{ Math.round(info.dokonceno * 10) / 10 }}%</h2>
+            <img src="/icony/rychlost.svg" alt="Rychlost" width="75">
+            <span v-if="info.prumerRychlosti == -1">Zatím nic</span>
+            <span v-else class="popis">Rychlost: <br><span class="cislo">{{ Math.round(info.prumerRychlosti * 10) / 10 }}</span> CPM</span>
         </div>
         <div class="blok">
-            <img src="/icony/rychlost.svg" alt="Rychlost">
-            <h2 v-if="info.prumerRychlosti == -1">Zatím nic</h2>
-            <h2 v-else>{{ Math.round(info.prumerRychlosti * 10) / 10 }} CPM</h2>
-        </div>
-        <div class="blok">
-            <img src="/icony/terc.svg" alt="Rychlost">
-            <h2 v-if="info.uspesnost == -1">Zatím nic</h2>
-            <h2 v-else>{{ Math.round(info.uspesnost * 10) / 10 }}%</h2>
+            <img src="/icony/terc.svg" alt="Přesnost">
+            <span v-if="info.uspesnost == -1">Zatím nic</span>
+            <span v-else class="popis">Přesnost: <br><span class="cislo">{{ Math.round(info.uspesnost * 10) / 10 }}</span> %</span>
         </div>
     </div>
 
@@ -64,6 +64,16 @@ export default {
 </template>
 
 <style scoped>
+.popis {
+    font-size: 15pt;
+    width: 60%;
+}
+
+.cislo {
+    font-size: 28pt;
+    font-weight: 500;
+}
+
 #bloky {
     display: flex;
     flex-direction: row;
@@ -71,16 +81,30 @@ export default {
 }
 
 .blok {
-    color: var(--bila);
+    display: flex;
+    text-decoration: none;
+    border-radius: 10px;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 320px;
+    background-color: var(--tmave-fialova);
+    height: 120px;
+    transition-duration: 0.2s;
+    padding: 15px;
+    gap: 10px;
+}
+
+#progres {
+    margin-bottom: 20px;
     display: flex;
     flex-direction: column;
     text-decoration: none;
     border-radius: 10px;
-    width: 200px;
+    width: 420px;
     background-color: var(--tmave-fialova);
-    height: 140px;
+    height: 110px;
     transition-duration: 0.2s;
-    padding: 15px 15px 30px 15px;
+    padding: 15px;
     gap: 10px;
 }
 

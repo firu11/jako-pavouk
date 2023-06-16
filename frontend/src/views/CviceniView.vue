@@ -40,7 +40,7 @@ export default {
     mounted() {
         this.get()
         document.addEventListener("keydown", this.klik);
-        this.audio = [new Audio('/klik1.mp3'), new Audio('/klik2.mp3'), new Audio('/klik3.mp3'), new Audio('/miss.mp3')]
+        this.audio = [new Audio('/klik1.mp3'), new Audio('/klik2.mp3'), new Audio('/klik3.mp3'), new Audio('/miss2.mp3')]
     },
     unmounted() {
         document.removeEventListener("keydown", this.klik);

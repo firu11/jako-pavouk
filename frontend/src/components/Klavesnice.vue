@@ -123,8 +123,8 @@ export default {
 }
 
 .oznacenaKlavesa {
-    border: #fff solid 3px;
-    filter: brightness(120%);
+    border: #fff solid 5px;
+    filter: brightness(150%);
 }
 
 .oznacenaKlavesa div {

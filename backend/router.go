@@ -110,14 +110,22 @@ func getCviceni(c *fiber.Ctx) error {
 			text = append(text, slovo)
 		}
 	case "naucena":
-
-	case "novaSlova":
-		id, err := databaze.GetLekceIDbyPismena(pismena)
+		naucenaPismena, err := databaze.GetNaucenaPismena(pismena)
 		if err != nil {
-			log.Print(err)
-			return fiber.ErrInternalServerError
+			return err
 		}
-		slova, err := databaze.GetSlovaProLekci(id, false)
+
+		for i := 0; i < pocetSlov; i++ {
+			var slovo string = ""
+			for j := 0; j < pocetPismenVeSlovu; j++ {
+				r := rand.Intn(utf8.RuneCountInString(naucenaPismena)) // utf-8 jsou sus
+				slovo += string([]rune(naucenaPismena)[r])
+			}
+			slovo += " "
+			text = append(text, slovo)
+		}
+	case "slova":
+		slova, err := databaze.GetSlovaProLekci(pismena)
 		if err != nil {
 			log.Print(err)
 			return fiber.ErrInternalServerError
@@ -125,9 +133,6 @@ func getCviceni(c *fiber.Ctx) error {
 		for i := 0; i < pocetSlov; i++ {
 			text = append(text, slova[rand.Intn(len(slova))]+" ")
 		}
-
-	case "probranaSlova":
-		//TODO
 	default:
 		log.Print("Cviceni ma divnej typ")
 		return fiber.ErrInternalServerError
@@ -224,7 +229,7 @@ func registrace(c *fiber.Ctx) error {
 			log.Print(err)
 			return fiber.ErrInternalServerError
 		} else {
-			return c.Status(http.StatusOK).JSON(fiber.Map{"token": token})
+			return c.Status(http.StatusOK).JSON(fiber.Map{"token": token, "expiryTime": tokenTimeDuration / 1_000_000})
 		}
 	} else {
 		return c.Status(http.StatusBadRequest).JSON("Uzivatel jiz existuje")
@@ -262,7 +267,7 @@ func prihlaseni(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(http.StatusInternalServerError).JSON("Token se pokazil")
 		} else {
-			return c.Status(http.StatusOK).JSON(fiber.Map{"token": token})
+			return c.Status(http.StatusOK).JSON(fiber.Map{"token": token, "expiryTime": tokenTimeDuration / 1_000_000})
 		}
 	}
 }
