@@ -19,7 +19,7 @@ export default {
             text_pripraven: false,
             dokonceno: false,
             pocitadloCasu: null,
-            audio: []
+            audio: [new Audio('/klik1.ogg'), new Audio('/klik2.ogg'), new Audio('/klik3.ogg'), new Audio('/miss2.ogg')]
         }
     },
     computed: {
@@ -40,7 +40,6 @@ export default {
     mounted() {
         this.get()
         document.addEventListener("keydown", this.klik);
-        this.audio = [new Audio('/klik1.mp3'), new Audio('/klik2.mp3'), new Audio('/klik3.mp3'), new Audio('/miss2.mp3')]
     },
     unmounted() {
         document.removeEventListener("keydown", this.klik);
@@ -87,14 +86,12 @@ export default {
             }
 
             if (e.key === this.list_textu[this.counter][0]) {
+                this.audio[Math.floor(Math.random() * 2.4)].cloneNode(true).play()
                 if (this.counter === Object.keys(this.list_textu).length - 1) {
                     this.dokonceno = true
                     clearInterval(this.pocitadloCasu)
                     document.removeEventListener("keydown", this.klik);
-                    this.audio[Math.floor(Math.random() * 2.4)].cloneNode(true).play()
-
                 } else {
-                    this.audio[Math.floor(Math.random() * 2.4)].cloneNode(true).play()
                     this.dalsi()
                 }
             } else {

@@ -24,7 +24,7 @@ func SetupRouter(app *fiber.App) {
 }
 
 func test(c *fiber.Ctx) error {
-	/* databaze.PushSlovnik() */
+	databaze.PushSlovnik()
 	return c.JSON("sussy")
 }
 
@@ -297,6 +297,7 @@ func prehled(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		"email":           uziv.Email,
 		"jmeno":           uziv.Jmeno,
+		"daystreak":       uziv.DayStreak,
 		"uspesnost":       (float32(delkaTextu) - utils.Prumer(preklepy)) / float32(delkaTextu) * 100,
 		"prumerRychlosti": utils.Prumer(cpm),
 		"dokonceno":       dokonceno,

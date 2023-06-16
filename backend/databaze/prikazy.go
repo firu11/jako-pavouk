@@ -1,5 +1,7 @@
 package databaze
 
+import "time"
+
 type Lekce struct {
 	ID      uint   `json:"id"`
 	Pismena string `json:"pismena"`
@@ -12,10 +14,12 @@ type Cviceni struct {
 }
 
 type Uzivatel struct {
-	ID    uint   `json:"id"`
-	Email string `json:"email"`
-	Jmeno string `json:"jmeno"`
-	Heslo string `json:"heslo"`
+	ID          uint      `json:"id"`
+	Email       string    `json:"email"`
+	Jmeno       string    `json:"jmeno"`
+	Heslo       string    `json:"heslo"`
+	DayStreak   int32     `json:"daystreak"`
+	PosledniDen time.Time `json:"posledniden"`
 }
 
 type Slovnik struct {
@@ -34,16 +38,16 @@ type Dokoncene struct {
 func GetLekce() ([][]Lekce, error) {
 	var lekce [][]Lekce = [][]Lekce{}
 
-	rows, err := DB.Query(`SELECT * FROM lekce;`)
+	rows, err := DB.Queryx(`SELECT * FROM lekce;`)
 	if err != nil {
 		return lekce, nil
 	}
 	defer rows.Close()
 
 	var skupina []Lekce
-
 	var cisloSkupiny uint = 1
 	var jednaLekce Lekce
+
 	for rows.Next() {
 		jednaLekce = Lekce{}
 		var skup uint
@@ -70,7 +74,7 @@ func GetLekce() ([][]Lekce, error) {
 func GetDokonceneLekce(uzivID uint) ([]int32, error) {
 	var vysledek []int32 = []int32{}
 	// zjistim kolik ma kazda lekce cviceni
-	rows, err := DB.Query(`SELECT id FROM lekce l WHERE 0 = (SELECT COUNT(*) FROM cviceni c WHERE c.lekce_id = l.id) - (SELECT COUNT(*) FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id AND d.uziv_id = $1 AND l.id = c.lekce_id);`, uzivID)
+	rows, err := DB.Queryx(`SELECT id FROM lekce l WHERE 0 = (SELECT COUNT(*) FROM cviceni c WHERE c.lekce_id = l.id) - (SELECT COUNT(*) FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id AND d.uziv_id = $1 AND l.id = c.lekce_id);`, uzivID)
 	if err != nil {
 		return vysledek, err
 	}
@@ -90,7 +94,7 @@ func GetDokonceneLekce(uzivID uint) ([]int32, error) {
 func GetDokonceneCvicVLekci(uzivID uint, lekceID uint) ([]int32, error) {
 	var cviceni_ids []int32 = []int32{}
 
-	rows, err := DB.Query(`SELECT d.cviceni_id FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id WHERE lekce_id = $1 AND uziv_id = $2;`, lekceID, uzivID)
+	rows, err := DB.Queryx(`SELECT d.cviceni_id FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id WHERE lekce_id = $1 AND uziv_id = $2;`, lekceID, uzivID)
 	if err != nil {
 		return cviceni_ids, err
 	}
@@ -109,7 +113,7 @@ func GetDokonceneCvicVLekci(uzivID uint, lekceID uint) ([]int32, error) {
 
 func GetLekceIDbyPismena(pismena string) (uint, error) {
 	var id uint
-	err := DB.QueryRow(`SELECT id FROM lekce WHERE pismena = $1;`, pismena).Scan(&id)
+	err := DB.QueryRowx(`SELECT id FROM lekce WHERE pismena = $1;`, pismena).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
@@ -119,15 +123,15 @@ func GetLekceIDbyPismena(pismena string) (uint, error) {
 func GetCviceniVLekciByID(lekceID uint) ([]Cviceni, error) {
 	var cviceni []Cviceni
 
-	rows, err := DB.Query(`SELECT id, typ FROM cviceni WHERE lekce_id = $1;`, lekceID)
+	rows, err := DB.Queryx(`SELECT id, typ FROM cviceni WHERE lekce_id = $1;`, lekceID)
 	if err != nil {
 		return cviceni, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		jednoCviceni := Cviceni{}
-		err := rows.Scan(&jednoCviceni.ID, &jednoCviceni.Typ)
+		var jednoCviceni Cviceni
+		err := rows.StructScan(&jednoCviceni)
 		if err != nil {
 			return cviceni, err
 		}
@@ -141,15 +145,15 @@ func GetCviceniVLekciByID(lekceID uint) ([]Cviceni, error) {
 func GetCviceniVLekciByPismena(pismena string) ([]Cviceni, error) {
 	var cviceni []Cviceni
 
-	rows, err := DB.Query(`SELECT id, typ FROM cviceni WHERE lekce_id = (SELECT id FROM lekce where pismena = $1 LIMIT 1);`, pismena)
+	rows, err := DB.Queryx(`SELECT id, typ FROM cviceni WHERE lekce_id = (SELECT id FROM lekce where pismena = $1 LIMIT 1);`, pismena)
 	if err != nil {
 		return cviceni, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		jednoCviceni := Cviceni{}
-		err := rows.Scan(&jednoCviceni.ID, &jednoCviceni.Typ)
+		var jednoCviceni Cviceni
+		err := rows.StructScan(&jednoCviceni)
 		if err != nil {
 			return cviceni, err
 		}
@@ -162,13 +166,13 @@ func GetCviceniVLekciByPismena(pismena string) ([]Cviceni, error) {
 
 func GetUzivByID(id uint) (Uzivatel, error) {
 	var uziv Uzivatel
-	err := DB.QueryRow(`SELECT id, email, jmeno, heslo FROM uzivatel WHERE id = $1;`, id).Scan(&uziv.ID, &uziv.Email, &uziv.Jmeno, &uziv.Heslo)
+	err := DB.QueryRowx(`SELECT * FROM uzivatel WHERE id = $1;`, id).StructScan(&uziv)
 	return uziv, err
 }
 
 func GetUzivByEmail(email string) (Uzivatel, error) {
-	var uziv = Uzivatel{}
-	err := DB.QueryRow(`SELECT id, email, jmeno, heslo FROM uzivatel WHERE email = $1;`, email).Scan(&uziv.ID, &uziv.Email, &uziv.Jmeno, &uziv.Heslo)
+	var uziv Uzivatel
+	err := DB.QueryRowx(`SELECT * FROM uzivatel WHERE email = $1;`, email).StructScan(&uziv)
 	return uziv, err
 }
 
@@ -176,8 +180,8 @@ func GetPreklepyACPM(uzivID uint) ([]float32, []float32, error) {
 	var preklepy []float32
 	var cpm []float32
 
-	var posledni int = 10
-	rows, err := DB.Query(`SELECT preklepy, cpm FROM dokoncene WHERE uziv_id = $1 ORDER BY id DESC LIMIT $2;`, uzivID, posledni)
+	var poslednich int = 10
+	rows, err := DB.Queryx(`SELECT preklepy, cpm FROM dokoncene WHERE uziv_id = $1 ORDER BY id DESC LIMIT $2;`, uzivID, poslednich)
 	if err != nil {
 		return preklepy, cpm, err
 	}
@@ -200,13 +204,13 @@ func GetPreklepyACPM(uzivID uint) ([]float32, []float32, error) {
 
 func DokonceneProcento(uzivID uint) (float32, error) {
 	var pocet int32
-	err := DB.QueryRow(`SELECT COUNT(*) FROM dokoncene WHERE uziv_id = $1;`, uzivID).Scan(&pocet)
+	err := DB.QueryRowx(`SELECT COUNT(*) FROM dokoncene WHERE uziv_id = $1;`, uzivID).Scan(&pocet)
 	if err != nil {
 		return 0, err
 	}
 
 	var pocet2 int32
-	err = DB.QueryRow(`SELECT COUNT(*) FROM cviceni;`).Scan(&pocet2)
+	err = DB.QueryRowx(`SELECT COUNT(*) FROM cviceni;`).Scan(&pocet2)
 	if err != nil {
 		return 0, err
 	}
@@ -226,8 +230,13 @@ func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
 }
 
 func PridatDokonceneCvic(cvicID uint, uzivID uint, cpm float32, preklepy int) error {
-	_, err := DB.Exec(`INSERT INTO dokoncene (uziv_id, cviceni_id, cpm, preklepy) VALUES ($1, $2, $3, $4);`, uzivID, cvicID, cpm, preklepy)
-	return err
+	if _, err := DB.Exec(`INSERT INTO dokoncene (uziv_id, cviceni_id, cpm, preklepy) VALUES ($1, $2, $3, $4);`, uzivID, cvicID, cpm, preklepy); err != nil {
+		return err
+	}
+	if _, err := DB.Exec(`UPDATE uzivatel SET posledniden = $1, daystreak = daystreak + 1 WHERE id = $2 AND posledniden != $1;`, time.Now().Format(time.DateOnly), uzivID); err != nil {
+		return err
+	}
+	return nil
 }
 
 func OdebratDokonceneCvic(cvicID uint, uzivID uint) error {
@@ -237,7 +246,7 @@ func OdebratDokonceneCvic(cvicID uint, uzivID uint) error {
 
 func GetSlovaProLekci(pismena string) ([]string, error) {
 	var vysledek []string
-	rows, err := DB.Query(`SELECT slovo FROM slovnik WHERE lekce_id = (SELECT id from lekce WHERE pismena = $1);`, pismena)
+	rows, err := DB.Queryx(`SELECT slovo FROM slovnik WHERE lekce_id = (SELECT id from lekce WHERE pismena = $1);`, pismena)
 	if err != nil {
 		return vysledek, err
 	}
@@ -259,7 +268,7 @@ func GetSlovaProLekci(pismena string) ([]string, error) {
 
 func GetNaucenaPismena(pismena string) (string, error) {
 	var vysledek string
-	rows, err := DB.Query(`SELECT pismena FROM lekce WHERE id <= (SELECT id from lekce WHERE pismena = $1);`, pismena)
+	rows, err := DB.Queryx(`SELECT pismena FROM lekce WHERE id <= (SELECT id from lekce WHERE pismena = $1);`, pismena)
 	if err != nil {
 		return vysledek, err
 	}

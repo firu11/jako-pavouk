@@ -49,6 +49,11 @@ export default {
     </div>
     <div id="bloky">
         <div class="blok">
+            <img src="/icony/kalendar.svg" alt="Přesnost">
+            <span v-if="info.uspesnost == -1">Zatím nic</span>
+            <span v-else class="popis">Počet dní v řadě: <br><span class="cislo">{{ info.daystreak }}</span></span>
+        </div>
+        <div class="blok">
             <img src="/icony/rychlost.svg" alt="Rychlost" width="75">
             <span v-if="info.prumerRychlosti == -1">Zatím nic</span>
             <span v-else class="popis">Rychlost: <br><span class="cislo">{{ Math.round(info.prumerRychlosti * 10) / 10 }}</span> CPM</span>

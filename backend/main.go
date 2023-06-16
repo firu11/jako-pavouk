@@ -21,7 +21,7 @@ func main() {
 	inject()
 
 	app := fiber.New(fiber.Config{
-		AppName: "pavouk",
+		AppName: "Pavouk",
 	})
 
 	app.Use(limiter.New(limiter.Config{
