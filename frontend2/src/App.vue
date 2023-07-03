@@ -17,7 +17,7 @@ onMounted(() => {
 			<MenuLink jmeno="Domů" cesta="/"/>
 			<MenuLink jmeno="Lekce" cesta="/lekce"/>
 			<MenuLink jmeno="O nás" cesta="/o-nas"/>
-            <MenuLink v-if="!prihlasen" jmeno="Prihlášení" cesta="/prihlasit"/>
+            <MenuLink v-if="!prihlasen" jmeno="Prihlášení" cesta="/prihlaseni"/>
             <MenuLink v-else jmeno="Účet" cesta="/ucet"/>
 			<!-- 
 			

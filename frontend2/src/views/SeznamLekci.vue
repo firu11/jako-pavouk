@@ -2,15 +2,15 @@
 import axios from "axios"
 import BlokLekce from "../components/BlokLekce.vue";
 import { onMounted, ref } from "vue"
+import { token_jmeno } from "../stores";
 
 const lekce = ref([[]])
 const dokoncene = ref([])
 
 onMounted(() => {
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem(token_jmeno)
     const header = token ? { headers: { "token": token } } : {}
     axios.get("/lekce", header).then(response => {
-        console.log(response.data)
         lekce.value = response.data.lekce
         dokoncene.value = response.data.dokoncene
     })
