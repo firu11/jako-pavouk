@@ -3,7 +3,7 @@ import App from '@/App.vue'
 import router from '@/router.js'
 import axios from 'axios'
 import '@/main.css'
-import { createWatcher }from 'next-vue-storage-watcher';
+import { createWatcher } from 'next-vue-storage-watcher';
 import { formatovany_pismena } from '@/utils'
 import axiosRetry from 'axios-retry';
 
@@ -20,6 +20,7 @@ const app = createApp(App)
 app.config.globalProperties.$format = formatovany_pismena;
 
 app.config.globalProperties.$ls = lsWatcher
+app.provide('ls', lsWatcher)
 
 app.use(router)
 app.use(lsWatcher)

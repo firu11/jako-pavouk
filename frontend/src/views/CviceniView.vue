@@ -1,7 +1,8 @@
 <script>
-import Klavesnice from "@/components/Klavesnice.vue";
-import VysledekCvic from "@/components/VysledekCvic.vue";
+import Klavesnice from "@/components/Klavesnice.vue"
+import VysledekCvic from "@/components/VysledekCvic.vue"
 import axios from 'axios'
+import { useSound } from '@vueuse/sound'
 
 export default {
     name: "cviceni",
@@ -19,7 +20,7 @@ export default {
             text_pripraven: false,
             dokonceno: false,
             pocitadloCasu: null,
-            audio: [new Audio('/klik1.ogg'), new Audio('/klik2.ogg'), new Audio('/klik3.ogg'), new Audio('/miss2.ogg')]
+            audio: [useSound('/zvuky/klik1.ogg'), useSound('/zvuky/klik2.ogg'), useSound('/zvuky/klik3.ogg'), useSound('/zvuky/miss.ogg')]
         }
     },
     computed: {
@@ -37,7 +38,7 @@ export default {
             return pocet
         },
     },
-    mounted() {
+    async mounted() {
         this.get()
         document.addEventListener("keydown", this.klik);
     },
@@ -84,19 +85,22 @@ export default {
                     }
                 }, 1000);
             }
-
-            if (e.key === this.list_textu[this.counter][0]) {
-                this.audio[Math.floor(Math.random() * 2.4)].cloneNode(true).play()
-                if (this.counter === Object.keys(this.list_textu).length - 1) {
+            //TODO sus
+            if (e.key === this.list_textu[this.counter][0] && this.counter != 0 && !this.list_textu[this.counter-1][2]) { // je dobre a pismeno pred neni spatne
+                this.audio[Math.floor(Math.random() * 2.4)].play()
+                if (this.counter === Object.keys(this.list_textu).length - 1) { // jsme na konci
                     this.dokonceno = true
                     clearInterval(this.pocitadloCasu)
-                    document.removeEventListener("keydown", this.klik);
-                } else {
+                    document.removeEventListener("keydown", this.klik); 
+                } else { // nejsme na kocni
                     this.dalsi()
                 }
-            } else {
-                this.audio[3].cloneNode(true).play()
-                this.list_textu[this.counter][2] = true
+            } else if (e.key === this.list_textu[this.counter][0] && this.counter != 0 && this.list_textu[this.counter-1][2]) { // je dobre a pismeno pred je spatne
+                console.log('sus')
+            } else { // je spatne
+                this.audio[3].play()
+                this.dalsi()
+                this.list_textu[this.counter-1][2] = true
             }
         },
         dalsi() {
@@ -124,7 +128,7 @@ export default {
 </script>
 
 <template>
-    <h1 v-if="!dokonceno" style="margin: 0"><router-link class="tlacZpet" :to="'/lekce/' + this.pismena"><img src="/icony/sipkaL.svg" alt="Zpět"></router-link>Lekce: {{ $format(pismena) }}</h1>
+    <h1 v-if="!dokonceno" style="margin: 0"><router-link class="tlacZpet" :to="'/lekce/' + this.pismena"><img src="@/assets/icony/sipkaL.svg" alt="Zpět"></router-link>Lekce: {{ $format(pismena) }}</h1>
     <h2 v-if="!dokonceno">Cviceni: {{cislo}}</h2>
     <h1 v-else>Výsledky lekce: {{ $format(pismena) }}</h1>
     <div id="obsah" v-if="!info.error && !dokonceno">
@@ -141,8 +145,8 @@ export default {
                         <div v-for="(pismeno, j) in slovo">
                             <p class="pismeno"
                                :class="{podtrzenePismeno: this.list_textu[get_index_pismena(i,j)][1],
-                                    spatnePismeno: this.list_textu[get_index_pismena(i,j)][2] && this.counter <= (get_index_pismena(i,j)),
-                                    opravenePismeno: this.list_textu[get_index_pismena(i,j)][2] && this.counter > (get_index_pismena(i,j)),
+                                    spatnePismeno: this.list_textu[get_index_pismena(i,j)][2] && this.counter - 1 <= get_index_pismena(i,j),
+                                    opravenePismeno: this.list_textu[get_index_pismena(i,j)][2] && this.counter - 1 > get_index_pismena(i,j),
                                     pismenoCoBylo: this.counter > (get_index_pismena(i,j))}"
                                :id="'p' + (i * slovo.length + j)">{{
                                     (pismeno !== ' ' ? pismeno : "&nbsp")

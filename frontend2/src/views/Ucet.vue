@@ -1,47 +1,48 @@
-<script>
+<script setup lang="ts">
 import axios from 'axios'
+import { prihlasen, token_jmeno } from '../stores';
+import { useRouter } from 'vue-router';
+import { onMounted, ref } from 'vue';
 
-export default {
-    name: "ucet",
-    data() {
-        return {
-            info: {},
-        }
-    },
-    methods: {
-        odhlasit() {
-            this.$ls.clear()
-            this.$router.push("/")
-        },
-        zaokrouhlit(cislo) {
-            if (cislo == null) {
-                return "-"
-            }
-            return Math.round(cislo * 10) / 10
-        }
-    },
-    mounted() {
-        if (this.$ls.getItem("token").value) {
-            axios.get('/ja', {
-                headers: {
-                    "Token": this.$ls.getItem("token").value
-                }
-            }).then(response => {
-                this.info = response.data
-            }).catch(function (e) { //nebudeš tam chodit nemas ucet more
-                this.$router.push("/login")
-            })
-        } else {
-            this.$router.push("/login")
-        }
+const router = useRouter()
 
-    }
+let info = ref({jmeno: "...", email: "...@...", dokonceno: 0, daystreak: 0, prumer_rychlosti: -1, uspesnost: -1})
+
+function odhlasit() {
+    localStorage.removeItem(token_jmeno)
+    prihlasen.value = false
+    router.push("/")
 }
+
+function zaokrouhlit(cislo: number | null) {
+    if (cislo == null) {
+        return "-"
+    }
+    return Math.round(cislo * 10) / 10
+}
+
+onMounted(() => {
+    if (localStorage.getItem(token_jmeno)) {
+        axios.get('/ja', {
+            headers: {
+                "token": localStorage.getItem(token_jmeno)
+            }
+        }).then(response => {
+            console.log("mam ho")
+            info.value = response.data
+        }).catch(_ => { //nebudeš tam chodit nemas ucet more
+            router.push("/prihlaseni")
+        })
+    } else {
+        router.push("/login")
+    }
+})
+
 </script>
 
 <template>
     <div id="ucet">
-        <img src="@/assets/icony/user.svg" alt="uzivatel">
+        <img src="../assets/icony/user.svg" alt="uzivatel">
         <div id="nadpisy">
             <h1>{{ info.jmeno }}</h1>
             <h2>{{ info.email }}</h2>
@@ -51,20 +52,22 @@ export default {
         <div id="nacitani-pozadi">
             <div id="nacitani" :style="{ width: info.dokonceno + '%' }"></div>
         </div>
-        <span class="popis" style="width: 100%;">Dokončeno: <span class="cislo">{{ zaokrouhlit(info.dokonceno) }}%</span></span>
+        <span class="popis" style="width: 100%;">Dokončeno: <span class="cislo">{{ zaokrouhlit(info.dokonceno)
+        }}%</span></span>
     </div>
     <div id="bloky">
         <div class="blok">
-            <img src="@/assets/icony/kalendar.svg" alt="Přesnost">
+            <img src="../assets/icony/kalendar.svg" alt="Přesnost">
             <span class="popis">Počet dní v řadě: <br><span class="cislo">{{ zaokrouhlit(info.daystreak) }}</span></span>
         </div>
         <div class="blok">
-            <img src="@/assets/icony/rychlost.svg" alt="Rychlost" width="75">
-            <span v-if="info.prumerRychlosti == -1">Zatím nic</span>
-            <span v-else class="popis">Rychlost: <br><span class="cislo">{{ zaokrouhlit(info.prumerRychlosti) }}</span> CPM</span>
+            <img src="../assets/icony/rychlost.svg" alt="Rychlost" width="75">
+            <span v-if="info.prumer_rychlosti == -1">Zatím nic</span>
+            <span v-else class="popis">Rychlost: <br><span class="cislo">{{ zaokrouhlit(info.prumer_rychlosti) }}</span>
+                CPM</span>
         </div>
         <div class="blok">
-            <img src="@/assets/icony/terc.svg" alt="Přesnost">
+            <img src="../assets/icony/terc.svg" alt="Přesnost">
             <span v-if="info.uspesnost == -1">Zatím nic</span>
             <span v-else class="popis">Přesnost: <br><span class="cislo">{{ zaokrouhlit(info.uspesnost) }}</span> %</span>
         </div>

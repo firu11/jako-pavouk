@@ -57,7 +57,7 @@ export default {
         <RouterView />
     </div>
 
-    <img id="pavucina1" src="/pavucina.svg" alt="Pavucina">
+    <img id="pavucina1" src="@/assets/pavucina.svg" alt="Pavucina">
 </template>
 
 <style scoped>

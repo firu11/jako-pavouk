@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS uzivatel;
 
 CREATE TABLE IF NOT EXISTS uzivatel (
     id SERIAL PRIMARY KEY, 
-    jmeno VARCHAR(50) NOT NULL,
+    jmeno VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(50) NOT NULL UNIQUE,
     heslo VARCHAR(255) NOT NULL,
     daystreak INT DEFAULT 0,

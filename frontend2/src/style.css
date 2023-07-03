@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&display=swap');
+
+:root {
+    --cerna: #171528;
+    --bila: #FFFFFF;
+    --seda: #888888;
+    --tmave-fialova: #3F3351;
+    --sirka-menu: 230px;
+    --cervena: rgba(252, 15, 15, 0.58);
+    --fialova: #864879;
+    --zelena2: #34D1BF;
+    --zelena: #51914a;
+    --svetle-fialova: #CFB3CD;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 300;
+}
+
+h1 {
+    font-weight: 500;
+    margin-bottom: 25px;
+}
+
+body::-webkit-scrollbar {
+    width: 0;
+}
+
+html {
+    height: 100%;
+    scroll-behavior: smooth;
+}
+
+body {
+    color: var(--bila);
+    background-color: var(--cerna);
+    background-size: 500%;
+    background-position-x: -500px;
+    background-repeat: repeat;
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100vw;
+    justify-content: space-evenly;
+}
+
+.fajvka {
+    height: 30px;
+    align-self: center;
+}
+
+.fajvkaVetsi {
+    height: 45px;
+}
+
+.playVetsi {
+    height: 45px;
+}
+
+.tlacitko {
+    width: 150px;
+    height: 40px;
+    border: none;
+    border-radius: 5px;
+    color: var(--bila);
+    font-size: 1em;
+    margin: 10px 0 0 0;
+    background-color: var(--fialova);
+    transition: 0.2s;
+}
+
+.tlacitko:hover {
+    background-color: var(--svetle-fialova);
+    transition: 0.2s;
+}
+
+.tlacZpet {
+    height: 39px;
+    margin-right: 10px;
+}
+
+.tlacZpet img {
+    height: 42px;
+}

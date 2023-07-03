@@ -27,8 +27,8 @@ Vraci id, error.
 id = 0 znamena ze se bud neco pokazilo nebo je autentizace nepovinna
 */
 func Autentizace(c *fiber.Ctx, povinna bool) (uint, error) {
-	if c.Get("Token") != "" && len(c.Get("Token")) != 0 {
-		spravnej, id, err := ValidovatToken(c.Get("Token"))
+	if c.Get("token") != "" && len(c.Get("token")) != 0 {
+		spravnej, id, err := ValidovatToken(c.Get("token"))
 
 		if spravnej && err == nil {
 			return id, nil

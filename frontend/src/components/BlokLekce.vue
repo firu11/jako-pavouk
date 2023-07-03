@@ -25,7 +25,7 @@ export default {
 <template>
     <router-link class="lekceBlok" :class="{hotovoBlok: je_dokoncena}" v-if="$ls.getItem('token').value" :to="'/lekce/' + pismena">
         <h2>Lekce: {{ formatovany_pismena }}</h2>
-        <img class="fajvka" v-if="je_dokoncena" src="/icony/right.svg" alt="Dokonceno!">
+        <img class="fajvka" v-if="je_dokoncena" src="@/assets/icony/right.svg" alt="Dokonceno!">
     </router-link>
     <a v-else class="lekceBlok" @click="prihlaste_se"><h2>Lekce: {{ formatovany_pismena }}</h2></a>
 </template>

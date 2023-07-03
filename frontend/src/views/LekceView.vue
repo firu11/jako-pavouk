@@ -1,76 +1,81 @@
-<script>
+<script setup>
 import axios from 'axios'
+import { onMounted, ref, inject, toRaw, defineProps, reactive } from 'vue';
+import { useRouter, useRoute } from 'vue-router'
 
-export default {
-    name: "Lekce",
-    data() {
-        return {
-            pismena: this.$route["params"].pismena,
-            info: {},
-            dostal_jsem_data: false
-        }
-    },
-    methods: {
-        prihlaste_se() {
-            alert('Nejprve se prosím přihlašte')
-        },
-        index1(index) {
-            return index + 1
-        },
-        jeDokoncene(id) {
-            return this.info['dokoncene'].includes(id)
-        }
-    },
-    mounted() {
-        axios
-            .get('/lekce/' + this.pismena, {
-                headers: {
-                    "Token": this.$ls.getItem("token").value
-                }
-            })
-            .then(response => {
-                this.info = response.data
-                this.dostal_jsem_data = true
-            }).catch(e => {
-                setTimeout(() => {this.$router.push('/404')}, 2000);
-            });
-    },
+
+const pismena = useRoute().params.pismena
+
+let info = ref({})
+let dostal_jsem_data = ref(false)
+
+const ls = inject("ls")
+
+onMounted(() => {
+    axios
+        .get('/lekce/' + pismena, {
+            headers: {
+                "Token": ls.getItem("token").value
+            }
+        })
+        .then(response => {
+            info.value = response.data
+            dostal_jsem_data.value = true
+
+        }).catch(e => {
+            setTimeout(() => { $router.push('/404') }, 2000);
+        });
+})
+
+
+function prihlaste_se() {
+    alert('Nejprve se prosím přihlašte')
 }
+
+function index1(index) {
+    return index + 1
+}
+
+function jeDokoncene(id) {
+    return info.value['dokoncene'].includes(id)
+}
+
 </script>
 
 <template>
     <h1>
         <router-link class="tlacZpet" :to="'/lekce'">
-            <img src="/icony/sipkaL.svg" alt="Zpět">
+            <img src="@/assets/icony/sipkaL.svg" alt="Zpět">
         </router-link>
-        Lekce: {{$format(pismena) }}
+        Lekce: {{ $format(pismena) }}
     </h1>
     <div class="kontejnr" v-if="!info.error">
-        <div v-if="dostal_jsem_data && info['cviceni'] !== null && info['cviceni'].length !== 0" v-for="(cviceni, index) in info['cviceni']">
+        <div v-if="dostal_jsem_data && info['cviceni'] !== null && info['cviceni'].length !== 0"
+            v-for="(cviceni, index) in info['cviceni']">
             <h2>
-                <router-link class="lekceBlok" :class="{ dokoncenyBlok: jeDokoncene(cviceni.id) }" v-if="cviceni.typ === 'nova'"
-                    :to="'/lekce/' + pismena + '/' + index1(index)">
+                <router-link class="lekceBlok" :class="{ dokoncenyBlok: jeDokoncene(cviceni.id) }"
+                    v-if="cviceni.typ === 'nova'" :to="'/lekce/' + pismena + '/' + index1(index)">
                     <h2>{{ index1(index) }}</h2>
                     <hr>
                     <h3>Nová písmenka</h3>
-                    <img class="fajvkaVetsi" v-if="jeDokoncene(cviceni.id)" src="/icony/right.svg" alt="Dokonceno!">
-                    <img class="playVetsi" v-else src="/icony/start.svg" alt="Začít lekci">
+                    <img class="fajvkaVetsi" v-if="jeDokoncene(cviceni.id)" src="@/assets/icony/right.svg" alt="Dokonceno!">
+                    <img class="playVetsi" v-else src="@/assets/icony/start.svg" alt="Začít lekci">
                 </router-link>
                 <router-link class="lekceBlok" :class="{ dokoncenyBlok: jeDokoncene(cviceni.id) }"
                     v-else-if="cviceni.typ === 'naucena'" :to="'/lekce/' + pismena + '/' + index1(index)">
                     <h2>{{ index1(index) }}</h2>
                     <hr>
                     <h3>Probraná písmenka</h3>
-                    <img class="fajvkaVetsi" v-if="jeDokoncene(cviceni.id)" src="/icony/right.svg" alt="Dokonceno!">
-                    <img class="playVetsi" v-else src="/icony/start.svg" alt="Začít lekci">
+                    <img class="fajvkaVetsi" v-if="jeDokoncene(cviceni.id)" src="@/assets/icony/right.svg" alt="Dokonceno!">
+                    <img class="playVetsi" v-else src="@/assets/icony/start.svg" alt="Začít lekci">
                 </router-link>
                 <router-link v-else class="lekceBlok" :class="{ dokoncenyBlok: jeDokoncene(cviceni.id) }"
                     :to="'/lekce/' + pismena + '/' + index1(index)">
                     <h2>{{ index1(index) }}</h2>
                     <hr>
                     <h3>Se slovy</h3>
-                    <img class="fajvkaVetsi" v-if="jeDokoncene(cviceni.id)" src="/icony/right.svg" alt="Dokonceno!">
-                    <img class="playVetsi" v-else src="/icony/start.svg" alt="Začít lekci">
+                    <img class="fajvkaVetsi" v-if="jeDokoncene(cviceni.id)" src="@/assets/icony/right.svg" alt="Dokonceno!">
+                    <img class="playVetsi" v-else src="@/assets/icony/start.svg" alt="Začít lekci">
                 </router-link>
             </h2>
         </div>
@@ -114,7 +119,7 @@ export default {
 }
 
 .dokoncenyBlok {
-    opacity: 80%;
+    opacity: 50%;
 }
 
 .lekceBlok h3 {
@@ -132,6 +137,7 @@ export default {
 h1 {
     display: inline-flex;
     position: relative;
-    right: 25px; /* posunuti o pulku sipky */
+    right: 25px;
+    /* posunuti o pulku sipky */
 }
 </style>

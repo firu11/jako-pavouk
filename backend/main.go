@@ -11,10 +11,10 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 )
 
-var pocetSlov int = 10
+var pocetSlov int = 10 // jeste zvednu
 var pocetPismenVeSlovu int = 4
 var delkaTextu = (pocetPismenVeSlovu+1)*pocetSlov - 1
-var tokenTimeDuration time.Duration = time.Hour * 24 * 14 /*v nanosekundach, 14 dni asi good*/
+var tokenTimeDuration time.Duration = time.Hour * 24 * 14 // v nanosekundach, 14 dni asi good
 
 func main() {
 	databaze.DBConnect()
@@ -34,7 +34,7 @@ func main() {
 	}))
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:5173",
+		AllowOrigins: "*",
 		AllowHeaders: "Origin, Content-Type, Accept, Token",
 	}))
 

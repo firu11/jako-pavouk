@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"time"
 	"unicode/utf8"
 
 	"github.com/gofiber/fiber/v2"
@@ -29,6 +30,8 @@ func test(c *fiber.Ctx) error {
 }
 
 func getVsechnyLekce(c *fiber.Ctx) error {
+	time.Sleep(2 * time.Second)
+
 	id, err := utils.Autentizace(c, false)
 	if err != nil {
 		return err
@@ -229,7 +232,7 @@ func registrace(c *fiber.Ctx) error {
 			log.Print(err)
 			return fiber.ErrInternalServerError
 		} else {
-			return c.Status(http.StatusOK).JSON(fiber.Map{"token": token, "expiryTime": tokenTimeDuration / 1_000_000})
+			return c.Status(http.StatusOK).JSON(fiber.Map{"token": token})
 		}
 	} else {
 		return c.Status(http.StatusBadRequest).JSON("Uzivatel jiz existuje")
@@ -267,7 +270,7 @@ func prihlaseni(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(http.StatusInternalServerError).JSON("Token se pokazil")
 		} else {
-			return c.Status(http.StatusOK).JSON(fiber.Map{"token": token, "expiryTime": tokenTimeDuration / 1_000_000})
+			return c.Status(http.StatusOK).JSON(fiber.Map{"token": token})
 		}
 	}
 }
@@ -295,11 +298,11 @@ func prehled(c *fiber.Ctx) error {
 	}
 
 	return c.Status(http.StatusOK).JSON(fiber.Map{
-		"email":           uziv.Email,
-		"jmeno":           uziv.Jmeno,
-		"daystreak":       uziv.DayStreak,
-		"uspesnost":       (float32(delkaTextu) - utils.Prumer(preklepy)) / float32(delkaTextu) * 100,
-		"prumerRychlosti": utils.Prumer(cpm),
-		"dokonceno":       dokonceno,
+		"email":            uziv.Email,
+		"jmeno":            uziv.Jmeno,
+		"daystreak":        uziv.DayStreak,
+		"uspesnost":        (float32(delkaTextu) - utils.Prumer(preklepy)) / float32(delkaTextu) * 100,
+		"prumer_rychlosti": utils.Prumer(cpm),
+		"dokonceno":        dokonceno,
 	})
 }
