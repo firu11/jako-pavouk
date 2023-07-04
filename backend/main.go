@@ -35,7 +35,7 @@ func main() {
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
-		AllowHeaders: "Origin, Content-Type, Accept, Token",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
 	SetupRouter(app)

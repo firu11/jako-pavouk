@@ -1,6 +1,9 @@
 package databaze
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 type Lekce struct {
 	ID      uint   `json:"id"`
@@ -161,6 +164,9 @@ func GetCviceniVLekciByPismena(pismena string) ([]Cviceni, error) {
 		cviceni = append(cviceni, jednoCviceni)
 	}
 
+	if len(cviceni) == 0 {
+		return cviceni, errors.New("neni takova")
+	}
 	return cviceni, nil
 }
 

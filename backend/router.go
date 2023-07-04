@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
-	"time"
 	"unicode/utf8"
 
 	"github.com/gofiber/fiber/v2"
@@ -25,13 +24,11 @@ func SetupRouter(app *fiber.App) {
 }
 
 func test(c *fiber.Ctx) error {
-	databaze.PushSlovnik()
-	return c.JSON("sussy")
+	/* databaze.PushSlovnik() */
+	return c.JSON(c.Get("Authorization")[7:])
 }
 
 func getVsechnyLekce(c *fiber.Ctx) error {
-	time.Sleep(2 * time.Second)
-
 	id, err := utils.Autentizace(c, false)
 	if err != nil {
 		return err
