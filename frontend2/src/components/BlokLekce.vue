@@ -1,19 +1,21 @@
 <script setup lang="ts">
 import {prihlasen} from '../stores'
+import { formatovany_pismena } from '../utils';
 
 defineProps({
     pismena: String,
     je_dokoncena: Boolean,
 })
+
 </script>
 
 <template>
     <RouterLink class="lekceBlok" :class="{ hotovoBlok: je_dokoncena }" v-if="prihlasen" :to="'/lekce/' + pismena">
-        <h2>Lekce: {{ pismena }}</h2>
+        <h2>Lekce: {{ formatovany_pismena(pismena) }}</h2>
         <img class="fajvka" v-if="je_dokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
     </RouterLink>
     <a v-else class="lekceBlok">
-        <h2>Lekce: {{ pismena }}</h2>
+        <h2>Lekce: {{ formatovany_pismena(pismena) }}</h2>
     </a>
 </template>
 

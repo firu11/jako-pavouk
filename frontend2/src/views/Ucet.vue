@@ -3,6 +3,7 @@ import axios from 'axios'
 import { prihlasen, token_jmeno } from '../stores';
 import { useRouter } from 'vue-router';
 import { onMounted, ref } from 'vue';
+import { get_token } from '../utils';
 
 const router = useRouter()
 
@@ -22,13 +23,12 @@ function zaokrouhlit(cislo: number | null) {
 }
 
 onMounted(() => {
-    if (localStorage.getItem(token_jmeno)) {
+    if (get_token()) {
         axios.get('/ja', {
             headers: {
-                "token": localStorage.getItem(token_jmeno)
+                Authorization: `Bearer ${get_token()}`
             }
         }).then(response => {
-            console.log("mam ho")
             info.value = response.data
         }).catch(_ => { //nebudeš tam chodit nemas ucet more
             router.push("/prihlaseni")

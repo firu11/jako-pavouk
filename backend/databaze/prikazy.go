@@ -165,7 +165,7 @@ func GetCviceniVLekciByPismena(pismena string) ([]Cviceni, error) {
 	}
 
 	if len(cviceni) == 0 {
-		return cviceni, errors.New("neni takova")
+		return cviceni, errors.New("nejsou zadny takovy cviceni")
 	}
 	return cviceni, nil
 }

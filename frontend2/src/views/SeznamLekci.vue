@@ -2,14 +2,13 @@
 import axios from "axios"
 import BlokLekce from "../components/BlokLekce.vue";
 import { onMounted, ref } from "vue"
-import { token_jmeno } from "../stores";
+import { get_token } from "../utils";
 
 const lekce = ref([[]])
 const dokoncene = ref([])
 
 onMounted(() => {
-    const token = localStorage.getItem(token_jmeno)
-    const header = token ? { headers: { "token": token } } : {}
+    const header = get_token() ? { headers: { Authorization: `Bearer ${get_token()}` } } : {}
     axios.get("/lekce", header).then(response => {
         lekce.value = response.data.lekce
         dokoncene.value = response.data.dokoncene
@@ -25,11 +24,11 @@ onMounted(() => {
         <BlokLekce v-else v-for="l in lekce[0]" :sus="l" :pismena="l['pismena']"
             :je_dokoncena="dokoncene.includes(l['id'])" />
         <h2>Horní řada</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 4" pismena="..." :je_dokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 5" pismena="..." :je_dokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[1]" :sus="l" :pismena="l['pismena']"
             :je_dokoncena="dokoncene.includes(l['id'])" />
         <h2>Dolní řada</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 4" pismena="..." :je_dokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 3" pismena="..." :je_dokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[2]" :sus="l" :pismena="l['pismena']"
             :je_dokoncena="dokoncene.includes(l['id'])" />
         <h2>Dolní řada</h2>
@@ -37,7 +36,7 @@ onMounted(() => {
         <BlokLekce v-else v-for="l in lekce[3]" :sus="l" :pismena="l['pismena']"
             :je_dokoncena="dokoncene.includes(l['id'])" />
         <h2>Diakritika</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 4" pismena="..." :je_dokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 3" pismena="..." :je_dokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[4]" :sus="l" :pismena="l['pismena']"
             :je_dokoncena="dokoncene.includes(l['id'])" />
     </div>
@@ -50,6 +49,7 @@ onMounted(() => {
     gap: 20px;
     text-align: left;
 }
+
 h2 {
     margin-top: 10px;
 }
