@@ -2,37 +2,49 @@
 import { onMounted } from 'vue';
 import MenuLink from './components/MenuLink.vue';
 import { prihlasen, token_jmeno } from './stores';
+import { get_token } from './utils';
+import axios from 'axios';
 
 onMounted(() => {
-    const token = localStorage.getItem(token_jmeno)
-    if (token != null) {
-        prihlasen.value = true
+    if (get_token()) {
+        axios.get("/token-expirace", {
+            headers: {
+                Authorization: `Bearer ${get_token()}`
+            }
+        }).then(response => {
+            if (response.data.je_potreba_vymenit) {
+                localStorage.removeItem(token_jmeno)
+                prihlasen.value = false
+            } else {
+                prihlasen.value = true
+            }
+        }).catch(e => {
+            console.log(e)
+        })
     }
+
 })
 </script>
 
 <template>
-	<header>
-		<nav>
-			<MenuLink jmeno="Domů" cesta="/"/>
-			<MenuLink jmeno="Lekce" cesta="/lekce"/>
-			<MenuLink jmeno="O nás" cesta="/o-nas"/>
-            <MenuLink v-if="!prihlasen" jmeno="Prihlášení" cesta="/prihlaseni"/>
-            <MenuLink v-else jmeno="Účet" cesta="/ucet"/>
-			<!-- 
-			
-			<MenuLink v-if="true" jmeno="Prihlásit se" cesta="/o-nas"/> -->
-		</nav>
-	</header>
-	<div id="view">
-		<RouterView />
-	</div>
+    <header>
+        <nav>
+            <MenuLink jmeno="Domů" cesta="/" />
+            <MenuLink jmeno="Lekce" cesta="/lekce" />
+            <MenuLink jmeno="O nás" cesta="/o-nas" />
+            <MenuLink jmeno="Podpořit" cesta="/podporit" />
+            <MenuLink v-if="!prihlasen" jmeno="Přihlásit se" cesta="/prihlaseni" />
+            <MenuLink v-else jmeno="Účet" cesta="/ucet" />
+        </nav>
+    </header>
+    <div id="view">
+        <RouterView />
+    </div>
 
-	<img id="pavucina1" src="./assets/pavucina.svg" alt="Pavucina">
+    <img id="pavucina1" src="./assets/pavucina.svg" alt="Pavucina">
 </template>
 
 <style scoped>
-
 nav {
     position: fixed;
     left: 10px;
@@ -64,5 +76,4 @@ nav {
     z-index: -1000;
     opacity: 0.3;
 }
-
 </style>

@@ -9,10 +9,13 @@ const dokoncene = ref([])
 
 onMounted(() => {
     const header = get_token() ? { headers: { Authorization: `Bearer ${get_token()}` } } : {}
-    axios.get("/lekce", header).then(response => {
-        lekce.value = response.data.lekce
-        dokoncene.value = response.data.dokoncene
-    })
+    axios.get("/lekce", header)
+        .then(response => {
+            lekce.value = response.data.lekce
+            dokoncene.value = response.data.dokoncene
+        }).catch(e => {
+            console.log(e)
+        })
 })
 </script>
 

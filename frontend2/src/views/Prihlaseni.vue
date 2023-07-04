@@ -63,7 +63,7 @@ function zmena() { // pokud zacnu znova psat tak zrusim znaceni spatnyho inputu
 
     </form>
     <p>Nemáte ještě účet?
-        <router-link to="/register">Registrace</router-link>
+        <router-link to="/registrace">Registrace</router-link>
     </p>
 </template>
 

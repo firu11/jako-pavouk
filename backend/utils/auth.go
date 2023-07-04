@@ -48,6 +48,19 @@ func ValidovatToken(tokenString string) (bool, uint, error) {
 	if err != nil {
 		return false, 0, err
 	}
-	//fmt.Printf("%+v\n", token)
+	// fmt.Printf("%+v\n", token)
 	return token.Valid, data.Id, err
+}
+
+func ValidovatExpTokenu(tokenString string) (bool, error) {
+	data := Data{}
+	_, err := jwt.ParseWithClaims(tokenString, &data, func(token *jwt.Token) (interface{}, error) {
+		return privatniKlic, nil
+	})
+
+	if err != nil {
+		return false, err
+	}
+	// fmt.Println(data.ExpiresAt-time.Now().Unix(), int64(time.Hour.Seconds()*24))
+	return data.ExpiresAt-time.Now().Unix() <= int64(time.Hour.Seconds()*24), nil
 }

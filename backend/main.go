@@ -14,7 +14,7 @@ import (
 var pocetSlov int = 10 // jeste zvednu
 var pocetPismenVeSlovu int = 4
 var delkaTextu = (pocetPismenVeSlovu+1)*pocetSlov - 1
-var tokenTimeDuration time.Duration = time.Hour * 24 * 14 // v nanosekundach, 14 dni asi good
+var tokenTimeDuration time.Duration = time.Hour * 24 * 15 // v nanosekundach, 14 + 1 dni asi good (den predem uz odhlasime aby se nestalo ze neco dela a neulozi se to)
 
 func main() {
 	databaze.DBConnect()

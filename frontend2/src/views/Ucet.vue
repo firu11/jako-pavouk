@@ -30,11 +30,11 @@ onMounted(() => {
             }
         }).then(response => {
             info.value = response.data
-        }).catch(_ => { //nebudeš tam chodit nemas ucet more
+        }).catch(_ => {
             router.push("/prihlaseni")
         })
-    } else {
-        router.push("/login")
+    } else { //nebudeš tam chodit nemas ucet more
+        router.push("/prihlaseni")
     }
 })
 

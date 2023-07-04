@@ -5,7 +5,6 @@ import (
 	"backend/utils"
 	"log"
 	"math/rand"
-	"net/http"
 	"strconv"
 	"unicode/utf8"
 
@@ -20,6 +19,7 @@ func SetupRouter(app *fiber.App) {
 	app.Post("/registrace", registrace)
 	app.Post("/prihlaseni", prihlaseni)
 	app.Get("/ja", prehled)
+	app.Get("/token-expirace", testVyprseniTokenu)
 	app.Get("/test", test)
 }
 
@@ -45,9 +45,9 @@ func getVsechnyLekce(c *fiber.Ctx) error {
 			log.Print(err)
 			return fiber.ErrInternalServerError
 		}
-		return c.Status(http.StatusOK).JSON(fiber.Map{"lekce": lekce, "dokoncene": dokoncene})
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"lekce": lekce, "dokoncene": dokoncene})
 	}
-	return c.Status(http.StatusOK).JSON(fiber.Map{"lekce": lekce, "dokoncene": []int{}})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"lekce": lekce, "dokoncene": []int{}})
 }
 
 func getCviceniVLekci(c *fiber.Ctx) error {
@@ -93,7 +93,7 @@ func getCviceni(c *fiber.Ctx) error {
 		return fiber.ErrInternalServerError
 	}
 	if cislo > len(vsechnyCviceni) {
-		return c.Status(http.StatusBadRequest).JSON("Cviceni neexistuje")
+		return c.Status(fiber.StatusBadRequest).JSON("Cviceni neexistuje")
 	}
 
 	var text []string
@@ -139,7 +139,7 @@ func getCviceni(c *fiber.Ctx) error {
 	}
 
 	text[len(text)-1] = text[len(text)-1][:len(text[len(text)-1])-1] // smazat mezeru na konci
-	return c.Status(http.StatusOK).JSON(fiber.Map{"text": text})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text})
 }
 
 func dokoncitCvic(c *fiber.Ctx) error {
@@ -199,7 +199,7 @@ func registrace(c *fiber.Ctx) error {
 		Heslo string `json:"heslo" validate:"required,min=8,max=25"`
 	}
 	if err := c.BodyParser(&body); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(err)
+		return c.Status(fiber.StatusBadRequest).JSON(err)
 	}
 	err := utils.ValidateStruct(&body)
 	if err != nil {
@@ -208,7 +208,7 @@ func registrace(c *fiber.Ctx) error {
 	}
 	// validace emailu
 	if !utils.ValidFormat(body.Email) {
-		return c.Status(http.StatusBadRequest).JSON("Invalidni email")
+		return c.Status(fiber.StatusBadRequest).JSON("Invalidni email")
 	}
 
 	// overeni jestli nahodou uz neexistuje
@@ -229,10 +229,10 @@ func registrace(c *fiber.Ctx) error {
 			log.Print(err)
 			return fiber.ErrInternalServerError
 		} else {
-			return c.Status(http.StatusOK).JSON(fiber.Map{"token": token})
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
 		}
 	} else {
-		return c.Status(http.StatusBadRequest).JSON("Uzivatel jiz existuje")
+		return c.Status(fiber.StatusBadRequest).JSON("Uzivatel jiz existuje")
 	}
 }
 
@@ -243,7 +243,7 @@ func prihlaseni(c *fiber.Ctx) error {
 		Heslo string `json:"heslo" validate:"required,min=8,max=25"`
 	}
 	if err := c.BodyParser(&body); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(err)
+		return c.Status(fiber.StatusBadRequest).JSON(err)
 	}
 	err := utils.ValidateStruct(&body)
 	if err != nil {
@@ -252,22 +252,22 @@ func prihlaseni(c *fiber.Ctx) error {
 	}
 	// validace emailu
 	if !utils.ValidFormat(body.Email) {
-		return c.Status(http.StatusBadRequest).JSON("Invalidni email")
+		return c.Status(fiber.StatusBadRequest).JSON("Invalidni email")
 	}
 	// pull z databaze
 	uziv, err := databaze.GetUzivByEmail(body.Email)
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON("Uzivatel neexistuje")
+		return c.Status(fiber.StatusBadRequest).JSON("Uzivatel neexistuje")
 	}
 
 	if err := utils.CheckPassword(body.Heslo, uziv.Heslo); err != nil {
-		return c.Status(http.StatusUnauthorized).JSON("Spatne heslo")
+		return c.Status(fiber.StatusUnauthorized).JSON("Spatne heslo")
 	} else {
 		token, err := utils.GenerovatToken(uziv.Email, uziv.ID)
 		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON("Token se pokazil")
+			return c.Status(fiber.StatusInternalServerError).JSON("Token se pokazil")
 		} else {
-			return c.Status(http.StatusOK).JSON(fiber.Map{"token": token})
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
 		}
 	}
 }
@@ -294,7 +294,7 @@ func prehled(c *fiber.Ctx) error {
 		return fiber.ErrInternalServerError
 	}
 
-	return c.Status(http.StatusOK).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"email":            uziv.Email,
 		"jmeno":            uziv.Jmeno,
 		"daystreak":        uziv.DayStreak,
@@ -302,4 +302,17 @@ func prehled(c *fiber.Ctx) error {
 		"prumer_rychlosti": utils.Prumer(cpm),
 		"dokonceno":        dokonceno,
 	})
+}
+
+func testVyprseniTokenu(c *fiber.Ctx) error {
+	if len(c.Get("Authorization")) >= 10 { // treba deset proste at tam neco je
+		je_potreba_vymenit, err := utils.ValidovatExpTokenu(c.Get("Authorization")[7:])
+		if err != nil {
+			log.Print(err)
+			return fiber.ErrInternalServerError
+		}
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"je_potreba_vymenit": je_potreba_vymenit})
+	} else {
+		return fiber.ErrUnauthorized
+	}
 }
