@@ -3,13 +3,3 @@
     <br>
     <h2>Tuto stránku zatím asi nevedeme. Zkuste jiné url.</h2>
 </template>
-
-<script>
-export default {
-    name: "404",
-}
-</script>
-
-<style scoped>
-
-</style>

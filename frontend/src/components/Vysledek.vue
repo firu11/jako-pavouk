@@ -1,40 +1,56 @@
-<script>
-import axios from "axios";
+<script setup lang="ts">
+import axios from 'axios';
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { getToken } from '../utils';
 
-export default {
-    name: "VysledekCvic",
-    methods: {
-        znovu() {
-            this.$parent.reset();
-        }
+
+const emit = defineEmits(["restart"])
+
+const props = defineProps({
+    preklepy: {
+        type: Number,
+        default: 0
     },
-    props: ["rychlost", "preklepy", "cas", "delka_textu"],
-    data() {
-        return {
-            pismena: this.$route["params"].pismena,
-            cislo: this.$route["params"].id,
-        }
+    delkaTextu: {
+        type: Number,
+        default: 1
     },
-    mounted() {
-        axios.post('/dokonceno/' + this.pismena + '/' + this.cislo, {
-            "cpm": this.rychlost,
-            "preklepy": this.preklepy
-        }, {
-            headers: {
-                "Token": this.$ls.getItem("token").value
-            }
-        }).catch(function (e) {
-            console.log(e)
-        })
-    }
+    cas: {
+        type: Number,
+        default: 1
+    },
+    casF: String,
+    pismena: String,
+    cislo: String
+})
+
+let rychlost = Math.round((props.delkaTextu / props.cas) * 60 * 10 ) / 10
+const router = useRouter()
+
+function reset() {
+    emit("restart")
 }
-</script>
 
+onMounted(() => {
+    axios.post('/dokonceno/' + props.pismena + '/' + props.cislo, {
+        "cpm": rychlost,
+        "preklepy": props.preklepy
+    }, {
+        headers: {
+            Authorization: `Bearer ${getToken()}`
+        }
+    }).catch(function (e) {
+        console.log(e)
+    })
+})
+
+</script>
 
 <template>
     <div id="bloky">
         <div class="blok">
-            <h2>{{ Math.round(rychlost * 10) / 10 }}</h2>
+            <h2>{{ rychlost }}</h2>
             <hr>
             <p class="jednotka">CPM</p>
             <h3>Rychlost</h3>
@@ -42,22 +58,22 @@ export default {
         <div class="blok">
             <div>
                 <h2>{{ preklepy }}</h2>
-                <h3 class="procento">({{ Math.round(preklepy / delka_textu * 1000) / 10 }}%)</h3>
+                <h3 class="procento">({{ Math.round(preklepy / delkaTextu * 1000) / 10 }}%)</h3>
             </div>
             <hr>
             <p class="jednotka">&zwnj;</p>
             <h3>Překlepy</h3>
         </div>
         <div class="blok">
-            <h2>{{ cas[0] === 0 ? cas[1] : cas[0] + ':' + cas[1] }}s</h2>
+            <h2>{{ casF }}s</h2>
             <hr>
             <p class="jednotka">&zwnj;</p>
             <h3>Čas</h3>
         </div>
     </div>
     <div id="tlacitka_kontainer">
-        <button class="tlacitko" @click="znovu">Zkusit znovu</button>
-        <button class="tlacitko" @click="$router.push('/lekce/' + this.pismena)">Pokračovat</button>
+        <button class="tlacitko" @click="reset">Zkusit znovu</button>
+        <button class="tlacitko" @click="router.push('/lekce/' + pismena)">Pokračovat</button>
     </div>
 </template>
 
@@ -66,6 +82,7 @@ export default {
     display: flex;
     flex-direction: row;
     gap: 20px;
+    margin-top: 25px;
 }
 
 .blok div {

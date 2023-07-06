@@ -64,7 +64,7 @@ func getCviceniVLekci(c *fiber.Ctx) error {
 		log.Print("Takova lekce neexistuje")
 		return fiber.ErrBadRequest
 	}
-	id, _ := databaze.GetLekceIDbyPismena(c.Params("pismena"))
+	id, _ := databaze.GetLekceIDbyPismena(pismena)
 	doko, err := databaze.GetDokonceneCvicVLekci(uzivID, id)
 	if err != nil {
 		log.Print(err)
@@ -165,8 +165,11 @@ func dokoncitCvic(c *fiber.Ctx) error {
 		log.Print(err)
 		return fiber.ErrInternalServerError
 	}
-
-	vsechnyCviceni, err := databaze.GetCviceniVLekciByPismena(c.Params("pismena"))
+	pismena, HTTPerr := utils.DecodeURL(c.Params("pismena"))
+	if err != nil {
+		return HTTPerr
+	}
+	vsechnyCviceni, err := databaze.GetCviceniVLekciByPismena(pismena)
 	if err != nil {
 		log.Print(err)
 		return fiber.ErrInternalServerError

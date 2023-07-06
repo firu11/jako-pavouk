@@ -1,33 +1,23 @@
-<script>
-export default {
-    name: "blokLekce",
-    props: {
-        pismena: String,
-        je_dokoncena: Boolean
-    },
-    methods: {
-        prihlaste_se() {
-            alert('Nejprve se prosím přihlašte')
-        }
-    },
-    computed: {
-        formatovany_pismena() {
-            let vratit = "";
-            for (let i = 0; i < this.pismena.length; i++) {
-                vratit += i < this.pismena.length - 1 ? this.pismena.at(i) + ", " : this.pismena.at(i);
-            }
-            return vratit;
-        }
-    }
-}
+<script setup lang="ts">
+import {prihlasen} from '../stores'
+import { formatovanyPismena } from '../utils';
+
+defineProps({
+    pismena: String,
+    jeDokoncena: Boolean,
+})
+
 </script>
 
 <template>
-    <router-link class="lekceBlok" :class="{hotovoBlok: je_dokoncena}" v-if="$ls.getItem('token').value" :to="'/lekce/' + pismena">
-        <h2>Lekce: {{ formatovany_pismena }}</h2>
-        <img class="fajvka" v-if="je_dokoncena" src="@/assets/icony/right.svg" alt="Dokonceno!">
-    </router-link>
-    <a v-else class="lekceBlok" @click="prihlaste_se"><h2>Lekce: {{ formatovany_pismena }}</h2></a>
+    <RouterLink v-if="pismena !== '...'" class="lekceBlok" :class="{ hotovoBlok: jeDokoncena }" :to="'/lekce/' + pismena">
+        <h2>Lekce: {{ formatovanyPismena(pismena) }}</h2>
+        <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
+    </RouterLink>
+    <a v-else class="lekceBlok"> <!-- aby na to ńeslo kliknout nez se to nacte -->
+        <h2>Lekce: {{ formatovanyPismena(pismena) }}</h2>
+        <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
+    </a>
 </template>
 
 <style scoped>
@@ -43,6 +33,7 @@ export default {
     background-color: var(--tmave-fialova);
     height: 64px;
     transition-duration: 0.2s;
+    cursor: pointer; /* kvuli tomu neprihlasenymu */
 }
 
 .lekceBlok:hover {
@@ -58,5 +49,4 @@ export default {
 .lekceBlok h2 {
     align-self: center;
     font-size: 24px;
-}
-</style>
+}</style>

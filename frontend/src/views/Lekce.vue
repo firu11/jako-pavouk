@@ -24,7 +24,7 @@ onMounted(() => {
             router.push('/404')
         }
         cviceni.value = response.data.cviceni
-        dokoncene.value = response.data.cviceni
+        dokoncene.value = response.data.dokoncene
         fetchProbehl.value = true
 
     }).catch(_ => {
@@ -35,7 +35,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <h1>
+    <h1 class="nadpisSeSipkou">
         <SipkaZpet/>
         Lekce: {{ formatovanyPismena(pismena) }}
     </h1>
@@ -58,12 +58,5 @@ onMounted(() => {
     flex-wrap: wrap;
     justify-content: center;
     margin-top: 10px;
-}
-
-h1 {
-    display: inline-flex;
-    position: relative;
-    right: 25px;
-    /* posunuti o pulku sipky */
 }
 </style>
