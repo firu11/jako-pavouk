@@ -2,11 +2,11 @@
 
 :root {
     --cerna: #171528;
-    --bila: #FFFFFF;
+    --bila: #f0f0f0;
     --seda: #888888;
     --tmave-fialova: #3F3351;
     --sirka-menu: 230px;
-    --cervena: rgba(252, 15, 15, 0.58);
+    --sirka-textoveho-pole: 650px;
     --fialova: #864879;
     --zelena2: #34D1BF;
     --zelena: #51914a;
@@ -76,13 +76,4 @@ body {
 .tlacitko:hover {
     background-color: var(--svetle-fialova);
     transition: 0.2s;
-}
-
-.tlacZpet {
-    height: 39px;
-    margin-right: 10px;
-}
-
-.tlacZpet img {
-    height: 42px;
 }

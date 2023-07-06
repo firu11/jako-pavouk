@@ -2,13 +2,13 @@
 import axios from "axios"
 import BlokLekce from "../components/BlokLekce.vue";
 import { onMounted, ref } from "vue"
-import { get_token } from "../utils";
+import { getToken } from "../utils";
 
 const lekce = ref([[]])
 const dokoncene = ref([])
 
 onMounted(() => {
-    const header = get_token() ? { headers: { Authorization: `Bearer ${get_token()}` } } : {}
+    const header = getToken() ? { headers: { Authorization: `Bearer ${getToken()}` } } : {}
     axios.get("/lekce", header)
         .then(response => {
             lekce.value = response.data.lekce
@@ -23,25 +23,25 @@ onMounted(() => {
     <h1>Lekce</h1>
     <div id="seznam">
         <h2>Střední řada</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 4" pismena="..." :je_dokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 4" pismena="..." :jeDokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[0]" :sus="l" :pismena="l['pismena']"
-            :je_dokoncena="dokoncene.includes(l['id'])" />
+            :jeDokoncena="dokoncene.includes(l['id'])" />
         <h2>Horní řada</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 5" pismena="..." :je_dokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 5" pismena="..." :jeDokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[1]" :sus="l" :pismena="l['pismena']"
-            :je_dokoncena="dokoncene.includes(l['id'])" />
+            :jeDokoncena="dokoncene.includes(l['id'])" />
         <h2>Dolní řada</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 3" pismena="..." :je_dokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 3" pismena="..." :jeDokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[2]" :sus="l" :pismena="l['pismena']"
-            :je_dokoncena="dokoncene.includes(l['id'])" />
+            :jeDokoncena="dokoncene.includes(l['id'])" />
         <h2>Dolní řada</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 4" pismena="..." :je_dokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 4" pismena="..." :jeDokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[3]" :sus="l" :pismena="l['pismena']"
-            :je_dokoncena="dokoncene.includes(l['id'])" />
+            :jeDokoncena="dokoncene.includes(l['id'])" />
         <h2>Diakritika</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 3" pismena="..." :je_dokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 3" pismena="..." :jeDokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[4]" :sus="l" :pismena="l['pismena']"
-            :je_dokoncena="dokoncene.includes(l['id'])" />
+            :jeDokoncena="dokoncene.includes(l['id'])" />
     </div>
 </template>
 

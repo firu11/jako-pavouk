@@ -295,12 +295,12 @@ func prehled(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"email":            uziv.Email,
-		"jmeno":            uziv.Jmeno,
-		"daystreak":        uziv.DayStreak,
-		"uspesnost":        (float32(delkaTextu) - utils.Prumer(preklepy)) / float32(delkaTextu) * 100,
-		"prumer_rychlosti": utils.Prumer(cpm),
-		"dokonceno":        dokonceno,
+		"email":           uziv.Email,
+		"jmeno":           uziv.Jmeno,
+		"daystreak":       uziv.DayStreak,
+		"uspesnost":       (float32(delkaTextu) - utils.Prumer(preklepy)) / float32(delkaTextu) * 100,
+		"prumerRychlosti": utils.Prumer(cpm),
+		"dokonceno":       dokonceno,
 	})
 }
 

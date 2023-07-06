@@ -1,4 +1,4 @@
-export function formatovany_pismena(pismena: string | string[] | undefined) {
+export function formatovanyPismena(pismena: string | string[] | undefined) { // TODO predelat na computed
     if (pismena === "..." || pismena === undefined) return pismena
     let vratit = "";
     for (let i = 0; i < pismena.length; i++) {
@@ -7,6 +7,6 @@ export function formatovany_pismena(pismena: string | string[] | undefined) {
     return vratit;
 }
 
-export function get_token() {
+export function getToken() {
     return localStorage.getItem("pavouk_token")
 }

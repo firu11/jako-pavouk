@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import MenuLink from './components/MenuLink.vue';
-import { prihlasen, token_jmeno } from './stores';
-import { get_token } from './utils';
+import { prihlasen, tokenJmeno } from './stores';
+import { getToken } from './utils';
 import axios from 'axios';
 
 onMounted(() => {
-    if (get_token()) {
+    if (getToken()) {
         axios.get("/token-expirace", {
             headers: {
-                Authorization: `Bearer ${get_token()}`
+                Authorization: `Bearer ${getToken()}`
             }
         }).then(response => {
             if (response.data.je_potreba_vymenit) {
-                localStorage.removeItem(token_jmeno)
+                localStorage.removeItem(tokenJmeno)
                 prihlasen.value = false
             } else {
                 prihlasen.value = true
@@ -32,9 +32,9 @@ onMounted(() => {
             <MenuLink jmeno="Domů" cesta="/" />
             <MenuLink jmeno="Lekce" cesta="/lekce" />
             <MenuLink jmeno="O nás" cesta="/o-nas" />
-            <MenuLink jmeno="Podpořit" cesta="/podporit" />
+            <MenuLink jmeno="Podpořit projekt" cesta="/podporit" />
             <MenuLink v-if="!prihlasen" jmeno="Přihlásit se" cesta="/prihlaseni" />
-            <MenuLink v-else jmeno="Účet" cesta="/ucet" />
+            <MenuLink v-else jmeno="Můj účet" cesta="/ucet" />
         </nav>
     </header>
     <div id="view">

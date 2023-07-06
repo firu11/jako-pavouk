@@ -15,7 +15,7 @@ function prihlaste_se() {
 </script>
 
 <template>
-    <router-link v-if="prihlasen" class="cvicBlok" :class="{ dokoncenyBlok: dokonceno }" :to="'/lekce/' + pismena + '/' + index">
+    <router-link v-if="prihlasen && typ !=='...'" class="cvicBlok" :class="{ dokoncenyBlok: dokonceno }" :to="'/lekce/' + pismena + '/' + index">
         <h2>{{ index }}</h2>
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>
@@ -25,6 +25,11 @@ function prihlaste_se() {
         <img class="fajvkaVetsi" v-if="dokonceno" src="../assets/icony/right.svg" alt="Dokonceno!">
         <img class="playVetsi" v-else src="../assets/icony/start.svg" alt="Začít lekci">
     </router-link>
+    <a v-else-if="typ === '...'" class="cvicBlok"> <!-- aby na to ńeslo kliknout nez se to nacte -->
+        <h2>{{ index }}</h2>
+        <hr>
+        <h3>...</h3>
+        <img class="playVetsi" src="../assets/icony/start.svg" alt="Začít lekci"></a>
     <a v-else class="cvicBlok" @click="prihlaste_se">
         <h2>{{ index }}</h2>
         <hr>

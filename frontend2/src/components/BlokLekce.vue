@@ -1,19 +1,23 @@
 <script setup lang="ts">
 import {prihlasen} from '../stores'
-import { formatovany_pismena } from '../utils';
+import { formatovanyPismena } from '../utils';
 
 defineProps({
     pismena: String,
-    je_dokoncena: Boolean,
+    jeDokoncena: Boolean,
 })
 
 </script>
 
 <template>
-    <RouterLink class="lekceBlok" :class="{ hotovoBlok: je_dokoncena }" :to="'/lekce/' + pismena">
-        <h2>Lekce: {{ formatovany_pismena(pismena) }}</h2>
-        <img class="fajvka" v-if="prihlasen && je_dokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
+    <RouterLink v-if="pismena !== '...'" class="lekceBlok" :class="{ hotovoBlok: jeDokoncena }" :to="'/lekce/' + pismena">
+        <h2>Lekce: {{ formatovanyPismena(pismena) }}</h2>
+        <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
     </RouterLink>
+    <a v-else class="lekceBlok"> <!-- aby na to ńeslo kliknout nez se to nacte -->
+        <h2>Lekce: {{ formatovanyPismena(pismena) }}</h2>
+        <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
+    </a>
 </template>
 
 <style scoped>

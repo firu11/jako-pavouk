@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import axios from 'axios'
-import { prihlasen, token_jmeno } from '../stores';
+import { prihlasen, tokenJmeno } from '../stores';
 import { useRouter } from 'vue-router';
 import { onMounted, ref } from 'vue';
-import { get_token } from '../utils';
+import { getToken } from '../utils';
 
 const router = useRouter()
 
-let info = ref({jmeno: "...", email: "...@...", dokonceno: 0, daystreak: 0, prumer_rychlosti: -1, uspesnost: -1})
+let info = ref({jmeno: "...", email: "...@...", dokonceno: 0, daystreak: 0, prumerRychlosti: -1, uspesnost: -1})
 
 function odhlasit() {
-    localStorage.removeItem(token_jmeno)
+    localStorage.removeItem(tokenJmeno)
     prihlasen.value = false
-    router.push("/")
+    router.push("/prihlaseni")
 }
 
 function zaokrouhlit(cislo: number | null) {
@@ -23,10 +23,10 @@ function zaokrouhlit(cislo: number | null) {
 }
 
 onMounted(() => {
-    if (get_token()) {
+    if (getToken()) {
         axios.get('/ja', {
             headers: {
-                Authorization: `Bearer ${get_token()}`
+                Authorization: `Bearer ${getToken()}`
             }
         }).then(response => {
             info.value = response.data
@@ -42,7 +42,7 @@ onMounted(() => {
 
 <template>
     <div id="ucet">
-        <img src="../assets/icony/user.svg" alt="uzivatel">
+        <img src="/pavoucekBezPozadi.svg" alt="uzivatel">
         <div id="nadpisy">
             <h1>{{ info.jmeno }}</h1>
             <h2>{{ info.email }}</h2>
@@ -62,8 +62,8 @@ onMounted(() => {
         </div>
         <div class="blok">
             <img src="../assets/icony/rychlost.svg" alt="Rychlost" width="75">
-            <span v-if="info.prumer_rychlosti == -1">Zatím nic</span>
-            <span v-else class="popis">Rychlost: <br><span class="cislo">{{ zaokrouhlit(info.prumer_rychlosti) }}</span>
+            <span v-if="info.prumerRychlosti == -1">Zatím nic</span>
+            <span v-else class="popis">Rychlost: <br><span class="cislo">{{ zaokrouhlit(info.prumerRychlosti) }}</span>
                 CPM</span>
         </div>
         <div class="blok">
@@ -140,9 +140,9 @@ onMounted(() => {
     display: flex;
     background-color: var(--tmave-fialova);
     margin-bottom: 40px;
-    padding: 15px 30px 15px 15px;
+    padding: 15px 30px 15px 5px;
     border-radius: 10px;
-    gap: 15px;
+    gap: 5px;
 }
 
 .tlacitko {

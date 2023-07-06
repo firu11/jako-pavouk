@@ -43,11 +43,11 @@ const router = createRouter({
             name: 'lekce',
             component: () => import('./views/Lekce.vue')
         },
-        /* {
+        {
             path: '/lekce/:pismena/:id',
             name: 'cviceni',
-            component: () => import('./views/CviceniView.vue')
-        }, */
+            component: () => import('./views/Cviceni.vue')
+        },
         {
             path: '/:pathMatch(.*)*',
             name: '404',

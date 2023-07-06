@@ -228,7 +228,7 @@ export default {
 }
 
 #ramecek {
-    padding: 10px 10px 0 10px;
+    padding: 10px;
     min-height: 190px;
     display: flex;
     justify-content: center;
