@@ -128,7 +128,7 @@ function potrebujeShift(pismeno: string) {
 }
 
 .oznacenaKlavesa {
-    border: #fff solid 5px;
+    border: #fff solid 3px;
     filter: brightness(150%);
 }
 
@@ -152,7 +152,7 @@ function potrebujeShift(pismeno: string) {
     font-size: 0.8em;
     line-height: 1.3em;
     width: 675px;
-    margin-top: 50px;
+    margin-top: 40px;
 }
 
 .radek {

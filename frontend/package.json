@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vueuse/sound": "^2.0.1",
     "axios": "^1.4.0",
     "next-vue-storage-watcher": "^0.0.7",
     "vue": "^3.2.47",

@@ -16,16 +16,20 @@ defineProps({
 <template>
     <RouterLink v-if="pismena !== '...'" class="lekceBlok" :class="{ hotovoBlok: jeDokoncena }"
         :to="'/lekce/' + encodeURIComponent(pismena)">
-        <h2>Lekce: {{ formatovanyPismena(pismena) }}</h2>
+        <h2>Lekce: <span class="tlusty">{{ formatovanyPismena(pismena) }}</span></h2>
         <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
     </RouterLink>
     <a v-else class="lekceBlok"> <!-- aby na to ńeslo kliknout nez se to nacte -->
-        <h2>Lekce: {{ formatovanyPismena(pismena) }}</h2>
+        <h2>Lekce: <span class="tlusty">{{ formatovanyPismena(pismena) }}</span></h2>
         <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
     </a>
 </template>
 
 <style scoped>
+.tlusty {
+    font-weight: 500;
+}
+
 .lekceBlok {
     color: var(--bila);
     display: flex;

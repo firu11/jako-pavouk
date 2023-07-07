@@ -7,6 +7,7 @@ import axios from 'axios';
 import { onUnmounted } from 'vue';
 import Vysledek from '../components/Vysledek.vue';
 import Klavesnice from '../components/Klavesnice.vue';
+import { useSound } from '@vueuse/sound'
 
 const router = useRouter()
 const route = useRoute()
@@ -19,6 +20,15 @@ const counter = ref(0)
 const preklepy = ref(0)
 const timerZacatek = ref(0)
 const cas = ref(0)
+
+const zvukyZaply = ref(true)
+let sus = localStorage.getItem("pavouk_zvuk")
+if (sus == null) {
+    zvukyZaply.value = true
+} else {
+    zvukyZaply.value = JSON.parse(sus) === true
+}
+const zvuky: useSound[] = [useSound('/zvuky/klik1.ogg'), useSound('/zvuky/klik2.ogg'), useSound('/zvuky/klik3.ogg'), useSound('/zvuky/miss.ogg')]
 
 const capslock = ref(false)
 let interval: number
@@ -82,8 +92,10 @@ function klik(e: KeyboardEvent) {
     startTimer()
 
     if (e.key === aktivniPismeno.value.znak) {
+        if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
         counter.value++
     } else {
+        if (zvukyZaply.value) zvuky[3].play()
         aktivniPismeno.value.spatne = true
         preklepy.value++
     }
@@ -118,6 +130,11 @@ function restart() {
     document.addEventListener("keydown", capslockCheck)
 }
 
+function toggleZvuk() {
+    zvukyZaply.value = !zvukyZaply.value
+    localStorage.setItem("pavouk_zvuk", zvukyZaply.value.toString())
+}
+
 </script>
 
 <template>
@@ -127,7 +144,7 @@ function restart() {
     </h1>
     <h2>Cviceni: {{ cislo }}</h2>
 
-    <div v-if="!konec">
+    <div id="flex" v-if="!konec">
         <div id="nabidka">
             <h3 id="cas">{{ casFormat }}s</h3>
             <h3 :style="{ visibility: capslock ? 'visible' : 'hidden' }" id="capslock">CapsLock</h3>
@@ -154,10 +171,46 @@ function restart() {
     </div>
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas" :pismena="pismena" :cislo="cislo"></Vysledek>
+
+    <div id="zvukBtn" @click="toggleZvuk">
+        <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvukIcon" src="../assets/icony/zvukOn.svg" alt="Zvuky jsou zapnuté">
+        <img v-else style="margin-left: 1px;" class="zvukIcon" src="../assets/icony/zvukOff.svg" alt="Zvuky jsou vypnuté">
+    </div>
+    
 </template>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Red+Hat+Mono&display=swap');
+
+.zvukIcon {
+    width: 45px;
+    height: 35px;
+    margin-top: 1px;
+}
+
+#zvukBtn {
+    position: absolute;
+    right: 30px;
+    bottom: 20px;
+    background-color: var(--tmave-fialova);
+    border-radius: 100px;
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+#zvukBtn:hover {
+    background-color: var(--fialova);
+}
+
+#flex {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
 #nabidka {
     margin: 20px 0 6px 0;
