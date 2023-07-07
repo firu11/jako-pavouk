@@ -21,7 +21,10 @@ const props = defineProps({
         default: 1
     },
     casF: String,
-    pismena: String,
+    pismena: {
+        type: String,
+        default: ""
+    },
     cislo: String
 })
 
@@ -33,7 +36,7 @@ function reset() {
 }
 
 onMounted(() => {
-    axios.post('/dokonceno/' + props.pismena + '/' + props.cislo, {
+    axios.post('/dokonceno/' + encodeURIComponent(props.pismena) + '/' + props.cislo, {
         "cpm": rychlost,
         "preklepy": props.preklepy
     }, {
@@ -73,7 +76,7 @@ onMounted(() => {
     </div>
     <div id="tlacitka_kontainer">
         <button class="tlacitko" @click="reset">Zkusit znovu</button>
-        <button class="tlacitko" @click="router.push('/lekce/' + pismena)">Pokračovat</button>
+        <button class="tlacitko" @click="router.push('/lekce/' + encodeURIComponent(pismena))">Pokračovat</button>
     </div>
 </template>
 

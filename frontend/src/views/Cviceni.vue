@@ -6,7 +6,7 @@ import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
 import { onUnmounted } from 'vue';
 import Vysledek from '../components/Vysledek.vue';
-
+import Klavesnice from '../components/Klavesnice.vue';
 
 const router = useRouter()
 const route = useRoute()
@@ -44,7 +44,7 @@ const aktivniPismeno = computed(() => {
 })
 
 onMounted(() => {
-    axios.get("/cvic/" + pismena + "/" + cislo, {
+    axios.get("/cvic/" + encodeURIComponent(pismena) + "/" + cislo, {
         headers: {
             Authorization: `Bearer ${getToken()}`
         }
@@ -149,6 +149,8 @@ function restart() {
                 id="progress">&nbsp{{ progress }}%&nbsp
             </div>
         </div>
+        
+        <Klavesnice :aktivniPismeno="aktivniPismeno.znak"></Klavesnice>
     </div>
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas" :pismena="pismena" :cislo="cislo"></Vysledek>

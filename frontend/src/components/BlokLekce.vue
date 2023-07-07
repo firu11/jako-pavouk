@@ -1,16 +1,21 @@
 <script setup lang="ts">
-import {prihlasen} from '../stores'
+import { prihlasen } from '../stores'
 import { formatovanyPismena } from '../utils';
 
 defineProps({
-    pismena: String,
+    pismena: {
+        type: String,
+        default: ""
+    },
     jeDokoncena: Boolean,
 })
+
 
 </script>
 
 <template>
-    <RouterLink v-if="pismena !== '...'" class="lekceBlok" :class="{ hotovoBlok: jeDokoncena }" :to="'/lekce/' + pismena">
+    <RouterLink v-if="pismena !== '...'" class="lekceBlok" :class="{ hotovoBlok: jeDokoncena }"
+        :to="'/lekce/' + encodeURIComponent(pismena)">
         <h2>Lekce: {{ formatovanyPismena(pismena) }}</h2>
         <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
     </RouterLink>
@@ -33,7 +38,8 @@ defineProps({
     background-color: var(--tmave-fialova);
     height: 64px;
     transition-duration: 0.2s;
-    cursor: pointer; /* kvuli tomu neprihlasenymu */
+    cursor: pointer;
+    /* kvuli tomu neprihlasenymu */
 }
 
 .lekceBlok:hover {

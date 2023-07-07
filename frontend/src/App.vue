@@ -72,7 +72,7 @@ nav {
     top: 0;
     right: 0;
     transform: rotate(180deg);
-    width: 800px;
+    width: 700px;
     z-index: -1000;
     opacity: 0.3;
 }

@@ -4,7 +4,10 @@ import { prihlasen } from '../stores';
 defineProps({
     dokonceno: Boolean,
     index: Number,
-    pismena: String,
+    pismena: {
+        type: String,
+        default: ""
+    },
     typ: String
 })
 
@@ -15,7 +18,7 @@ function prihlaste_se() {
 </script>
 
 <template>
-    <router-link v-if="prihlasen && typ !=='...'" class="cvicBlok" :class="{ dokoncenyBlok: dokonceno }" :to="'/lekce/' + pismena + '/' + index">
+    <router-link v-if="prihlasen && typ !=='...'" class="cvicBlok" :class="{ dokoncenyBlok: dokonceno }" :to="'/lekce/' + encodeURIComponent(pismena) + '/' + index">
         <h2>{{ index }}</h2>
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>

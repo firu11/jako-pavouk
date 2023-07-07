@@ -55,5 +55,6 @@ onMounted(() => {
 
 h2 {
     margin-top: 10px;
+    margin-left: 5px;
 }
 </style>

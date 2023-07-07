@@ -15,7 +15,7 @@ const dokoncene = ref([] as number[])
 const fetchProbehl = ref(false)
 
 onMounted(() => {
-    axios.get('/lekce/' + pismena, {
+    axios.get('/lekce/' + encodeURIComponent(pismena), {
         headers: {
             Authorization: `Bearer ${getToken()}`
         }
