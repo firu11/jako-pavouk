@@ -19,12 +19,13 @@ func SetupRouter(app *fiber.App) {
 	app.Post("/registrace", registrace)
 	app.Post("/prihlaseni", prihlaseni)
 	app.Get("/ja", prehled)
+	app.Post("/ucet-zmena", upravaUctu)
 	app.Get("/token-expirace", testVyprseniTokenu)
 	app.Get("/test", test)
 }
 
 func test(c *fiber.Ctx) error {
-	/* databaze.PushSlovnik() */
+	databaze.PushSlovnik()
 	return c.JSON(c.Get("Authorization")[7:])
 }
 
@@ -214,29 +215,23 @@ func registrace(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON("Invalidni email")
 	}
 
-	// overeni jestli nahodou uz neexistuje
-	_, err = databaze.GetUzivByEmail(body.Email)
+	hesloHASH, err := utils.HashPassword(body.Heslo)
 	if err != nil {
-		hesloHASH, err := utils.HashPassword(body.Heslo)
-		if err != nil {
-			log.Print(err)
-			return fiber.ErrInternalServerError
-		}
-		id, err := databaze.CreateUziv(body.Email, hesloHASH, body.Jmeno)
-		if err != nil {
-			log.Print(err)
-			return fiber.ErrInternalServerError
-		}
-		token, err := utils.GenerovatToken(body.Email, id)
-		if err != nil {
-			log.Print(err)
-			return fiber.ErrInternalServerError
-		} else {
-			return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
-		}
-	} else {
-		return c.Status(fiber.StatusBadRequest).JSON("Uzivatel jiz existuje")
+		log.Print(err)
+		return fiber.ErrInternalServerError
 	}
+	id, err := databaze.CreateUziv(body.Email, hesloHASH, body.Jmeno)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(err)
+	}
+	token, err := utils.GenerovatToken(body.Email, id)
+	if err != nil {
+		log.Print(err)
+		return fiber.ErrInternalServerError
+	} else {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
+	}
+	/* return c.Status(fiber.StatusBadRequest).JSON("Email") */
 }
 
 func prihlaseni(c *fiber.Ctx) error {
@@ -309,13 +304,41 @@ func prehled(c *fiber.Ctx) error {
 
 func testVyprseniTokenu(c *fiber.Ctx) error {
 	if len(c.Get("Authorization")) >= 10 { // treba deset proste at tam neco je
-		je_potreba_vymenit, err := utils.ValidovatExpTokenu(c.Get("Authorization")[7:])
+		jePotrebaVymenit, err := utils.ValidovatExpTokenu(c.Get("Authorization")[7:])
 		if err != nil {
 			log.Print(err)
 			return fiber.ErrInternalServerError
 		}
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{"je_potreba_vymenit": je_potreba_vymenit})
+		id, err := utils.Autentizace(c, true)
+		if err != nil {
+			log.Print(err)
+			return fiber.ErrInternalServerError
+		}
+		_, err = databaze.GetUzivByID(id)
+		if err != nil && !jePotrebaVymenit {
+			jePotrebaVymenit = true
+		}
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"jePotrebaVymenit": jePotrebaVymenit})
 	} else {
 		return fiber.ErrUnauthorized
 	}
+}
+
+func upravaUctu(c *fiber.Ctx) error {
+	id, err := utils.Autentizace(c, true)
+	if err != nil {
+		log.Print(err)
+		return fiber.ErrInternalServerError
+	}
+	var body struct {
+		Jmeno  string `json:"jmeno" validate:"min=3,max=25"`
+		Smazat bool   `json:"smazat"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(err)
+	}
+	if err := databaze.ZmenitUzivatele(body.Jmeno, "", body.Smazat, id); err != nil {
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(body)
 }

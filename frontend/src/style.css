@@ -10,7 +10,7 @@
     --fialova: #864879;
     --zelena2: #34D1BF;
     --zelena: #51914a;
-    --svetle-fialova: #CFB3CD;
+    --svetle-fialova: #b45cad;
 }
 
 * {
@@ -75,6 +75,24 @@ body {
 
 .tlacitko:hover {
     background-color: var(--svetle-fialova);
+    transition: 0.2s;
+}
+
+.cerveneTlacitko {
+    width: 150px;
+    height: 40px;
+    border: none;
+    border-radius: 5px;
+    color: var(--bila);
+    font-size: 1em;
+    margin: 10px 0 0 0;
+    background-color: #a01e1e;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.cerveneTlacitko:hover {
+    background-color: #fd0000;
     transition: 0.2s;
 }
 

@@ -31,13 +31,12 @@ function registr(e: Event) {
             "heslo": heslo.value
         })
         .then(response => {
-            if (response.data['error'] === "email") emailExistuje.value = true
-            else if (response.data['error'] === "jmeno") jmenoExistuje.value = true
-            else {
-                localStorage.setItem(tokenJmeno, response.data.token)
-                prihlasen.value = true
-                router.push("/ucet")
-            }
+            localStorage.setItem(tokenJmeno, response.data.token)
+            prihlasen.value = true
+            router.push("/ucet")
+        }).catch(e => {
+            if (e.response.data.Message.search("uzivatel_email_key") != -1) emailExistuje.value = true
+            else if (e.response.data.Message.search("uzivatel_jmeno_key") != -1) jmenoExistuje.value = true
         })
 }
 
@@ -65,14 +64,14 @@ function close_info() {
         <h3 class="nadpis">Uživatelské jméno:</h3>
         <input :class="{ spatnej_input: spatnyJmeno || jmenoExistuje }" @:input="chekuj_udaje('jmeno')" type="text"
             v-model="jmeno" placeholder="Např: Pepa z depa">
-        <h4 :class="{ opacity0: !jmenoExistuje }" class="chybaExistujee">Uživatel s tímto jménem už existuje</h4>
+        <h4 :class="{ opacity0: !jmenoExistuje }" class="chybaExistuje">Uživatel s tímto jménem už existuje</h4>
         <h3 class="nadpis">Email:</h3>
         <input :class="{ spatnej_input: spatnyEmail || emailExistuje }" @:input="chekuj_udaje('email')" type="text"
             v-model="email" placeholder="Např: pepa@zdepa.cz">
-        <h4 :class="{ opacity0: !emailExistuje }" class="chybaExistujee">Uživatel s tímto emailem už existuje</h4>
+        <h4 :class="{ opacity0: !emailExistuje }" class="chybaExistuje">Uživatel s tímto emailem už existuje</h4>
         <h3 class="nadpis">Heslo: <img src="../assets/icony/info.svg" alt="info" @mouseover="open_info"
                 @mouseleave="close_info"></h3>
-        <input :class="{ spatnej_input: spatnyHeslo }" @:input="chekuj_udaje('heslo')" type="text" v-model="heslo"
+        <input :class="{ spatnej_input: spatnyHeslo }" @:input="chekuj_udaje('heslo')" type="password" v-model="heslo"
             placeholder='Rozhodně ne "Pepa123"'>
         <button class="tlacitko" @click="registr">Registrovat</button>
     </form>

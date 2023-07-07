@@ -182,6 +182,34 @@ func GetUzivByEmail(email string) (Uzivatel, error) {
 	return uziv, err
 }
 
+func GetUzivByJmeno(jmeno string) (Uzivatel, error) {
+	var uziv Uzivatel
+	err := DB.QueryRowx(`SELECT * FROM uzivatel WHERE jmeno = $1;`, jmeno).StructScan(&uziv)
+	return uziv, err
+}
+
+func ZmenitUzivatele(jmeno string, email string, smazat bool, id uint) error {
+	if jmeno != "" {
+		_, err := DB.Exec(`UPDATE uzivatel SET jmeno = $1 WHERE id = $2;`, jmeno, id)
+		if err != nil {
+			return err
+		}
+	}
+	if email != "" {
+		_, err := DB.Exec(`UPDATE uzivatel SET email = $1 WHERE id = $2;`, email, id)
+		if err != nil {
+			return err
+		}
+	}
+	if smazat {
+		_, err := DB.Exec(`DELETE FROM uzivatel WHERE id = $1;`, id)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func GetPreklepyACPM(uzivID uint) ([]float32, []float32, error) {
 	var preklepy []float32
 	var cpm []float32

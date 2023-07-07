@@ -12,7 +12,7 @@ onMounted(() => {
                 Authorization: `Bearer ${getToken()}`
             }
         }).then(response => {
-            if (response.data.je_potreba_vymenit) {
+            if (response.data.jePotrebaVymenit) {
                 localStorage.removeItem(tokenJmeno)
                 prihlasen.value = false
             } else {

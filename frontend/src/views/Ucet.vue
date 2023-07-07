@@ -7,7 +7,14 @@ import { getToken } from '../utils';
 
 const router = useRouter()
 
-let info = ref({jmeno: "...", email: "...@...", dokonceno: 0, daystreak: 0, prumerRychlosti: -1, uspesnost: -1})
+const info = ref({ jmeno: "...", email: "...@...", dokonceno: 0, daystreak: 0, prumerRychlosti: -1, uspesnost: -1 })
+const uprava = ref(false)
+const jmenoUprava = ref("")
+const emailUprava = ref("")
+
+const alertZprava = ref("")
+const alert = ref(false)
+const smazatPotvrzeni = ref(false)
 
 function odhlasit() {
     localStorage.removeItem(tokenJmeno)
@@ -23,6 +30,10 @@ function zaokrouhlit(cislo: number | null) {
 }
 
 onMounted(() => {
+    getInfo()
+})
+
+function getInfo() {
     if (getToken()) {
         axios.get('/ja', {
             headers: {
@@ -30,13 +41,52 @@ onMounted(() => {
             }
         }).then(response => {
             info.value = response.data
+            jmenoUprava.value = response.data.jmeno
+            emailUprava.value = response.data.email
         }).catch(_ => {
             router.push("/prihlaseni")
+            prihlasen.value = false
         })
     } else { //nebudeš tam chodit nemas ucet more
+        prihlasen.value = false
         router.push("/prihlaseni")
     }
-})
+}
+
+function postZmena(jmeno = false, smazat = false) {
+    let config
+    if (jmeno) config = { "jmeno": jmenoUprava.value }
+    else if (smazat) config = { "smazat": true }
+    if (getToken()) {
+        axios.post('/ucet-zmena', config, { headers: { Authorization: `Bearer ${getToken()}` }}).then(_ => {
+            getInfo()
+        }).catch(e => {
+            if (e.response.data.search("uzivatel_jmeno_key")) {
+                alertZprava.value = "Takové jméno už někdo má"
+                alert.value = true
+                setTimeout(() => {alert.value = false}, 4000)
+            }
+        })
+    }
+}
+
+function zmena() {
+    if (jmenoUprava.value != info.value.jmeno) {
+        if (/^[a-zA-Z0-9!@#$%^&*_ ]{3,25}$/.test(jmenoUprava.value)) {
+            postZmena(true)
+        } else {
+            alertZprava.value = "Jméno musí obsahovat jen znaky !@#$%^&*_ a může být 3-25 znaků dlouhé"
+            alert.value = true
+            setTimeout(() => {alert.value = false}, 4000)
+        }
+    }
+    uprava.value = false
+}
+
+function smazat() {
+    postZmena(false, true)
+
+}
 
 </script>
 
@@ -44,8 +94,11 @@ onMounted(() => {
     <div id="ucet">
         <img src="/pavoucekBezPozadi.svg" alt="uzivatel">
         <div id="nadpisy">
-            <h1>{{ info.jmeno }}</h1>
-            <h2>{{ info.email }}</h2>
+            <h1 v-if="!uprava">{{ info.jmeno }} <img v-if="!uprava" @click="uprava = true" id="upravit"
+                    src="../assets/icony/upravit.svg" alt="Upravit"></h1>
+            <h2 v-if="!uprava">{{ info.email }}</h2>
+            <input v-if="uprava" v-model="jmenoUprava" type="text">
+            <button v-if="uprava" type="submit" @click="zmena" id="tlacitko">Uložit</button>
         </div>
     </div>
     <div id="progres">
@@ -72,11 +125,67 @@ onMounted(() => {
             <span v-else class="popis">Přesnost: <br><span class="cislo">{{ zaokrouhlit(info.uspesnost) }}</span> %</span>
         </div>
     </div>
-
-    <button @click="odhlasit" class="tlacitko">Odhlásit</button>
+    
+    <div id="tlacitka">
+        <button @click="odhlasit" class="tlacitko">Odhlásit</button>
+        <button v-if="!smazatPotvrzeni" @click="smazatPotvrzeni = true" class="cerveneTlacitko">Smazat účet</button>
+        <button v-else @click="smazat" class="cerveneTlacitko">Opravdu?</button>
+    </div>
+    
+    <div v-if="alert" id="alert">
+        <p>{{ alertZprava }}</p>
+    </div>
 </template>
 
 <style scoped>
+#tlacitka {
+    display: inline-flex;
+    margin-top: 10px;
+    gap: 20px;
+}
+
+.tlacitko {
+    background-color: var(--tmave-fialova);
+}
+
+.tlacitko:hover {
+    background-color: var(--fialova);
+}
+
+#alert {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    height: 60px;
+    background-color: var(--tmave-fialova);
+    min-width: 100px;
+    max-width: 390px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    padding: 0 20px 0 20px;
+}
+
+#tlacitko {
+    width: 120px;
+    height: 40px;
+    border: none;
+    border-radius: 5px;
+    color: var(--bila);
+    font-size: 1em;
+    margin: 10px 0 0 0;
+    background-color: var(--fialova);
+    transition: 0.2s;
+    cursor: pointer;
+    align-self: center;
+}
+
+#tlacitko:hover {
+    background-color: var(--svetle-fialova);
+    transition: 0.2s;
+}
+
 .popis {
     font-size: 15pt;
     width: 60%;
@@ -136,6 +245,11 @@ onMounted(() => {
     height: 100px;
 }
 
+#upravit {
+    width: 30px;
+    height: 25px !important;
+}
+
 #ucet {
     display: flex;
     background-color: var(--tmave-fialova);
@@ -143,15 +257,25 @@ onMounted(() => {
     padding: 15px 30px 15px 5px;
     border-radius: 10px;
     gap: 5px;
+    justify-content: space-around;
 }
 
-.tlacitko {
-    margin-top: 20px;
-    background-color: var(--tmave-fialova);
-}
-
-.tlacitko:hover {
+#ucet input {
+    max-width: 250px;
+    height: 39px;
     background-color: var(--fialova);
+    border: 0;
+    border-radius: 5px;
+    transition: all 0.15s cubic-bezier(0.5, 0, 0.5, 1) 0s;
+    color: var(--bila);
+    padding: 10px;
+    font-weight: normal;
+    font-size: 1.5em;
+}
+
+#ucet input:focus {
+    outline: none !important;
+    transition: all 0.15s cubic-bezier(0.5, 0, 0.5, 1) 0s;
 }
 
 #bloky div img {

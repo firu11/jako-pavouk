@@ -3,7 +3,9 @@
 </script>
 
 <template>
-    <h1>Pavouček sus</h1>
+    <h1 style="margin: 0;">Jako Pavouk</h1>
+    <h2 style="margin-bottom: 40px;">Webová aplikace která vás naučí psát všema deseti</h2>
+    <p></p>
 </template>
 
 <style scoped>
