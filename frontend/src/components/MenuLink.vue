@@ -3,7 +3,7 @@ defineProps(["jmeno", "cesta"])
 </script>
 
 <template>
-    <RouterLink :to="cesta">
+    <RouterLink :to="cesta" >
         <div class="hover">
 
             <svg class="tecka" height="10" width="15">
@@ -16,7 +16,6 @@ defineProps(["jmeno", "cesta"])
 </template>
 
 <style scoped>
-
 a {
     color: var(--bila);
     display: block;
@@ -62,4 +61,26 @@ a:hover .hover {
     transition: 0.2s;
 }
 
+@media screen and (max-width: 1000px) {
+    a {
+        color: var(--bila);
+        display: block;
+        padding: 5px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 17px;
+    }
+
+    a p {
+        display: inline-block;
+        margin-left: 3px;
+        transition: 0.3s;
+    }
+
+    a:hover .hover {
+        background-color: var(--tmave-fialova);
+        width: calc(var(--sirka-menu) - 10px);
+        transition: background-color 0.3s;
+    }
+}
 </style>

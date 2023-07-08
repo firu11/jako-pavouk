@@ -12,20 +12,20 @@ import (
 )
 
 func SetupRouter(app *fiber.App) {
-	app.Get("/lekce", getVsechnyLekce)
-	app.Get("/lekce/:pismena", getCviceniVLekci)
-	app.Get("/cvic/:pismena/:cislo", getCviceni)
-	app.Post("/dokonceno/:pismena/:cislo", dokoncitCvic)
-	app.Post("/registrace", registrace)
-	app.Post("/prihlaseni", prihlaseni)
-	app.Get("/ja", prehled)
-	app.Post("/ucet-zmena", upravaUctu)
-	app.Get("/token-expirace", testVyprseniTokenu)
-	app.Get("/test", test)
+	app.Get("/api/lekce", getVsechnyLekce)
+	app.Get("/api/lekce/:pismena", getCviceniVLekci)
+	app.Get("/api/cvic/:pismena/:cislo", getCviceni)
+	app.Post("/api/dokonceno/:pismena/:cislo", dokoncitCvic)
+	app.Post("/api/registrace", registrace)
+	app.Post("/api/prihlaseni", prihlaseni)
+	app.Get("/api/ja", prehled)
+	app.Post("/api/ucet-zmena", upravaUctu)
+	app.Get("/api/token-expirace", testVyprseniTokenu)
+	app.Get("/api/test", test)
 }
 
 func test(c *fiber.Ctx) error {
-	databaze.PushSlovnik()
+	/* databaze.PushSlovnik() */
 	return c.JSON(c.Get("Authorization")[7:])
 }
 

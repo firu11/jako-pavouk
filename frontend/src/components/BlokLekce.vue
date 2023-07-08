@@ -29,7 +29,6 @@ defineProps({
 .tlusty {
     font-weight: 500;
 }
-
 .lekceBlok {
     color: var(--bila);
     display: flex;
@@ -59,4 +58,18 @@ defineProps({
 .lekceBlok h2 {
     align-self: center;
     font-size: 24px;
-}</style>
+}
+
+@media screen and (max-width: 1000px) {
+    .lekceBlok {
+        min-width: 270px;
+        width: 100%;
+        background-color: var(--tmave-fialova);
+        height: 64px;
+        transition-duration: 0.2s;
+
+        /* kvuli tomu neprihlasenymu */
+        cursor: pointer; 
+    }
+}
+</style>

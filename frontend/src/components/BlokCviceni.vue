@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { prihlasen } from '../stores';
 
 defineProps({
@@ -11,14 +12,17 @@ defineProps({
     typ: String
 })
 
-function prihlaste_se() {
+function prihlasteSe() {
     alert("Nejprve se prosím přihlašte.")
 }
+
+const mobil = ref(document.body.clientWidth <= 1000)
 
 </script>
 
 <template>
-    <router-link v-if="prihlasen && typ !=='...'" class="cvicBlok" :class="{ dokoncenyBlok: dokonceno }" :to="'/lekce/' + encodeURIComponent(pismena) + '/' + index">
+    <router-link v-if="prihlasen && typ !== '...' && !mobil" class="cvicBlok" :class="{ dokoncenyBlok: dokonceno }"
+        :to="'/lekce/' + encodeURIComponent(pismena) + '/' + index">
         <h2>{{ index }}</h2>
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>
@@ -28,12 +32,22 @@ function prihlaste_se() {
         <img class="fajvkaVetsi" v-if="dokonceno" src="../assets/icony/right.svg" alt="Dokonceno!">
         <img class="playVetsi" v-else src="../assets/icony/start.svg" alt="Začít lekci">
     </router-link>
-    <a v-else-if="typ === '...'" class="cvicBlok"> <!-- aby na to ńeslo kliknout nez se to nacte -->
+    <a v-else-if="typ === '...' && !mobil" class="cvicBlok"> <!-- aby na to ńeslo kliknout nez se to nacte -->
         <h2>{{ index }}</h2>
         <hr>
         <h3>...</h3>
-        <img class="playVetsi" src="../assets/icony/start.svg" alt="Začít lekci"></a>
-    <a v-else class="cvicBlok" @click="prihlaste_se">
+        <img class="playVetsi" src="../assets/icony/start.svg" alt="Začít lekci">
+    </a>
+    <a v-else-if="!mobil" class="cvicBlok" @click="prihlasteSe">
+        <h2>{{ index }}</h2>
+        <hr>
+        <h3 v-if="typ === 'nova'">Nová písmenka</h3>
+        <h3 v-else-if="typ === 'naucena'">Probraná písmenka</h3>
+        <h3 v-else-if="typ === 'slova'">Se slovy</h3>
+        <h3 v-else>...</h3>
+        <img class="playVetsi" src="../assets/icony/start.svg" alt="Začít lekci">
+    </a>
+    <a v-else class="cvicBlok" @click="console.log('ssss')"> <!-- TODO -->
         <h2>{{ index }}</h2>
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>
@@ -89,5 +103,26 @@ function prihlaste_se() {
 h2 {
     font-size: 2em;
     font-weight: bolder;
+}
+
+@media screen and (max-width: 1000px) {
+    .cvicBlok {
+        width: 180px;
+        background-color: var(--tmave-fialova);
+        height: 180px;
+        transition-duration: 0.2s;
+        padding: 15px 15px 30px 15px;
+        font-size: 0.8em;
+    }
+
+    .fajvkaVetsi, .playVetsi {
+        width: 100px;
+        height: 30px;
+        align-self: center;
+    }
+
+    h3 {
+        font-size: 20px !important;
+    }
 }
 </style>

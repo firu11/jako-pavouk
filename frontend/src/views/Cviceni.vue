@@ -7,7 +7,7 @@ import axios from 'axios';
 import { onUnmounted } from 'vue';
 import Vysledek from '../components/Vysledek.vue';
 import Klavesnice from '../components/Klavesnice.vue';
-import { useSound } from '@vueuse/sound'
+import {useSound} from '@vueuse/sound';
 
 const router = useRouter()
 const route = useRoute()
@@ -28,7 +28,7 @@ if (sus == null) {
 } else {
     zvukyZaply.value = JSON.parse(sus) === true
 }
-const zvuky: useSound[] = [useSound('/zvuky/klik1.ogg'), useSound('/zvuky/klik2.ogg'), useSound('/zvuky/klik3.ogg'), useSound('/zvuky/miss.ogg')]
+const zvuky = [useSound('/zvuky/klik1.ogg'), useSound('/zvuky/klik2.ogg'), useSound('/zvuky/klik3.ogg'), useSound('/zvuky/miss.ogg')]
 
 const capslock = ref(false)
 let interval: number

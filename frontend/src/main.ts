@@ -6,7 +6,7 @@ import axios from "axios"
 
 const app = createApp(App)
 
-axios.defaults.baseURL = "http://localhost:8080/"
+axios.defaults.baseURL = "http://localhost:8080/api" // na production jen /api
 
 app.use(router)
 app.mount("#app")

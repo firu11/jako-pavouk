@@ -300,4 +300,22 @@ function smazat() {
     position: relative;
     left: -1px
 }
+
+@media screen and (max-width: 1000px) {
+    #bloky {
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #progres {
+        width: 320px;
+    }
+
+    #ucet {
+        flex-direction: column;
+        padding: 25px 25px 25px 25px
+    }
+
+}
 </style>
