@@ -53,7 +53,7 @@ const aktivniPismeno = computed(() => {
     return { id: -1, znak: "", spatne: 0 }
 })
 
-onMounted(() => {
+function get() {
     axios.get("/cvic/" + encodeURIComponent(pismena) + "/" + cislo, {
         headers: {
             Authorization: `Bearer ${getToken()}`
@@ -70,6 +70,10 @@ onMounted(() => {
     }).catch(_ => {
         router.push('/404')
     });
+}
+
+onMounted(() => {
+    get()
 
     document.addEventListener("keypress", klik)
     document.addEventListener("keydown", capslockCheck)
@@ -126,6 +130,11 @@ function restart() {
     counter.value = 0
     preklepy.value = 0
     konec.value = false
+    text.value = [[]] as { id: number, znak: string, spatne: boolean, }[][]
+    delkaTextu.value = 0
+
+    get()
+    
     document.addEventListener("keypress", klik)
     document.addEventListener("keydown", capslockCheck)
 }
