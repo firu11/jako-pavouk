@@ -1,14 +1,16 @@
+-- Active: 1689009947651@@dbaas-db-1727475-do-user-11831814-0.b.db.ondigitalocean.com@25060@defaultdb@public
 DROP TABLE IF EXISTS dokoncene;
 DROP TABLE IF EXISTS cviceni;
 DROP TABLE IF EXISTS slovnik;
 DROP TABLE IF EXISTS lekce;
-/* DROP TABLE IF EXISTS uzivatel; */
+DROP TABLE IF EXISTS uzivatel;
 
 CREATE TABLE IF NOT EXISTS uzivatel (
     id SERIAL PRIMARY KEY, 
     jmeno VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(50) NOT NULL UNIQUE,
     heslo VARCHAR(255) NOT NULL,
+    aktivovan BOOLEAN DEFAULT FALSE,
     daystreak INT DEFAULT 0,
     posledniden DATE DEFAULT CURRENT_DATE
 );

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { prihlasen } from '../stores';
+import { pridatOznameni } from '../utils';
 
 defineProps({
     dokonceno: Boolean,
@@ -11,10 +12,6 @@ defineProps({
     },
     typ: String
 })
-
-function prihlasteSe() {
-    alert("Nejprve se prosím přihlašte.")
-}
 
 const mobil = ref(document.body.clientWidth <= 1000)
 
@@ -38,7 +35,7 @@ const mobil = ref(document.body.clientWidth <= 1000)
         <h3>...</h3>
         <img class="playVetsi" src="../assets/icony/start.svg" alt="Začít lekci">
     </a>
-    <a v-else-if="!mobil" class="cvicBlok" @click="prihlasteSe">
+    <a v-else-if="!mobil" class="cvicBlok" @click="pridatOznameni('Nejprve se prosím přihlašte')">
         <h2>{{ index }}</h2>
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>

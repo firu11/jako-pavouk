@@ -2,7 +2,7 @@
 import axios from "axios"
 import BlokLekce from "../components/BlokLekce.vue";
 import { onMounted, ref } from "vue"
-import { getToken } from "../utils";
+import { getToken, pridatOznameni } from "../utils";
 
 const lekce = ref([[]])
 const dokoncene = ref([])
@@ -14,6 +14,7 @@ onMounted(() => {
             lekce.value = response.data.lekce
             dokoncene.value = response.data.dokoncene
         }).catch(e => {
+            pridatOznameni()
             console.log(e)
         })
 })

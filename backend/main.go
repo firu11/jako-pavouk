@@ -25,9 +25,12 @@ func main() {
 	})
 
 	app.Use(limiter.New(limiter.Config{
-		Max:               20,
+		Max:               30,
 		Expiration:        1 * time.Minute,
 		LimiterMiddleware: limiter.SlidingWindow{},
+		LimitReached: func(c *fiber.Ctx) error {
+			return c.SendStatus(fiber.StatusTeapot) // troulin
+		},
 	}))
 
 	app.Use(cors.New(cors.Config{

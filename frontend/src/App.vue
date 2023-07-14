@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import MenuLink from './components/MenuLink.vue';
 import { prihlasen, tokenJmeno } from './stores';
-import { getToken } from './utils';
+import { getToken, oznameni, pridatOznameni } from './utils';
 import axios from 'axios';
 
 onMounted(() => {
@@ -15,25 +15,27 @@ onMounted(() => {
             if (response.data.jePotrebaVymenit) {
                 localStorage.removeItem(tokenJmeno)
                 prihlasen.value = false
+                pridatOznameni("Z bezpečnostních důvodů jste byli odhlášeni")
             } else {
                 prihlasen.value = true
             }
         }).catch(e => {
             console.log(e)
+            pridatOznameni()
         })
     }
 })
 
 const mobilMenu = ref(false)
 
-
 </script>
 
 <template>
     <header>
-        <div id="menuMobilniBtn" @click="mobilMenu = !mobilMenu"><img id="menuIcon" src="./assets/icony/menu.svg" alt="Menu"></div>
-        <nav :class="{mobilHidden: !mobilMenu}" @click="mobilMenu = !mobilMenu">
-            <MenuLink  jmeno="Domů" cesta="/" />
+        <div id="menuMobilniBtn" @click="mobilMenu = !mobilMenu"><img id="menuIcon" src="./assets/icony/menu.svg"
+                alt="Menu"></div>
+        <nav :class="{ mobilHidden: !mobilMenu }" @click="mobilMenu = !mobilMenu">
+            <MenuLink jmeno="Domů" cesta="/" />
             <MenuLink jmeno="Lekce" cesta="/lekce" />
             <MenuLink jmeno="O nás" cesta="/o-nas" />
             <MenuLink jmeno="Podpořit projekt" cesta="/podporit" />
@@ -45,10 +47,43 @@ const mobilMenu = ref(false)
         <RouterView />
     </div>
 
+    <div id="alerty">
+        <div v-for="o in oznameni" class="alert">
+            <img src="./assets/icony/alret.svg" alt="Vykřičník">
+            {{ o.text }}
+        </div>
+    </div>
+
     <img id="pavucina1" src="./assets/pavucina.svg" alt="Pavucina">
 </template>
 
 <style scoped>
+#alerty {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: end;
+    gap: 10px;
+
+}
+
+.alert {
+    min-height: 60px;
+    background-color: var(--tmave-fialova);
+    min-width: 100px;
+    max-width: 390px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    padding: 10px 20px 10px 20px;
+    gap: 20px;
+    box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.75);
+}
+
 nav {
     position: fixed;
     left: 10px;
@@ -102,7 +137,7 @@ nav {
         top: 10px;
         width: 60px;
         height: 60px;
-        box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.75);
+        box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.75);
     }
 
     nav {
@@ -111,7 +146,7 @@ nav {
         display: flex;
         flex-direction: column;
         z-index: 10;
-        box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.75);
+        box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.75);
     }
 
     #view {

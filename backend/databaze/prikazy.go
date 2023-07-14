@@ -3,6 +3,8 @@ package databaze
 import (
 	"errors"
 	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type Lekce struct {
@@ -94,18 +96,28 @@ func GetDokonceneLekce(uzivID uint) ([]int32, error) {
 	return vysledek, nil
 }
 
-func GetDokonceneCvicVLekci(uzivID uint, lekceID uint) ([]int32, error) {
+func GetDokonceneCvicVLekci(uzivID uint, lekceID uint, pismena string) ([]int32, error) {
 	var cviceni_ids []int32 = []int32{}
+	var rows *sqlx.Rows
+	var err error
 
-	rows, err := DB.Queryx(`SELECT d.cviceni_id FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id WHERE lekce_id = $1 AND uziv_id = $2;`, lekceID, uzivID)
-	if err != nil {
-		return cviceni_ids, err
+	if pismena != "" {
+		rows, err = DB.Queryx(`SELECT d.cviceni_id FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id WHERE lekce_id = (SELECT id FROM lekce WHERE pismena = $1) AND uziv_id = $2;`, pismena, uzivID)
+		if err != nil {
+			return cviceni_ids, err
+		}
+	} else {
+		rows, err = DB.Queryx(`SELECT d.cviceni_id FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id WHERE lekce_id = $1 AND uziv_id = $2;`, lekceID, uzivID)
+		if err != nil {
+			return cviceni_ids, err
+		}
 	}
+
 	defer rows.Close()
 
 	for rows.Next() {
 		var id int32
-		if err := rows.Scan(&id); err != nil {
+		if err = rows.Scan(&id); err != nil {
 			return cviceni_ids, err
 		}
 		cviceni_ids = append(cviceni_ids, id)
@@ -163,7 +175,6 @@ func GetCviceniVLekciByPismena(pismena string) ([]Cviceni, error) {
 
 		cviceni = append(cviceni, jednoCviceni)
 	}
-
 	if len(cviceni) == 0 {
 		return cviceni, errors.New("nejsou zadny takovy cviceni")
 	}
@@ -267,9 +278,20 @@ func PridatDokonceneCvic(cvicID uint, uzivID uint, cpm float32, preklepy int) er
 	if _, err := DB.Exec(`INSERT INTO dokoncene (uziv_id, cviceni_id, cpm, preklepy) VALUES ($1, $2, $3, $4);`, uzivID, cvicID, cpm, preklepy); err != nil {
 		return err
 	}
-	if _, err := DB.Exec(`UPDATE uzivatel SET posledniden = $1, daystreak = daystreak + 1 WHERE id = $2 AND posledniden != $1;`, time.Now().Format(time.DateOnly), uzivID); err != nil {
+	uziv, err := GetUzivByID(uzivID)
+	if err != nil {
 		return err
 	}
+	if uziv.PosledniDen.Format(time.DateOnly) == time.Now().Add(-24*time.Hour).Format(time.DateOnly) {
+		if _, err := DB.Exec(`UPDATE uzivatel SET posledniden = $1, daystreak = daystreak + 1 WHERE id = $2 AND posledniden != $1;`, time.Now().Format(time.DateOnly), uzivID); err != nil {
+			return err
+		}
+	} else {
+		if _, err := DB.Exec(`UPDATE uzivatel SET posledniden = $1, daystreak = 1 WHERE id = $2;`, time.Now().Format(time.DateOnly), uzivID); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { prihlasen, tokenJmeno } from '../stores';
+import { pridatOznameni } from '../utils';
 
 const router = useRouter()
 
@@ -37,13 +38,14 @@ function registr(e: Event) {
         }).catch(e => {
             if (e.response.data.Message.search("uzivatel_email_key") != -1) emailExistuje.value = true
             else if (e.response.data.Message.search("uzivatel_jmeno_key") != -1) jmenoExistuje.value = true
+            else pridatOznameni()
         })
 }
 
 function chekuj_udaje(jaky: string) {
     if (jaky === 'email' && email.value) spatnyEmail.value = !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email.value); //test jestli email
     else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*[0-9])(?=.*[!@#$%^&*_])[a-zA-Z0-9!@#$%^&*_]{8,25}$/.test(heslo.value) //heslo 8-25 aspon jeden CAPS a *_!
-    else if (jaky === 'jmeno' && jmeno.value !== undefined) spatnyJmeno.value = !/^[a-zA-Z0-9!@#$%^&*_ ]{3,25}$/.test(jmeno.value) //jmeno 3-25
+    else if (jaky === 'jmeno' && jmeno.value !== undefined) spatnyJmeno.value = !/^[a-zA-Z0-9!@#$%^&*_ ]{3,12}$/.test(jmeno.value) //jmeno 3-12
     if (jaky === 'email') emailExistuje.value = false
     else if (jaky === 'jmeno') jmenoExistuje.value = false
 }

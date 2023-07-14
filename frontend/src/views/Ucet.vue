@@ -3,17 +3,14 @@ import axios from 'axios'
 import { prihlasen, tokenJmeno } from '../stores';
 import { useRouter } from 'vue-router';
 import { onMounted, ref } from 'vue';
-import { getToken } from '../utils';
+import { getToken, pridatOznameni } from '../utils';
 
 const router = useRouter()
 
 const info = ref({ jmeno: "...", email: "...@...", dokonceno: 0, daystreak: 0, prumerRychlosti: -1, uspesnost: -1 })
 const uprava = ref(false)
 const jmenoUprava = ref("")
-const emailUprava = ref("")
 
-const alertZprava = ref("")
-const alert = ref(false)
 const smazatPotvrzeni = ref(false)
 
 function odhlasit() {
@@ -42,7 +39,6 @@ function getInfo() {
         }).then(response => {
             info.value = response.data
             jmenoUprava.value = response.data.jmeno
-            emailUprava.value = response.data.email
         }).catch(_ => {
             router.push("/prihlaseni")
             prihlasen.value = false
@@ -59,12 +55,14 @@ function postZmena(jmeno = false, smazat = false) {
     else if (smazat) config = { "smazat": true }
     if (getToken()) {
         axios.post('/ucet-zmena', config, { headers: { Authorization: `Bearer ${getToken()}` }}).then(_ => {
-            getInfo()
+            if (!smazat) {
+                getInfo()
+            } else {
+                router.push("/prihlaseni")
+            }
         }).catch(e => {
             if (e.response.data.search("uzivatel_jmeno_key")) {
-                alertZprava.value = "Takové jméno už někdo má"
-                alert.value = true
-                setTimeout(() => {alert.value = false}, 4000)
+                pridatOznameni("Takové jméno už někdo má")
             }
         })
     }
@@ -72,12 +70,10 @@ function postZmena(jmeno = false, smazat = false) {
 
 function zmena() {
     if (jmenoUprava.value != info.value.jmeno) {
-        if (/^[a-zA-Z0-9!@#$%^&*_ ]{3,25}$/.test(jmenoUprava.value)) {
+        if (/^[a-zA-Z0-9!@#$%^&*_ ]{3,12}$/.test(jmenoUprava.value)) {
             postZmena(true)
         } else {
-            alertZprava.value = "Jméno musí obsahovat jen znaky !@#$%^&*_ a může být 3-25 znaků dlouhé"
-            alert.value = true
-            setTimeout(() => {alert.value = false}, 4000)
+            pridatOznameni("Jméno musí obsahovat jen znaky !@#$%^&*_ a může být 3-12 znaků dlouhé")
         }
     }
     uprava.value = false
@@ -131,10 +127,6 @@ function smazat() {
         <button v-if="!smazatPotvrzeni" @click="smazatPotvrzeni = true" class="cerveneTlacitko">Smazat účet</button>
         <button v-else @click="smazat" class="cerveneTlacitko">Opravdu?</button>
     </div>
-    
-    <div v-if="alert" id="alert">
-        <p>{{ alertZprava }}</p>
-    </div>
 </template>
 
 <style scoped>
@@ -150,21 +142,6 @@ function smazat() {
 
 .tlacitko:hover {
     background-color: var(--fialova);
-}
-
-#alert {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    height: 60px;
-    background-color: var(--tmave-fialova);
-    min-width: 100px;
-    max-width: 390px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
-    padding: 0 20px 0 20px;
 }
 
 #tlacitko {

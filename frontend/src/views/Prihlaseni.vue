@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { prihlasen, tokenJmeno } from '../stores';
+import { pridatOznameni } from '../utils';
 
 const router = useRouter()
 
@@ -35,9 +36,10 @@ function login(e: Event) {
                 spatnyHeslo.value = true
                 spatnyEmail.value = true
             } else {
-                alert("Něco se pokazilo na naší straně...")
+                pridatOznameni()
             }
         } catch {
+            pridatOznameni()
             console.log(e)
         }
     })

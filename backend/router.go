@@ -24,6 +24,13 @@ func SetupRouter(app *fiber.App) {
 	app.Get("/api/test", test)
 }
 
+func chyba(msg string) fiber.Map {
+	if msg == "" {
+		msg = "Neco se pokazilo"
+	}
+	return fiber.Map{"error": msg}
+}
+
 func test(c *fiber.Ctx) error {
 	/* databaze.PushSlovnik() */
 	return c.JSON(c.Get("Authorization")[7:])
@@ -32,19 +39,19 @@ func test(c *fiber.Ctx) error {
 func getVsechnyLekce(c *fiber.Ctx) error {
 	id, err := utils.Autentizace(c, false)
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
 	}
 
 	lekce, err := databaze.GetLekce()
 	if err != nil {
 		log.Print(err)
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 	if id != 0 {
 		dokoncene, err := databaze.GetDokonceneLekce(id)
 		if err != nil {
 			log.Print(err)
-			return fiber.ErrInternalServerError
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 		}
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{"lekce": lekce, "dokoncene": dokoncene})
 	}
@@ -54,19 +61,17 @@ func getVsechnyLekce(c *fiber.Ctx) error {
 func getCviceniVLekci(c *fiber.Ctx) error {
 	uzivID, err := utils.Autentizace(c, false)
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
 	}
 	pismena, HTTPerr := utils.DecodeURL(c.Params("pismena"))
 	if err != nil {
-		return HTTPerr
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(HTTPerr.Error()))
 	}
 	cvic, err := databaze.GetCviceniVLekciByPismena(pismena)
 	if err != nil {
-		log.Print("Takova lekce neexistuje")
-		return fiber.ErrBadRequest
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Takova lekce neexistuje"))
 	}
-	id, _ := databaze.GetLekceIDbyPismena(pismena)
-	doko, err := databaze.GetDokonceneCvicVLekci(uzivID, id)
+	doko, err := databaze.GetDokonceneCvicVLekci(uzivID, 0, pismena)
 	if err != nil {
 		log.Print(err)
 		return fiber.ErrInternalServerError
@@ -245,8 +250,7 @@ func prihlaseni(c *fiber.Ctx) error {
 	}
 	err := utils.ValidateStruct(&body)
 	if err != nil {
-		log.Print(err)
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusBadRequest).JSON(err)
 	}
 	// validace emailu
 	if !utils.ValidFormat(body.Email) {
@@ -291,12 +295,15 @@ func prehled(c *fiber.Ctx) error {
 		log.Print(err)
 		return fiber.ErrInternalServerError
 	}
-
+	uspesnost := float32(delkaTextu) - utils.Prumer(preklepy)
+	if uspesnost < 0 {
+		uspesnost = 0 // kvuli adamovi kterej big troulin a měl -10%
+	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"email":           uziv.Email,
 		"jmeno":           uziv.Jmeno,
 		"daystreak":       uziv.DayStreak,
-		"uspesnost":       (float32(delkaTextu) - utils.Prumer(preklepy)) / float32(delkaTextu) * 100,
+		"uspesnost":       uspesnost / float32(delkaTextu) * 100,
 		"prumerRychlosti": utils.Prumer(cpm),
 		"dokonceno":       dokonceno,
 	})
@@ -331,7 +338,7 @@ func upravaUctu(c *fiber.Ctx) error {
 		return fiber.ErrInternalServerError
 	}
 	var body struct {
-		Jmeno  string `json:"jmeno" validate:"min=3,max=25"`
+		Jmeno  string `json:"jmeno" validate:"min=3,max=12"`
 		Smazat bool   `json:"smazat"`
 	}
 	if err := c.BodyParser(&body); err != nil {
