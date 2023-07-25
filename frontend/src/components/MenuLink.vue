@@ -22,7 +22,6 @@ a {
     padding: 5px;
     text-decoration: none;
     cursor: pointer;
-    font-size: 17px;
 }
 
 a p {
@@ -31,6 +30,7 @@ a p {
     position: relative;
     left: -15px;
     transition: 0.3s;
+    font-size: 18px;
 }
 
 .router-link-active p {

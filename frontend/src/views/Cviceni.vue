@@ -7,7 +7,7 @@ import axios from 'axios';
 import { onUnmounted } from 'vue';
 import Vysledek from '../components/Vysledek.vue';
 import Klavesnice from '../components/Klavesnice.vue';
-import {useSound} from '@vueuse/sound';
+import { useSound } from '@vueuse/sound';
 
 const router = useRouter()
 const route = useRoute()
@@ -134,7 +134,7 @@ function restart() {
     delkaTextu.value = 0
 
     get()
-    
+
     document.addEventListener("keypress", klik)
     document.addEventListener("keydown", capslockCheck)
 }
@@ -175,17 +175,18 @@ function toggleZvuk() {
                 id="progress">&nbsp{{ progress }}%&nbsp
             </div>
         </div>
-        
+
         <Klavesnice :aktivniPismeno="aktivniPismeno.znak"></Klavesnice>
     </div>
 
-    <Vysledek v-else @restart="restart" :preklepy="preklepy" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas" :pismena="pismena" :cislo="cislo"></Vysledek>
+    <Vysledek v-else @restart="restart" :preklepy="preklepy" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas"
+        :pismena="pismena" :cislo="cislo"></Vysledek>
 
     <div id="zvukBtn" @click="toggleZvuk">
-        <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvukIcon" src="../assets/icony/zvukOn.svg" alt="Zvuky jsou zapnuté">
+        <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvukIcon" src="../assets/icony/zvukOn.svg"
+            alt="Zvuky jsou zapnuté">
         <img v-else style="margin-left: 1px;" class="zvukIcon" src="../assets/icony/zvukOff.svg" alt="Zvuky jsou vypnuté">
     </div>
-    
 </template>
 
 <style scoped>

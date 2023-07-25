@@ -1,4 +1,5 @@
 backend/.env
 backend/backend
+backend/backend.exe
 backend/tmp
 .vscode

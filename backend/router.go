@@ -3,12 +3,42 @@ package main
 import (
 	"backend/databaze"
 	"backend/utils"
+	"fmt"
 	"log"
 	"math/rand"
 	"strconv"
+	"time"
 	"unicode/utf8"
 
 	"github.com/gofiber/fiber/v2"
+)
+
+type (
+	bodyDokoncitCvic struct {
+		CPM      float32 `json:"cpm" validate:"required"`
+		Preklepy int     `json:"preklepy" validate:"min=0"` //sus reqired nebere nulu takze min=0 asi ok
+	}
+
+	bodyPoslatEmail struct {
+		Email string `json:"email" validate:"required,email"`
+		Kod   string `json:"kod" validate:"required,len=5"`
+	}
+
+	bodyRegistrace struct {
+		Email string `json:"email" validate:"required,email"`
+		Jmeno string `json:"jmeno" validate:"required,min=3,max=25"`
+		Heslo string `json:"heslo" validate:"required,min=8,max=25"`
+	}
+
+	bodyPrihlaseni struct {
+		EmailNeboJmeno string `json:"email" validate:"required"`
+		Heslo          string `json:"heslo" validate:"required,min=8,max=25"`
+	}
+
+	bodyUprava struct {
+		Jmeno  string `json:"jmeno" validate:"min=3,max=12"`
+		Smazat bool   `json:"smazat"`
+	}
 )
 
 func SetupRouter(app *fiber.App) {
@@ -16,6 +46,7 @@ func SetupRouter(app *fiber.App) {
 	app.Get("/api/lekce/:pismena", getCviceniVLekci)
 	app.Get("/api/cvic/:pismena/:cislo", getCviceni)
 	app.Post("/api/dokonceno/:pismena/:cislo", dokoncitCvic)
+	app.Post("/api/overit-email", overitEmail)
 	app.Post("/api/registrace", registrace)
 	app.Post("/api/prihlaseni", prihlaseni)
 	app.Get("/api/ja", prehled)
@@ -32,8 +63,10 @@ func chyba(msg string) fiber.Map {
 }
 
 func test(c *fiber.Ctx) error {
+	fmt.Println(utils.UzivCekajiciNaOvereni)
+	fmt.Println(utils.ValidFormat("firu"))
 	/* databaze.PushSlovnik() */
-	return c.JSON(c.Get("Authorization")[7:])
+	return c.JSON("Vypadni")
 }
 
 func getVsechnyLekce(c *fiber.Ctx) error {
@@ -136,7 +169,7 @@ func getCviceni(c *fiber.Ctx) error {
 			log.Print(err)
 			return fiber.ErrInternalServerError
 		}
-		for i := 0; i < pocetSlov; i++ {
+		for i := 0; i < 14; i++ {
 			text = append(text, slova[rand.Intn(len(slova))]+" ")
 		}
 	default:
@@ -153,10 +186,7 @@ func dokoncitCvic(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	var body struct {
-		CPM      float32 `json:"cpm" validate:"required"`
-		Preklepy int     `json:"preklepy" validate:"min=0"` //sus reqired nebere nulu takze min=0 asi ok
-	}
+	var body = bodyDokoncitCvic{}
 
 	if err := c.BodyParser(&body); err != nil {
 		log.Print(err)
@@ -200,74 +230,146 @@ func dokoncitCvic(c *fiber.Ctx) error {
 	return nil
 }
 
-func registrace(c *fiber.Ctx) error {
-	// overeni spravnych dat co prijdou
-	var body struct {
-		Email string `json:"email" validate:"required,email"`
-		Jmeno string `json:"jmeno" validate:"required,min=3,max=25"`
-		Heslo string `json:"heslo" validate:"required,min=8,max=25"`
-	}
+func overitEmail(c *fiber.Ctx) error {
+	var body bodyPoslatEmail = bodyPoslatEmail{}
 	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(err)
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 	}
-	err := utils.ValidateStruct(&body)
-	if err != nil {
+	if err := utils.ValidateStruct(&body); err != nil {
 		log.Print(err)
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 	// validace emailu
 	if !utils.ValidFormat(body.Email) {
-		return c.Status(fiber.StatusBadRequest).JSON("Invalidni email")
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Invalidni email"))
 	}
 
+	// najdeme cekajici mail
+	var deleteIndexy []int
+	var vPoradku bool = false
+	var cekajiciUzivatel utils.UzivCekajici
+
+	for i, uziv := range utils.UzivCekajiciNaOvereni {
+		if time.Now().Unix() > uziv.DobaTrvani { // uz je po dobe trvani
+			deleteIndexy = append(deleteIndexy, i)
+		}
+		if uziv.Email == body.Email {
+			if time.Now().Unix() <= uziv.DobaTrvani && uziv.Kod != body.Kod { //vsechno dobry ale spatnej kod
+				utils.VycistitSeznam(deleteIndexy)
+				return c.Status(fiber.StatusBadRequest).JSON(chyba("Spatny kod"))
+			} else if time.Now().Unix() > uziv.DobaTrvani { //vyprselo
+				utils.VycistitSeznam(deleteIndexy)
+				return c.Status(fiber.StatusBadRequest).JSON(chyba("Cas pro overeni vyprsel. Zkuste to prosim znovu"))
+			} else { // dobry
+				vPoradku = true
+				cekajiciUzivatel = uziv
+				utils.VycistitSeznam(deleteIndexy)
+			}
+		}
+	}
+	if vPoradku {
+		id, err := databaze.CreateUziv(body.Email, cekajiciUzivatel.HesloHash, cekajiciUzivatel.Jmeno)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+		}
+		token, err := utils.GenerovatToken(body.Email, id)
+		if err != nil {
+			log.Print(err)
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+		} else {
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
+		}
+	} else {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Prvne zkuste endpoint pro registraci aby vám byl poslán email"))
+	}
+}
+
+func registrace(c *fiber.Ctx) error {
+	// overeni spravnych dat co prijdou
+	var body bodyRegistrace = bodyRegistrace{}
+
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
+	if err := utils.ValidateStruct(&body); err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	// validace emailu
+	if !utils.ValidFormat(body.Email) {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Invalidni email"))
+	}
 	hesloHASH, err := utils.HashPassword(body.Heslo)
 	if err != nil {
 		log.Print(err)
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
-	id, err := databaze.CreateUziv(body.Email, hesloHASH, body.Jmeno)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(err)
+
+	if _, err = databaze.GetUzivByEmail(body.Email); err == nil { // uz existuje
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Uzivatel s tímto emailem jiz existuje"))
 	}
-	token, err := utils.GenerovatToken(body.Email, id)
-	if err != nil {
-		log.Print(err)
-		return fiber.ErrInternalServerError
-	} else {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
+
+	if _, err = databaze.GetUzivByJmeno(body.Jmeno); err == nil { // uz existuje
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Uzivatel s tímto jmenem jiz existuje"))
 	}
-	/* return c.Status(fiber.StatusBadRequest).JSON("Email") */
+
+	var randomKod string = utils.GenKod()
+
+	for i, v := range utils.UzivCekajiciNaOvereni {
+		if v.Email == body.Email && v.Jmeno == body.Jmeno {
+			utils.UzivCekajiciNaOvereni[i].Kod = randomKod
+			utils.PoslatOverovaciEmail(body.Email, randomKod)
+			return c.SendStatus(fiber.StatusOK)
+		} else if body.Email == v.Email {
+			utils.UzivCekajiciNaOvereni[i].Kod = randomKod
+			utils.UzivCekajiciNaOvereni[i].Jmeno = body.Jmeno
+			utils.PoslatOverovaciEmail(body.Email, randomKod)
+			return c.SendStatus(fiber.StatusOK)
+		} else if v.Jmeno == body.Jmeno {
+			utils.UzivCekajiciNaOvereni[i].Kod = randomKod
+			utils.UzivCekajiciNaOvereni[i].Email = body.Email
+			utils.PoslatOverovaciEmail(body.Email, randomKod)
+			return c.SendStatus(fiber.StatusOK)
+		}
+	} // pokud jsme nenašli shodu tak pridame novy
+	utils.UzivCekajiciNaOvereni = append(utils.UzivCekajiciNaOvereni, utils.UzivCekajici{Email: body.Email, Jmeno: body.Jmeno, HesloHash: hesloHASH, Kod: randomKod, DobaTrvani: time.Now().Add(15 * time.Minute).Unix()})
+	utils.PoslatOverovaciEmail(body.Email, randomKod)
+	return c.SendStatus(fiber.StatusOK)
 }
 
 func prihlaseni(c *fiber.Ctx) error {
 	// validace body dat
-	var body struct {
-		Email string `json:"email" validate:"required,email"`
-		Heslo string `json:"heslo" validate:"required,min=8,max=25"`
-	}
+	var body bodyPrihlaseni = bodyPrihlaseni{}
+
 	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(err)
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 	}
 	err := utils.ValidateStruct(&body)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(err)
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 	}
+
+	var uziv databaze.Uzivatel
+
 	// validace emailu
-	if !utils.ValidFormat(body.Email) {
-		return c.Status(fiber.StatusBadRequest).JSON("Invalidni email")
-	}
-	// pull z databaze
-	uziv, err := databaze.GetUzivByEmail(body.Email)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON("Uzivatel neexistuje")
+	if !utils.ValidFormat(body.EmailNeboJmeno) { //predpokladam ze je to jmeno kdyz se to nepodobá emailu
+		uziv, err = databaze.GetUzivByJmeno(body.EmailNeboJmeno)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(chyba("Email/jmeno je spatne (Jmeno)"))
+		}
+	} else {
+		uziv, err = databaze.GetUzivByEmail(body.EmailNeboJmeno)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(chyba("Email/jmeno je spatne (Email)"))
+		}
 	}
 
 	if err := utils.CheckPassword(body.Heslo, uziv.Heslo); err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON("Spatne heslo")
+		return c.Status(fiber.StatusUnauthorized).JSON(chyba("Heslo je spatne"))
 	} else {
 		token, err := utils.GenerovatToken(uziv.Email, uziv.ID)
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON("Token se pokazil")
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba("Token se pokazil"))
 		} else {
 			return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
 		}
@@ -278,22 +380,22 @@ func prehled(c *fiber.Ctx) error {
 	id, err := utils.Autentizace(c, true)
 	if err != nil {
 		log.Print(err)
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 	uziv, err := databaze.GetUzivByID(id)
 	if err != nil {
 		log.Print(err)
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 	preklepy, cpm, err := databaze.GetPreklepyACPM(id)
 	if err != nil {
 		log.Print(err)
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 	dokonceno, err := databaze.DokonceneProcento(id)
 	if err != nil {
 		log.Print(err)
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 	uspesnost := float32(delkaTextu) - utils.Prumer(preklepy)
 	if uspesnost < 0 {
@@ -314,12 +416,12 @@ func testVyprseniTokenu(c *fiber.Ctx) error {
 		jePotrebaVymenit, err := utils.ValidovatExpTokenu(c.Get("Authorization")[7:])
 		if err != nil {
 			log.Print(err)
-			return fiber.ErrInternalServerError
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 		}
 		id, err := utils.Autentizace(c, true)
 		if err != nil {
 			log.Print(err)
-			return fiber.ErrInternalServerError
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 		}
 		_, err = databaze.GetUzivByID(id)
 		if err != nil && !jePotrebaVymenit {
@@ -327,7 +429,7 @@ func testVyprseniTokenu(c *fiber.Ctx) error {
 		}
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{"jePotrebaVymenit": jePotrebaVymenit})
 	} else {
-		return fiber.ErrUnauthorized
+		return c.Status(fiber.StatusUnauthorized).JSON(chyba(""))
 	}
 }
 
@@ -335,14 +437,12 @@ func upravaUctu(c *fiber.Ctx) error {
 	id, err := utils.Autentizace(c, true)
 	if err != nil {
 		log.Print(err)
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
-	var body struct {
-		Jmeno  string `json:"jmeno" validate:"min=3,max=12"`
-		Smazat bool   `json:"smazat"`
-	}
+	var body = bodyUprava{}
+
 	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(err)
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 	}
 	if err := databaze.ZmenitUzivatele(body.Jmeno, "", body.Smazat, id); err != nil {
 		return err

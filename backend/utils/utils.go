@@ -2,7 +2,9 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"log"
+	"math/rand"
 	"net/mail"
 	"net/url"
 
@@ -68,4 +70,12 @@ func DecodeURL(s string) (string, error) {
 		return "", fiber.ErrBadRequest
 	}
 	return x, nil
+}
+
+func GenKod() string {
+	var kod string
+	for i := 0; i < 5; i++ {
+		kod += fmt.Sprintf("%v", rand.Intn(10))
+	}
+	return kod
 }

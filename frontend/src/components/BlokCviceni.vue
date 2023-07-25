@@ -44,7 +44,7 @@ const mobil = ref(document.body.clientWidth <= 1000)
         <h3 v-else>...</h3>
         <img class="playVetsi" src="../assets/icony/start.svg" alt="Začít lekci">
     </a>
-    <a v-else class="cvicBlok" @click="console.log('ssss')"> <!-- TODO -->
+    <a v-else class="cvicBlok" :class="{ dokoncenyBlok: dokonceno }" @click="pridatOznameni('Psaní na telefonech zatím neučíme...')">
         <h2>{{ index }}</h2>
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>

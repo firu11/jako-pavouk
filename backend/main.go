@@ -11,9 +11,9 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 )
 
-var pocetSlov int = 20 // jeste zvednu
+var pocetSlov int = 21 // jeste zvednu
 var pocetPismenVeSlovu int = 4
-var delkaTextu = (pocetPismenVeSlovu+1)*pocetSlov - 1
+var delkaTextu int = (pocetPismenVeSlovu+1)*pocetSlov - 1
 var tokenTimeDuration time.Duration = time.Hour * 24 * 15 // v nanosekundach, 14 + 1 dni asi good (den predem uz odhlasime aby se nestalo ze neco dela a neulozi se to)
 
 func main() {
@@ -24,18 +24,18 @@ func main() {
 		AppName: "Pavouk",
 	})
 
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:5173, https://jakopavouk.cz",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+	}))
+
 	app.Use(limiter.New(limiter.Config{
-		Max:               30,
+		Max:               35,
 		Expiration:        1 * time.Minute,
 		LimiterMiddleware: limiter.SlidingWindow{},
 		LimitReached: func(c *fiber.Ctx) error {
 			return c.SendStatus(fiber.StatusTeapot) // troulin
 		},
-	}))
-
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:5173, https://jakopavouk.cz",
-		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
 	SetupRouter(app)

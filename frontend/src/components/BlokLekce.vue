@@ -26,9 +26,6 @@ defineProps({
 </template>
 
 <style scoped>
-.tlusty {
-    font-weight: 500;
-}
 .lekceBlok {
     color: var(--bila);
     display: flex;

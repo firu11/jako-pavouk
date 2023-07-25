@@ -98,7 +98,7 @@ function potrebujeShift(pismeno: string) {
     <div id="klavesnice" class="pruhledne">
         <div class="radek" v-for="radek in schema">
             <div v-for="tlacitko in radek" class="klavesa"
-                :class="{ oznacenaKlavesa: oznacene(tlacitko) || (tlacitko === 'Shift' && shiftSviti) }"
+                :class="{ oznacenaKlavesa: oznacene(tlacitko) || (tlacitko === 'Shift' && shiftSviti), fjPodtrzeni: tlacitko === 'F' || tlacitko === 'J' }"
                 :style="{ backgroundColor: barva(tlacitko), flexGrow: delkaTlacitka(tlacitko) }">
 
                 <div v-if="tlacitko !== '^v'" :style="{ color: '#000' }">
@@ -166,4 +166,11 @@ function potrebujeShift(pismeno: string) {
     gap: 4px;
     background-color: var(--tmave-fialova);
 }
+
+.fjPodtrzeni div {
+    border-bottom: 1px solid black !important;
+    width: 10px;
+    padding-top: 2px;
+}
+
 </style>

@@ -3,7 +3,7 @@ import axios from 'axios'
 import { prihlasen, tokenJmeno } from '../stores';
 import { useRouter } from 'vue-router';
 import { onMounted, ref } from 'vue';
-import { getToken, pridatOznameni } from '../utils';
+import { checkTeapot, getToken, pridatOznameni } from '../utils';
 
 const router = useRouter()
 
@@ -30,19 +30,23 @@ onMounted(() => {
     getInfo()
 })
 
-function getInfo() {
+async function getInfo() {
     if (getToken()) {
-        axios.get('/ja', {
-            headers: {
-                Authorization: `Bearer ${getToken()}`
+        try {
+            let resp = await axios.get('/ja', {
+                headers: {
+                    Authorization: `Bearer ${getToken()}`
+                }
+            })
+            info.value = resp.data
+            jmenoUprava.value = resp.data.jmeno
+        }
+        catch (e: any) {
+            if (!checkTeapot(e)) {
+                router.push("/prihlaseni")
+                prihlasen.value = false
             }
-        }).then(response => {
-            info.value = response.data
-            jmenoUprava.value = response.data.jmeno
-        }).catch(_ => {
-            router.push("/prihlaseni")
-            prihlasen.value = false
-        })
+        }
     } else { //nebudeš tam chodit nemas ucet more
         prihlasen.value = false
         router.push("/prihlaseni")
@@ -54,7 +58,7 @@ function postZmena(jmeno = false, smazat = false) {
     if (jmeno) config = { "jmeno": jmenoUprava.value }
     else if (smazat) config = { "smazat": true }
     if (getToken()) {
-        axios.post('/ucet-zmena', config, { headers: { Authorization: `Bearer ${getToken()}` }}).then(_ => {
+        axios.post('/ucet-zmena', config, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
             if (!smazat) {
                 getInfo()
             } else {
@@ -106,10 +110,6 @@ function smazat() {
     </div>
     <div id="bloky">
         <div class="blok">
-            <img src="../assets/icony/kalendar.svg" alt="Přesnost">
-            <span class="popis">Počet dní v řadě: <br><span class="cislo">{{ zaokrouhlit(info.daystreak) }}</span></span>
-        </div>
-        <div class="blok">
             <img src="../assets/icony/rychlost.svg" alt="Rychlost" width="75">
             <span v-if="info.prumerRychlosti == -1">Zatím nic</span>
             <span v-else class="popis">Rychlost: <br><span class="cislo">{{ zaokrouhlit(info.prumerRychlosti) }}</span>
@@ -120,8 +120,12 @@ function smazat() {
             <span v-if="info.uspesnost == -1">Zatím nic</span>
             <span v-else class="popis">Přesnost: <br><span class="cislo">{{ zaokrouhlit(info.uspesnost) }}</span> %</span>
         </div>
+        <div class="blok">
+            <img src="../assets/icony/kalendar.svg" alt="Kalendář">
+            <span class="popis">Počet dní v řadě: <br><span class="cislo">{{ zaokrouhlit(info.daystreak) }}</span></span>
+        </div>
     </div>
-    
+
     <div id="tlacitka">
         <button @click="odhlasit" class="tlacitko">Odhlásit</button>
         <button v-if="!smazatPotvrzeni" @click="smazatPotvrzeni = true" class="cerveneTlacitko">Smazat účet</button>
@@ -177,6 +181,9 @@ function smazat() {
     display: flex;
     flex-direction: row;
     gap: 20px;
+    flex-wrap: wrap-reverse;
+    justify-content: center;
+    align-content: flex-end;
 }
 
 .blok {
@@ -266,14 +273,14 @@ function smazat() {
 #nacitani-pozadi {
     height: 20px;
     background-color: var(--fialova);
-    border-radius: 5px;
+    border-radius: 10px;
     padding: 0;
+    overflow: hidden;
 }
 
 #nacitani {
     background-color: var(--bila);
     height: 20px;
-    border-radius: 5px;
     position: relative;
     left: -1px
 }

@@ -1,4 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;600;700;800&display=swap');
+@font-face {
+    font-family: "Montserrat";
+    src: url("/Montserrat-VariableFont_wght.ttf");
+}
+
+@font-face {
+    font-family: "Red Hat Mono";
+    src: url("/RedHatMono-VariableFont_wght.ttf");
+}
 
 :root {
     --cerna: #171528;
@@ -24,6 +32,10 @@
 h1 {
     font-weight: 500;
     margin-bottom: 25px;
+}
+
+p {
+    font-size: 1.2em;
 }
 
 body::-webkit-scrollbar {
@@ -101,4 +113,8 @@ body {
     position: relative;
     right: 25px;
     /* posunuti o pulku sipky */
+}
+
+.tlusty {
+    font-weight: 500;
 }

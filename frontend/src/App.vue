@@ -2,10 +2,11 @@
 import { onMounted, ref } from 'vue';
 import MenuLink from './components/MenuLink.vue';
 import { prihlasen, tokenJmeno } from './stores';
-import { getToken, oznameni, pridatOznameni } from './utils';
+import { checkTeapot, getToken, oznameni, pridatOznameni } from './utils';
 import axios from 'axios';
 
 onMounted(() => {
+    console.log("%c Co sem koukáš koloušku? ", "background-color: #3F3351; color: white; font-size: x-large"); // troulin
     if (getToken()) {
         axios.get("/token-expirace", {
             headers: {
@@ -15,13 +16,15 @@ onMounted(() => {
             if (response.data.jePotrebaVymenit) {
                 localStorage.removeItem(tokenJmeno)
                 prihlasen.value = false
-                pridatOznameni("Z bezpečnostních důvodů jste byli odhlášeni")
+                pridatOznameni("Z bezpečnostních důvodů jste byli odhlášeni", 8000)
             } else {
                 prihlasen.value = true
             }
         }).catch(e => {
-            console.log(e)
-            pridatOznameni()
+            if (!checkTeapot(e)) {
+                console.log(e)
+                pridatOznameni()
+            }
         })
     }
 })
@@ -36,9 +39,9 @@ const mobilMenu = ref(false)
                 alt="Menu"></div>
         <nav :class="{ mobilHidden: !mobilMenu }" @click="mobilMenu = !mobilMenu">
             <MenuLink jmeno="Domů" cesta="/" />
+            <MenuLink jmeno="Jak psát" cesta="/jak-psat" />
             <MenuLink jmeno="Lekce" cesta="/lekce" />
             <MenuLink jmeno="O nás" cesta="/o-nas" />
-            <MenuLink jmeno="Podpořit projekt" cesta="/podporit" />
             <MenuLink v-if="!prihlasen" jmeno="Přihlásit se" cesta="/prihlaseni" />
             <MenuLink v-else jmeno="Můj účet" cesta="/ucet" />
         </nav>
@@ -48,16 +51,28 @@ const mobilMenu = ref(false)
     </div>
 
     <div id="alerty">
-        <div v-for="o in oznameni" class="alert">
-            <img src="./assets/icony/alret.svg" alt="Vykřičník">
-            {{ o.text }}
-        </div>
+        <TransitionGroup name="list">
+            <div v-for="(o, i) in oznameni" class="alert" :key="i">
+                <img src="./assets/icony/alret.svg" alt="Vykřičník">
+                {{ o.text }}
+            </div>
+        </TransitionGroup>
     </div>
 
     <img id="pavucina1" src="./assets/pavucina.svg" alt="Pavucina">
 </template>
 
 <style scoped>
+/* na tu animaci oznameni */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.3s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
 #alerty {
     position: absolute;
     right: 10px;
@@ -67,6 +82,7 @@ const mobilMenu = ref(false)
     align-items: flex-end;
     justify-content: end;
     gap: 10px;
+    overflow: hidden;
 
 }
 
@@ -132,7 +148,7 @@ nav {
         border-radius: 100px;
         padding: 10px;
         display: block;
-        position: absolute;
+        position: fixed;
         right: 10px;
         top: 10px;
         width: 60px;

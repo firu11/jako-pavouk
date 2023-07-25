@@ -22,3 +22,14 @@ export function pridatOznameni(text: string = "Něco se pokazilo", cas: number =
         oznameni.value.splice(oznameni.value.indexOf(obj), 1);
     }, cas)
 }
+
+export function checkTeapot(e: any) {
+    if (e.response && e.response.status == 418) {
+        if (oznameni.value.length == 0) {
+            pridatOznameni("Dej si čajík a vydýchej se...")
+        }
+        return true
+    }
+    if (e.response) console.log(e.response.status)
+    return false
+}

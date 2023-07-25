@@ -31,16 +31,12 @@ function login(e: Event) {
         prihlasen.value = true
         router.push("/ucet")
     }).catch(e => {
-        try {
-            if (e.response.status == 400 || e.response.status == 401) {
-                spatnyHeslo.value = true
-                spatnyEmail.value = true
-            } else {
-                pridatOznameni()
-            }
-        } catch {
+        if (e.response.status == 400 || e.response.status == 401) {
+            if (e.response.data.error.search("Email") !== -1) spatnyEmail.value = true
+            else if (e.response.data.error.search("Heslo") !== -1) spatnyHeslo.value = true
+            else pridatOznameni()
+        } else {
             pridatOznameni()
-            console.log(e)
         }
     })
 }
@@ -55,7 +51,7 @@ function zmena() { // pokud zacnu znova psat tak zrusim znaceni spatnyho inputu
 <template>
     <h2>Přihlášení</h2>
     <form class="pruhledne">
-        <h3 class="nadpis">Email:</h3>
+        <h3 class="nadpis">Email nebo jméno:</h3>
         <input style="margin-bottom: 20px" :class="{ spatnej_input: spatnyEmail }" :oninput="zmena" type="text"
             v-model="email" placeholder="Např: pepa@zdepa.cz">
         <h3 class="nadpis">Heslo:</h3>
