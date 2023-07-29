@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { getToken } from '../utils';
-
 
 const emit = defineEmits(["restart"])
 
@@ -25,14 +24,25 @@ const props = defineProps({
         type: String,
         default: ""
     },
-    cislo: String
+    cislo: String,
+    posledni: Boolean
 })
 
-let rychlost = Math.round((props.delkaTextu / props.cas) * 60 * 10 ) / 10
+let rychlost = Math.round((props.delkaTextu / props.cas) * 60 * 10) / 10
+const route = useRoute()
 const router = useRouter()
 
 function reset() {
     emit("restart")
+}
+
+function dalsi() {
+    if (props.cislo == undefined) return
+    let r = route.path.split("/")
+    r.pop()
+    let c = r.join("/") 
+    if (props.posledni) router.push(c) // /lekce/pismena
+    else router.push(c + "/" + (parseInt(props.cislo) + 1).toString()) // /lekce/pismena/cislo
 }
 
 onMounted(() => {
@@ -76,7 +86,7 @@ onMounted(() => {
     </div>
     <div id="tlacitka_kontainer">
         <button class="tlacitko" @click="reset">Zkusit znovu</button>
-        <button class="tlacitko" @click="router.push('/lekce/' + encodeURIComponent(pismena))">Pokračovat</button>
+        <button class="tlacitko" @click="dalsi()">Pokračovat</button>
     </div>
 </template>
 

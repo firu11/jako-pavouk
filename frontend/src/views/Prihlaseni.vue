@@ -50,14 +50,14 @@ function zmena() { // pokud zacnu znova psat tak zrusim znaceni spatnyho inputu
 
 <template>
     <h2>Přihlášení</h2>
-    <form class="pruhledne">
+    <form>
         <h3 class="nadpis">Email nebo jméno:</h3>
         <input style="margin-bottom: 20px" :class="{ spatnej_input: spatnyEmail }" :oninput="zmena" type="text"
-            v-model="email" placeholder="Např: pepa@zdepa.cz">
+            v-model="email" placeholder="Např: pepa@zdepa.cz" inputmode="email">
         <h3 class="nadpis">Heslo:</h3>
-        <input class="margin" :class="{ spatnej_input: spatnyHeslo }" :oninput="zmena" type="password" v-model="heslo"
+        <input :class="{ spatnej_input: spatnyHeslo }" :oninput="zmena" type="password" v-model="heslo"
             placeholder='Rozhodně ne "Pepa123"'>
-        <button class="tlacitko" @click="login">Přihlásit</button>
+        <button type="submit" class="tlacitko" @click="login">Přihlásit</button>
 
     </form>
     <p>Nemáte ještě účet?

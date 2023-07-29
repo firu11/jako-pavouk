@@ -74,11 +74,11 @@ function chekujUdaje(jaky: string) {
     else if (jaky === 'jmeno') jmenoExistuje.value = false
 }
 
-function open_info() {
+function openInfo() {
     document.getElementsByClassName('info')[0].id = 'info_show';
 }
 
-function close_info() {
+function closeInfo() {
     document.getElementsByClassName('info')[0].id = 'info_out';
 }
 
@@ -94,10 +94,10 @@ function close_info() {
             <h4 :class="{ opacity0: !jmenoExistuje }" class="chybaExistuje">Uživatel s tímto jménem už existuje</h4>
             <h3 class="nadpis">Email:</h3>
             <input :class="{ spatnej_input: spatnyEmail || emailExistuje }" @:input="chekujUdaje('email')" type="text"
-                v-model="email" placeholder="Např: pepa@zdepa.cz">
+                v-model="email" placeholder="Např: pepa@zdepa.cz" inputmode="email">
             <h4 :class="{ opacity0: !emailExistuje }" class="chybaExistuje">Uživatel s tímto emailem už existuje</h4>
-            <h3 class="nadpis">Heslo: <img src="../assets/icony/info.svg" alt="info" @mouseover="open_info"
-                    @mouseleave="close_info"></h3>
+            <h3 class="nadpis infoNadpis">Heslo: <img src="../assets/icony/info.svg" alt="info" @mouseover="openInfo"
+                    @mouseleave="closeInfo"></h3>
             <input :class="{ spatnej_input: spatnyHeslo }" @:input="chekujUdaje('heslo')" type="password" v-model="heslo"
                 placeholder='Rozhodně ne "Pepa123"'>
             <button type="submit" class="tlacitko" @click="registr">Registrovat</button>

@@ -6,7 +6,7 @@ import { checkTeapot, getToken, oznameni, pridatOznameni } from './utils';
 import axios from 'axios';
 
 onMounted(() => {
-    console.log("%c Co sem koukáš koloušku? ", "background-color: #3F3351; color: white; font-size: x-large"); // troulin
+    console.log("%cCo sem koukáš koloušku?", "color: white; font-size: x-large"); // troulin
     if (getToken()) {
         axios.get("/token-expirace", {
             headers: {
@@ -47,7 +47,7 @@ const mobilMenu = ref(false)
         </nav>
     </header>
     <div id="view">
-        <RouterView />
+        <RouterView :key="$route.fullPath" />
     </div>
 
     <div id="alerty">
@@ -73,17 +73,18 @@ const mobilMenu = ref(false)
   opacity: 0;
   transform: translateX(30px);
 }
+
 #alerty {
-    position: absolute;
-    right: 10px;
-    bottom: 10px;
+    position: fixed;
+    right: 0;
+    bottom: 0;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     justify-content: end;
     gap: 10px;
     overflow: hidden;
-
+    padding: 20px;
 }
 
 .alert {

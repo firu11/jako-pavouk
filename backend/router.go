@@ -177,8 +177,13 @@ func getCviceni(c *fiber.Ctx) error {
 		return fiber.ErrInternalServerError
 	}
 
+	var posledni bool = false
+	if int(cislo-1) == len(vsechnyCviceni)-1 {
+		posledni = true
+	}
+
 	text[len(text)-1] = text[len(text)-1][:len(text[len(text)-1])-1] // smazat mezeru na konci
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "posledni": posledni})
 }
 
 func dokoncitCvic(c *fiber.Ctx) error {
@@ -214,6 +219,7 @@ func dokoncitCvic(c *fiber.Ctx) error {
 		log.Print("Takovy cviceni neni")
 		return fiber.ErrBadRequest
 	}
+
 	if err := databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.CPM, body.Preklepy); err != nil {
 		err = databaze.OdebratDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id)
 		if err != nil {

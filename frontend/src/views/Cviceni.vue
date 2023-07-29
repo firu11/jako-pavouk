@@ -21,6 +21,8 @@ const preklepy = ref(0)
 const timerZacatek = ref(0)
 const cas = ref(0)
 
+const posledni = ref(false)
+
 const zvukyZaply = ref(true)
 let sus = localStorage.getItem("pavouk_zvuk")
 if (sus == null) {
@@ -67,6 +69,7 @@ function get() {
                 delkaTextu.value++
             })
         })
+        posledni.value = response.data.posledni
     }).catch(_ => {
         router.push('/404')
     });
@@ -180,7 +183,7 @@ function toggleZvuk() {
     </div>
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas"
-        :pismena="pismena" :cislo="cislo"></Vysledek>
+        :pismena="pismena" :cislo="cislo" :posledni="posledni"></Vysledek>
 
     <div id="zvukBtn" @click="toggleZvuk">
         <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvukIcon" src="../assets/icony/zvukOn.svg"

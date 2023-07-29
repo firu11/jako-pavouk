@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 
-const router = useRouter()
 let routeArray = useRoute().path.split("/")
 routeArray.pop() // odstranime posledni
 const zpet = routeArray.join("/") //zase spojime a mame to predchozi jakoby
@@ -10,7 +9,9 @@ const zpet = routeArray.join("/") //zase spojime a mame to predchozi jakoby
 
 <template>
     <div>
-        <img src="../assets/icony/sipkaL.svg" alt="Zpět" @click="router.push(zpet)">
+        <RouterLink :to="zpet">
+            <img src="../assets/icony/sipkaL.svg" alt="Zpět">
+        </RouterLink>
     </div>
 </template>
 

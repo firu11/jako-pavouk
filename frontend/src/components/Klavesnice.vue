@@ -89,7 +89,7 @@ function potrebujeShift(pismeno: string) {
         return true
     }
 
-    return (pismeno === pismeno.toUpperCase() && !["Ů", "Ú", "+", "=", "-"].includes(pismeno))  // Ů a Ú nejdou psat se shiftem
+    return (pismeno === pismeno.toUpperCase() && !["Ů", "Ú", "+", "=", "-", ".", ",", "§", ")", "´", ";"].includes(pismeno))  // Ů a Ú nejdou psat se shiftem
 
 }
 </script>

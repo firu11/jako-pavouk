@@ -1,7 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
+    history: createWebHistory(),
+    scrollBehavior() {
+        return { top: 0, behavior: 'smooth' } // aby scroll nezustaval dole na strankach kde se nescrolluje
+    },
     routes: [
         {
             path: '/',

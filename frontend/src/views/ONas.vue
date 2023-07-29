@@ -6,15 +6,15 @@
     <h1>O nás</h1>
 
     <p>
-        Jako Pavouk je studentský projekt na výuku psaní všema deseti.
+        Jako Pavouk je studentský projekt na výuku psaní všemi deseti.
         <br>
         Nápad a motivace pro vývoj této webové aplikace byl fakt,
-        že já sám jsem neuměl psát všema deseti, a když jsem se to rozhodl naučit,
+        že já sám jsem neuměl psát všemi deseti, a když jsem se to rozhodl naučit,
         <br>
         se zděšením jsem zjistil, že co se týče české klávesnice, není moc možností a nějaké z nich vás budou stát skoro 1000 Kč.
     </p>
     <p>
-        Jelikož je Jako Pavouk kompletně zdarma, je možnost nás podpořit přes platformu Ko-fi níže. Moc si vážíme vaší
+        Jelikož je Jako Pavouk kompletně zdarma, je tu však možnost nás podpořit přes platformu Ko-fi níže. Moc si vážíme vaší
         podpory! <br>
         <a href="https://ko-fi.com/jakopavouk" target=”_blank”><img id="kofi" src="../assets/kofi_button.webp" alt="Podpořit"></a>
     </p>
@@ -27,7 +27,14 @@
 
 <style scoped>
 p {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    width: 110%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--tmave-fialova);
+    border-radius: 10px;
+    align-items: center;
+    padding: 30px 20px;
 }
 
 #discord {

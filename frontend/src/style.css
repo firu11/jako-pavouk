@@ -55,8 +55,12 @@ body {
     background-repeat: repeat;
     display: flex;
     flex-wrap: nowrap;
-    width: 100vw;
+    width: 100%;
     justify-content: space-evenly;
+}
+
+hr {
+    border: #afafaf 1px solid;
 }
 
 .fajvka {
@@ -117,4 +121,68 @@ body {
 
 .tlusty {
     font-weight: 500;
+}
+
+.bloky {
+    margin-top: 50px;
+    width: 110%;
+    height: 20em;
+    display: flex;
+    gap: 15px;
+    background-color: var(--tmave-fialova);
+    border-radius: 10px;
+    align-items: center;
+    padding: 20px 30px;
+}
+
+.bloky img, .bloky a {
+    width: 40%;
+}
+
+.bloky .text {
+    width: 60%;
+    list-style-position: inside;
+}
+
+.bloky .text li {
+    text-align: left;
+    text-indent: -1em;
+    margin-left: 10px;
+}
+
+.bloky .text p,
+.bloky .text li {
+    font-size: 1.1em;
+    padding: 8px;
+    line-height: 1.3em;
+}
+
+.bloky .text h2 {
+    margin-bottom: 20px;
+    font-size: 1.6em;
+}
+
+@media screen and (max-width: 1000px) {
+    .bloky {
+        margin-top: 25px;
+        flex-direction: column-reverse;
+        width: 80%;
+        height: auto;
+        padding: 25px 15px;
+        gap: 20px;
+    }
+
+    div:nth-of-type(odd).bloky {
+        flex-direction: column;
+    }
+
+    .bloky .text {
+        width: 100%;
+        height: 60%;
+    }
+
+    .bloky img, .bloky a {
+        width: 100%;
+        height: 40%;
+    }
 }

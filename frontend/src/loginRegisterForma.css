@@ -15,6 +15,12 @@ form .nadpis {
     display: inline-block;
 }
 
+.infoNadpis {
+    display: flex !important;
+    justify-content: space-between;
+    width: 100%;
+}
+
 h2 {
     margin-top: 40px;
 }
@@ -64,9 +70,9 @@ p {
 
 form img {
     height: 19px;
-    vertical-align: bottom;
     display: inline-block;
-    margin-left: 230px;
+    align-self: flex-end;
+    margin-right: 5px;
 }
 
 .info {
@@ -97,7 +103,7 @@ form img {
 
 .info ul {
     padding-left: 25px;
-    font-size:14px;
+    font-size: 14px;
     font-weight: normal;
 }
 
@@ -121,25 +127,35 @@ form button {
     margin-top: 20px;
 }
 
+#view {
+    width: 100% !important;
+}
+
 @media screen and (max-width:450px) {
     form {
-        min-width: 100%;
-        max-width: 100%;
-        width: 100%;
+        width: 85vw;
     }
+
     form input {
         min-width: 177px;
-        width: 70vw;
+        width: 96%;
+        margin-left: 2%;
+        margin-right: 2%;
     }
+
     #view {
-        width: 100%;
+        width: 100% !important;
     }
+
     form input:focus {
-        width: 105%;
+        width: 102%;
+        margin: 0;
     }
+
     form img {
         margin-left: 0;
     }
+
     form .nadpis {
         width: 100%;
         text-align: start;
@@ -147,5 +163,14 @@ form button {
         justify-content: space-between;
         align-self: auto;
         padding-left: 5px;
+    }
+}
+
+@media screen and (max-width:1000px) {
+    .info {
+        top: auto;
+        bottom: 10%;
+        left: auto;
+        align-self: center;
     }
 }
