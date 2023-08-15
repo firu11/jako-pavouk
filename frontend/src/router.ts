@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { getToken } from './utils';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -8,7 +9,7 @@ const router = createRouter({
     routes: [
         {
             path: '/',
-            component: () => import('./views/Domu.vue')
+            component: () => import('./views/Domu.vue'),
         },
         {
             path: '/o-nas',
@@ -20,7 +21,7 @@ const router = createRouter({
         },
         {
             path: '/jak-psat',
-            component: () => import('./views/Teorie.vue')
+            component: () => import('./views/Teorie.vue'),
         },
         {
             path: '/prihlaseni',
@@ -32,7 +33,8 @@ const router = createRouter({
         },
         {
             path: '/ucet',
-            component: () => import('./views/Ucet.vue')
+            component: () => import('./views/Ucet.vue'),
+            meta: { requireAuth: true }
         },
         {
             path: '/lekce/:pismena',
@@ -40,7 +42,8 @@ const router = createRouter({
         },
         {
             path: '/lekce/:pismena/:id',
-            component: () => import('./views/Cviceni.vue')
+            component: () => import('./views/Cviceni.vue'),
+            meta: { requireAuth: true }
         },
         {
             path: '/:pathMatch(.*)*',
@@ -49,5 +52,17 @@ const router = createRouter({
 
     ]
 })
+
+router.beforeEach((to, _, next) => { // kdyz potrebuje auth tak => prihlaseni
+    if (to.meta.requireAuth) { 
+        if (!getToken()) {
+            next("/prihlaseni");
+        } else {
+            next();
+        }
+    } else {
+        next();
+    }
+});
 
 export default router

@@ -5,10 +5,15 @@ import { useRouter, useRoute } from 'vue-router'
 import { formatovanyPismena, getToken } from '../utils';
 import BlokCviceni from '../components/BlokCviceni.vue';
 import SipkaZpet from '../components/SipkaZpet.vue';
+import { useHead } from 'unhead'
 
 const route = useRoute().params.pismena
 const pismena = Array.isArray(route) ? route[0] : route // sus proste kdyby nahodou to byl array jakoze nebude tak to indexnem
 const router = useRouter()
+
+useHead({
+    title: "Lekce " + route
+})
 
 const cviceni = ref([] as {id: number, typ: string}[])
 const dokoncene = ref([] as number[])

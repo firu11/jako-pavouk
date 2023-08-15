@@ -1,4 +1,19 @@
 <script setup lang="ts">
+import { useHead } from 'unhead'
+
+useHead({
+    title: "Jak psát",
+    meta: [
+        {
+            name: "description",
+            content: "Teorie psaní všemi deseti na české klávesnici",
+        },
+        {
+            name: "keywords",
+            content: "psani, psaní, všemi, vsemi, všema, vsema, deseti, teorie, jak, psát, klávesy, princip",
+        }
+    ]
+})
 </script>
 
 <template>
@@ -10,7 +25,7 @@
             <p>
                 Základním principem je mít prsty ve správné výchozí pozici, která je velice prostá. <br> Ukazováčky položíme
                 na
-                <span class="tlusty">písmena F, J</span>, kde často bývá fyzická značka abyste se jich mohli držet.
+                <span class="tlusty">písmena F, J</span>, kde často bývá fyzická značka, abyste se jich mohli držet.
                 Ostatní prsty umístíme <span class="tlusty">do stran ve stejné řadě</span>.
                 Tedy levý prostředníček bude na D, prsteníček na S a malíček na A. Zrcadlově na druhé ruce.
             </p>

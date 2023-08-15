@@ -4,6 +4,11 @@ import { prihlasen, tokenJmeno } from '../stores';
 import { useRouter } from 'vue-router';
 import { onMounted, ref } from 'vue';
 import { checkTeapot, getToken, pridatOznameni } from '../utils';
+import { useHead } from 'unhead'
+
+useHead({
+    title: "Účet"
+})
 
 const router = useRouter()
 
@@ -31,25 +36,20 @@ onMounted(() => {
 })
 
 async function getInfo() {
-    if (getToken()) {
-        try {
-            let resp = await axios.get('/ja', {
-                headers: {
-                    Authorization: `Bearer ${getToken()}`
-                }
-            })
-            info.value = resp.data
-            jmenoUprava.value = resp.data.jmeno
-        }
-        catch (e: any) {
-            if (!checkTeapot(e)) {
-                router.push("/prihlaseni")
-                prihlasen.value = false
+    try {
+        let resp = await axios.get('/ja', {
+            headers: {
+                Authorization: `Bearer ${getToken()}`
             }
+        })
+        info.value = resp.data
+        jmenoUprava.value = resp.data.jmeno
+    }
+    catch (e: any) {
+        if (!checkTeapot(e)) {
+            router.push("/prihlaseni")
+            prihlasen.value = false
         }
-    } else { //nebudeš tam chodit nemas ucet more
-        prihlasen.value = false
-        router.push("/prihlaseni")
     }
 }
 
@@ -57,19 +57,17 @@ function postZmena(jmeno = false, smazat = false) {
     let config
     if (jmeno) config = { "jmeno": jmenoUprava.value }
     else if (smazat) config = { "smazat": true }
-    if (getToken()) {
-        axios.post('/ucet-zmena', config, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
-            if (!smazat) {
-                getInfo()
-            } else {
-                router.push("/prihlaseni")
-            }
-        }).catch(e => {
-            if (e.response.data.search("uzivatel_jmeno_key")) {
-                pridatOznameni("Takové jméno už někdo má")
-            }
-        })
-    }
+    axios.post('/ucet-zmena', config, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
+        if (!smazat) {
+            getInfo()
+        } else {
+            router.push("/prihlaseni")
+        }
+    }).catch(e => {
+        if (e.response.data.search("uzivatel_jmeno_key")) {
+            pridatOznameni("Takové jméno už někdo má")
+        }
+    })
 }
 
 function zmena() {
@@ -287,7 +285,6 @@ function smazat() {
 
 @media screen and (max-width: 1000px) {
     #bloky {
-        flex-wrap: wrap;
         align-items: center;
         justify-content: center;
     }

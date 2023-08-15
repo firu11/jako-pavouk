@@ -1,11 +1,13 @@
 @font-face {
     font-family: "Montserrat";
     src: url("/Montserrat-VariableFont_wght.ttf");
+    font-display: swap;
 }
 
 @font-face {
     font-family: "Red Hat Mono";
     src: url("/RedHatMono-VariableFont_wght.ttf");
+    font-display: swap;
 }
 
 :root {
@@ -137,6 +139,7 @@ hr {
 
 .bloky img, .bloky a {
     width: 40%;
+    height: auto;
 }
 
 .bloky .text {

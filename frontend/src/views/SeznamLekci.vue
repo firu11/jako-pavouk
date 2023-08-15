@@ -3,6 +3,11 @@ import axios from "axios"
 import BlokLekce from "../components/BlokLekce.vue";
 import { onMounted, ref } from "vue"
 import { checkTeapot, getToken, pridatOznameni } from "../utils";
+import { useHead } from 'unhead'
+
+useHead({
+    title: "Lekce"
+})
 
 const lekce = ref([[]])
 const dokoncene = ref([])

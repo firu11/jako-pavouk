@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { useHead } from 'unhead'
 
+useHead({
+    title: "O nás"
+})
 </script>
 
 <template>

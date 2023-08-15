@@ -4,6 +4,12 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { prihlasen, tokenJmeno } from '../stores';
 import { pridatOznameni } from '../utils';
+import { useHead } from 'unhead'
+
+useHead({
+    title: "Registrace"
+})
+
 
 const router = useRouter()
 
@@ -67,19 +73,19 @@ function overeniPost(e: Event) {
 
 function chekujUdaje(jaky: string) {
     if (jaky === 'email' && email.value) spatnyEmail.value = !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email.value); //test jestli email
-    else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*[0-9])(?=.*[!@#$%^&*_])[a-zA-Z0-9!@#$%^&*_]{8,25}$/.test(heslo.value) //heslo 8-25 aspon jeden CAPS a *_!
-    else if (jaky === 'jmeno' && jmeno.value !== undefined) spatnyJmeno.value = !/^[a-zA-Z0-9!@#$%^&*_ ]{3,12}$/.test(jmeno.value) //jmeno 3-12
+    else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,30}$/.test(heslo.value) //heslo 5-30 aspon jeden CAPS a cislice
+    else if (jaky === 'jmeno' && jmeno.value !== undefined) spatnyJmeno.value = !/^[a-zA-Z0-9!@#$%^&*_ ]{3,15}$/.test(jmeno.value) //jmeno 3-15
     else if (jaky === 'kod' && kod.value !== undefined) spatnyKod.value = !/^\d{5}$/.test(kod.value) //kod
     if (jaky === 'email') emailExistuje.value = false
     else if (jaky === 'jmeno') jmenoExistuje.value = false
 }
 
 function openInfo() {
-    document.getElementsByClassName('info')[0].id = 'info_show';
+    document.getElementsByClassName('info')[0].id = 'infoShow';
 }
 
 function closeInfo() {
-    document.getElementsByClassName('info')[0].id = 'info_out';
+    document.getElementsByClassName('info')[0].id = 'infoHide';
 }
 
 </script>
@@ -102,12 +108,12 @@ function closeInfo() {
                 placeholder='Rozhodně ne "Pepa123"'>
             <button type="submit" class="tlacitko" @click="registr">Registrovat</button>
         </form>
-        <div id="info_out" class="info">
+        <div id="infoHide" class="info">
             Heslo musí obsahovat:
             <ul>
-                <li>Minimálně 8 znaků</li>
-                <li>Alespoň jeden speciální znak (!@#$%^&*_)</li>
+                <li>Minimálně 5 znaků</li>
                 <li>Alespoň jedna číslice</li>
+                <li>Alespoň jedno velké písmeno</li>
             </ul>
         </div>
     </div>

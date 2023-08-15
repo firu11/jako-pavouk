@@ -4,6 +4,11 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { prihlasen, tokenJmeno } from '../stores';
 import { pridatOznameni } from '../utils';
+import { useHead } from 'unhead'
+
+useHead({
+    title: "Přihlášení"
+})
 
 const router = useRouter()
 

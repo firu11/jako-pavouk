@@ -1,0 +1,1 @@
+sitemap: http://www.jakopavouk.cz/sitemap.xml

@@ -72,12 +72,12 @@ form img {
     height: 19px;
     display: inline-block;
     align-self: flex-end;
-    margin-right: 5px;
+    margin-right: 10px;
 }
 
 .info {
     display: block;
-    width: 230px;
+    width: 220px;
     background-color: var(--tmave-fialova);
     color: white;
     border-radius: 10px;
@@ -91,12 +91,12 @@ form img {
     font-weight: bold;
 }
 
-#info_show {
+#infoShow {
     opacity: 1;
     transition: ease-in 0.1s;
 }
 
-#info_out {
+#infoHide {
     opacity: 0;
     transition: ease-in 0.1s;
 }
@@ -170,7 +170,7 @@ form button {
     .info {
         top: auto;
         bottom: 10%;
-        left: auto;
+        left: calc(50% - 110px); /* - pulka sirky */
         align-self: center;
     }
 }

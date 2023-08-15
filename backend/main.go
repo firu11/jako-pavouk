@@ -11,7 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 )
 
-var pocetSlov int = 2 // 21 // jeste zvednu
+var pocetSlov int = 21
 var pocetPismenVeSlovu int = 4
 var delkaTextu int = (pocetPismenVeSlovu+1)*pocetSlov - 1
 var tokenTimeDuration time.Duration = time.Hour * 24 * 15 // v nanosekundach, 14 + 1 dni asi good (den predem uz odhlasime aby se nestalo ze neco dela a neulozi se to)

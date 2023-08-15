@@ -1,5 +1,20 @@
 <script setup lang="ts">
 import PsaniHomePage from '../components/PsaniHomePage.vue';
+import { useHead } from 'unhead'
+
+useHead({
+    title: "",
+    meta: [
+        {
+            name: "description",
+            content: "Webová aplikace pro výuku psaní všemi deseti. Chcete se naučit psát rychle jako pavouk? Během pár týdnu se budete cítit jako profík.",
+        },
+        {
+            name: "keywords",
+            content: "jako, pavouk, psani, psaní, všemi, vsemi, všema, vsema, deseti",
+        }
+    ]
+})
 </script>
 
 <template>
@@ -20,9 +35,9 @@ import PsaniHomePage from '../components/PsaniHomePage.vue';
         <div class="text">
             <h2>Co vás to bude stát?</h2>
             <p>
-                <span class="tlusty">Vůbec nic.</span> <br> 
-                Celý kurz Jako Pavouk je zcela zdarma! 
-                Avšak než si osvojíte všechny klávesy, budete to chvíli trvat. 
+                <span class="tlusty">Vůbec nic.</span> <br>
+                Celý kurz Jako Pavouk je zcela zdarma!
+                Avšak než si osvojíte všechny klávesy, budete to chvíli trvat.
                 Od toho, aby to ale netrvalo věčnost, jsme tu my!
             </p>
         </div>
@@ -30,6 +45,4 @@ import PsaniHomePage from '../components/PsaniHomePage.vue';
     </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

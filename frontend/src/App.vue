@@ -3,7 +3,22 @@ import { onMounted, ref } from 'vue';
 import MenuLink from './components/MenuLink.vue';
 import { prihlasen, tokenJmeno } from './stores';
 import { checkTeapot, getToken, oznameni, pridatOznameni } from './utils';
+import { useHead } from 'unhead'
 import axios from 'axios';
+
+useHead({
+    titleTemplate: (title?: string) => title != "" ? `${title} | Jako Pavouk` : "Jako Pavouk | Psaní všemi deseti",
+    meta: [
+        {
+            name: "description",
+            content: "Webová aplikace pro výuku psaní všemi deseti",
+        },
+        {
+            name: "keywords",
+            content: "psani, psaní, všemi, vsemi, všema, vsema, deseti",
+        },
+    ]
+})
 
 onMounted(() => {
     console.log("%cCo sem koukáš koloušku?", "color: white; font-size: x-large"); // troulin
@@ -66,12 +81,13 @@ const mobilMenu = ref(false)
 /* na tu animaci oznameni */
 .list-enter-active,
 .list-leave-active {
-  transition: all 0.3s ease;
+    transition: all 0.3s ease;
 }
+
 .list-enter-from,
 .list-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
+    opacity: 0;
+    transform: translateX(30px);
 }
 
 #alerty {
