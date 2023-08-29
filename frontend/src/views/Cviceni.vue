@@ -22,6 +22,7 @@ const timerZacatek = ref(0)
 const cas = ref(0)
 
 const posledni = ref(false)
+const klavesnice = ref("")
 
 const zvukyZaply = ref(true)
 let sus = localStorage.getItem("pavouk_zvuk")
@@ -70,6 +71,7 @@ function get() {
             })
         })
         posledni.value = response.data.posledni
+        klavesnice.value = response.data.klavesnice
     }).catch(_ => {
         router.push('/404')
     });
@@ -179,7 +181,7 @@ function toggleZvuk() {
             </div>
         </div>
 
-        <Klavesnice :aktivniPismeno="aktivniPismeno.znak"></Klavesnice>
+        <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak"></Klavesnice>
     </div>
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas"

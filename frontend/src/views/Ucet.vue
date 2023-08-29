@@ -12,8 +12,10 @@ useHead({
 
 const router = useRouter()
 
-const info = ref({ jmeno: "...", email: "...@...", dokonceno: 0, daystreak: 0, prumerRychlosti: -1, uspesnost: -1 })
+const info = ref({ jmeno: "...", email: "...@...", dokonceno: 0, daystreak: 0, prumerRychlosti: -1, uspesnost: -1, klavesnice: "QWERTZ" })
 const uprava = ref(false)
+
+const klavesniceUprava = ref("")
 const jmenoUprava = ref("")
 
 const smazatPotvrzeni = ref(false)
@@ -44,6 +46,7 @@ async function getInfo() {
         })
         info.value = resp.data
         jmenoUprava.value = resp.data.jmeno
+        klavesniceUprava.value = resp.data.klavesnice
     }
     catch (e: any) {
         if (!checkTeapot(e)) {
@@ -53,37 +56,43 @@ async function getInfo() {
     }
 }
 
-function postZmena(jmeno = false, smazat = false) {
-    let config
-    if (jmeno) config = { "jmeno": jmenoUprava.value }
-    else if (smazat) config = { "smazat": true }
-    axios.post('/ucet-zmena', config, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
-        if (!smazat) {
-            getInfo()
-        } else {
-            router.push("/prihlaseni")
-        }
+function postSmazat() {
+    axios.post('/ucet-zmena', { "zmena": "smazat" }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
+        router.push("/prihlaseni")
     }).catch(e => {
-        if (e.response.data.search("uzivatel_jmeno_key")) {
+        console.log(e)
+        pridatOznameni()
+    })
+}
+
+function postJmeno() {
+    axios.post('/ucet-zmena', { "zmena": "jmeno", "hodnota": jmenoUprava.value }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
+        getInfo()
+    }).catch(e => {
+        if (e.response.data.error.search("uzivatel_jmeno_key")) {
             pridatOznameni("Takové jméno už někdo má")
         }
     })
 }
 
-function zmena() {
+function postKlavesnice() {
+    klavesniceUprava.value = klavesniceUprava.value == "QWERTZ" ? "QWERTY" : "QWERTZ" // otocim
+    axios.post('/ucet-zmena', { "zmena": "klavesnice", "hodnota": klavesniceUprava.value }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
+        getInfo()
+    }).catch(e => {
+        checkTeapot(e)
+    })
+}
+
+function zmenaJmena() {
     if (jmenoUprava.value != info.value.jmeno) {
         if (/^[a-zA-Z0-9!@#$%^&*_ ]{3,12}$/.test(jmenoUprava.value)) {
-            postZmena(true)
+            postJmeno()
         } else {
             pridatOznameni("Jméno musí obsahovat jen znaky !@#$%^&*_ a může být 3-12 znaků dlouhé")
         }
     }
     uprava.value = false
-}
-
-function smazat() {
-    postZmena(false, true)
-
 }
 
 </script>
@@ -96,7 +105,7 @@ function smazat() {
                     src="../assets/icony/upravit.svg" alt="Upravit"></h1>
             <h2 v-if="!uprava">{{ info.email }}</h2>
             <input v-if="uprava" v-model="jmenoUprava" type="text">
-            <button v-if="uprava" type="submit" @click="zmena" id="tlacitko">Uložit</button>
+            <button v-if="uprava" type="submit" @click="zmenaJmena" id="tlacitko">Uložit</button>
         </div>
     </div>
     <div id="progres">
@@ -114,6 +123,12 @@ function smazat() {
                 CPM</span>
         </div>
         <div class="blok">
+            <img src="../assets/icony/iconaKlavesnice.svg" alt="Rychlost" width="75">
+            <span class="popis">Klávesnice: <br>
+                <button id="tlacitko" @click="postKlavesnice">{{ klavesniceUprava }}</button>
+            </span>
+        </div>
+        <div class="blok">
             <img src="../assets/icony/terc.svg" alt="Přesnost">
             <span v-if="info.uspesnost == -1">Zatím nic</span>
             <span v-else class="popis">Přesnost: <br><span class="cislo">{{ zaokrouhlit(info.uspesnost) }}</span> %</span>
@@ -127,7 +142,7 @@ function smazat() {
     <div id="tlacitka">
         <button @click="odhlasit" class="tlacitko">Odhlásit</button>
         <button v-if="!smazatPotvrzeni" @click="smazatPotvrzeni = true" class="cerveneTlacitko">Smazat účet</button>
-        <button v-else @click="smazat" class="cerveneTlacitko">Opravdu?</button>
+        <button v-else @click="postSmazat" class="cerveneTlacitko">Opravdu?</button>
     </div>
 </template>
 
@@ -281,6 +296,10 @@ function smazat() {
     height: 20px;
     position: relative;
     left: -1px
+}
+
+#druhKlavesnice {
+    display: flex;
 }
 
 @media screen and (max-width: 1000px) {

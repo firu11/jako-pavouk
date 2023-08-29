@@ -4,7 +4,11 @@ import { ref } from 'vue'
 const props = defineProps({
     aktivniPismeno: {
         type: String,
-        default: ""
+        default: "ß"
+    },
+    typ: {
+        type: String,
+        reqired: true
     },
 })
 
@@ -30,6 +34,12 @@ const prstoklad: {[id: string]: string[]} = {
 }
 const shiftSviti = ref(false)
 
+if (props.typ == "QWERTY") {
+    schema[1][6] = "Y"
+    schema[3][1] = "Z"
+    prstoklad.P_Ukaz[4] = "Y"
+    prstoklad.L_Mali[4] = "Z"
+}
 
 function tlacPismeno(cislo: number, tlacitko: string) {
     if (tlacitko.length === 2) return tlacitko.at(cislo)

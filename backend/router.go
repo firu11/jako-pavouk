@@ -3,7 +3,6 @@ package main
 import (
 	"backend/databaze"
 	"backend/utils"
-	"fmt"
 	"log"
 	"math/rand"
 	"strconv"
@@ -36,8 +35,8 @@ type (
 	}
 
 	bodyUprava struct {
-		Jmeno  string `json:"jmeno" validate:"min=3,max=12"`
-		Smazat bool   `json:"smazat"`
+		Zmena   string `json:"zmena"`
+		Hodnota string `json:"hodnota"`
 	}
 )
 
@@ -63,9 +62,9 @@ func chyba(msg string) fiber.Map {
 }
 
 func test(c *fiber.Ctx) error {
-	fmt.Println(utils.UzivCekajiciNaOvereni)
-	fmt.Println(utils.ValidFormat("firu"))
-	/* databaze.PushSlovnik() */
+	/* fmt.Println(utils.UzivCekajiciNaOvereni)
+	fmt.Println(utils.ValidFormat("firu")) */
+	log.Println(utils.HashPassword("alexovoheslo"))
 	return c.JSON("Vypadni")
 }
 
@@ -75,11 +74,12 @@ func getVsechnyLekce(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
 	}
 
-	lekce, err := databaze.GetLekce()
+	lekce, err := databaze.GetLekce(id)
 	if err != nil {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
+
 	if id != 0 {
 		dokoncene, err := databaze.GetDokonceneLekce(id)
 		if err != nil {
@@ -92,7 +92,7 @@ func getVsechnyLekce(c *fiber.Ctx) error {
 }
 
 func getCviceniVLekci(c *fiber.Ctx) error {
-	uzivID, err := utils.Autentizace(c, false)
+	id, err := utils.Autentizace(c, false)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
 	}
@@ -100,11 +100,11 @@ func getCviceniVLekci(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(HTTPerr.Error()))
 	}
-	cvic, err := databaze.GetCviceniVLekciByPismena(pismena)
+	cvic, err := databaze.GetCviceniVLekciByPismena(id, pismena)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Takova lekce neexistuje"))
 	}
-	doko, err := databaze.GetDokonceneCvicVLekci(uzivID, 0, pismena)
+	doko, err := databaze.GetDokonceneCvicVLekci(id, 0, pismena)
 	if err != nil {
 		log.Print(err)
 		return fiber.ErrInternalServerError
@@ -113,7 +113,7 @@ func getCviceniVLekci(c *fiber.Ctx) error {
 }
 
 func getCviceni(c *fiber.Ctx) error {
-	_, err := utils.Autentizace(c, true)
+	id, err := utils.Autentizace(c, true)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func getCviceni(c *fiber.Ctx) error {
 	if err != nil {
 		return HTTPerr
 	}
-	vsechnyCviceni, err := databaze.GetCviceniVLekciByPismena(pismena)
+	vsechnyCviceni, err := databaze.GetCviceniVLekciByPismena(id, pismena)
 	if err != nil {
 		log.Print(err)
 		return fiber.ErrInternalServerError
@@ -164,7 +164,7 @@ func getCviceni(c *fiber.Ctx) error {
 			text = append(text, slovo)
 		}
 	case "slova":
-		slova, err := databaze.GetSlovaProLekci(pismena)
+		slova, err := databaze.GetSlovaProLekci(id, pismena)
 		if err != nil {
 			log.Print(err)
 			return fiber.ErrInternalServerError
@@ -183,7 +183,18 @@ func getCviceni(c *fiber.Ctx) error {
 	}
 
 	text[len(text)-1] = text[len(text)-1][:len(text[len(text)-1])-1] // smazat mezeru na konci
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "posledni": posledni})
+
+	var k string
+	u, err := databaze.GetUzivByID(id)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
+	if u.Klavesnice {
+		k = "QWERTZ"
+	} else {
+		k = "QWERTY"
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "klavesnice": k, "posledni": posledni})
 }
 
 func dokoncitCvic(c *fiber.Ctx) error {
@@ -210,7 +221,7 @@ func dokoncitCvic(c *fiber.Ctx) error {
 	if err != nil {
 		return HTTPerr
 	}
-	vsechnyCviceni, err := databaze.GetCviceniVLekciByPismena(pismena)
+	vsechnyCviceni, err := databaze.GetCviceniVLekciByPismena(id, pismena)
 	if err != nil {
 		log.Print(err)
 		return fiber.ErrInternalServerError
@@ -371,6 +382,7 @@ func prihlaseni(c *fiber.Ctx) error {
 	}
 
 	if err := utils.CheckPassword(body.Heslo, uziv.Heslo); err != nil {
+		log.Fatalln(err)
 		return c.Status(fiber.StatusUnauthorized).JSON(chyba("Heslo je spatne"))
 	} else {
 		token, err := utils.GenerovatToken(uziv.Email, uziv.ID)
@@ -407,6 +419,12 @@ func prehled(c *fiber.Ctx) error {
 	if uspesnost < 0 {
 		uspesnost = 0 // kvuli adamovi kterej big troulin a měl -10%
 	}
+	var klavesnice string
+	if uziv.Klavesnice {
+		klavesnice = "QWERTZ"
+	} else {
+		klavesnice = "QWERTY"
+	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"email":           uziv.Email,
 		"jmeno":           uziv.Jmeno,
@@ -414,6 +432,7 @@ func prehled(c *fiber.Ctx) error {
 		"uspesnost":       uspesnost / float32(delkaTextu) * 100,
 		"prumerRychlosti": utils.Prumer(cpm),
 		"dokonceno":       dokonceno,
+		"klavesnice":      klavesnice,
 	})
 }
 
@@ -450,8 +469,17 @@ func upravaUctu(c *fiber.Ctx) error {
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 	}
-	if err := databaze.ZmenitUzivatele(body.Jmeno, "", body.Smazat, id); err != nil {
-		return err
+	if body.Zmena == "smazat" {
+		if err := databaze.SmazatUzivatele(id); err != nil {
+			return err
+		}
+	} else if body.Zmena == "klavesnice" {
+		databaze.ZmenitKlavesnici(id, body.Hodnota)
+	} else if body.Zmena == "jmeno" {
+		err := databaze.PrejmenovatUziv(id, body.Hodnota)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+		}
 	}
-	return c.Status(fiber.StatusOK).JSON(body)
+	return nil
 }

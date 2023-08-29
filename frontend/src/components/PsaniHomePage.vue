@@ -56,8 +56,8 @@ function dalsi() {
 
 #cara {
     width: 64px;
-    height: 10px;
-    border-radius: 2px;
+    height: 7px;
+    border-radius: 1px;
     background-color: var(--bila);
     position: absolute;
     left: 138px;
@@ -65,7 +65,6 @@ function dalsi() {
 }
 
 #box {
-    overflow: hidden;
     height: 8.2em;
     display: flex;
     position: relative;
