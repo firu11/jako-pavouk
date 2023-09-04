@@ -10,7 +10,6 @@ onMounted(() => {
     setTimeout(dalsi, 200)
 })
 
-
 function dalsi() {
     counter.value++
     if (counter.value == text.value.length) {
@@ -39,15 +38,16 @@ function dalsi() {
 .pismenka-enter-active,
 .pismenka-leave-active {
     transition: all 0.2s ease-in-out;
-
 }
 
 .pismenka-enter-from {
     transform: translateX(80px);
+    opacity: 0;
 }
 
 .pismenka-leave-to {
     transform: translateX(-80px);
+    opacity: 0;
 }
 
 .pismenka-leave-active {
@@ -85,20 +85,30 @@ function dalsi() {
 
 @media screen and (max-width: 1000px) {
     .pismeno {
-        font-size: 3.2em;
+        font-size: 3.6em;
     }
 
     #cara {
-        width: 28px;
+        width: 30px;
         height: 4px;
-        left: 56px;
-        top: 58px;
+        left: 72px;
+        top: 62px;
         border-radius: 1px;
     }
 
     #box {
         height: 4.6em;
         margin-top: 50px;
+    }
+
+    .pismenka-enter-from {
+        transform: translateX(22px); /* nevim proc ale vzdycky to odsoucalo to hamburget tlacitko */
+        opacity: 0;
+    }
+
+    .pismenka-leave-to {
+        transform: translateX(-22px);
+        opacity: 0;
     }
 }
 </style>

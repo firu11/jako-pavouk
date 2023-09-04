@@ -18,7 +18,7 @@ let schema = [
     ["TAB", "Q", "W", "E", "R", "T", "Z", "U", "I", "O", "P", "/ú", "()", "'¨"],
     ["CapsLock", "A", "S", "D", "F", "G", "H", "J", "K", "L", '"ů', "!§", "Enter ↵"],
     ["Shift", "Y", "X", "C", "V", "B", "N", "M", "?,", ":.", "_-", "Shift"],
-    ["  ", "", "", "", "______", "", "", "", "^v", ""]
+    ["  ", "", "", "", "______", "", "", "", "∧∨", ""]
 ]
 const delkaKlaves: {[id: string]: number} = { "⟵": 3, "Shift": 1, "Enter ↵": 1, "CapsLock": 1, "TAB": 1, "______": 24, "  ": 2 }
 const prstoklad: {[id: string]: string[]} = {
@@ -111,7 +111,7 @@ function potrebujeShift(pismeno: string) {
                 :class="{ oznacenaKlavesa: oznacene(tlacitko) || (tlacitko === 'Shift' && shiftSviti), fjPodtrzeni: tlacitko === 'F' || tlacitko === 'J' }"
                 :style="{ backgroundColor: barva(tlacitko), flexGrow: delkaTlacitka(tlacitko) }">
 
-                <div v-if="tlacitko !== '^v'" :style="{ color: '#000' }">
+                <div v-if="tlacitko !== '∧∨'" :style="{ color: '#000' }">
                     {{ tlacPismeno(0, tlacitko) }} <br>
                     {{ tlacPismeno(1, tlacitko) }}
                 </div>

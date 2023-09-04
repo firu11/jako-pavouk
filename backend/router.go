@@ -16,6 +16,7 @@ type (
 	bodyDokoncitCvic struct {
 		CPM      float32 `json:"cpm" validate:"required"`
 		Preklepy int     `json:"preklepy" validate:"min=0"` //sus reqired nebere nulu takze min=0 asi ok
+		Cas      float32 `json:"cas" validate:"required"`
 	}
 
 	bodyPoslatEmail struct {
@@ -62,9 +63,10 @@ func chyba(msg string) fiber.Map {
 }
 
 func test(c *fiber.Ctx) error {
-	/* fmt.Println(utils.UzivCekajiciNaOvereni)
-	fmt.Println(utils.ValidFormat("firu")) */
-	log.Println(utils.HashPassword("alexovoheslo"))
+	/* log.Println(utils.UzivCekajiciNaOvereni)
+	log.Println(utils.ValidFormat("firu"))
+	utils.MobilNotifikace("Jmeno - email@ema.il") */
+	databaze.PushCviceni()
 	return c.JSON("Vypadni")
 }
 
@@ -149,7 +151,7 @@ func getCviceni(c *fiber.Ctx) error {
 			text = append(text, slovo)
 		}
 	case "naucena":
-		naucenaPismena, err := databaze.GetNaucenaPismena(pismena)
+		naucenaPismena, err := databaze.GetNaucenaPismena(id, pismena)
 		if err != nil {
 			return err
 		}
@@ -169,7 +171,10 @@ func getCviceni(c *fiber.Ctx) error {
 			log.Print(err)
 			return fiber.ErrInternalServerError
 		}
-		for i := 0; i < 14; i++ {
+		if len(slova) < pocetSlov {
+			log.Println("neni dost slov")
+		}
+		for i := 0; i < pocetSlov; i++ {
 			text = append(text, slova[rand.Intn(len(slova))]+" ")
 		}
 	default:
@@ -184,17 +189,11 @@ func getCviceni(c *fiber.Ctx) error {
 
 	text[len(text)-1] = text[len(text)-1][:len(text[len(text)-1])-1] // smazat mezeru na konci
 
-	var k string
 	u, err := databaze.GetUzivByID(id)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 	}
-	if u.Klavesnice {
-		k = "QWERTZ"
-	} else {
-		k = "QWERTY"
-	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "klavesnice": k, "posledni": posledni})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "klavesnice": u.Klavesnice, "posledni": posledni})
 }
 
 func dokoncitCvic(c *fiber.Ctx) error {
@@ -231,20 +230,12 @@ func dokoncitCvic(c *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	if err := databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.CPM, body.Preklepy); err != nil {
-		err = databaze.OdebratDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id)
-		if err != nil {
-			log.Print(err)
-			return fiber.ErrInternalServerError
-		}
-		err = databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.CPM, body.Preklepy)
-		if err != nil {
-			log.Print(err)
-			return fiber.ErrInternalServerError
-		}
+	err = databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.CPM, body.Preklepy, body.Cas)
+	if err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
-
-	return nil
+	return c.SendStatus(fiber.StatusOK)
 }
 
 func overitEmail(c *fiber.Ctx) error {
@@ -285,15 +276,16 @@ func overitEmail(c *fiber.Ctx) error {
 		}
 	}
 	if vPoradku {
-		id, err := databaze.CreateUziv(body.Email, cekajiciUzivatel.HesloHash, cekajiciUzivatel.Jmeno)
+		uzivID, err := databaze.CreateUziv(body.Email, cekajiciUzivatel.HesloHash, cekajiciUzivatel.Jmeno)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 		}
-		token, err := utils.GenerovatToken(body.Email, id)
+		token, err := utils.GenerovatToken(body.Email, uzivID)
 		if err != nil {
 			log.Print(err)
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 		} else {
+			utils.MobilNotifikace(cekajiciUzivatel.Jmeno + " - " + body.Email)
 			return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
 		}
 	} else {
@@ -382,7 +374,6 @@ func prihlaseni(c *fiber.Ctx) error {
 	}
 
 	if err := utils.CheckPassword(body.Heslo, uziv.Heslo); err != nil {
-		log.Fatalln(err)
 		return c.Status(fiber.StatusUnauthorized).JSON(chyba("Heslo je spatne"))
 	} else {
 		token, err := utils.GenerovatToken(uziv.Email, uziv.ID)
@@ -419,12 +410,6 @@ func prehled(c *fiber.Ctx) error {
 	if uspesnost < 0 {
 		uspesnost = 0 // kvuli adamovi kterej big troulin a měl -10%
 	}
-	var klavesnice string
-	if uziv.Klavesnice {
-		klavesnice = "QWERTZ"
-	} else {
-		klavesnice = "QWERTY"
-	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"email":           uziv.Email,
 		"jmeno":           uziv.Jmeno,
@@ -432,7 +417,7 @@ func prehled(c *fiber.Ctx) error {
 		"uspesnost":       uspesnost / float32(delkaTextu) * 100,
 		"prumerRychlosti": utils.Prumer(cpm),
 		"dokonceno":       dokonceno,
-		"klavesnice":      klavesnice,
+		"klavesnice":      uziv.Klavesnice,
 	})
 }
 

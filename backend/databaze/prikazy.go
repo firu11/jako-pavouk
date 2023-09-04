@@ -11,6 +11,7 @@ type Lekce struct {
 	ID      uint   `json:"id"`
 	Pismena string `json:"pismena"`
 	// Skupina uint        nepouzivame ale je tam
+	// Klavesnice string
 }
 
 type Cviceni struct {
@@ -25,7 +26,7 @@ type Uzivatel struct {
 	Heslo       string    `json:"heslo"`
 	DayStreak   int32     `json:"daystreak"`
 	PosledniDen time.Time `json:"posledniden"`
-	Klavesnice  bool      `json:"klavesnice"` /* TRUE - QWERTZ, FALSE - QWERTY */
+	Klavesnice  string    `json:"klavesnice"`
 }
 
 type Slovnik struct {
@@ -44,31 +45,9 @@ type Dokoncene struct {
 func GetLekce(uzivID uint) ([][]Lekce, error) {
 	var lekce [][]Lekce = [][]Lekce{}
 
-	var uziv Uzivatel
-	var err error
-	var rows *sqlx.Rows
-
-	if uzivID != 0 {
-		uziv, err = GetUzivByID(uzivID)
-		if err != nil {
-			return lekce, err
-		}
-		if uziv.Klavesnice {
-			rows, err = DB.Queryx(`SELECT * FROM lekceQWERTZ;`)
-			if err != nil {
-				return lekce, err
-			}
-		} else {
-			rows, err = DB.Queryx(`SELECT * FROM lekceQWERTY;`)
-			if err != nil {
-				return lekce, err
-			}
-		}
-	} else {
-		rows, err = DB.Queryx(`SELECT * FROM lekceQWERTZ;`)
-		if err != nil {
-			return lekce, err
-		}
+	rows, err := DB.Queryx(`SELECT id, pismena, skupina FROM lekce WHERE klavesnice = 'oboje' OR klavesnice = COALESCE((SELECT klavesnice FROM uzivatel WHERE id = $1), 'qwertz') ORDER BY id ASC;`, uzivID)
+	if err != nil {
+		return lekce, err
 	}
 
 	defer rows.Close()
@@ -102,7 +81,7 @@ func GetLekce(uzivID uint) ([][]Lekce, error) {
 func GetDokonceneLekce(uzivID uint) ([]int32, error) {
 	var vysledek []int32 = []int32{}
 	// zjistim kolik ma kazda lekce cviceni
-	rows, err := DB.Queryx(`SELECT id FROM lekceQWERTZ l WHERE 0 = (SELECT COUNT(*) FROM cviceni c WHERE c.lekce_id = l.id) - (SELECT COUNT(*) FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id AND d.uziv_id = $1 AND l.id = c.lekce_id);`, uzivID)
+	rows, err := DB.Queryx(`SELECT a.lekce_id FROM (SELECT lekce_id, COUNT(lekce_id) as pocet_doko FROM dokoncene d INNER JOIN cviceni c ON d.cviceni_id = c.id WHERE uziv_id = $1 GROUP BY lekce_id) a INNER JOIN (SELECT lekce_id, COUNT(lekce_id) as pocet_cvic FROM cviceni GROUP BY lekce_id) b ON a.lekce_id = b.lekce_id WHERE pocet_doko = pocet_cvic;`, uzivID)
 	if err != nil {
 		return vysledek, err
 	}
@@ -115,7 +94,6 @@ func GetDokonceneLekce(uzivID uint) ([]int32, error) {
 		}
 		vysledek = append(vysledek, int32(id))
 	}
-
 	return vysledek, nil
 }
 
@@ -150,12 +128,9 @@ func GetDokonceneCvicVLekci(uzivID uint, lekceID uint, pismena string) ([]int32,
 
 func GetLekceIDbyPismena(pismena string) (uint, error) {
 	var id uint
-	err := DB.QueryRowx(`SELECT id FROM lekceQWERTZ WHERE pismena = $1;`, pismena).Scan(&id)
+	err := DB.QueryRowx(`SELECT id FROM lekce WHERE pismena = $1;`, pismena).Scan(&id)
 	if err != nil {
-		err2 := DB.QueryRowx(`SELECT id FROM lekceQWERTY WHERE pismena = $1;`, pismena).Scan(&id)
-		if err2 != nil {
-			return 0, err2
-		}
+		return 0, err
 	}
 	return id, nil
 }
@@ -185,22 +160,9 @@ func GetCviceniVLekciByID(lekceID uint) ([]Cviceni, error) {
 func GetCviceniVLekciByPismena(uzivID uint, pismena string) ([]Cviceni, error) {
 	var cviceni []Cviceni
 
-	uziv, err := GetUzivByID(uzivID)
+	rows, err := DB.Queryx(`SELECT id, typ FROM cviceni WHERE lekce_id = (SELECT id FROM lekce where pismena = $1 LIMIT 1);`, pismena)
 	if err != nil {
 		return cviceni, err
-	}
-
-	var rows *sqlx.Rows
-	if uziv.Klavesnice {
-		rows, err = DB.Queryx(`SELECT id, typ FROM cviceni WHERE lekce_id = (SELECT id FROM lekceQWERTZ where pismena = $1 LIMIT 1);`, pismena)
-		if err != nil {
-			return cviceni, err
-		}
-	} else {
-		rows, err = DB.Queryx(`SELECT id, typ FROM cviceni WHERE lekce_id = (SELECT id FROM lekceQWERTY where pismena = $1 LIMIT 1);`, pismena)
-		if err != nil {
-			return cviceni, err
-		}
 	}
 
 	defer rows.Close()
@@ -240,30 +202,17 @@ func GetUzivByJmeno(jmeno string) (Uzivatel, error) {
 
 func SmazatUzivatele(id uint) error {
 	_, err := DB.Exec(`DELETE FROM uzivatel WHERE id = $1;`, id)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func ZmenitKlavesnici(id uint, novaKlavesnice string) error {
-	var hodnotaDoDB bool
-	if novaKlavesnice == "QWERTZ" {
-		hodnotaDoDB = true
-	} else if novaKlavesnice == "QWERTY" {
-		hodnotaDoDB = false
-	}
-	_, err := DB.Exec(`UPDATE uzivatel SET klavesnice = $1 WHERE id = $2;`, hodnotaDoDB, id)
-	if err != nil {
-		return err
-	}
-	return nil
+	_, err := DB.Exec(`UPDATE uzivatel SET klavesnice = $1 WHERE id = $2;`, novaKlavesnice, id)
+	return err // buď nil nebo error
 }
 
 func PrejmenovatUziv(id uint, noveJmeno string) error {
 	_, err := DB.Exec(`UPDATE uzivatel SET jmeno = $1 WHERE id = $2;`, noveJmeno, id)
-
-	return err
+	return err // buď nil nebo error
 }
 
 func GetPreklepyACPM(uzivID uint) ([]float32, []float32, error) {
@@ -291,7 +240,7 @@ func GetPreklepyACPM(uzivID uint) ([]float32, []float32, error) {
 	return preklepy, cpm, nil
 }
 
-func DokonceneProcento(uzivID uint) (float32, error) {
+func DokonceneProcento(uzivID uint) (float32, error) { // TODO predelat na jeden sql
 	var pocet int32
 	err := DB.QueryRowx(`SELECT COUNT(*) FROM dokoncene WHERE uziv_id = $1;`, uzivID).Scan(&pocet)
 	if err != nil {
@@ -308,19 +257,16 @@ func DokonceneProcento(uzivID uint) (float32, error) {
 }
 
 func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
-	_, err := DB.Exec(`INSERT INTO uzivatel (email, jmeno, heslo) VALUES ($1, $2, $3)`, email, jmeno, hesloHash)
+	var uzivID uint
+	err := DB.QueryRowx(`INSERT INTO uzivatel (email, jmeno, heslo) VALUES ($1, $2, $3);`, email, jmeno, hesloHash).Scan(&uzivID)
 	if err != nil {
 		return 0, err
 	}
-	uziv, err := GetUzivByEmail(email)
-	if err != nil {
-		return 0, err
-	}
-	return uziv.ID, nil
+	return uzivID, nil
 }
 
-func PridatDokonceneCvic(cvicID uint, uzivID uint, cpm float32, preklepy int) error {
-	if _, err := DB.Exec(`INSERT INTO dokoncene (uziv_id, cviceni_id, cpm, preklepy) VALUES ($1, $2, $3, $4);`, uzivID, cvicID, cpm, preklepy); err != nil {
+func PridatDokonceneCvic(cvicID uint, uzivID uint, cpm float32, preklepy int, cas float32) error {
+	if _, err := DB.Exec(`INSERT INTO dokoncene (uziv_id, cviceni_id, cpm, preklepy, cas) VALUES ($1, $2, $3, $4, $5) ON CONFLICT ON CONSTRAINT dokoncene_pkey DO UPDATE SET cpm = EXCLUDED.cpm, preklepy = EXCLUDED.preklepy, cas = EXCLUDED.cas;`, uzivID, cvicID, cpm, preklepy, cas); err != nil {
 		return err
 	}
 	uziv, err := GetUzivByID(uzivID)
@@ -336,7 +282,6 @@ func PridatDokonceneCvic(cvicID uint, uzivID uint, cpm float32, preklepy int) er
 			return err
 		}
 	}
-
 	return nil
 }
 
@@ -348,23 +293,22 @@ func OdebratDokonceneCvic(cvicID uint, uzivID uint) error {
 func GetSlovaProLekci(uzivID uint, pismena string) ([]string, error) {
 	var vysledek []string
 
-	uziv, err := GetUzivByID(uzivID)
+	var k string
+	err := DB.QueryRowx(`SELECT klavesnice FROM uzivatel WHERE id = $1;`, uzivID).Scan(&k)
 	if err != nil {
 		return vysledek, err
 	}
 
 	var rows *sqlx.Rows
-	if uziv.Klavesnice {
-		rows, err = DB.Queryx(`SELECT slovo FROM slovnik WHERE lekceqwertz_id = (SELECT id from lekceQWERTZ WHERE pismena = $1);`, pismena)
-		if err != nil {
-			return vysledek, err
-		}
+	if k == "qwertz" {
+		rows, err = DB.Queryx(`SELECT slovo FROM slovnik WHERE lekceqwertz_id = (SELECT id from lekce WHERE pismena = $1);`, pismena)
 	} else {
-		rows, err = DB.Queryx(`SELECT slovo FROM slovnik WHERE lekceqwerty_id = (SELECT id from lekceQWERTY WHERE pismena = $1);`, pismena)
-		if err != nil {
-			return vysledek, err
-		}
+		rows, err = DB.Queryx(`SELECT slovo FROM slovnik WHERE lekceqwerty_id = (SELECT id from lekce WHERE pismena = $1);`, pismena)
 	}
+	if err != nil {
+		return vysledek, err
+	}
+
 	defer rows.Close()
 
 	var slovo string
@@ -374,16 +318,15 @@ func GetSlovaProLekci(uzivID uint, pismena string) ([]string, error) {
 		if err != nil {
 			return vysledek, err
 		}
-
 		vysledek = append(vysledek, slovo)
 	}
 
 	return vysledek, nil
 }
 
-func GetNaucenaPismena(pismena string) (string, error) {
+func GetNaucenaPismena(uzivID uint, pismena string) (string, error) {
 	var vysledek string
-	rows, err := DB.Queryx(`SELECT pismena FROM lekce WHERE id <= (SELECT id from lekce WHERE pismena = $1);`, pismena)
+	rows, err := DB.Queryx(`SELECT pismena FROM lekce WHERE id <= (SELECT id from lekce WHERE pismena = $1) AND (klavesnice = COALESCE((SELECT klavesnice FROM uzivatel WHERE id = $2), 'qwertz') OR klavesnice = 'oboje');`, pismena, uzivID)
 	if err != nil {
 		return vysledek, err
 	}

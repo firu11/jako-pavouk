@@ -8,6 +8,75 @@ import (
 	"strings"
 )
 
+func PushCviceni() {
+	m := make(map[int][3]int) /* lekceID - [nova, naucena, slova] */
+	m[1] = [3]int{4, 0, 0}
+	m[2] = [3]int{3, 2, 0}
+	m[3] = [3]int{3, 2, 0}
+	m[4] = [3]int{3, 2, 1}
+	m[5] = [3]int{2, 1, 2}
+	m[6] = [3]int{2, 1, 2}
+	m[7] = [3]int{2, 1, 2}
+	m[8] = [3]int{2, 1, 2}
+	m[9] = [3]int{2, 1, 2}
+	m[10] = [3]int{3, 1, 2}
+	m[11] = [3]int{2, 1, 2}
+	m[12] = [3]int{2, 1, 2}
+	m[13] = [3]int{3, 1, 2}
+	m[14] = [3]int{3, 1, 2}
+	m[15] = [3]int{2, 1, 2}
+	m[16] = [3]int{2, 1, 2}
+	m[17] = [3]int{2, 1, 2}
+	m[18] = [3]int{3, 1, 2}
+	m[19] = [3]int{2, 1, 0}
+	m[20] = [3]int{2, 1, 0}
+	m[21] = [3]int{2, 1, 0}
+
+	query := `INSERT INTO cviceni (lekce_id, typ) VALUES`
+
+	for cislo, cviceni := range m {
+		for typ, cv := range cviceni {
+			for pocet := 0; pocet < cv; pocet++ {
+				var typString string
+				if typ == 0 {
+					typString = "nova"
+				} else if typ == 1 {
+					typString = "naucena"
+				} else {
+					typString = "slova"
+				}
+				query += fmt.Sprintf(" (%d, '%s'),", cislo, typString)
+			}
+		}
+	}
+
+	query = query[:len(query)-1]
+	query += ";"
+
+	_, err := DB.Exec(`
+		DROP TABLE IF EXISTS cviceni;
+		CREATE TABLE cviceni (
+        	id SERIAL PRIMARY KEY,
+        	typ VARCHAR(20) DEFAULT 'nova',
+        	lekce_id INT,
+        	FOREIGN KEY (lekce_id) REFERENCES lekce(id)
+    	);
+	`)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	_, err = DB.Exec(query)
+	if err != nil {
+		log.Panic(err)
+	}
+}
+
+type lekcos struct {
+	Id      uint   `json:"id"`
+	Pismena string `json:"pismena"`
+}
+
 /*
 Tahle funkce projde vsechny slovicka ve csv souboru a nasazi do databaze do tabulky slovnik spolu s id lekce ve které je pomocí dosavandne naucenych slovicek možné ho napsat
 */
@@ -20,16 +89,16 @@ func PushSlovnik() {
     		IF NOT EXISTS slovnik (
         		id SERIAL PRIMARY KEY,
         		slovo VARCHAR(50),
-        		lekceqwertz_id INT,
-        		lekceqwerty_id INT
+        		lekceQWERTZ_id INT,
+        		lekceQWERTY_id INT
     	);
 	`)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	rowsZ, err1 := DB.Query(`SELECT pismena FROM lekceQWERTZ;`)
-	rowsY, err2 := DB.Query(`SELECT pismena FROM lekceQWERTY;`)
+	rowsZ, err1 := DB.Query(`SELECT id, pismena FROM lekce WHERE klavesnice = 'qwertz' OR klavesnice = 'oboje' ORDER BY id ASC;`)
+	rowsY, err2 := DB.Query(`SELECT id, pismena FROM lekce WHERE klavesnice = 'qwerty' OR klavesnice = 'oboje' ORDER BY id ASC;`)
 
 	if err1 != nil || err2 != nil {
 		return
@@ -37,21 +106,27 @@ func PushSlovnik() {
 	defer rowsZ.Close()
 	defer rowsY.Close()
 
-	lekceZ := []string{}
+	lekceZ := []lekcos{}
 	for rowsZ.Next() {
-		var pis string
-		rowsZ.Scan(&pis)
-		lekceZ = append(lekceZ, pis)
+		var l lekcos = lekcos{}
+		rowsZ.Scan(&l.Id, &l.Pismena)
+		lekceZ = append(lekceZ, l)
 	}
 
-	lekceY := []string{}
+	lekceY := []lekcos{}
 	for rowsY.Next() {
-		var pis string
-		rowsY.Scan(&pis)
-		lekceY = append(lekceY, pis)
+		var l lekcos = lekcos{}
+		rowsY.Scan(&l.Id, &l.Pismena)
+		lekceY = append(lekceY, l)
 	}
 
-	f, _ := os.Open("C:/Users/Firu/Downloads/lekce.csv")
+	log.Println(lekceZ, lekceY)
+
+	f, err := os.Open("./slovnik.csv")
+	if err != nil {
+		log.Println("spatna cesta k csvcku")
+		return
+	}
 	csvReader := csv.NewReader(f)
 	records, _ := csvReader.ReadAll()
 	f.Close()
@@ -63,36 +138,34 @@ func PushSlovnik() {
 	var indexZ int
 	var indexY int
 	for _, v := range records {
-		log.Println(v)
 		pismenkaZ = ""
-		pismenkaY = ""
 		indexZ = -1
-		indexY = -1
-		for i, p := range lekceZ {
-			pismenkaZ += p
+		for _, p := range lekceZ {
+			pismenkaZ += p.Pismena
 			if obsahujeJenOKPismena(v[0], pismenkaZ) {
-				indexZ = i
+				indexZ = int(p.Id)
 			}
 			if indexZ != -1 {
 				break
 			}
 		}
-
-		for i, p := range lekceY {
-			pismenkaY += p
+		pismenkaY = ""
+		indexY = -1
+		for _, p := range lekceY {
+			pismenkaY += p.Pismena
 			if obsahujeJenOKPismena(v[0], pismenkaY) {
-				indexY = i
+				indexY = int(p.Id)
 			}
 			if indexY != -1 {
 				break
 			}
 		}
 
-		st += fmt.Sprintf(`('%s', %v, %v), `, v[0], indexZ+1, indexY+1)
+		st += fmt.Sprintf(`('%s', %v, %v), `, v[0], indexZ, indexY)
 	}
 	st = st[:len(st)-2]
 	st += ";"
-	fmt.Println(st)
+	/* fmt.Println(st) */
 
 	if _, err := DB.Exec(st); err != nil {
 		panic(err)

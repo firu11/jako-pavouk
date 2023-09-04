@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"net/http"
 	"net/mail"
 	"net/url"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -78,4 +80,8 @@ func GenKod() string {
 		kod += fmt.Sprintf("%v", rand.Intn(10))
 	}
 	return kod
+}
+
+func MobilNotifikace(s string) {
+	http.Post("https://ntfy.sh/novy_uzivatel115115jakopavouk", "text/plain", strings.NewReader(s))
 }

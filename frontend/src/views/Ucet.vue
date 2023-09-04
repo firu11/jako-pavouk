@@ -47,6 +47,7 @@ async function getInfo() {
         info.value = resp.data
         jmenoUprava.value = resp.data.jmeno
         klavesniceUprava.value = resp.data.klavesnice
+        klavesniceUprava.value = klavesniceUprava.value.toUpperCase()
     }
     catch (e: any) {
         if (!checkTeapot(e)) {
@@ -77,7 +78,7 @@ function postJmeno() {
 
 function postKlavesnice() {
     klavesniceUprava.value = klavesniceUprava.value == "QWERTZ" ? "QWERTY" : "QWERTZ" // otocim
-    axios.post('/ucet-zmena', { "zmena": "klavesnice", "hodnota": klavesniceUprava.value }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
+    axios.post('/ucet-zmena', { "zmena": "klavesnice", "hodnota": klavesniceUprava.value.toLowerCase() }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
         getInfo()
     }).catch(e => {
         checkTeapot(e)
@@ -85,14 +86,16 @@ function postKlavesnice() {
 }
 
 function zmenaJmena() {
-    if (jmenoUprava.value != info.value.jmeno) {
-        if (/^[a-zA-Z0-9!@#$%^&*_ ]{3,12}$/.test(jmenoUprava.value)) {
-            postJmeno()
-        } else {
-            pridatOznameni("Jméno musí obsahovat jen znaky !@#$%^&*_ a může být 3-12 znaků dlouhé")
-        }
+    if (jmenoUprava.value == info.value.jmeno) {
+        uprava.value = false
+        return
     }
-    uprava.value = false
+    if (/^[a-zA-Z0-9!@#$%^&*_ ]{3,12}$/.test(jmenoUprava.value)) {
+        postJmeno()
+        uprava.value = false
+    } else {
+        pridatOznameni("Jméno musí obsahovat jen znaky !@#$%^&*_ a může být 3-12 znaků dlouhé")
+    }
 }
 
 </script>
@@ -245,6 +248,7 @@ function zmenaJmena() {
 #upravit {
     width: 30px;
     height: 25px !important;
+    cursor: pointer;
 }
 
 #ucet {

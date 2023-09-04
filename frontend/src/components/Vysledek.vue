@@ -48,7 +48,8 @@ function dalsi() {
 onMounted(() => {
     axios.post('/dokonceno/' + encodeURIComponent(props.pismena) + '/' + props.cislo, {
         "cpm": rychlost,
-        "preklepy": props.preklepy
+        "preklepy": props.preklepy,
+        "cas": props.cas
     }, {
         headers: {
             Authorization: `Bearer ${getToken()}`

@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS cviceni;
 
 DROP TABLE IF EXISTS slovnik;
 
-DROP TABLE IF EXISTS lekceQWERTY;
+DROP TABLE IF EXISTS lekce;
 
 /* DROP TABLE IF EXISTS uzivatel; */
 
@@ -18,22 +18,15 @@ CREATE TABLE
         heslo VARCHAR(255) NOT NULL,
         daystreak INT DEFAULT 0,
         posledniden DATE DEFAULT CURRENT_DATE,
-        klavesnice BOOLEAN DEFAULT TRUE
-        /* TRUE - QWERTZ, FALSE - QWERTY */
+        klavesnice VARCHAR(10) DEFAULT 'qwertz'
     );
 
 CREATE TABLE
-    IF NOT EXISTS lekceQWERTZ (
+    IF NOT EXISTS lekce (
         id SERIAL PRIMARY KEY,
         pismena VARCHAR(10),
-        skupina INT
-    );
-
-CREATE TABLE
-    IF NOT EXISTS lekceQWERTY (
-        id SERIAL PRIMARY KEY,
-        pismena VARCHAR(10),
-        skupina INT
+        skupina INT,
+        klavesnice VARCHAR(10) DEFAULT 'oboje'
     );
 
 CREATE TABLE
@@ -41,7 +34,7 @@ CREATE TABLE
         id SERIAL PRIMARY KEY,
         typ VARCHAR(20) DEFAULT 'nova',
         lekce_id INT,
-        FOREIGN KEY (lekce_id) REFERENCES lekceQWERTZ(id)
+        FOREIGN KEY (lekce_id) REFERENCES lekce(id)
     );
 
 CREATE TABLE
@@ -51,6 +44,7 @@ CREATE TABLE
         cviceni_id INT,
         cpm DECIMAL,
         preklepy INT,
+        cas DECIMAL,
         FOREIGN KEY (uziv_id) REFERENCES uzivatel(id) ON DELETE CASCADE,
         FOREIGN KEY (cviceni_id) REFERENCES cviceni(id),
         CONSTRAINT unikatni UNIQUE(uziv_id, cviceni_id)
@@ -60,11 +54,11 @@ CREATE TABLE
     IF NOT EXISTS slovnik (
         id SERIAL PRIMARY KEY,
         slovo VARCHAR(50),
-        lekceqwertz_id INT,
-        lekceqwerty_id INT
+        lekceQWERTZ_id INT,
+        lekceQWERTY_id INT
     );
 
-INSERT INTO lekce (pismena, skupina) VALUES ('fjgh', 1), ('dk', 1), ('sl', 1), ('aů', 1), ('tz', 2), ('ru', 2), ('ei', 2), ('wo', 2), ('qpú', 2), ('vb', 3), ('cn', 3), ('yxm', 3), ('žý', 4), ('řá', 4), ('čí', 4), ('ěšé', 4), (',.', 5), ('!?', 5), ('+=-/', 5);
+INSERT INTO lekce (pismena, skupina) VALUES ('fjgh', 1), ('dk', 1), ('sl', 1), ('aů', 1), ('tz', 2), ('ty', 2), ('ru', 2), ('ei', 2), ('wo', 2), ('qpú', 2), ('vb', 3), ('cn', 3), ('yxm', 3), ('zxm', 3), ('žý', 4), ('řá', 4), ('čí', 4), ('ěšé', 4), (',.', 5), ('!?', 5), ('+=-/', 5);
 INSERT INTO cviceni (lekce_id, typ) 
 VALUES (1, 'nova'), (1, 'nova'), (1, 'nova'), (1, 'nova'),
 (2, 'nova'), (2, 'nova'), (2, 'nova'), (2, 'naucena'), (2, 'naucena'),

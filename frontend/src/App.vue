@@ -79,6 +79,10 @@ const mobilMenu = ref(false)
 
 <style scoped>
 /* na tu animaci oznameni */
+.list-move {
+    transition: all 0.2s ease;
+}
+
 .list-enter-active,
 .list-leave-active {
     transition: all 0.3s ease;
@@ -87,7 +91,11 @@ const mobilMenu = ref(false)
 .list-enter-from,
 .list-leave-to {
     opacity: 0;
-    transform: translateX(30px);
+    transform: translateX(50px);
+}
+
+.list-leave-active {
+    position: absolute;
 }
 
 #alerty {
@@ -101,6 +109,9 @@ const mobilMenu = ref(false)
     gap: 10px;
     overflow: hidden;
     padding: 20px;
+    min-height: 100px;
+    min-width: 410px;
+    pointer-events: none
 }
 
 .alert {

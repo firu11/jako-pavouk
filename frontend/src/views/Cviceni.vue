@@ -187,7 +187,7 @@ function toggleZvuk() {
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas"
         :pismena="pismena" :cislo="cislo" :posledni="posledni"></Vysledek>
 
-    <div id="zvukBtn" @click="toggleZvuk">
+    <div id="zvukBtn" @click="toggleZvuk" v-if="!konec">
         <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvukIcon" src="../assets/icony/zvukOn.svg"
             alt="Zvuky jsou zapnuté">
         <img v-else style="margin-left: 1px;" class="zvukIcon" src="../assets/icony/zvukOff.svg" alt="Zvuky jsou vypnuté">
