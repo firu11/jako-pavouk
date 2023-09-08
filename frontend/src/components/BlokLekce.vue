@@ -55,6 +55,7 @@ defineProps({
 .lekceBlok h2 {
     align-self: center;
     font-size: 24px;
+    font-weight: 300;
 }
 
 @media screen and (max-width: 1000px) {

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/rickb777/date"
 )
 
 type Lekce struct {
@@ -20,13 +21,19 @@ type Cviceni struct {
 }
 
 type Uzivatel struct {
-	ID          uint      `json:"id"`
-	Email       string    `json:"email"`
-	Jmeno       string    `json:"jmeno"`
-	Heslo       string    `json:"heslo"`
-	DayStreak   int32     `json:"daystreak"`
-	PosledniDen time.Time `json:"posledniden"`
-	Klavesnice  string    `json:"klavesnice"`
+	ID         uint   `json:"id"`
+	Email      string `json:"email"`
+	Jmeno      string `json:"jmeno"`
+	Heslo      string `json:"heslo"`
+	Klavesnice string `json:"klavesnice"`
+}
+
+type NeoUziv struct {
+	Email string `json:"email"`
+	Jmeno string `json:"jmeno"`
+	Heslo string `json:"heslo"`
+	Kod   string `json:"kod"`
+	Cas   int64  `json:"cas"`
 }
 
 type Slovnik struct {
@@ -35,11 +42,13 @@ type Slovnik struct {
 }
 
 type Dokoncene struct {
-	ID        uint    `json:"id"`
-	UzivID    uint    `json:"uziv_id"`
-	CviceniID uint    `json:"cviceni_id"`
-	CPM       float32 `json:"cpm"`
-	Preklepy  uint    `json:"preklepy"`
+	ID        uint      `json:"id"`
+	UzivID    uint      `json:"uziv_id"`
+	CviceniID uint      `json:"cviceni_id"`
+	CPM       float32   `json:"cpm"`
+	Preklepy  uint      `json:"preklepy"`
+	Cas       int       `json:"cas"`
+	Datum     date.Date `json:"datum"`
 }
 
 func GetLekce(uzivID uint) ([][]Lekce, error) {
@@ -215,14 +224,17 @@ func PrejmenovatUziv(id uint, noveJmeno string) error {
 	return err // buď nil nebo error
 }
 
-func GetPreklepyACPM(uzivID uint) ([]float32, []float32, error) {
+/* preklepy, cpm, daystreak, cas */
+func GetUdaje(uzivID uint) ([]float32, []float32, int, float32, error) {
 	var preklepy []float32
 	var cpm []float32
+	var daystreak int = 0
+	var celkovyCas float32 = 0
 
 	var poslednich int = 10
-	rows, err := DB.Queryx(`SELECT preklepy, cpm FROM dokoncene WHERE uziv_id = $1 ORDER BY id DESC LIMIT $2;`, uzivID, poslednich)
+	rows, err := DB.Queryx(`SELECT preklepy, cpm FROM dokoncene WHERE uziv_id = $1 ORDER BY den DESC LIMIT $2;`, uzivID, poslednich)
 	if err != nil {
-		return preklepy, cpm, err
+		return preklepy, cpm, daystreak, celkovyCas, err
 	}
 	defer rows.Close()
 
@@ -231,13 +243,43 @@ func GetPreklepyACPM(uzivID uint) ([]float32, []float32, error) {
 		var cpmko float32
 		err := rows.Scan(&preklep, &cpmko)
 		if err != nil {
-			return preklepy, cpm, err
+			return preklepy, cpm, daystreak, celkovyCas, err
 		}
 
 		preklepy = append(preklepy, float32(preklep))
 		cpm = append(cpm, cpmko)
 	}
-	return preklepy, cpm, nil
+
+	rows, err = DB.Queryx(`SELECT den, cas FROM dokoncene WHERE uziv_id = $1 ORDER BY den DESC;`, uzivID)
+	if err != nil {
+		return preklepy, cpm, daystreak, celkovyCas, err
+	}
+	defer rows.Close()
+
+	var dny []date.Date
+	for rows.Next() {
+		var c float32
+		var d date.Date
+		if err := rows.Scan(&d, &c); err != nil {
+			return preklepy, cpm, daystreak, celkovyCas, err
+		}
+		celkovyCas += c
+		dny = append(dny, d)
+	}
+
+	var hledanyDen date.Date = date.Today().Add(-1)
+	for _, d := range dny {
+		if hledanyDen.Equal(d) {
+			hledanyDen = hledanyDen.Add(-1)
+			daystreak++
+		} else if d.Equal(date.Today()) {
+			daystreak = 1
+		} else {
+			break
+		}
+	}
+
+	return preklepy, cpm, daystreak, celkovyCas, nil
 }
 
 func DokonceneProcento(uzivID uint) (float32, error) { // TODO predelat na jeden sql
@@ -258,7 +300,7 @@ func DokonceneProcento(uzivID uint) (float32, error) { // TODO predelat na jeden
 
 func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
 	var uzivID uint
-	err := DB.QueryRowx(`INSERT INTO uzivatel (email, jmeno, heslo) VALUES ($1, $2, $3);`, email, jmeno, hesloHash).Scan(&uzivID)
+	err := DB.QueryRowx(`INSERT INTO uzivatel (email, jmeno, heslo) VALUES ($1, $2, $3) RETURNING id;`, email, jmeno, hesloHash).Scan(&uzivID)
 	if err != nil {
 		return 0, err
 	}
@@ -266,23 +308,8 @@ func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
 }
 
 func PridatDokonceneCvic(cvicID uint, uzivID uint, cpm float32, preklepy int, cas float32) error {
-	if _, err := DB.Exec(`INSERT INTO dokoncene (uziv_id, cviceni_id, cpm, preklepy, cas) VALUES ($1, $2, $3, $4, $5) ON CONFLICT ON CONSTRAINT dokoncene_pkey DO UPDATE SET cpm = EXCLUDED.cpm, preklepy = EXCLUDED.preklepy, cas = EXCLUDED.cas;`, uzivID, cvicID, cpm, preklepy, cas); err != nil {
-		return err
-	}
-	uziv, err := GetUzivByID(uzivID)
-	if err != nil {
-		return err
-	}
-	if uziv.PosledniDen.Format(time.DateOnly) == time.Now().Add(-24*time.Hour).Format(time.DateOnly) {
-		if _, err := DB.Exec(`UPDATE uzivatel SET posledniden = $1, daystreak = daystreak + 1 WHERE id = $2 AND posledniden != $1;`, time.Now().Format(time.DateOnly), uzivID); err != nil {
-			return err
-		}
-	} else {
-		if _, err := DB.Exec(`UPDATE uzivatel SET posledniden = $1, daystreak = 1 WHERE id = $2;`, time.Now().Format(time.DateOnly), uzivID); err != nil {
-			return err
-		}
-	}
-	return nil
+	_, err := DB.Exec(`INSERT INTO dokoncene (uziv_id, cviceni_id, cpm, preklepy, cas) VALUES ($1, $2, $3, $4, $5) ON CONFLICT ON CONSTRAINT unikatni DO UPDATE SET cpm = EXCLUDED.cpm, preklepy = EXCLUDED.preklepy, cas = EXCLUDED.cas;`, uzivID, cvicID, cpm, preklepy, cas)
+	return err
 }
 
 func OdebratDokonceneCvic(cvicID uint, uzivID uint) error {
@@ -344,4 +371,25 @@ func GetNaucenaPismena(uzivID uint, pismena string) (string, error) {
 	}
 
 	return vysledek, nil
+}
+
+func CreateNeoverenyUziv(email string, hesloHASH string, jmeno string, kod string, cas int64) error {
+	_, err := DB.Exec(`INSERT INTO overeni (email, jmeno, heslo, kod, cas) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (email) DO UPDATE SET jmeno = EXCLUDED.jmeno, heslo = EXCLUDED.heslo, kod = EXCLUDED.kod, cas = EXCLUDED.cas;`, email, jmeno, hesloHASH, kod, cas)
+	return err
+}
+
+func GetNeoverenyUziv(email string) (NeoUziv, error) {
+	var uziv NeoUziv
+	err := DB.QueryRowx(`SELECT * FROM overeni WHERE email = $1;`, email).StructScan(&uziv)
+	return uziv, err
+}
+
+func OdebratOvereni(email string) error {
+	_, err := DB.Exec(`DELETE FROM overeni WHERE email = $1`, email)
+	return err
+}
+
+func SmazatNeoverenyPoLimitu() error {
+	_, err := DB.Exec(`DELETE FROM overeni WHERE cas < $1;`, time.Now().Unix())
+	return err
 }

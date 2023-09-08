@@ -60,7 +60,7 @@ function dalsi() {
     border-radius: 1px;
     background-color: var(--bila);
     position: absolute;
-    left: 138px;
+    left: 8.7em;
     top: 125px;
 }
 
@@ -91,7 +91,7 @@ function dalsi() {
     #cara {
         width: 30px;
         height: 4px;
-        left: 72px;
+        left: 4.5em;
         top: 62px;
         border-radius: 1px;
     }

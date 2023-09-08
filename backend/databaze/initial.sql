@@ -16,9 +16,16 @@ CREATE TABLE
         jmeno VARCHAR(50) NOT NULL UNIQUE,
         email VARCHAR(50) NOT NULL UNIQUE,
         heslo VARCHAR(255) NOT NULL,
-        daystreak INT DEFAULT 0,
-        posledniden DATE DEFAULT CURRENT_DATE,
         klavesnice VARCHAR(10) DEFAULT 'qwertz'
+    );
+
+CREATE TABLE
+    IF NOT EXISTS overeni (
+        jmeno VARCHAR(50) NOT NULL UNIQUE,
+        email VARCHAR(50) NOT NULL UNIQUE,
+        heslo VARCHAR(255) NOT NULL,
+        kod VARCHAR(5) NOT NULL,
+        cas INT
     );
 
 CREATE TABLE
@@ -45,6 +52,7 @@ CREATE TABLE
         cpm DECIMAL,
         preklepy INT,
         cas DECIMAL,
+        datum DATE DEFAULT CURRENT_DATE,
         FOREIGN KEY (uziv_id) REFERENCES uzivatel(id) ON DELETE CASCADE,
         FOREIGN KEY (cviceni_id) REFERENCES cviceni(id),
         CONSTRAINT unikatni UNIQUE(uziv_id, cviceni_id)

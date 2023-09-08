@@ -26,8 +26,8 @@ useHead({
             <h2>Proč psát všemi deseti?</h2>
             <ul>
                 <li>Ušetříte spoustu vašeho drahocenného času</li>
-                <li>Snižuje chybovost při psaní</li>
-                <li>Předchází bolesti krku a hlavy z ustavičného koukaní na klávesnici</li>
+                <li>Snížíte chybovost při psaní</li>
+                <li>Předejdete bolesti krku a hlavy z ustavičného koukání na klávesnici</li>
             </ul>
         </div>
     </div>
@@ -37,8 +37,8 @@ useHead({
             <p>
                 <span class="tlusty">Vůbec nic.</span> <br>
                 Celý kurz Jako Pavouk je zcela zdarma!
-                Avšak než si osvojíte všechny klávesy, budete to chvíli trvat.
-                Od toho, aby to ale netrvalo věčnost, jsme tu my!
+                Avšak než si osvojíte všechny klávesy, bude to chvíli trvat.
+                Ale od toho, aby to netrvalo věčnost, jsme tu my!
             </p>
         </div>
         <img src="/pavoukNaZlate.svg" alt="Bohatý pavouk">

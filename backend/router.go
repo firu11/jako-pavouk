@@ -27,7 +27,7 @@ type (
 	bodyRegistrace struct {
 		Email string `json:"email" validate:"required,email"`
 		Jmeno string `json:"jmeno" validate:"required,min=3,max=25"`
-		Heslo string `json:"heslo" validate:"required,min=8,max=25"`
+		Heslo string `json:"heslo" validate:"required,min=5,max=25"`
 	}
 
 	bodyPrihlaseni struct {
@@ -252,45 +252,32 @@ func overitEmail(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Invalidni email"))
 	}
 
-	// najdeme cekajici mail
-	var deleteIndexy []int
-	var vPoradku bool = false
-	var cekajiciUzivatel utils.UzivCekajici
+	cekajiciUziv, err := databaze.GetNeoverenyUziv(body.Email)
+	if err != nil {
+		go databaze.SmazatNeoverenyPoLimitu()
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Cas pro overeni vyprsel. Zkuste to prosim znovu"))
+	}
 
-	for i, uziv := range utils.UzivCekajiciNaOvereni {
-		if time.Now().Unix() > uziv.DobaTrvani { // uz je po dobe trvani
-			deleteIndexy = append(deleteIndexy, i)
-		}
-		if uziv.Email == body.Email {
-			if time.Now().Unix() <= uziv.DobaTrvani && uziv.Kod != body.Kod { //vsechno dobry ale spatnej kod
-				utils.VycistitSeznam(deleteIndexy)
-				return c.Status(fiber.StatusBadRequest).JSON(chyba("Spatny kod"))
-			} else if time.Now().Unix() > uziv.DobaTrvani { //vyprselo
-				utils.VycistitSeznam(deleteIndexy)
-				return c.Status(fiber.StatusBadRequest).JSON(chyba("Cas pro overeni vyprsel. Zkuste to prosim znovu"))
-			} else { // dobry
-				vPoradku = true
-				cekajiciUzivatel = uziv
-				utils.VycistitSeznam(deleteIndexy)
-			}
-		}
+	if time.Now().Unix() <= cekajiciUziv.Cas && cekajiciUziv.Kod != body.Kod { //vsechno dobry ale spatnej kod
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Spatny kod"))
+	} else if time.Now().Unix() > cekajiciUziv.Cas { //vyprselo
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Cas pro overeni vyprsel. Zkuste to prosim znovu"))
 	}
-	if vPoradku {
-		uzivID, err := databaze.CreateUziv(body.Email, cekajiciUzivatel.HesloHash, cekajiciUzivatel.Jmeno)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
-		}
-		token, err := utils.GenerovatToken(body.Email, uzivID)
-		if err != nil {
-			log.Print(err)
-			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
-		} else {
-			utils.MobilNotifikace(cekajiciUzivatel.Jmeno + " - " + body.Email)
-			return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
-		}
-	} else {
-		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Prvne zkuste endpoint pro registraci aby vám byl poslán email"))
+
+	uzivID, err := databaze.CreateUziv(cekajiciUziv.Email, cekajiciUziv.Heslo, cekajiciUziv.Jmeno)
+	if err != nil {
+		log.Println(err, uzivID)
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 	}
+	token, err := utils.GenerovatToken(body.Email, uzivID)
+	if err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	go utils.MobilNotifikace(cekajiciUziv.Jmeno + " - " + body.Email)
+	go databaze.OdebratOvereni(cekajiciUziv.Email)
+	go databaze.SmazatNeoverenyPoLimitu()
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
 }
 
 func registrace(c *fiber.Ctx) error {
@@ -315,34 +302,21 @@ func registrace(c *fiber.Ctx) error {
 	}
 
 	if _, err = databaze.GetUzivByEmail(body.Email); err == nil { // uz existuje
-		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Uzivatel s tímto emailem jiz existuje"))
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s tímto emailem jiz existuje"))
 	}
 
 	if _, err = databaze.GetUzivByJmeno(body.Jmeno); err == nil { // uz existuje
-		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Uzivatel s tímto jmenem jiz existuje"))
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s tímto jmenem jiz existuje"))
 	}
 
 	var randomKod string = utils.GenKod()
 
-	for i, v := range utils.UzivCekajiciNaOvereni {
-		if v.Email == body.Email && v.Jmeno == body.Jmeno {
-			utils.UzivCekajiciNaOvereni[i].Kod = randomKod
-			utils.PoslatOverovaciEmail(body.Email, randomKod)
-			return c.SendStatus(fiber.StatusOK)
-		} else if body.Email == v.Email {
-			utils.UzivCekajiciNaOvereni[i].Kod = randomKod
-			utils.UzivCekajiciNaOvereni[i].Jmeno = body.Jmeno
-			utils.PoslatOverovaciEmail(body.Email, randomKod)
-			return c.SendStatus(fiber.StatusOK)
-		} else if v.Jmeno == body.Jmeno {
-			utils.UzivCekajiciNaOvereni[i].Kod = randomKod
-			utils.UzivCekajiciNaOvereni[i].Email = body.Email
-			utils.PoslatOverovaciEmail(body.Email, randomKod)
-			return c.SendStatus(fiber.StatusOK)
-		}
-	} // pokud jsme nenašli shodu tak pridame novy
-	utils.UzivCekajiciNaOvereni = append(utils.UzivCekajiciNaOvereni, utils.UzivCekajici{Email: body.Email, Jmeno: body.Jmeno, HesloHash: hesloHASH, Kod: randomKod, DobaTrvani: time.Now().Add(15 * time.Minute).Unix()})
+	if err := databaze.CreateNeoverenyUziv(body.Email, hesloHASH, body.Jmeno, randomKod, time.Now().Add(10*time.Minute).Unix()); err != nil {
+		go databaze.SmazatNeoverenyPoLimitu()
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s tímto jmenem docasne existuje"))
+	}
 	utils.PoslatOverovaciEmail(body.Email, randomKod)
+	go databaze.SmazatNeoverenyPoLimitu()
 	return c.SendStatus(fiber.StatusOK)
 }
 
@@ -396,7 +370,7 @@ func prehled(c *fiber.Ctx) error {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
-	preklepy, cpm, err := databaze.GetPreklepyACPM(id)
+	preklepy, cpm, daystreak, cas, err := databaze.GetUdaje(id)
 	if err != nil {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
@@ -413,9 +387,10 @@ func prehled(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"email":           uziv.Email,
 		"jmeno":           uziv.Jmeno,
-		"daystreak":       uziv.DayStreak,
+		"daystreak":       daystreak,
 		"uspesnost":       uspesnost / float32(delkaTextu) * 100,
 		"prumerRychlosti": utils.Prumer(cpm),
+		"celkovyCas":      cas,
 		"dokonceno":       dokonceno,
 		"klavesnice":      uziv.Klavesnice,
 	})

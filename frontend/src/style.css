@@ -36,6 +36,10 @@ h1 {
     margin-bottom: 25px;
 }
 
+h2 {
+    font-weight: 400;
+}
+
 p {
     font-size: 1.2em;
 }
