@@ -37,8 +37,14 @@ function login(e: Event) {
         router.push("/ucet")
     }).catch(e => {
         if (e.response.status == 400 || e.response.status == 401) {
-            if (e.response.data.error.search("Email") !== -1) spatnyEmail.value = true
-            else if (e.response.data.error.search("Heslo") !== -1) spatnyHeslo.value = true
+            if (e.response.data.error.search("Email") !== -1) {
+                spatnyEmail.value = true
+                pridatOznameni("Špatný email / jméno")
+            }
+            else if (e.response.data.error.search("Heslo") !== -1) {
+                spatnyHeslo.value = true
+                pridatOznameni("Špatné heslo")
+            }
             else pridatOznameni()
         } else {
             pridatOznameni()

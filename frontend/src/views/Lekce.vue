@@ -12,7 +12,7 @@ const pismena = Array.isArray(route) ? route[0] : route // sus proste kdyby naho
 const router = useRouter()
 
 useHead({
-    title: "Lekce " + route
+    title: "Lekce " + pismena
 })
 
 const cviceni = ref([] as {id: number, typ: string}[])

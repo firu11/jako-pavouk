@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-        <loc>https://www.jakopavouk.cz/</loc>
+        <loc>https://jakopavouk.cz/</loc>
         <priority>1.0</priority>
         <changefreq>daily</changefreq>
     </url>
     <url>
-        <loc>https://www.jakopavouk.cz/lekce</loc>
+        <loc>https://jakopavouk.cz/lekce</loc>
         <priority>1.0</priority>
         <changefreq>daily</changefreq>
     </url>
     <url>
-        <loc>https://www.jakopavouk.cz/jak-psat</loc>
+        <loc>https://jakopavouk.cz/jak-psat</loc>
         <priority>1.0</priority>
         <changefreq>daily</changefreq>
     </url>
     <url>
-        <loc>https://www.jakopavouk.cz/o-nas</loc>
+        <loc>https://jakopavouk.cz/o-nas</loc>
         <priority>1.0</priority>
         <changefreq>daily</changefreq>
     </url>
     <url>
-        <loc>https://www.jakopavouk.cz/prihlaseni</loc>
+        <loc>https://jakopavouk.cz/prihlaseni</loc>
         <priority>1.0</priority>
         <changefreq>weekly</changefreq>
     </url>
     <url>
-        <loc>https://www.jakopavouk.cz/registrace</loc>
+        <loc>https://jakopavouk.cz/registrace</loc>
         <priority>1.0</priority>
         <changefreq>weekly</changefreq>
     </url>

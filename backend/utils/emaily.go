@@ -2,24 +2,29 @@ package utils
 
 import (
 	"fmt"
-	"net/smtp"
+	"log"
 	"os"
+	"strconv"
+
+	"gopkg.in/gomail.v2"
 )
 
 func PoslatOverovaciEmail(email string, kod string) error {
-	auth := smtp.PlainAuth("", os.Getenv("EMAIL_UZIV"), os.Getenv("EMAIL_HESLO"), os.Getenv("EMAIL_HOST"))
-	msg := []byte(fmt.Sprintf("To: %v\r\n"+
-		"From: Jako Pavouk <%v>\r\n"+
-		"Subject: Verifikace\r\n"+
-		"\r\n"+
-		"Váš ověřovací kód pro Jako Pavouk je: %v\r\n", email, os.Getenv("EMAIL_FROM"), kod))
-	adresat := []string{email}
-
-	err := smtp.SendMail(os.Getenv("EMAIL_HOST")+":"+os.Getenv("EMAIL_PORT"), auth, os.Getenv("EMAIL_FROM"), adresat, msg)
+	port, err := strconv.Atoi(os.Getenv("EMAIL_PORT"))
 	if err != nil {
-		return err
+		log.Panic("konverze portu na int se rozbila")
 	}
 
-	fmt.Println("Posláno -", email)
+	m := gomail.NewMessage()
+	m.SetHeader("From", fmt.Sprintf("Jako Pavouk <%v>", os.Getenv("EMAIL_FROM")))
+	m.SetHeader("To", email)
+	m.SetHeader("Subject", "Verifikace")
+	m.SetBody("text/html", fmt.Sprintf("Váš ověřovací kód pro Jako Pavouk je: <b>%v</b>", kod))
+
+	d := gomail.NewDialer(os.Getenv("EMAIL_HOST"), port, os.Getenv("EMAIL_UZIV"), os.Getenv("EMAIL_HESLO"))
+	if err := d.DialAndSend(m); err != nil {
+		log.Print("NEFUNGUJE MAIL GG WOOWOO")
+	}
+	log.Println("Posláno -", email)
 	return nil
 }

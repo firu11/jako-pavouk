@@ -8,28 +8,37 @@ import { onUnmounted } from 'vue';
 import Vysledek from '../components/Vysledek.vue';
 import Klavesnice from '../components/Klavesnice.vue';
 import { useSound } from '@vueuse/sound';
+import { useHead } from '@unhead/vue';
 
 const router = useRouter()
 const route = useRoute()
 const pismena: string = Array.isArray(route.params.pismena) ? route.params.pismena[0] : route.params.pismena
 const cislo: string = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
 
-const text = ref([[]] as { id: number, znak: string, spatne: boolean, }[][])
+useHead({
+    title: "Cvičení " + pismena
+})
+
+const text = ref([[]] as { id: number, znak: string, spatne: number, }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
 const delkaTextu = ref(0)
 const counter = ref(0)
 const preklepy = ref(0)
 const timerZacatek = ref(0)
 const cas = ref(0)
+const textElem = ref<HTMLInputElement>()
+const Yradek2 = 195
+let textPosunutiCount = 0
+let lastPosunutiCounter = 0
 
 const posledni = ref(false)
 const klavesnice = ref("")
 
 const zvukyZaply = ref(true)
-let sus = localStorage.getItem("pavouk_zvuk")
-if (sus == null) {
+let tmp = localStorage.getItem("pavouk_zvuk")
+if (tmp == null) {
     zvukyZaply.value = true
 } else {
-    zvukyZaply.value = JSON.parse(sus) === true
+    zvukyZaply.value = JSON.parse(tmp) === true // nejde to dat na jednu lajnu TS sus
 }
 const zvuky = [useSound('/zvuky/klik1.ogg'), useSound('/zvuky/klik2.ogg'), useSound('/zvuky/klik3.ogg'), useSound('/zvuky/miss.ogg')]
 
@@ -66,7 +75,7 @@ function get() {
             text.value.push([])
             const slovoArr = [...slovo]
             slovoArr.forEach(pismeno => {
-                text.value[i].push({ id: delkaTextu.value, znak: pismeno, spatne: false })
+                text.value[i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0 })
                 delkaTextu.value++
             })
         })
@@ -79,42 +88,52 @@ function get() {
 
 onMounted(() => {
     get()
-
-    document.addEventListener("keypress", klik)
-    document.addEventListener("keydown", capslockCheck)
+    document.addEventListener("keydown", klik)
 })
 
 onUnmounted(() => {
-    document.removeEventListener("keypress", klik)
-    document.removeEventListener("keydown", capslockCheck)
+    document.removeEventListener("keydown", klik)
 })
 
-function capslockCheck(e: KeyboardEvent) { // TODO chtelo by to checknout hned po nacteni stranky ale nevim jestli to jde
+function capslockCheck(e: KeyboardEvent) { // TODO chtelo by to checknout hned po nacteni stranky ale nevim jestli to jde (spíš ne)
     capslock.value = e.getModifierState("CapsLock")
 }
 
-function klik(e: KeyboardEvent) {
-    if (e.key === " ") {
-        e.preventDefault() // ať to nescrolluje
-    }
-
+function klik(this: any, e: KeyboardEvent) {
+    capslockCheck(e)
+    if (["Control", "Alt", "Shift", "CapsLock", "OS", "Escape", "AltGraph", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "Meta", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) return
+    else e.preventDefault() // ať to nescrolluje a nehazí nějaký stupid zkratky
     startTimer()
 
     if (e.key === aktivniPismeno.value.znak) {
         if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
+        if (aktivniPismeno.value.spatne === 1) {
+            aktivniPismeno.value.spatne = 2
+        }
         counter.value++
+    } else if (e.key === "Backspace") {
+        if (counter.value !== 0) {
+            counter.value--
+        }
     } else {
         if (zvukyZaply.value) zvuky[3].play()
-        aktivniPismeno.value.spatne = true
+        aktivniPismeno.value.spatne = 1
         preklepy.value++
+        counter.value++
+    }
+
+    let aktualniY = document.getElementById("p" + counter.value)?.getBoundingClientRect().y!
+    if (aktualniY - Yradek2 > 5 && counter.value - lastPosunutiCounter > 12) {
+        lastPosunutiCounter = counter.value
+        textPosunutiCount++
+        textElem.value!.style.top = `${textPosunutiCount * -2.25}em`
     }
 
     if (aktivniPismeno.value.id === -1) { // konec
         clearInterval(interval)
         calcCas() // naposledy
         konec.value = true
-        document.removeEventListener("keypress", klik)
-        document.removeEventListener("keydown", capslockCheck)
+        document.removeEventListener("keydown", klik)
     }
 }
 
@@ -135,20 +154,18 @@ function restart() {
     counter.value = 0
     preklepy.value = 0
     konec.value = false
-    text.value = [[]] as { id: number, znak: string, spatne: boolean, }[][]
+    text.value = [[]] as { id: number, znak: string, spatne: number, }[][]
     delkaTextu.value = 0
 
     get()
 
-    document.addEventListener("keypress", klik)
-    document.addEventListener("keydown", capslockCheck)
+    document.addEventListener("keydown", klik)
 }
 
 function toggleZvuk() {
     zvukyZaply.value = !zvukyZaply.value
     localStorage.setItem("pavouk_zvuk", zvukyZaply.value.toString())
 }
-
 </script>
 
 <template>
@@ -162,15 +179,17 @@ function toggleZvuk() {
         <div id="nabidka">
             <h3 id="cas">{{ casFormat }}s</h3>
             <h3 :style="{ visibility: capslock ? 'visible' : 'hidden' }" id="capslock">CapsLock</h3>
-            <h3 id="preklepy">Chyby: {{ preklepy }}</h3>
+            <h3 id="preklepy">Překlepy: {{ preklepy }}</h3>
         </div>
 
         <div id="ramecek">
-            <div id="text">
-                <div class="slovo" v-for="s in text">
-                    <div v-for="p in s" class="pismeno"
-                        :class="{ podtrzeni: p.id === counter, spatnePismeno: p.spatne && counter === p.id, opravenePismeno: p.spatne && counter > p.id, spravnePismeno: !p.spatne && counter > p.id }">
-                        {{ (p.znak !== " " ? p.znak : p.spatne ? "_" : "&nbsp") }}
+            <div id="fade">
+                <div id="text" ref="textElem">
+                    <div class="slovo" v-for="s in text">
+                        <div v-for="p in s" class="pismeno" :id="'p' + p.id"
+                            :class="{ podtrzeni: p.id === counter, spatnePismeno: p.spatne === 1 && counter > p.id, opravenePismeno: p.spatne === 2, spravnePismeno: !p.spatne && counter > p.id }">
+                            {{ (p.znak !== " " ? p.znak : p.spatne ? "_" : "&nbsp") }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -195,8 +214,6 @@ function toggleZvuk() {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Mono&display=swap');
-
 .zvukIcon {
     width: 45px;
     height: 35px;
@@ -254,15 +271,24 @@ function toggleZvuk() {
 
 #ramecek {
     padding: 10px;
-    min-height: 190px;
+    height: 200px;
     border-radius: 10px 10px 0 0;
     background-color: var(--tmave-fialova);
     width: var(--sirka-textoveho-pole);
+    overflow: hidden;
 }
 
 #text {
     display: flex;
     flex-wrap: wrap;
+    position: relative;
+    transition: ease 0.3s;
+    top: 0em;
+}
+
+#fade {
+    mask-image: linear-gradient(180deg, var(--tmave-fialova) 75%, transparent 97%);
+    height: 190px;
 }
 
 .slovo {
@@ -274,8 +300,9 @@ function toggleZvuk() {
     border-radius: 3px;
     display: inline-flex;
     font-family: 'Red Hat Mono', monospace;
+    font-weight: 400;
     font-size: 25px;
-    line-height: 1.2;
+    line-height: 1.35em;
     text-decoration: none;
     padding: 0 1px;
     margin-right: 1px;
@@ -301,7 +328,7 @@ function toggleZvuk() {
 }
 
 .spravnePismeno {
-    color: #afafaf;
+    color: #9c9c9c;
 }
 
 .podtrzeni {

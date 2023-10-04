@@ -7,11 +7,11 @@ useHead({
     meta: [
         {
             name: "description",
-            content: "Webová aplikace pro výuku psaní všemi deseti. Chcete se naučit psát rychle jako pavouk? Během pár týdnu se budete cítit jako profík.",
+            content: "Webová aplikace pro výuku psaní všemi deseti. Chcete se naučit psát rychle jako pavouk? Během pár týdnu se budete cítit jako profík!",
         },
         {
             name: "keywords",
-            content: "jako, pavouk, psani, psaní, všemi, vsemi, všema, vsema, deseti",
+            content: "jako, pavouk, psani, psaní, všemi, vsemi, všema, vsema, deseti, prsty, klavesnici, klavesnice, prst, klávesnice, klávesnici",
         }
     ]
 })

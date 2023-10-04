@@ -32,7 +32,7 @@ type (
 
 	bodyPrihlaseni struct {
 		EmailNeboJmeno string `json:"email" validate:"required"`
-		Heslo          string `json:"heslo" validate:"required,min=8,max=25"`
+		Heslo          string `json:"heslo" validate:"required,min=5,max=25"`
 	}
 
 	bodyUprava struct {
@@ -66,7 +66,7 @@ func test(c *fiber.Ctx) error {
 	/* log.Println(utils.UzivCekajiciNaOvereni)
 	log.Println(utils.ValidFormat("firu"))
 	utils.MobilNotifikace("Jmeno - email@ema.il") */
-	databaze.PushCviceni()
+	/* databaze.PushCviceni() */
 	return c.JSON("Vypadni")
 }
 
@@ -315,7 +315,9 @@ func registrace(c *fiber.Ctx) error {
 		go databaze.SmazatNeoverenyPoLimitu()
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s tímto jmenem docasne existuje"))
 	}
-	utils.PoslatOverovaciEmail(body.Email, randomKod)
+	if err := utils.PoslatOverovaciEmail(body.Email, randomKod); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
+	}
 	go databaze.SmazatNeoverenyPoLimitu()
 	return c.SendStatus(fiber.StatusOK)
 }

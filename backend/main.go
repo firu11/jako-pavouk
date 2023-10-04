@@ -42,8 +42,8 @@ func main() {
 	}))
 
 	app.Use(limiter.New(limiter.Config{
-		Max:               20,
-		Expiration:        30 * time.Second,
+		Max:               30,
+		Expiration:        10 * time.Second,
 		LimiterMiddleware: limiter.SlidingWindow{},
 		LimitReached: func(c *fiber.Ctx) error {
 			return c.SendStatus(fiber.StatusTeapot) // troulin

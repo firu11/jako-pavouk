@@ -90,7 +90,7 @@ func GetLekce(uzivID uint) ([][]Lekce, error) {
 func GetDokonceneLekce(uzivID uint) ([]int32, error) {
 	var vysledek []int32 = []int32{}
 	// zjistim kolik ma kazda lekce cviceni
-	rows, err := DB.Queryx(`SELECT a.lekce_id FROM (SELECT lekce_id, COUNT(lekce_id) as pocet_doko FROM dokoncene d INNER JOIN cviceni c ON d.cviceni_id = c.id WHERE uziv_id = $1 GROUP BY lekce_id) a INNER JOIN (SELECT lekce_id, COUNT(lekce_id) as pocet_cvic FROM cviceni GROUP BY lekce_id) b ON a.lekce_id = b.lekce_id WHERE pocet_doko = pocet_cvic;`, uzivID)
+	rows, err := DB.Queryx(`WITH vsechny_cviceni AS (SELECT lekce_id, c.id as cviceni_id FROM cviceni c JOIN lekce l ON l.id = c.lekce_id WHERE l.klavesnice = (SELECT klavesnice FROM uzivatel WHERE id = $1) OR l.klavesnice = 'oboje'), moje_dokonceny AS (SELECT 1 as dokonceno, d.cviceni_id FROM dokoncene d WHERE d.uziv_id = $1) SELECT lekce_id FROM vsechny_cviceni vc LEFT JOIN moje_dokonceny d ON vc.cviceni_id = d.cviceni_id GROUP BY lekce_id HAVING (COUNT(*)) = (COUNT (*) FILTER (WHERE d.dokonceno IS NOT NULL));`, uzivID)
 	if err != nil {
 		return vysledek, err
 	}
@@ -274,7 +274,7 @@ func GetUdaje(uzivID uint) ([]float32, []float32, int, float32, error) {
 			daystreak++
 		} else if d.Equal(date.Today()) {
 			daystreak = 1
-		} else {
+		} else if hledanyDen.Sub(d) != -1 { // pokud dalsi je uz víc davno nez vcera
 			break
 		}
 	}
@@ -282,20 +282,14 @@ func GetUdaje(uzivID uint) ([]float32, []float32, int, float32, error) {
 	return preklepy, cpm, daystreak, celkovyCas, nil
 }
 
-func DokonceneProcento(uzivID uint) (float32, error) { // TODO predelat na jeden sql
-	var pocet int32
-	err := DB.QueryRowx(`SELECT COUNT(*) FROM dokoncene WHERE uziv_id = $1;`, uzivID).Scan(&pocet)
+func DokonceneProcento(uzivID uint) (float32, error) {
+	var x float32
+	err := DB.QueryRowx(`SELECT cast((SELECT COUNT(*) FROM dokoncene WHERE uziv_id = $1) as float) / (SELECT COUNT(*) FROM cviceni) as x;`, uzivID).Scan(&x)
 	if err != nil {
 		return 0, err
 	}
 
-	var pocet2 int32
-	err = DB.QueryRowx(`SELECT COUNT(*) FROM cviceni;`).Scan(&pocet2)
-	if err != nil {
-		return 0, err
-	}
-
-	return float32(pocet) / float32(pocet2) * 100, nil
+	return x * 100, nil
 }
 
 func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {

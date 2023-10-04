@@ -61,10 +61,8 @@ useHead({
                 <span>*(CPM = úhozů za minutu)</span>
             </div>
         </div>
-        <a href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target=”_blank”
-            style="height: 100%; padding: 30px;">
-            <img src="/npi.jpg" alt="Národní pedagogický institut"
-                style="border-radius: 1000px; width: 100%; height: 100%;">
+        <a id="npi" href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target=”_blank”>
+            <img src="/npi.jpg" alt="Národní pedagogický institut">
         </a>
     </div>
 </template>
@@ -90,6 +88,17 @@ ol {
 #spodni a {
     color: var(--bila);
     width: auto;
+}
+
+#npi {
+    height: 100%;
+    padding: 30px;
+}
+
+#npi img {
+    border-radius: 1000px;
+    width: 100%;
+    height: 100%;
 }
 
 @media screen and (max-width: 1000px) {
