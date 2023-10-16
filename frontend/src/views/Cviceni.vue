@@ -47,7 +47,7 @@ let interval: number
 const konec = ref(false)
 
 const casFormat = computed(() => {
-    return cas.value < 60 ? Math.floor(cas.value).toString() : `${Math.floor(cas.value / 60)}:${cas.value % 60 < 10 ? "0" + Math.floor(cas.value % 60).toString() : Math.floor(cas.value % 60)}`
+    return cas.value < 60 ? (Math.floor(cas.value * 10) / 10).toString() : `${Math.floor(cas.value / 60)}:${cas.value % 60 < 10 ? "0" + Math.floor(cas.value % 60).toString() : Math.floor(cas.value % 60)}`
 })
 
 const progress = computed(() => {
@@ -55,10 +55,14 @@ const progress = computed(() => {
 })
 
 const aktivniPismeno = computed(() => {
+    preklepy.value = 0
     for (const slovo of text.value) {
         for (const pismenoObj of slovo) {
             if (pismenoObj.id === counter.value) {
                 return pismenoObj
+            }
+            if (pismenoObj.spatne === 1) { //spatne, neopraveno
+                preklepy.value++
             }
         }
     }
@@ -114,11 +118,16 @@ function klik(this: any, e: KeyboardEvent) {
     } else if (e.key === "Backspace") {
         if (counter.value !== 0) {
             counter.value--
+            if (aktivniPismeno.value.znak === " " && aktivniPismeno.value.spatne !== 1) { // pokud to je mezera a neni spatne dame to zpatky
+                if (zvukyZaply.value) zvuky[3].play()
+                counter.value++
+            } else {
+                if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
+            }
         }
     } else {
         if (zvukyZaply.value) zvuky[3].play()
         aktivniPismeno.value.spatne = 1
-        preklepy.value++
         counter.value++
     }
 
@@ -201,16 +210,17 @@ function toggleZvuk() {
         </div>
 
         <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak"></Klavesnice>
+
+        <div id="zvukBtn" @click="toggleZvuk">
+            <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvukIcon" src="../assets/icony/zvukOn.svg"
+                alt="Zvuky jsou zapnuté">
+            <img v-else style="margin-left: 1px;" class="zvukIcon" src="../assets/icony/zvukOff.svg"
+                alt="Zvuky jsou vypnuté">
+        </div>
     </div>
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas"
         :pismena="pismena" :cislo="cislo" :posledni="posledni"></Vysledek>
-
-    <div id="zvukBtn" @click="toggleZvuk" v-if="!konec">
-        <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvukIcon" src="../assets/icony/zvukOn.svg"
-            alt="Zvuky jsou zapnuté">
-        <img v-else style="margin-left: 1px;" class="zvukIcon" src="../assets/icony/zvukOff.svg" alt="Zvuky jsou vypnuté">
-    </div>
 </template>
 
 <style scoped>

@@ -25,8 +25,7 @@ func main() {
 		log.Fatal("Error .env", err)
 	}
 
-	pocetSlov = getPocetSlov()
-	pocetPismenVeSlovu = getDelkaPismen()
+	pocetSlov, pocetPismenVeSlovu = getEnvDelky()
 	delkaTextu = (pocetPismenVeSlovu+1)*pocetSlov - 1
 
 	databaze.DBConnect()
@@ -62,18 +61,14 @@ func inject() {
 	utils.TokenTimeDuration = tokenTimeDuration
 }
 
-func getDelkaPismen() int {
-	x, err := strconv.Atoi(os.Getenv("POCET_PISMEN"))
-	if err != nil {
-		log.Fatalln("ENV se pokazilo - asi spatna hodnota", err)
-	}
-	return x
-}
-
-func getPocetSlov() int {
+func getEnvDelky() (int, int) {
 	x, err := strconv.Atoi(os.Getenv("POCET_SLOV"))
 	if err != nil {
 		log.Fatalln("ENV se pokazilo - asi spatna hodnota", err)
 	}
-	return x
+	y, err := strconv.Atoi(os.Getenv("POCET_PISMEN"))
+	if err != nil {
+		log.Fatalln("ENV se pokazilo - asi spatna hodnota", err)
+	}
+	return x, y
 }

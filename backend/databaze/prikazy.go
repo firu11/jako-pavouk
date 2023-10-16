@@ -2,6 +2,7 @@ package databaze
 
 import (
 	"errors"
+	"math"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -42,13 +43,14 @@ type Slovnik struct {
 }
 
 type Dokoncene struct {
-	ID        uint      `json:"id"`
-	UzivID    uint      `json:"uziv_id"`
-	CviceniID uint      `json:"cviceni_id"`
-	CPM       float32   `json:"cpm"`
-	Preklepy  uint      `json:"preklepy"`
-	Cas       int       `json:"cas"`
-	Datum     date.Date `json:"datum"`
+	ID         uint      `json:"id"`
+	UzivID     uint      `json:"uziv_id"`
+	CviceniID  uint      `json:"cviceni_id"`
+	CPM        float32   `json:"cpm"`
+	Preklepy   uint      `json:"preklepy"`
+	Cas        int       `json:"cas"`
+	DelkaTextu int       `json:"delka_textu"`
+	Datum      date.Date `json:"datum"`
 }
 
 func GetLekce(uzivID uint) ([][]Lekce, error) {
@@ -106,8 +108,14 @@ func GetDokonceneLekce(uzivID uint) ([]int32, error) {
 	return vysledek, nil
 }
 
-func GetDokonceneCvicVLekci(uzivID uint, lekceID uint, pismena string) ([]int32, error) {
-	var cviceniIDs []int32 = []int32{}
+type Cvic struct {
+	Id       int
+	Cpm      float32
+	Presnost float32
+}
+
+func GetDokonceneCvicVLekci(uzivID uint, lekceID uint, pismena string) ([]Cvic, error) {
+	var cviceniIDs []Cvic = []Cvic{}
 	var rows *sqlx.Rows
 	var err error
 
@@ -117,7 +125,7 @@ func GetDokonceneCvicVLekci(uzivID uint, lekceID uint, pismena string) ([]int32,
 			return cviceniIDs, err
 		}
 	}
-	rows, err = DB.Queryx(`SELECT d.cviceni_id FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id WHERE lekce_id = $1 AND uziv_id = $2;`, lekceID, uzivID)
+	rows, err = DB.Queryx(`SELECT d.cviceni_id, d.cpm, d.delka_textu, d.preklepy FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id WHERE lekce_id = $1 AND uziv_id = $2;`, lekceID, uzivID)
 	if err != nil {
 		return cviceniIDs, err
 	}
@@ -125,11 +133,12 @@ func GetDokonceneCvicVLekci(uzivID uint, lekceID uint, pismena string) ([]int32,
 	defer rows.Close()
 
 	for rows.Next() {
-		var id int32
-		if err = rows.Scan(&id); err != nil {
+		var id, delkaTextu int
+		var preklepy, cpm float32
+		if err = rows.Scan(&id, &cpm, &delkaTextu, &preklepy); err != nil {
 			return cviceniIDs, err
 		}
-		cviceniIDs = append(cviceniIDs, id)
+		cviceniIDs = append(cviceniIDs, Cvic{id, cpm, (float32(delkaTextu) - preklepy) / float32(delkaTextu) * 100})
 	}
 
 	return cviceniIDs, nil
@@ -224,35 +233,38 @@ func PrejmenovatUziv(id uint, noveJmeno string) error {
 	return err // buď nil nebo error
 }
 
-/* preklepy, cpm, daystreak, cas */
-func GetUdaje(uzivID uint) ([]float32, []float32, int, float32, error) {
-	var preklepy []float32
+/* preklepy, cpm, daystreak, cas, delka */
+func GetUdaje(uzivID uint) (int, []float32, int, float32, int, error) {
+	var preklepy int
+	var delkaVsechTextu int = 0
 	var cpm []float32
 	var daystreak int = 0
 	var celkovyCas float32 = 0
 
 	var poslednich int = 10
-	rows, err := DB.Queryx(`SELECT preklepy, cpm FROM dokoncene WHERE uziv_id = $1 ORDER BY den DESC LIMIT $2;`, uzivID, poslednich)
+	rows, err := DB.Queryx(`SELECT preklepy, cpm, delka_textu FROM dokoncene WHERE uziv_id = $1 ORDER BY den DESC LIMIT $2;`, uzivID, poslednich)
 	if err != nil {
-		return preklepy, cpm, daystreak, celkovyCas, err
+		return preklepy, cpm, daystreak, celkovyCas, delkaVsechTextu, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var preklep float32
+		var preklep int
 		var cpmko float32
-		err := rows.Scan(&preklep, &cpmko)
+		var delka int
+		err := rows.Scan(&preklep, &cpmko, &delka)
 		if err != nil {
-			return preklepy, cpm, daystreak, celkovyCas, err
+			return preklepy, cpm, daystreak, celkovyCas, delkaVsechTextu, err
 		}
 
-		preklepy = append(preklepy, float32(preklep))
+		preklepy += preklep
 		cpm = append(cpm, cpmko)
+		delkaVsechTextu += delka
 	}
 
 	rows, err = DB.Queryx(`SELECT den, cas FROM dokoncene WHERE uziv_id = $1 ORDER BY den DESC;`, uzivID)
 	if err != nil {
-		return preklepy, cpm, daystreak, celkovyCas, err
+		return preklepy, cpm, daystreak, celkovyCas, delkaVsechTextu, err
 	}
 	defer rows.Close()
 
@@ -261,7 +273,7 @@ func GetUdaje(uzivID uint) ([]float32, []float32, int, float32, error) {
 		var c float32
 		var d date.Date
 		if err := rows.Scan(&d, &c); err != nil {
-			return preklepy, cpm, daystreak, celkovyCas, err
+			return preklepy, cpm, daystreak, celkovyCas, delkaVsechTextu, err
 		}
 		celkovyCas += c
 		dny = append(dny, d)
@@ -278,8 +290,10 @@ func GetUdaje(uzivID uint) ([]float32, []float32, int, float32, error) {
 			break
 		}
 	}
-
-	return preklepy, cpm, daystreak, celkovyCas, nil
+	if delkaVsechTextu == 0 {
+		delkaVsechTextu = 1
+	}
+	return preklepy, cpm, daystreak, celkovyCas, delkaVsechTextu, nil
 }
 
 func DokonceneProcento(uzivID uint) (float32, error) {
@@ -301,8 +315,10 @@ func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
 	return uzivID, nil
 }
 
-func PridatDokonceneCvic(cvicID uint, uzivID uint, cpm float32, preklepy int, cas float32) error {
-	_, err := DB.Exec(`INSERT INTO dokoncene (uziv_id, cviceni_id, cpm, preklepy, cas) VALUES ($1, $2, $3, $4, $5) ON CONFLICT ON CONSTRAINT unikatni DO UPDATE SET cpm = EXCLUDED.cpm, preklepy = EXCLUDED.preklepy, cas = EXCLUDED.cas;`, uzivID, cvicID, cpm, preklepy, cas)
+func PridatDokonceneCvic(cvicID uint, uzivID uint, cpm float32, preklepy int, cas float32, delkaTextu int) error {
+	cpm = float32(math.Round(float64(cpm)*100) / 100) // zaokrouhlit na 2 desetiny cisla
+	cas = float32(math.Round(float64(cas)*100) / 100)
+	_, err := DB.Exec(`INSERT INTO dokoncene (uziv_id, cviceni_id, cpm, preklepy, cas, delka_textu) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT ON CONSTRAINT unikatni DO UPDATE SET cpm = EXCLUDED.cpm, preklepy = EXCLUDED.preklepy, cas = EXCLUDED.cas, delka_textu = EXCLUDED.delka_textu, den = CURRENT_TIMESTAMP;`, uzivID, cvicID, cpm, preklepy, cas, delkaTextu)
 	return err
 }
 

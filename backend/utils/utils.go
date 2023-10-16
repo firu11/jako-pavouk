@@ -85,3 +85,11 @@ func GenKod() string {
 func MobilNotifikace(s string) {
 	http.Post("https://ntfy.sh/novy_uzivatel115115jakopavouk", "text/plain", strings.NewReader(s))
 }
+
+func DelkaTextuArray(a []string) int {
+	var x int
+	for _, v := range a {
+		x += len(v)
+	}
+	return x
+}

@@ -1,19 +1,46 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { prihlasen } from '../stores';
+import { onMounted, ref } from 'vue';
+import { levelyPresnosti, levelyRychlosti, prihlasen } from '../stores';
 import { pridatOznameni } from '../utils';
 
-defineProps({
+const props = defineProps({
     dokonceno: Boolean,
     index: Number,
     pismena: {
         type: String,
         default: ""
     },
-    typ: String
+    typ: String,
+    rychlost: {
+        type: Number,
+        default: 0
+    },
+    presnost: {
+        type: Number,
+        default: 0
+    },
 })
 
 const mobil = ref(document.body.clientWidth <= 1000)
+const hvezdy = ref(0)
+
+onMounted(() => {
+    if (props.rychlost >= levelyRychlosti[1] && props.presnost >= levelyPresnosti[1]) { // paradni
+        hvezdy.value = 3
+    } else if (props.rychlost >= levelyRychlosti[0] && props.rychlost < levelyRychlosti[1] && props.presnost >= levelyPresnosti[1]) { // rychlost muze byt lepsi
+        hvezdy.value = 2
+    } else if (props.presnost >= levelyPresnosti[0] && props.presnost < levelyPresnosti[1] && props.rychlost >= levelyRychlosti[1]) { // presnost muze byt lepsi
+        hvezdy.value = 2
+    } else if (props.presnost >= levelyPresnosti[0] && props.presnost < levelyPresnosti[1] && props.rychlost >= levelyRychlosti[0] && props.rychlost <= levelyRychlosti[1]) { // oboje muze byt lepsi
+        hvezdy.value = 1
+    } else if (props.rychlost < levelyRychlosti[0] && props.presnost < levelyPresnosti[0]) { // oboje bad
+        hvezdy.value = 0
+    } else if (props.rychlost < levelyRychlosti[0]) { // rychlost bad
+        hvezdy.value = 0
+    } else if (props.presnost < levelyPresnosti[0]) { // presnost bad
+        hvezdy.value = 0
+    }
+})
 
 </script>
 
@@ -26,7 +53,14 @@ const mobil = ref(document.body.clientWidth <= 1000)
         <h3 v-else-if="typ === 'naucena'">Probraná písmenka</h3>
         <h3 v-else-if="typ === 'slova'">Se slovy</h3>
         <h3 v-else>...</h3>
-        <img class="fajvkaVetsi" v-if="dokonceno" src="../assets/icony/right.svg" alt="Dokonceno!">
+        <div v-if="dokonceno" id="hvezdy">
+            <img v-if="hvezdy >= 1" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
+            <img v-if="hvezdy >= 2" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
+            <img v-if="hvezdy == 3" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
+        </div>
         <img class="playVetsi" v-else src="../assets/icony/start.svg" alt="Začít lekci">
     </router-link>
     <a v-else-if="typ === '...' && !mobil" class="cvicBlok"> <!-- aby na to ńeslo kliknout nez se to nacte -->
@@ -56,6 +90,20 @@ const mobil = ref(document.body.clientWidth <= 1000)
 </template>
 
 <style scoped>
+.hvezda {
+    width: 50px;
+    height: 50px;
+}
+
+#hvezdy :nth-child(2) {
+    position: relative;
+    top: -10px;
+}
+
+#hvezdy {
+    margin-top: 5px;
+}
+
 .cvicBlok {
     color: var(--bila);
     display: flex;
@@ -82,7 +130,7 @@ const mobil = ref(document.body.clientWidth <= 1000)
 }
 
 .dokoncenyBlok {
-    opacity: 50%;
+    opacity: 70%;
 }
 
 .cvicBlok h3 {

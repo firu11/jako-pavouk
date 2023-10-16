@@ -1,12 +1,12 @@
 -- Active: 1693211969972@@46.36.41.4@5432@pavouk
 
-DROP TABLE IF EXISTS dokoncene;
+/* DROP TABLE IF EXISTS dokoncene;
 
 DROP TABLE IF EXISTS cviceni;
 
 DROP TABLE IF EXISTS slovnik;
 
-DROP TABLE IF EXISTS lekce;
+DROP TABLE IF EXISTS lekce; */
 
 /* DROP TABLE IF EXISTS uzivatel; */
 
@@ -51,8 +51,9 @@ CREATE TABLE
         cviceni_id INT,
         cpm DECIMAL,
         preklepy INT,
+        delkatextu INT,
         cas DECIMAL,
-        datum DATE DEFAULT CURRENT_DATE,
+        datum TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (uziv_id) REFERENCES uzivatel(id) ON DELETE CASCADE,
         FOREIGN KEY (cviceni_id) REFERENCES cviceni(id),
         CONSTRAINT unikatni UNIQUE(uziv_id, cviceni_id)

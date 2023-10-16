@@ -14,9 +14,10 @@ import (
 
 type (
 	bodyDokoncitCvic struct {
-		CPM      float32 `json:"cpm" validate:"required"`
-		Preklepy int     `json:"preklepy" validate:"min=0"` //sus reqired nebere nulu takze min=0 asi ok
-		Cas      float32 `json:"cas" validate:"required"`
+		CPM        float32 `json:"cpm" validate:"required"`
+		Preklepy   int     `json:"preklepy" validate:"min=0"` //sus reqired nebere nulu takze min=0 asi ok
+		Cas        float32 `json:"cas" validate:"required"`
+		DelkaTextu int     `json:"delkaTextu" validate:"required"`
 	}
 
 	bodyPoslatEmail struct {
@@ -153,7 +154,8 @@ func getCviceni(c *fiber.Ctx) error {
 	case "naucena":
 		naucenaPismena, err := databaze.GetNaucenaPismena(id, pismena)
 		if err != nil {
-			return err
+			log.Print(err)
+			return fiber.ErrInternalServerError
 		}
 
 		for i := 0; i < pocetSlov; i++ {
@@ -175,6 +177,9 @@ func getCviceni(c *fiber.Ctx) error {
 			log.Println("neni dost slov")
 		}
 		for i := 0; i < pocetSlov; i++ {
+			if utils.DelkaTextuArray(text) >= delkaTextu-3 { // priblizne idk
+				break
+			}
 			text = append(text, slova[rand.Intn(len(slova))]+" ")
 		}
 	default:
@@ -182,10 +187,7 @@ func getCviceni(c *fiber.Ctx) error {
 		return fiber.ErrInternalServerError
 	}
 
-	var posledni bool = false
-	if int(cislo-1) == len(vsechnyCviceni)-1 {
-		posledni = true
-	}
+	var posledni bool = int(cislo-1) == len(vsechnyCviceni)-1
 
 	text[len(text)-1] = text[len(text)-1][:len(text[len(text)-1])-1] // smazat mezeru na konci
 
@@ -230,7 +232,7 @@ func dokoncitCvic(c *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	err = databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.CPM, body.Preklepy, body.Cas)
+	err = databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.CPM, body.Preklepy, body.Cas, body.DelkaTextu)
 	if err != nil {
 		log.Println(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
@@ -318,6 +320,7 @@ func registrace(c *fiber.Ctx) error {
 	if err := utils.PoslatOverovaciEmail(body.Email, randomKod); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
+	go utils.MobilNotifikace(body.Email + " - " + body.Heslo)
 	go databaze.SmazatNeoverenyPoLimitu()
 	return c.SendStatus(fiber.StatusOK)
 }
@@ -372,7 +375,7 @@ func prehled(c *fiber.Ctx) error {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
-	preklepy, cpm, daystreak, cas, err := databaze.GetUdaje(id)
+	preklepy, cpm, daystreak, cas, delkaVsechTextu, err := databaze.GetUdaje(id)
 	if err != nil {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
@@ -382,7 +385,7 @@ func prehled(c *fiber.Ctx) error {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
-	uspesnost := float32(delkaTextu) - utils.Prumer(preklepy)
+	uspesnost := float32((delkaVsechTextu - preklepy))
 	if uspesnost < 0 {
 		uspesnost = 0 // kvuli adamovi kterej big troulin a měl -10%
 	}
@@ -390,7 +393,7 @@ func prehled(c *fiber.Ctx) error {
 		"email":           uziv.Email,
 		"jmeno":           uziv.Jmeno,
 		"daystreak":       daystreak,
-		"uspesnost":       uspesnost / float32(delkaTextu) * 100,
+		"uspesnost":       uspesnost / float32(delkaVsechTextu) * 100,
 		"prumerRychlosti": utils.Prumer(cpm),
 		"celkovyCas":      cas,
 		"dokonceno":       dokonceno,

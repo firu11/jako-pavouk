@@ -16,7 +16,7 @@ useHead({
 })
 
 const cviceni = ref([] as {id: number, typ: string}[])
-const dokoncene = ref([] as number[])
+const dokoncene = ref([] as any[])
 const fetchProbehl = ref(false)
 
 onMounted(() => {
@@ -37,6 +37,20 @@ onMounted(() => {
     })
 })
 
+function jeDokoncene(id: number) {
+    for (const cvic of dokoncene.value) {
+        if (cvic.Id == id) return true
+    }
+    return false
+}
+
+function cvicID(id: number) {
+    for (const cvic of dokoncene.value) {
+        if (cvic.Id == id) return cvic
+    }
+    return {Id: 0, Cpm: 0, Presnost: 0}
+}
+
 </script>
 
 <template>
@@ -46,7 +60,7 @@ onMounted(() => {
     </h1>
     <div class="kontejnr">
         <div v-if="cviceni.length !== 0 && fetchProbehl" v-for="({id, typ}, index) in cviceni">
-            <BlokCviceni :dokonceno="dokoncene.includes(id)" :typ="typ" :index="index + 1" :pismena="pismena" :fetchProbehl="fetchProbehl"/>
+            <BlokCviceni :dokonceno="jeDokoncene(id)" :typ="typ" :index="index + 1" :pismena="pismena" :rychlost="cvicID(id).Cpm" :presnost="cvicID(id).Presnost" :fetchProbehl="fetchProbehl"/>
         </div>
         <div v-else-if="cviceni.length === 0 && !fetchProbehl" v-for="index in 5">
             <BlokCviceni :dokonceno="false" typ="..." :index="index" :pismena="pismena" :fetchProbehl="fetchProbehl"/>

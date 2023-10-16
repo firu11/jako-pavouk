@@ -68,7 +68,7 @@ const mobilMenu = ref(false)
     <div id="alerty">
         <TransitionGroup name="list">
             <div v-for="(o, i) in oznameni" class="alert" :key="i">
-                <img src="./assets/icony/alret.svg" alt="Vykřičník">
+                <img src="./assets/icony/alert.svg" alt="Vykřičník">
                 {{ o.text }}
             </div>
         </TransitionGroup>
