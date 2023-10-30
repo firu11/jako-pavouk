@@ -32,6 +32,10 @@ const router = createRouter({
             component: () => import('./views/Registrace.vue')
         },
         {
+            path: '/zapomenute-heslo',
+            component: () => import('./views/ZapomenuteHeslo.vue')
+        },
+        {
             path: '/ucet',
             component: () => import('./views/Ucet.vue'),
             meta: { requireAuth: true }

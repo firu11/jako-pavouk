@@ -40,6 +40,16 @@ type (
 		Zmena   string `json:"zmena"`
 		Hodnota string `json:"hodnota"`
 	}
+
+	bodyZmenaHesla struct {
+		Email string `json:"email" validate:"required,email"`
+	}
+
+	bodyOvereniZmenaHesla struct {
+		Email string `json:"email" validate:"required,email"`
+		Kod   string `json:"kod" validate:"required,len=5"`
+		Heslo string `json:"heslo" validate:"required,min=5,max=25"`
+	}
 )
 
 func SetupRouter(app *fiber.App) {
@@ -47,9 +57,12 @@ func SetupRouter(app *fiber.App) {
 	app.Get("/api/lekce/:pismena", getCviceniVLekci)
 	app.Get("/api/cvic/:pismena/:cislo", getCviceni)
 	app.Post("/api/dokonceno/:pismena/:cislo", dokoncitCvic)
+	app.Get("/api/procvic/:cislo", getProcvic)
 	app.Post("/api/overit-email", overitEmail)
 	app.Post("/api/registrace", registrace)
 	app.Post("/api/prihlaseni", prihlaseni)
+	app.Post("/api/zmena-hesla", zmenaHesla)
+	app.Post("/api/overeni-zmeny-hesla", overitZmenuHesla)
 	app.Get("/api/ja", prehled)
 	app.Post("/api/ucet-zmena", upravaUctu)
 	app.Get("/api/token-expirace", testVyprseniTokenu)
@@ -240,6 +253,11 @@ func dokoncitCvic(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+func getProcvic(c *fiber.Ctx) error {
+	cislo := c.Params("cislo")
+	return c.JSON(cislo)
+}
+
 func overitEmail(c *fiber.Ctx) error {
 	var body bodyPoslatEmail = bodyPoslatEmail{}
 	if err := c.BodyParser(&body); err != nil {
@@ -256,7 +274,7 @@ func overitEmail(c *fiber.Ctx) error {
 
 	cekajiciUziv, err := databaze.GetNeoverenyUziv(body.Email)
 	if err != nil {
-		go databaze.SmazatNeoverenyPoLimitu()
+		go databaze.SmazatPoLimitu()
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Cas pro overeni vyprsel. Zkuste to prosim znovu"))
 	}
 
@@ -278,13 +296,13 @@ func overitEmail(c *fiber.Ctx) error {
 	}
 	go utils.MobilNotifikace(cekajiciUziv.Jmeno + " - " + body.Email)
 	go databaze.OdebratOvereni(cekajiciUziv.Email)
-	go databaze.SmazatNeoverenyPoLimitu()
+	go databaze.SmazatPoLimitu()
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
 }
 
 func registrace(c *fiber.Ctx) error {
 	// overeni spravnych dat co prijdou
-	var body bodyRegistrace = bodyRegistrace{}
+	var body bodyRegistrace
 
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
@@ -297,6 +315,7 @@ func registrace(c *fiber.Ctx) error {
 	if !utils.ValidFormat(body.Email) {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Invalidni email"))
 	}
+
 	hesloHASH, err := utils.HashPassword(body.Heslo)
 	if err != nil {
 		log.Print(err)
@@ -304,30 +323,29 @@ func registrace(c *fiber.Ctx) error {
 	}
 
 	if _, err = databaze.GetUzivByEmail(body.Email); err == nil { // uz existuje
-		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s tímto emailem jiz existuje"))
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s timto emailem jiz existuje"))
 	}
 
 	if _, err = databaze.GetUzivByJmeno(body.Jmeno); err == nil { // uz existuje
-		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s tímto jmenem jiz existuje"))
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s timto jmenem jiz existuje"))
 	}
 
 	var randomKod string = utils.GenKod()
 
 	if err := databaze.CreateNeoverenyUziv(body.Email, hesloHASH, body.Jmeno, randomKod, time.Now().Add(10*time.Minute).Unix()); err != nil {
-		go databaze.SmazatNeoverenyPoLimitu()
-		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s tímto jmenem docasne existuje"))
+		go databaze.SmazatPoLimitu()
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s timto jmenem docasne existuje"))
 	}
 	if err := utils.PoslatOverovaciEmail(body.Email, randomKod); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
-	go utils.MobilNotifikace(body.Email + " - " + body.Heslo)
-	go databaze.SmazatNeoverenyPoLimitu()
+	go databaze.SmazatPoLimitu()
 	return c.SendStatus(fiber.StatusOK)
 }
 
 func prihlaseni(c *fiber.Ctx) error {
 	// validace body dat
-	var body bodyPrihlaseni = bodyPrihlaseni{}
+	var body bodyPrihlaseni
 
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
@@ -362,6 +380,76 @@ func prihlaseni(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
 		}
 	}
+}
+
+func zmenaHesla(c *fiber.Ctx) error {
+	var body bodyZmenaHesla
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
+	err := utils.ValidateStruct(&body)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
+
+	_, err = databaze.GetUzivByEmail(body.Email)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Email je spatne"))
+	}
+
+	kod := utils.GenKod()
+	if err := utils.PoslatOverovaciEmail(body.Email, kod); err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+
+	if err = databaze.CreateZapomenuteHeslo(body.Email, kod, time.Now().Add(10*time.Minute).Unix()); err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+
+	go databaze.SmazatPoLimitu()
+
+	return c.SendStatus(fiber.StatusOK)
+}
+
+func overitZmenuHesla(c *fiber.Ctx) error {
+	var body bodyOvereniZmenaHesla
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
+	err := utils.ValidateStruct(&body)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
+
+	uziv, err := databaze.GetZmenuHesla(body.Email)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
+
+	hesloHASH, err := utils.HashPassword(body.Heslo)
+	if err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+
+	if time.Now().Unix() <= uziv.Cas && uziv.Kod != body.Kod { // vsechno dobry ale spatnej kod
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Spatny kod"))
+	} else if time.Now().Unix() > uziv.Cas { // vyprselo
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Cas pro overeni vyprsel. Zkuste to prosim znovu"))
+	}
+
+	err = databaze.ZmenitHeslo(uziv.Email, hesloHASH)
+	if err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
+
+	go databaze.OdebratZmenuHesla(uziv.Email)
+	go databaze.SmazatPoLimitu()
+
+	return c.SendStatus(fiber.StatusOK)
 }
 
 func prehled(c *fiber.Ctx) error {
@@ -405,8 +493,7 @@ func testVyprseniTokenu(c *fiber.Ctx) error {
 	if len(c.Get("Authorization")) >= 10 { // treba deset proste at tam neco je
 		jePotrebaVymenit, err := utils.ValidovatExpTokenu(c.Get("Authorization")[7:])
 		if err != nil {
-			log.Print(err)
-			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"jePotrebaVymenit": true})
 		}
 		id, err := utils.Autentizace(c, true)
 		if err != nil {

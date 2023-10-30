@@ -5,19 +5,10 @@ import { prihlasen, tokenJmeno } from './stores';
 import { checkTeapot, getToken, oznameni, pridatOznameni } from './utils';
 import { useHead } from 'unhead'
 import axios from 'axios';
+import router from './router';
 
 useHead({
-    titleTemplate: (title?: string) => title != "" ? `${title} | Jako Pavouk` : "Jako Pavouk | Psaní všemi deseti",
-    meta: [
-        {
-            name: "description",
-            content: "Webová aplikace pro výuku psaní všemi deseti",
-        },
-        {
-            name: "keywords",
-            content: "psani, psaní, všemi, vsemi, všema, vsema, deseti",
-        },
-    ]
+    titleTemplate: (title?: string) => title == "" || title == undefined ? "Jako Pavouk | Psaní všemi deseti" : `${title} | Jako Pavouk`
 })
 
 onMounted(() => {
@@ -31,6 +22,7 @@ onMounted(() => {
             if (response.data.jePotrebaVymenit) {
                 localStorage.removeItem(tokenJmeno)
                 prihlasen.value = false
+                router.push("/prihlaseni")
                 pridatOznameni("Z bezpečnostních důvodů jste byli odhlášeni", 8000)
             } else {
                 prihlasen.value = true

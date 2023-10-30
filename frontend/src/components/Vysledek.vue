@@ -133,7 +133,7 @@ onMounted(() => {
             <h3>Přesnost</h3>
         </div>
         <div class="blok">
-            <h2>{{ casF }}s</h2>
+            <h2>{{ cas < 60 ? Math.round(cas * 10) / 10 : `${Math.floor(cas / 60)}:${Math.floor(cas % 60 * 10) / 10 < 10 ? "0" + Math.floor(cas % 60 * 10) / 10 : Math.floor(cas % 60 * 10) / 10}` }}s</h2>
             <hr>
             <p class="jednotka">&zwnj;</p>
             <h3>Čas</h3>

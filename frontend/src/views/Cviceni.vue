@@ -47,7 +47,7 @@ let interval: number
 const konec = ref(false)
 
 const casFormat = computed(() => {
-    return cas.value < 60 ? (Math.floor(cas.value * 10) / 10).toString() : `${Math.floor(cas.value / 60)}:${cas.value % 60 < 10 ? "0" + Math.floor(cas.value % 60).toString() : Math.floor(cas.value % 60)}`
+    return cas.value < 60 ? Math.floor(cas.value).toString() : `${Math.floor(cas.value / 60)}:${cas.value % 60 < 10 ? "0" + Math.floor(cas.value % 60).toString() : Math.floor(cas.value % 60)}`
 })
 
 const progress = computed(() => {
@@ -135,7 +135,7 @@ function klik(this: any, e: KeyboardEvent) {
     if (aktualniY - Yradek2 > 5 && counter.value - lastPosunutiCounter > 12) {
         lastPosunutiCounter = counter.value
         textPosunutiCount++
-        textElem.value!.style.top = `${textPosunutiCount * -2.25}em`
+        textElem.value!.style.top = `${textPosunutiCount * (-2.2 - 0.188)}em`
     }
 
     if (aktivniPismeno.value.id === -1) { // konec
@@ -165,6 +165,8 @@ function restart() {
     konec.value = false
     text.value = [[]] as { id: number, znak: string, spatne: number, }[][]
     delkaTextu.value = 0
+    lastPosunutiCounter = 0
+    textPosunutiCount = 0
 
     get()
 
@@ -298,6 +300,7 @@ function toggleZvuk() {
 
 #fade {
     mask-image: linear-gradient(180deg, var(--tmave-fialova) 75%, transparent 97%);
+    -webkit-mask-image: linear-gradient(180deg, var(--tmave-fialova) 75%, transparent 97%);
     height: 190px;
 }
 
@@ -311,8 +314,8 @@ function toggleZvuk() {
     display: inline-flex;
     font-family: 'Red Hat Mono', monospace;
     font-weight: 400;
-    font-size: 25px;
-    line-height: 1.35em;
+    font-size: 1.56rem;
+    line-height: 2.2rem;
     text-decoration: none;
     padding: 0 1px;
     margin-right: 1px;

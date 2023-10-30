@@ -37,6 +37,12 @@ type NeoUziv struct {
 	Cas   int64  `json:"cas"`
 }
 
+type ZmenaHeslaUziv struct {
+	Email string `json:"email"`
+	Kod   string `json:"kod"`
+	Cas   int64  `json:"cas"`
+}
+
 type Slovnik struct {
 	ID    uint   `json:"id"`
 	Slovo string `json:"slovo"`
@@ -315,7 +321,7 @@ func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
 	return uzivID, nil
 }
 
-func PridatDokonceneCvic(cvicID uint, uzivID uint, cpm float32, preklepy int, cas float32, delkaTextu int) error {
+func PridatDokonceneCvic(cvicID, uzivID uint, cpm float32, preklepy int, cas float32, delkaTextu int) error {
 	cpm = float32(math.Round(float64(cpm)*100) / 100) // zaokrouhlit na 2 desetiny cisla
 	cas = float32(math.Round(float64(cas)*100) / 100)
 	_, err := DB.Exec(`INSERT INTO dokoncene (uziv_id, cviceni_id, cpm, preklepy, cas, delka_textu) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT ON CONSTRAINT unikatni DO UPDATE SET cpm = EXCLUDED.cpm, preklepy = EXCLUDED.preklepy, cas = EXCLUDED.cas, delka_textu = EXCLUDED.delka_textu, den = CURRENT_TIMESTAMP;`, uzivID, cvicID, cpm, preklepy, cas, delkaTextu)
@@ -383,7 +389,7 @@ func GetNaucenaPismena(uzivID uint, pismena string) (string, error) {
 	return vysledek, nil
 }
 
-func CreateNeoverenyUziv(email string, hesloHASH string, jmeno string, kod string, cas int64) error {
+func CreateNeoverenyUziv(email, hesloHASH, jmeno, kod string, cas int64) error {
 	_, err := DB.Exec(`INSERT INTO overeni (email, jmeno, heslo, kod, cas) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (email) DO UPDATE SET jmeno = EXCLUDED.jmeno, heslo = EXCLUDED.heslo, kod = EXCLUDED.kod, cas = EXCLUDED.cas;`, email, jmeno, hesloHASH, kod, cas)
 	return err
 }
@@ -399,7 +405,34 @@ func OdebratOvereni(email string) error {
 	return err
 }
 
-func SmazatNeoverenyPoLimitu() error {
-	_, err := DB.Exec(`DELETE FROM overeni WHERE cas < $1;`, time.Now().Unix())
+func SmazatPoLimitu() error {
+	var now int64 = time.Now().Unix()
+
+	_, err := DB.Exec(`DELETE FROM overeni WHERE cas < $1;`, now)
+	if err != nil {
+		return err
+	}
+	_, err = DB.Exec(`DELETE FROM zmena_hesla WHERE cas < $1;`, now)
+	return err
+}
+
+func CreateZapomenuteHeslo(email, kod string, cas int64) error {
+	_, err := DB.Exec(`INSERT INTO zmena_hesla (email, kod, cas) VALUES ($1, $2, $3) ON CONFLICT (email) DO UPDATE SET kod = EXCLUDED.kod, cas = EXCLUDED.cas;`, email, kod, cas)
+	return err
+}
+
+func OdebratZmenuHesla(email string) error {
+	_, err := DB.Exec(`DELETE FROM zmena_hesla WHERE email = $1`, email)
+	return err
+}
+
+func GetZmenuHesla(email string) (ZmenaHeslaUziv, error) {
+	var uziv ZmenaHeslaUziv
+	err := DB.QueryRowx(`SELECT * FROM zmena_hesla WHERE email = $1;`, email).StructScan(&uziv)
+	return uziv, err
+}
+
+func ZmenitHeslo(email, hesloHASH string) error {
+	_, err := DB.Exec(`UPDATE uzivatel SET heslo = $1 WHERE email = $2`, hesloHASH, email)
 	return err
 }

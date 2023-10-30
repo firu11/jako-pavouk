@@ -30,6 +30,5 @@ export function checkTeapot(e: any) {
         }
         return true
     }
-    if (e.response) console.log(e.response.status)
     return false
 }
