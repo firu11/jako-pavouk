@@ -171,7 +171,7 @@ func getCviceni(c *fiber.Ctx) error {
 			return fiber.ErrInternalServerError
 		}
 
-		for i := 0; i < pocetSlov; i++ {
+		for i := 0; i < pocetSlov*2/3; i++ { // kratší ať to není taková bolest
 			var slovo string = ""
 			for j := 0; j < pocetPismenVeSlovu; j++ {
 				r := rand.Intn(utf8.RuneCountInString(naucenaPismena)) // utf-8 jsou sus
@@ -185,9 +185,6 @@ func getCviceni(c *fiber.Ctx) error {
 		if err != nil {
 			log.Print(err)
 			return fiber.ErrInternalServerError
-		}
-		if len(slova) < pocetSlov {
-			log.Println("neni dost slov")
 		}
 		for i := 0; i < pocetSlov; i++ {
 			if utils.DelkaTextuArray(text) >= delkaTextu-3 { // priblizne idk

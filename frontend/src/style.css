@@ -193,3 +193,8 @@ hr {
         height: 40%;
     }
 }
+
+/*bitwarden aby nešoupal strankou*/
+#bit-notification-bar-spacer {
+    display: none !important;
+}

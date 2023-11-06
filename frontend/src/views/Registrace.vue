@@ -78,8 +78,7 @@ function overeniPost(e: Event) {
 }
 
 function chekujUdaje(jaky: string) {
-    if (jaky === 'kod') kod.value = kod.value.replace(' ', '')
-    if (jaky === 'email' && email.value) spatnyEmail.value = !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email.value); //test jestli email
+    if (jaky === 'email' && email.value) spatnyEmail.value = !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(email.value); //test jestli email
     else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{5,30}$/.test(heslo.value) //heslo 5-30 aspon jeden CAPS a cislice
     else if (jaky === 'jmeno' && jmeno.value !== undefined) spatnyJmeno.value = !/^[a-zA-Z0-9!@#$%^&*_ ]{3,12}$/.test(jmeno.value) //jmeno 3-12
     else if (jaky === 'kod' && kod.value !== undefined) spatnyKod.value = !/^\d{5}$/.test(kod.value) //kod 5 dlouhy
@@ -106,7 +105,7 @@ function closeInfo() {
                 v-model="jmeno" placeholder="Např: Pepa z depa">
             <h4 :class="{ opacity0: !jmenoExistuje }" class="chybaExistuje">Uživatel s tímto jménem už existuje</h4>
             <h3 class="nadpis">Email:</h3>
-            <input :class="{ spatnej_input: spatnyEmail || emailExistuje }" @:input="chekujUdaje('email')" type="text"
+            <input :class="{ spatnej_input: spatnyEmail || emailExistuje }" @:input="chekujUdaje('email')" type="email"
                 v-model="email" placeholder="Např: pepa@zdepa.cz" inputmode="email">
             <h4 :class="{ opacity0: !emailExistuje }" class="chybaExistuje">Uživatel s tímto emailem už existuje</h4>
             <h3 class="nadpis infoNadpis">Heslo: <img src="../assets/icony/info.svg" alt="info" @mouseover="openInfo"
@@ -129,7 +128,7 @@ function closeInfo() {
             <h3 style="margin-bottom: 20px;">Na email vám byl zaslán <br>ověřovací kód</h3>
             <h3 class="nadpis">Zadejte kód z emailu:</h3>
             <input :class="{ spatnej_input: spatnyKod }" @:input="chekujUdaje('kod')" type="text" inputmode="numeric"
-                v-model="kod" placeholder="Např: 12345">
+                v-model.trim="kod" placeholder="Např: 12345">
             <button type="submit" class="tlacitko" @click="overeniPost">Potvrdit</button>
         </form>
     </div>

@@ -234,6 +234,7 @@ function zmenaJmena() {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: start;
 }
 
 #nadpisy h1 {

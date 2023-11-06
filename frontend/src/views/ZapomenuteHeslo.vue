@@ -67,8 +67,7 @@ function overitZmenu(e: Event) {
 }
 
 function chekujUdaje(jaky: string) {
-    if (jaky === 'kod') kod.value = kod.value.replace(' ', '')
-    if (jaky === 'email' && email.value) spatnyEmail.value = !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email.value); //test jestli email
+    if (jaky === 'email' && email.value) spatnyEmail.value = !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(email.value); //test jestli email
     else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{5,30}$/.test(heslo.value) //heslo 5-30 aspon jeden CAPS a cislice
     else if (jaky === 'kod' && kod.value !== undefined) spatnyKod.value = !/^\d{5}$/.test(kod.value) //kod 5 dlouhy
 }
@@ -93,17 +92,17 @@ function presmerovat(e: Event) {
         <h3 style="margin-bottom: 20px;">Zkontrolujte prosím svou<br> emailovou schránku</h3>
         <h3 class="nadpis">Kód z emailu:</h3>
         <input style="margin-bottom: 20px;" :class="{ spatnej_input: spatnyKod }" @:input="chekujUdaje('kod')" type="text"
-            inputmode="numeric" v-model="kod" placeholder="Např: 12345">
+            inputmode="numeric" v-model.trim="kod" placeholder="Např: 12345">
         <h3 class="nadpis">Nové heslo:</h3>
-        <input :class="{ spatnej_input: spatnyHeslo }" @:input="chekujUdaje('heslo')" type="password" inputmode="numeric"
-            v-model="heslo" placeholder='Rozhodně ne "Pepa123"'>
+        <input :class="{ spatnej_input: spatnyHeslo }" @:input="chekujUdaje('heslo')" type="password" v-model="heslo"
+            placeholder='Rozhodně ne "Pepa123"'>
         <button type="submit" class="tlacitko" @click="overitZmenu">Potvrdit</button>
     </form>
     <form v-else-if="state === 'konec'">
         <img src="/pavoucekBezPozadi.svg" alt="Pavouk">
         <h3>Heslo úspěšně změněno!</h3>
         <h3><br>Tentokrát si heslo<br> prosím pamatujte. Díky!</h3>
-        <button class="tlacitko" @click="presmerovat" >Přihlásit</button>
+        <button class="tlacitko" @click="presmerovat">Přihlásit</button>
     </form>
 
     <p v-if="state !== 'konec'">
@@ -118,5 +117,7 @@ function presmerovat(e: Event) {
 img {
     height: 150px !important;
     margin-bottom: 20px;
+    align-self: center !important;
+    margin-right: 0 !important;
 }
 </style>

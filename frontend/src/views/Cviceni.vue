@@ -118,7 +118,7 @@ function klik(this: any, e: KeyboardEvent) {
     } else if (e.key === "Backspace") {
         if (counter.value !== 0) {
             counter.value--
-            if (aktivniPismeno.value.znak === " " && aktivniPismeno.value.spatne !== 1) { // pokud to je mezera a neni spatne dame to zpatky
+            if (counter.value < lastPosunutiCounter) { // mazat muzeme na zacatek radky, jinak vracime
                 if (zvukyZaply.value) zvuky[3].play()
                 counter.value++
             } else {
@@ -199,7 +199,7 @@ function toggleZvuk() {
                     <div class="slovo" v-for="s in text">
                         <div v-for="p in s" class="pismeno" :id="'p' + p.id"
                             :class="{ podtrzeni: p.id === counter, spatnePismeno: p.spatne === 1 && counter > p.id, opravenePismeno: p.spatne === 2, spravnePismeno: !p.spatne && counter > p.id }">
-                            {{ (p.znak !== " " ? p.znak : p.spatne ? "_" : "&nbsp") }}
+                            {{ (p.znak !== " " ? p.znak : p.spatne && p.id < counter ? "_" : "&nbsp") }}
                         </div>
                     </div>
                 </div>
