@@ -3,6 +3,7 @@ package databaze
 import (
 	"errors"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -304,7 +305,7 @@ func GetUdaje(uzivID uint) (int, []float32, int, float32, int, error) {
 
 func DokonceneProcento(uzivID uint) (float32, error) {
 	var x float32
-	err := DB.QueryRowx(`SELECT cast((SELECT COUNT(*) FROM dokoncene WHERE uziv_id = $1) as float) / (SELECT COUNT(*) FROM cviceni) as x;`, uzivID).Scan(&x)
+	err := DB.QueryRowx(`WITH vsechny_cviceni AS (SELECT lekce_id, c.id as cviceni_id FROM cviceni c JOIN lekce l ON l.id = c.lekce_id WHERE l.klavesnice = (SELECT klavesnice FROM uzivatel WHERE id = $1) OR l.klavesnice = 'oboje'), moje_dokonceny AS (SELECT 1 as dokonceno, d.cviceni_id FROM dokoncene d JOIN vsechny_cviceni vc ON d.cviceni_id = vc.cviceni_id WHERE d.uziv_id = $1) SELECT (SELECT COUNT(*)::float FROM moje_dokonceny) / (SELECT COUNT(*) FROM vsechny_cviceni) as x;`, uzivID).Scan(&x)
 	if err != nil {
 		return 0, err
 	}
@@ -333,23 +334,31 @@ func OdebratDokonceneCvic(cvicID uint, uzivID uint) error {
 	return err
 }
 
-func GetSlovaProLekci(uzivID uint, pismena string) ([]string, error) {
+func GetSlovaProLekci(uzivID uint, pismena string, pocet int) ([]string, error) {
 	var vysledek []string
-
-	var k string
-	err := DB.QueryRowx(`SELECT klavesnice FROM uzivatel WHERE id = $1;`, uzivID).Scan(&k)
-	if err != nil {
-		return vysledek, err
-	}
-
 	var rows *sqlx.Rows
-	if k == "qwertz" {
-		rows, err = DB.Queryx(`SELECT slovo FROM slovnik WHERE lekceqwertz_id = (SELECT id from lekce WHERE pismena = $1);`, pismena)
+
+	if pismena == "Velká písmena (Shift)" {
+		var err error
+		rows, err = DB.Queryx(`SELECT slovo FROM slovnik WHERE lekceqwertz_id <= (SELECT id from lekce WHERE pismena = $1) ORDER BY RANDOM() LIMIT $2;`, pismena, pocet)
+		if err != nil {
+			return vysledek, err
+		}
 	} else {
-		rows, err = DB.Queryx(`SELECT slovo FROM slovnik WHERE lekceqwerty_id = (SELECT id from lekce WHERE pismena = $1);`, pismena)
-	}
-	if err != nil {
-		return vysledek, err
+		var k string
+		err := DB.QueryRowx(`SELECT klavesnice FROM uzivatel WHERE id = $1;`, uzivID).Scan(&k)
+		if err != nil {
+			return vysledek, err
+		}
+
+		if k == "qwertz" {
+			rows, err = DB.Queryx(`SELECT slovo FROM slovnik WHERE lekceqwertz_id = (SELECT id from lekce WHERE pismena = $1) ORDER BY RANDOM() LIMIT $2;`, pismena, pocet)
+		} else {
+			rows, err = DB.Queryx(`SELECT slovo FROM slovnik WHERE lekceqwerty_id = (SELECT id from lekce WHERE pismena = $1) ORDER BY RANDOM() LIMIT $2;`, pismena, pocet)
+		}
+		if err != nil {
+			return vysledek, err
+		}
 	}
 
 	defer rows.Close()
@@ -363,15 +372,14 @@ func GetSlovaProLekci(uzivID uint, pismena string) ([]string, error) {
 		}
 		vysledek = append(vysledek, slovo)
 	}
-
 	return vysledek, nil
 }
 
 func GetNaucenaPismena(uzivID uint, pismena string) (string, error) {
-	var vysledek string
+	var vysledek strings.Builder
 	rows, err := DB.Queryx(`SELECT pismena FROM lekce WHERE id <= (SELECT id from lekce WHERE pismena = $1) AND (klavesnice = COALESCE((SELECT klavesnice FROM uzivatel WHERE id = $2), 'qwertz') OR klavesnice = 'oboje');`, pismena, uzivID)
 	if err != nil {
-		return vysledek, err
+		return "", err
 	}
 	defer rows.Close()
 
@@ -380,13 +388,13 @@ func GetNaucenaPismena(uzivID uint, pismena string) (string, error) {
 		pismenaJedny = ""
 		err := rows.Scan(&pismenaJedny)
 		if err != nil {
-			return vysledek, err
+			return "", err
 		}
 
-		vysledek += pismenaJedny
+		vysledek.WriteString(pismenaJedny)
 	}
 
-	return vysledek, nil
+	return vysledek.String(), nil
 }
 
 func CreateNeoverenyUziv(email, hesloHASH, jmeno, kod string, cas int64) error {

@@ -21,7 +21,7 @@ func PoslatOverovaciEmail(email string, kod string) error {
 	m.SetHeader("Subject", "Verifikace")
 	m.SetBody("text/html", fmt.Sprintf("Váš ověřovací kód pro Jako Pavouk je: <b>%v</b>", kod))
 
-	d := gomail.NewDialer(os.Getenv("EMAIL_HOST"), port, os.Getenv("EMAIL_UZIV"), os.Getenv("EMAIL_HESLO"))
+	d := gomail.NewDialer(os.Getenv("EMAIL_HOST"), port, os.Getenv("EMAIL_FROM"), os.Getenv("EMAIL_HESLO"))
 	if err := d.DialAndSend(m); err != nil {
 		log.Print("NEFUNGUJE MAIL GG WOOWOO")
 	}

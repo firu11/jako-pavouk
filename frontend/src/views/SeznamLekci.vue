@@ -46,7 +46,7 @@ onMounted(() => {
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 4" pismena="..." :jeDokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[3]" :sus="l" :pismena="l['pismena']"
             :jeDokoncena="dokoncene.includes(l['id'])" />
-        <h2>Interpunkce</h2>
+        <h2>Poslední soud</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 3" pismena="..." :jeDokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[4]" :sus="l" :pismena="l['pismena']"
             :jeDokoncena="dokoncene.includes(l['id'])" />
@@ -66,7 +66,7 @@ h2 {
     margin-left: 5px;
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 1100px) {
     #seznam {
         width: 70vw;
         align-items: center;

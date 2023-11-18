@@ -110,7 +110,7 @@ const mobilMenu = ref(false)
     min-height: 60px;
     background-color: var(--tmave-fialova);
     min-width: 100px;
-    max-width: 390px;
+    max-width: min(80%, 390px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -157,7 +157,7 @@ nav {
     display: none;
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 1100px) {
     .mobilHidden {
         transform: translateX(-250px);
         transition: ease-in-out 0.3s;
@@ -174,6 +174,7 @@ nav {
         width: 60px;
         height: 60px;
         box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.75);
+        z-index: 1000;
     }
 
     nav {

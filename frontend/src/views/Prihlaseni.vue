@@ -16,7 +16,6 @@ const heslo = ref("")
 const email = ref("")
 const spatnyHeslo = ref(false)
 const spatnyEmail = ref(false)
-const showZapomneliJsteHeslo = ref(false)
 
 function login(e: Event) {
     e.preventDefault(); //aby se nerefreshla stranka
@@ -44,7 +43,6 @@ function login(e: Event) {
             }
             else if (e.response.data.error.search("Heslo") !== -1) {
                 spatnyHeslo.value = true
-                showZapomneliJsteHeslo.value = true
                 pridatOznameni("Špatné heslo")
             }
             else pridatOznameni()
@@ -77,7 +75,7 @@ function zmena() { // pokud zacnu znova psat tak zrusim znaceni spatnyho inputu
         <router-link to="/registrace">Registrace</router-link>
     </p>
 
-    <router-link to="/zapomenute-heslo" v-if="showZapomneliJsteHeslo">Zapomněli jste heslo?</router-link>
+    <router-link to="/zapomenute-heslo">Zapomněli jste heslo?</router-link>
 </template>
 
 <style scoped>

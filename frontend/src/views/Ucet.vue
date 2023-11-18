@@ -122,23 +122,23 @@ function zmenaJmena() {
         <div class="blok">
             <img src="../assets/icony/rychlost.svg" alt="Rychlost" width="75">
             <span v-if="info.prumerRychlosti == -1">Zatím nic</span>
-            <span v-else class="popis">Rychlost: <br><span class="cislo">{{ zaokrouhlit(info.prumerRychlosti) }}</span>
+            <span v-else class="popis">Rychlost:<br><span class="cislo">{{ zaokrouhlit(info.prumerRychlosti) }}</span>
                 CPM</span>
         </div>
         <div class="blok">
             <img src="../assets/icony/iconaKlavesnice.svg" alt="Rychlost" width="75">
-            <span class="popis">Klávesnice: <br>
+            <span class="popis">Klávesnice:<br>
                 <button id="tlacitko" @click="postKlavesnice">{{ klavesniceUprava }}</button>
             </span>
         </div>
         <div class="blok">
             <img src="../assets/icony/terc.svg" alt="Přesnost">
             <span v-if="info.uspesnost == -1">Zatím nic</span>
-            <span v-else class="popis">Přesnost: <br><span class="cislo">{{ zaokrouhlit(info.uspesnost) }}</span> %</span>
+            <span v-else class="popis">Přesnost:<br><span class="cislo">{{ zaokrouhlit(info.uspesnost) }}</span> %</span>
         </div>
         <div class="blok">
             <img src="../assets/icony/kalendar.svg" alt="Kalendář">
-            <span class="popis">Počet dní v řadě: <br><span class="cislo">{{ zaokrouhlit(info.daystreak) }}</span></span>
+            <span class="popis">Počet dní v řadě:<br><span class="cislo">{{ zaokrouhlit(info.daystreak) }}</span></span>
         </div>
     </div>
 
@@ -235,11 +235,25 @@ function zmenaJmena() {
     flex-direction: column;
     justify-content: center;
     align-items: start;
+    max-width: 260px;
 }
 
 #nadpisy h1 {
     margin-bottom: 0;
     align-self: flex-start;
+}
+
+#nadpisy h2 {
+    overflow: hidden;
+    text-overflow: ellipsis !important;
+    width: 100%;
+}
+
+#nadpisy h2:hover {
+    overflow: visible;
+    background-color: var(--tmave-fialova);
+    width: auto;
+    border-radius: 5px;
 }
 
 #ucet img {
@@ -307,7 +321,7 @@ function zmenaJmena() {
     display: flex;
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 1100px) {
     #bloky {
         align-items: center;
         justify-content: center;
@@ -319,8 +333,25 @@ function zmenaJmena() {
 
     #ucet {
         flex-direction: column;
-        padding: 25px 25px 25px 25px
+        padding: 25px 25px 25px 25px;
+        max-width: 60%;
     }
 
+    #ucet #nadpisy h2 {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis !important;
+        width: 100%;
+        font-size: 1.3em;
+        text-align: start;
+    }
+
+    #ucet #nadpisy h1 {
+        font-size: 1.7em;
+    }
+
+    #ucet input {
+        width: 100%;
+    }
 }
 </style>

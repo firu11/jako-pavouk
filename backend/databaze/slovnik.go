@@ -28,9 +28,8 @@ func PushCviceni() {
 	m[16] = [3]int{2, 1, 2}
 	m[17] = [3]int{2, 1, 2}
 	m[18] = [3]int{3, 1, 2}
-	m[19] = [3]int{2, 1, 0}
+	m[19] = [3]int{1, 1, 2}
 	m[20] = [3]int{2, 1, 0}
-	m[21] = [3]int{2, 1, 0}
 
 	query := `INSERT INTO cviceni (lekce_id, typ) VALUES`
 
@@ -82,6 +81,8 @@ Tahle funkce projde vsechny slovicka ve csv souboru a nasazi do databaze do tabu
 */
 func PushSlovnik() {
 	fmt.Println("jdem na to")
+
+	DBConnect()
 
 	_, err := DB.Exec(`
 		DROP TABLE IF EXISTS slovnik;
@@ -141,7 +142,11 @@ func PushSlovnik() {
 		pismenkaZ = ""
 		indexZ = -1
 		for _, p := range lekceZ {
-			pismenkaZ += p.Pismena
+			if p.Pismena == "Zbylá diakritika" {
+				pismenkaZ += "óďťň"
+			} else if p.Pismena != "Velká písmena (Shift)" {
+				pismenkaZ += p.Pismena
+			}
 			if obsahujeJenOKPismena(v[0], pismenkaZ) {
 				indexZ = int(p.Id)
 			}
@@ -152,7 +157,11 @@ func PushSlovnik() {
 		pismenkaY = ""
 		indexY = -1
 		for _, p := range lekceY {
-			pismenkaY += p.Pismena
+			if p.Pismena == "Zbylá diakritika" {
+				pismenkaY += "óďťň"
+			} else if p.Pismena != "Velká písmena (Shift)" {
+				pismenkaY += p.Pismena
+			}
 			if obsahujeJenOKPismena(v[0], pismenkaY) {
 				indexY = int(p.Id)
 			}

@@ -10,16 +10,20 @@ defineProps({
     jeDokoncena: Boolean,
 })
 
+function format(p: string) {
+    if (p === "Zbylá diakritika" || p === "Velká písmena (Shift)") return p
+    return formatovanyPismena(p)
+}
 
 </script>
 
 <template>
     <RouterLink v-if="pismena !== '...'" class="lekceBlok" :class="{ hotovoBlok: jeDokoncena }"
         :to="'/lekce/' + encodeURIComponent(pismena)">
-        <h2>Lekce: <span class="tlusty">{{ formatovanyPismena(pismena) }}</span></h2>
+        <h2>Lekce: <span class="tlusty">{{ format(pismena) }}</span></h2>
         <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
     </RouterLink>
-    <a v-else class="lekceBlok"> <!-- aby na to ńeslo kliknout nez se to nacte -->
+    <a v-else class="lekceBlok"> <!-- aby na to neslo kliknout nez se to nacte -->
         <h2>Lekce: <span class="tlusty">{{ formatovanyPismena(pismena) }}</span></h2>
         <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
     </a>
@@ -58,12 +62,14 @@ defineProps({
     font-weight: 300;
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 1100px) {
     .lekceBlok {
-        min-width: 270px;
+        min-width: 260px;
         width: 100%;
         background-color: var(--tmave-fialova);
-        height: 64px;
+        min-height: 64px;
+        max-height: 100px;
+        height: auto;
         transition-duration: 0.2s;
 
         /* kvuli tomu neprihlasenymu */

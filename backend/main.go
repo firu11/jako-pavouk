@@ -51,16 +51,17 @@ func main() {
 
 	SetupRouter(app)
 
-	err = app.Listen(":8080")
+	err = app.Listen("127.0.0.1:44871") // http://localhost:8080
 	if err != nil {
 		log.Fatal(err)
-	} // http://localhost:8080
+	}
 }
 
 func inject() {
 	utils.TokenTimeDuration = tokenTimeDuration
 }
 
+// abych pro testing měl kratší texty
 func getEnvDelky() (int, int) {
 	x, err := strconv.Atoi(os.Getenv("POCET_SLOV"))
 	if err != nil {

@@ -22,13 +22,16 @@ useHead({
 const text = ref([[]] as { id: number, znak: string, spatne: number, }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
 const delkaTextu = ref(0)
 const counter = ref(0)
+const counterSlov = ref(0)
 const preklepy = ref(0)
 const timerZacatek = ref(0)
 const cas = ref(0)
 const textElem = ref<HTMLInputElement>()
 const Yradek2 = 195
-let textPosunutiCount = 0
-let lastPosunutiCounter = 0
+let posunutiCounter = [0] as number[]
+let indexPosunuti = 0
+
+let predchoziZnak = ""
 
 const posledni = ref(false)
 const klavesnice = ref("")
@@ -51,21 +54,11 @@ const casFormat = computed(() => {
 })
 
 const progress = computed(() => {
-    return delkaTextu.value !== 0 ? Math.floor(((counter.value) / delkaTextu.value) * 100) : 0
+    return delkaTextu.value !== 0 ? ((aktivniPismeno.value.id) / delkaTextu.value) * 100 : 0
 })
 
 const aktivniPismeno = computed(() => {
-    preklepy.value = 0
-    for (const slovo of text.value) {
-        for (const pismenoObj of slovo) {
-            if (pismenoObj.id === counter.value) {
-                return pismenoObj
-            }
-            if (pismenoObj.spatne === 1) { //spatne, neopraveno
-                preklepy.value++
-            }
-        }
-    }
+    if (counterSlov.value < text.value.length - 1) return text.value[counterSlov.value][counter.value]
     return { id: -1, znak: "", spatne: 0 }
 })
 
@@ -92,57 +85,98 @@ function get() {
 
 onMounted(() => {
     get()
-    document.addEventListener("keydown", klik)
+    document.addEventListener("keypress", klik) // je depracated ale je O TOLIK LEPSI ZE HO BUDU POUZIVAT PROSTE https://stackoverflow.com/questions/52882144/replacement-for-deprecated-keypress-dom-event
+    document.addEventListener("keydown", specialniKlik)
 })
 
 onUnmounted(() => {
-    document.removeEventListener("keydown", klik)
+    document.removeEventListener("keypress", klik)
+    document.removeEventListener("keydown", specialniKlik)
 })
 
 function capslockCheck(e: KeyboardEvent) { // TODO chtelo by to checknout hned po nacteni stranky ale nevim jestli to jde (spíš ne)
     capslock.value = e.getModifierState("CapsLock")
 }
 
+function nextPismeno() {
+    if (text.value[counterSlov.value].length - 1 === counter.value) { // posledni pismeno ve slovu
+        if (aktivniPismeno.value.spatne === 1) {
+            preklepy.value++
+        }
+        counterSlov.value++
+        counter.value = 0
+    } else {
+        if (aktivniPismeno.value.spatne === 1) preklepy.value++
+        counter.value++
+    }
+}
+
+function backPismeno() {
+    if (counter.value === 0) { // prvni pismeno ve slovu
+        counterSlov.value--
+        counter.value = text.value[counterSlov.value].length - 1
+        if (aktivniPismeno.value.spatne === 1) preklepy.value--
+    } else {
+        counter.value--
+        if (aktivniPismeno.value.spatne === 1) preklepy.value--
+    }
+}
+
+function jeSHackem(key: string) {
+    let velkym = aktivniPismeno.value.znak.toLocaleUpperCase() === aktivniPismeno.value.znak
+    if (predchoziZnak === "ˇ") {
+        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ď" && (!velkym && key === "d" || velkym && key === "D")) return true
+        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ň" && (!velkym && key === "n" || velkym && key === "N")) return true
+        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ť" && (!velkym && key === "t" || velkym && key === "T")) return true
+    } else if (predchoziZnak === "´") {
+        if (aktivniPismeno.value.znak === "ó" && key === "o") return true
+    }
+}
+
 function klik(this: any, e: KeyboardEvent) {
-    capslockCheck(e)
-    if (["Control", "Alt", "Shift", "CapsLock", "OS", "Escape", "AltGraph", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "Meta", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) return
-    else e.preventDefault() // ať to nescrolluje a nehazí nějaký stupid zkratky
+    e.preventDefault() // ať to nescrolluje a nehazí nějaký stupid zkratky
     startTimer()
 
-    if (e.key === aktivniPismeno.value.znak) {
+    if (e.key === aktivniPismeno.value.znak || jeSHackem(e.key)) {
         if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
         if (aktivniPismeno.value.spatne === 1) {
             aktivniPismeno.value.spatne = 2
         }
-        counter.value++
-    } else if (e.key === "Backspace") {
-        if (counter.value !== 0) {
-            counter.value--
-            if (counter.value < lastPosunutiCounter) { // mazat muzeme na zacatek radky, jinak vracime
-                if (zvukyZaply.value) zvuky[3].play()
-                counter.value++
-            } else {
-                if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
-            }
-        }
+        nextPismeno()
     } else {
         if (zvukyZaply.value) zvuky[3].play()
         aktivniPismeno.value.spatne = 1
-        counter.value++
+        nextPismeno()
     }
 
-    let aktualniY = document.getElementById("p" + counter.value)?.getBoundingClientRect().y!
-    if (aktualniY - Yradek2 > 5 && counter.value - lastPosunutiCounter > 12) {
-        lastPosunutiCounter = counter.value
-        textPosunutiCount++
-        textElem.value!.style.top = `${textPosunutiCount * (-2.2 - 0.188)}em`
+    let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y!
+    if (aktualniY - Yradek2 > 5 && (aktivniPismeno.value.id - posunutiCounter[indexPosunuti] > 18 || aktualniY - Yradek2 > 100)) { // dolu
+        if (posunutiCounter[posunutiCounter.length - 1] < aktivniPismeno.value.id) posunutiCounter.push(aktivniPismeno.value.id)
+        indexPosunuti++
+        textElem.value!.style.top = `${indexPosunuti * (-2.2 - 0.188)}em`
     }
 
     if (aktivniPismeno.value.id === -1) { // konec
         clearInterval(interval)
         calcCas() // naposledy
         konec.value = true
-        document.removeEventListener("keydown", klik)
+        document.removeEventListener("keypress", klik)
+        document.removeEventListener("keydown", specialniKlik)
+    }
+}
+
+function specialniKlik(e: KeyboardEvent) {
+    capslockCheck(e)
+    if (e.key === "Backspace") {
+        if (aktivniPismeno.value.id !== 0) {
+            backPismeno()
+            if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
+        }
+        let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y!
+        if (Yradek2 - aktualniY > 5 && indexPosunuti > 0 && (indexPosunuti >= posunutiCounter.length - 1 || posunutiCounter[indexPosunuti + 1] - aktivniPismeno.value.id > 16)) {
+            indexPosunuti--
+            textElem.value!.style.top = `${indexPosunuti * (-2.2 - 0.188)}em`
+        }
     }
 }
 
@@ -161,28 +195,35 @@ function restart() {
     timerZacatek.value = 0
     cas.value = 0
     counter.value = 0
+    counterSlov.value = 0
     preklepy.value = 0
     konec.value = false
     text.value = [[]] as { id: number, znak: string, spatne: number, }[][]
     delkaTextu.value = 0
-    lastPosunutiCounter = 0
-    textPosunutiCount = 0
+    indexPosunuti = 0
+    posunutiCounter = [0] as number[]
 
     get()
 
-    document.addEventListener("keydown", klik)
+    document.addEventListener("keypress", klik)
+    document.addEventListener("keydown", specialniKlik)
 }
 
 function toggleZvuk() {
     zvukyZaply.value = !zvukyZaply.value
     localStorage.setItem("pavouk_zvuk", zvukyZaply.value.toString())
 }
+
+function format(p: string) {
+    if (p === "Zbylá diakritika" || p === "Velká písmena (Shift)") return p
+    return formatovanyPismena(p)
+}
 </script>
 
 <template>
     <h1 class="nadpisSeSipkou" style="margin: 0;">
         <SipkaZpet />
-        Lekce: {{ formatovanyPismena(pismena) }}
+        Lekce: {{ format(pismena) }}
     </h1>
     <h2>Cviceni: {{ cislo }}</h2>
 
@@ -198,31 +239,29 @@ function toggleZvuk() {
                 <div id="text" ref="textElem">
                     <div class="slovo" v-for="s in text">
                         <div v-for="p in s" class="pismeno" :id="'p' + p.id"
-                            :class="{ podtrzeni: p.id === counter, spatnePismeno: p.spatne === 1 && counter > p.id, opravenePismeno: p.spatne === 2, spravnePismeno: !p.spatne && counter > p.id }">
-                            {{ (p.znak !== " " ? p.znak : p.spatne && p.id < counter ? "_" : "&nbsp") }}
+                            :class="{ podtrzeni: p.id === aktivniPismeno.id, spatnePismeno: p.spatne === 1 && aktivniPismeno.id > p.id, opravenePismeno: p.spatne === 2 && aktivniPismeno.id > p.id, spravnePismeno: !p.spatne && aktivniPismeno.id > p.id }">
+                            {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp") }} </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div id="bar">
-            <div :style="'width:' + progress + '%; border-bottom-right-radius:' + (progress === 100 ? '10px' : '0')"
-                id="progress">&nbsp{{ progress }}%&nbsp
+            <div id="bar">
+                <div :style="'width: ' + progress + '%'" id="progress">&nbsp{{ Math.floor(progress) }}%&nbsp
+                </div>
+            </div>
+
+            <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak"></Klavesnice>
+
+            <div id="zvukBtn" @click="toggleZvuk">
+                <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvukIcon" src="../assets/icony/zvukOn.svg"
+                    alt="Zvuky jsou zapnuté">
+                <img v-else style="margin-left: 1px;" class="zvukIcon" src="../assets/icony/zvukOff.svg"
+                    alt="Zvuky jsou vypnuté">
             </div>
         </div>
 
-        <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak"></Klavesnice>
-
-        <div id="zvukBtn" @click="toggleZvuk">
-            <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvukIcon" src="../assets/icony/zvukOn.svg"
-                alt="Zvuky jsou zapnuté">
-            <img v-else style="margin-left: 1px;" class="zvukIcon" src="../assets/icony/zvukOff.svg"
-                alt="Zvuky jsou vypnuté">
-        </div>
-    </div>
-
-    <Vysledek v-else @restart="restart" :preklepy="preklepy" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas"
-        :pismena="pismena" :cislo="cislo" :posledni="posledni"></Vysledek>
+        <Vysledek v-else @restart="restart" :preklepy="preklepy" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas"
+            :pismena="pismena" :cislo="cislo" :posledni="posledni"></Vysledek>
 </template>
 
 <style scoped>
@@ -294,7 +333,7 @@ function toggleZvuk() {
     display: flex;
     flex-wrap: wrap;
     position: relative;
-    transition: ease 0.3s;
+    transition: ease 0.2s;
     top: 0em;
 }
 
@@ -330,7 +369,7 @@ function toggleZvuk() {
     background-color: var(--fialova);
     width: 0;
     border-bottom-left-radius: 10px;
-    transition: ease 0.5s;
+    transition: ease 0.22s;
     text-align: right;
 }
 
@@ -338,6 +377,7 @@ function toggleZvuk() {
     background-color: var(--tmave-fialova);
     width: var(--sirka-textoveho-pole);
     border-radius: 0 0 10px 10px;
+    overflow: hidden;
 }
 
 .spravnePismeno {

@@ -82,7 +82,7 @@ form img {
     padding: 10px;
     position: absolute;
     z-index: 10;
-    top: 265px;
+    top: 270px;
     left: calc(50% + 320px);
     text-align: left;
     font-size: 16px;
@@ -164,11 +164,11 @@ form button {
     }
 }
 
-@media screen and (max-width:1000px) {
+@media screen and (max-width: 1100px) {
     .info {
         top: auto;
         bottom: 10%;
         left: calc(50% - 110px); /* - pulka sirky */
-        align-self: center;
+        box-shadow: 0px 0px 20px black;
     }
 }

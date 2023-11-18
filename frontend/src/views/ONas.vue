@@ -57,7 +57,7 @@ p {
     transition: 0.2s;
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 1100px) {
     p {
         width: 90%;
     }

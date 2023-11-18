@@ -3,10 +3,13 @@ package main
 import (
 	"backend/databaze"
 	"backend/utils"
+	"fmt"
 	"log"
 	"math/rand"
 	"strconv"
+	"strings"
 	"time"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/gofiber/fiber/v2"
@@ -28,7 +31,7 @@ type (
 	bodyRegistrace struct {
 		Email string `json:"email" validate:"required,email"`
 		Jmeno string `json:"jmeno" validate:"required,min=3,max=25"`
-		Heslo string `json:"heslo" validate:"required,min=5,max=25"`
+		Heslo string `json:"heslo" validate:"required,min=5,max=128"`
 	}
 
 	bodyPrihlaseni struct {
@@ -48,25 +51,30 @@ type (
 	bodyOvereniZmenaHesla struct {
 		Email string `json:"email" validate:"required,email"`
 		Kod   string `json:"kod" validate:"required,len=5"`
-		Heslo string `json:"heslo" validate:"required,min=5,max=25"`
+		Heslo string `json:"heslo" validate:"required,min=5,max=128"`
 	}
 )
 
 func SetupRouter(app *fiber.App) {
-	app.Get("/api/lekce", getVsechnyLekce)
-	app.Get("/api/lekce/:pismena", getCviceniVLekci)
-	app.Get("/api/cvic/:pismena/:cislo", getCviceni)
-	app.Post("/api/dokonceno/:pismena/:cislo", dokoncitCvic)
-	app.Get("/api/procvic/:cislo", getProcvic)
-	app.Post("/api/overit-email", overitEmail)
-	app.Post("/api/registrace", registrace)
-	app.Post("/api/prihlaseni", prihlaseni)
-	app.Post("/api/zmena-hesla", zmenaHesla)
-	app.Post("/api/overeni-zmeny-hesla", overitZmenuHesla)
-	app.Get("/api/ja", prehled)
-	app.Post("/api/ucet-zmena", upravaUctu)
-	app.Get("/api/token-expirace", testVyprseniTokenu)
-	app.Get("/api/test", test)
+	api := app.Group("/api")
+
+	api.Get("/lekce", getVsechnyLekce)
+	api.Get("/lekce/:pismena", getCviceniVLekci)
+	api.Get("/cvic/:pismena/:cislo", getCviceni)
+	api.Post("/dokonceno/:pismena/:cislo", dokoncitCvic)
+	api.Get("/procvic/:cislo", getProcvic)
+
+	api.Post("/overit-email", overitEmail)
+	api.Post("/registrace", registrace)
+	api.Post("/prihlaseni", prihlaseni)
+	api.Post("/zmena-hesla", zmenaHesla)
+	api.Post("/overeni-zmeny-hesla", overitZmenuHesla)
+
+	api.Get("/ja", prehled)
+	api.Post("/ucet-zmena", upravaUctu)
+
+	api.Get("/token-expirace", testVyprseniTokenu)
+	api.Get("/test", test)
 }
 
 func chyba(msg string) fiber.Map {
@@ -80,7 +88,7 @@ func test(c *fiber.Ctx) error {
 	/* log.Println(utils.UzivCekajiciNaOvereni)
 	log.Println(utils.ValidFormat("firu"))
 	utils.MobilNotifikace("Jmeno - email@ema.il") */
-	/* databaze.PushCviceni() */
+	/* databaze.PushSlovnik() */
 	return c.JSON("Vypadni")
 }
 
@@ -144,7 +152,6 @@ func getCviceni(c *fiber.Ctx) error {
 	}
 	cislo, err := strconv.Atoi(c.Params("cislo")) // str -> int
 	if err != nil {
-		log.Print(err)
 		return fiber.ErrInternalServerError
 	}
 	if cislo > len(vsechnyCviceni) {
@@ -155,42 +162,68 @@ func getCviceni(c *fiber.Ctx) error {
 
 	switch vsechnyCviceni[cislo-1].Typ {
 	case "nova":
+		if pismena == "Zbylá diakritika" {
+			pismena = "óďťň"
+		}
+		var slovo strings.Builder
 		for i := 0; i < pocetSlov; i++ {
-			var slovo string = ""
 			for j := 0; j < pocetPismenVeSlovu; j++ {
 				r := rand.Intn(utf8.RuneCountInString(pismena)) // utf-8 jsou sus
-				slovo += string([]rune(pismena)[r])
+				slovo.WriteRune([]rune(pismena)[r])
 			}
-			slovo += " "
-			text = append(text, slovo)
+			slovo.WriteRune(' ')
+			text = append(text, slovo.String())
+			slovo.Reset()
 		}
 	case "naucena":
-		naucenaPismena, err := databaze.GetNaucenaPismena(id, pismena)
+		var naucenaPismena string
+		if pismena == "Velká písmena (Shift)" {
+			naucenaPismena = "fjghdkslaůtzrueiwoqpúvbcnxmyěščřžýáíéFJGHDKSLAŮTZRUEIWOQPÚVBCNXMYĚŠČŘŽÝÁÍÉ"
+		} else {
+			naucenaPismena, err = databaze.GetNaucenaPismena(id, pismena)
+			if err != nil {
+				log.Print(err)
+				return fiber.ErrInternalServerError
+			}
+		}
+
+		var slovo strings.Builder
+		for i := 0; i < pocetSlov*2/3; i++ { // kratší ať to není taková bolest
+			for j := 0; j < pocetPismenVeSlovu; j++ {
+				r := rand.Intn(utf8.RuneCountInString(naucenaPismena)) // utf-8 jsou sus
+				slovo.WriteRune([]rune(naucenaPismena)[r])
+			}
+			slovo.WriteRune(' ')
+			text = append(text, slovo.String())
+			slovo.Reset()
+		}
+	case "slova":
+		var slova []string
+		slova, err = databaze.GetSlovaProLekci(id, pismena, pocetSlov)
 		if err != nil {
 			log.Print(err)
 			return fiber.ErrInternalServerError
 		}
 
-		for i := 0; i < pocetSlov*2/3; i++ { // kratší ať to není taková bolest
-			var slovo string = ""
-			for j := 0; j < pocetPismenVeSlovu; j++ {
-				r := rand.Intn(utf8.RuneCountInString(naucenaPismena)) // utf-8 jsou sus
-				slovo += string([]rune(naucenaPismena)[r])
-			}
-			slovo += " "
-			text = append(text, slovo)
-		}
-	case "slova":
-		slova, err := databaze.GetSlovaProLekci(id, pismena)
-		if err != nil {
-			log.Print(err)
-			return fiber.ErrInternalServerError
-		}
+		pocetSlovKMani := len(slova)
+		var druhejCounter int = 0
 		for i := 0; i < pocetSlov; i++ {
 			if utils.DelkaTextuArray(text) >= delkaTextu-3 { // priblizne idk
 				break
 			}
-			text = append(text, slova[rand.Intn(len(slova))]+" ")
+			if i >= pocetSlovKMani {
+				text = append(text, slova[druhejCounter]+" ")
+				druhejCounter++
+			} else {
+				text = append(text, slova[i]+" ")
+			}
+		}
+
+		if pismena == "Velká písmena (Shift)" { // dam kazdy prvni pismeno velkym
+			for i := 0; i < len(text); i++ {
+				r := []rune(text[i])
+				text[i] = fmt.Sprintf("%c%s", unicode.ToUpper(r[0]), string(r[1:]))
+			}
 		}
 	default:
 		log.Print("Cviceni ma divnej typ")

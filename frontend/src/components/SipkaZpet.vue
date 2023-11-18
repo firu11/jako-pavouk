@@ -25,4 +25,10 @@ div img {
     height: 42px;
     cursor: pointer;
 }
+
+@media screen and (max-width: 1100px) {
+    div img {
+        height: 38px;
+    }
+}
 </style>

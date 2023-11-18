@@ -30,7 +30,7 @@ a p {
     position: relative;
     left: -15px;
     transition: 0.3s;
-    font-size: 18px;
+    font-size: 1.125rem;
 }
 
 .router-link-active p {
@@ -61,7 +61,7 @@ a:hover .hover {
     transition: 0.2s;
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 1100px) {
     a {
         color: var(--bila);
         display: block;

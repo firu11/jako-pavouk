@@ -122,6 +122,7 @@ hr {
     display: inline-flex;
     position: relative;
     right: 25px;
+    justify-content: center;
     /* posunuti o pulku sipky */
 }
 
@@ -141,7 +142,8 @@ hr {
     padding: 20px 30px;
 }
 
-.bloky img, .bloky a {
+.bloky img,
+.bloky a {
     width: 40%;
     height: auto;
 }
@@ -169,7 +171,7 @@ hr {
     font-size: 1.6em;
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 1100px) {
     .bloky {
         margin-top: 25px;
         flex-direction: column-reverse;
@@ -188,9 +190,29 @@ hr {
         height: 60%;
     }
 
-    .bloky img, .bloky a {
+    .bloky img,
+    .bloky a {
         width: 100%;
         height: 40%;
+    }
+
+    h1 {
+        font-size: 1.8em;
+        max-width: 60%;
+    }
+
+    .bloky .text p,
+    .bloky .text li {
+        font-size: 1em;
+    }
+
+    .bloky .text h2 {
+        margin-bottom: 10px;
+        font-size: 1.4em;
+    }
+
+    p {
+        font-size: 1.1em;
     }
 }
 

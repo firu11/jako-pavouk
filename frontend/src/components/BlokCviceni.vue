@@ -78,7 +78,8 @@ onMounted(() => {
         <h3 v-else>...</h3>
         <img class="playVetsi" src="../assets/icony/start.svg" alt="Začít lekci">
     </a>
-    <a v-else class="cvicBlok" :class="{ dokoncenyBlok: dokonceno }" @click="pridatOznameni('Psaní na telefonech zatím neučíme...')">
+    <a v-else class="cvicBlok" :class="{ dokoncenyBlok: dokonceno }"
+        @click="pridatOznameni('Psaní na telefonech zatím neučíme...')">
         <h2>{{ index }}</h2>
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>
@@ -150,9 +151,10 @@ h2 {
     font-weight: bolder;
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 1100px) {
     .cvicBlok {
-        width: 180px;
+        max-width: 155px;
+        width: auto;
         background-color: var(--tmave-fialova);
         height: 180px;
         transition-duration: 0.2s;
@@ -160,14 +162,19 @@ h2 {
         font-size: 0.8em;
     }
 
-    .fajvkaVetsi, .playVetsi {
+    .fajvkaVetsi,
+    .playVetsi {
         width: 100px;
         height: 30px;
         align-self: center;
     }
 
     h3 {
-        font-size: 20px !important;
+        font-size: 18px !important;
+    }
+
+    .cvicBlok hr {
+        width: 130px;
     }
 }
 </style>

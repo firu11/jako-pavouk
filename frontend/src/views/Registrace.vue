@@ -32,7 +32,13 @@ function registr(e: Event) {
     if (!email.value) spatnyEmail.value = true
     if (!jmeno.value) spatnyJmeno.value = true
 
-    if (spatnyEmail.value || spatnyHeslo.value || spatnyJmeno.value) return;
+    if (spatnyEmail.value || spatnyHeslo.value || spatnyJmeno.value) {
+        if (spatnyJmeno.value && jmeno.value.length > 12) pridatOznameni("Moc dlouhé jméno (> 12)")
+        else if (spatnyJmeno.value && jmeno.value.length < 3) pridatOznameni("Moc krátké jméno (< 3)")
+        else if (spatnyEmail.value) pridatOznameni("Email není validní")
+        else if (spatnyHeslo.value) pridatOznameni("Heslo musí být alespoň 5 znaků. Toť vše")
+        return
+    }
 
     axios
         .post('/registrace', {
@@ -77,13 +83,17 @@ function overeniPost(e: Event) {
     }
 }
 
+// krasna funkce ale moc mě to nezajma
 function chekujUdaje(jaky: string) {
     if (jaky === 'email' && email.value) spatnyEmail.value = !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(email.value); //test jestli email
-    else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{5,30}$/.test(heslo.value) //heslo 5-30 aspon jeden CAPS a cislice
+    else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*[a-zA-Z]).{5,128}$/.test(heslo.value) //heslo min 5 znaku
     else if (jaky === 'jmeno' && jmeno.value !== undefined) spatnyJmeno.value = !/^[a-zA-Z0-9!@#$%^&*_ ]{3,12}$/.test(jmeno.value) //jmeno 3-12
     else if (jaky === 'kod' && kod.value !== undefined) spatnyKod.value = !/^\d{5}$/.test(kod.value) //kod 5 dlouhy
     if (jaky === 'email') emailExistuje.value = false
     else if (jaky === 'jmeno') jmenoExistuje.value = false
+    if (jaky === 'email' && email.value.length === 0) spatnyEmail.value = false
+    else if (jaky === 'jmeno' && jmeno.value.length === 0 ) spatnyJmeno.value = false
+    else if (jaky === 'heslo' && heslo.value.length === 0 ) spatnyHeslo.value = false
 }
 
 function openInfo() {
@@ -115,7 +125,7 @@ function closeInfo() {
             <button type="submit" class="tlacitko" @click="registr">Registrovat</button>
         </form>
         <div id="infoHide" class="info">
-            Heslo musí obsahovat:
+            Doporučujeme:
             <ul>
                 <li>Minimálně 5 znaků</li>
                 <li>Alespoň jedna číslice</li>

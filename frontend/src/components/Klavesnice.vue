@@ -20,8 +20,8 @@ let schema = [
     ["Shift", "Y", "X", "C", "V", "B", "N", "M", "?,", ":.", "_-", "Shift"],
     ["  ", "", "", "", "______", "", "", "", "∧∨", ""]
 ]
-const delkaKlaves: {[id: string]: number} = { "⟵": 3, "Shift": 1, "Enter ↵": 1, "CapsLock": 1, "TAB": 1, "______": 24, "  ": 2 }
-const prstoklad: {[id: string]: string[]} = {
+const delkaKlaves: { [id: string]: number } = { "⟵": 3, "Shift": 1, "Enter ↵": 1, "CapsLock": 1, "TAB": 1, "______": 24, "  ": 2 }
+const prstoklad: { [id: string]: string[] } = {
     "P_Ukaz": [barvy[0], "J", "H", "U", "Z", "N", "M", "7ý", "6ž"],
     "L_Ukaz": [barvy[1], "G", "T", "R", "F", "V", "B", "5ř", "4č"],
     "P_Pros": [barvy[2], "K", "I", "?,", "8á"],
@@ -34,7 +34,7 @@ const prstoklad: {[id: string]: string[]} = {
 }
 const shiftSviti = ref(false)
 
-if (props.typ == "QWERTY") {
+if (props.typ == "qwerty") {
     schema[1][6] = "Y"
     schema[3][1] = "Z"
     prstoklad.P_Ukaz[4] = "Y"
@@ -48,9 +48,21 @@ function tlacPismeno(cislo: number, tlacitko: string) {
 }
 
 function oznacene(tlacitko: string) {
-    let pismeno = props.aktivniPismeno
-    if ((pismeno === ' ' && tlacitko === '______') || (tlacitko.length === 1 && tlacitko.toLowerCase() === pismeno.toLowerCase()) || (tlacitko.length === 2 && tlacitko.toLowerCase().includes(pismeno.toLowerCase()) && tlacitko !== '  ')) {
+    let velky = props.aktivniPismeno.toUpperCase() === props.aktivniPismeno
+    let pismeno = props.aktivniPismeno.toLowerCase()
+    if (pismeno.normalize('NFD').length === 2 && velky) {
+        if (pismeno.normalize("NFD").replace(/\p{Diacritic}/gu, "") === tlacitko.toLowerCase()) {
+            return true
+        }
+        if (pismeno === "ů" && tlacitko === "°;") return true
+        if (pismeno !== "ů" && tlacitko === "ˇ´") return true
+        return false
+    }
+    if ((pismeno === ' ' && tlacitko === '______') || (tlacitko.length === 1 && tlacitko.toLowerCase() === pismeno) || (tlacitko.length === 2 && tlacitko.toLowerCase().includes(pismeno) && tlacitko !== '  ')) {
         return true
+    } else if ('óťňď'.includes(pismeno)) {
+        if (tlacitko == 'ˇ´') return true
+        if ((tlacitko == 'O' && pismeno == 'ó') || (tlacitko == 'T' && pismeno == 'ť') || (tlacitko == 'N' && pismeno == 'ň') || (tlacitko == 'D' && pismeno == 'ď')) return true
     } else {
         return false
     }
@@ -93,13 +105,13 @@ function delkaTlacitka(tlacitko: string) {
 }
 
 function potrebujeShift(pismeno: string) {
-    if (['"', '/', '?', ':', '_', '!', '(', '%', 'ˇ', '°'].includes(pismeno)) {
+    if (['"', '/', '?', ':', '_', '!', '(', '%', 'ˇ', '°', 'ť', 'Ť', 'ď', 'Ď', 'ň', 'Ň', 'Ě', 'Š', 'Č', 'Ř', 'Ž', 'Ý', 'Á', 'Í', 'É', 'Ú', 'Ů'].includes(pismeno)) {
         return true
     } else if (/^\d$/.test(pismeno)) { // jestli to je cislo
         return true
     }
 
-    return (pismeno === pismeno.toUpperCase() && !["Ů", "Ú", "+", "=", "-", ".", ",", "§", ")", "´", ";"].includes(pismeno))  // Ů a Ú nejdou psat se shiftem
+    return (pismeno === pismeno.toUpperCase() && !["+", "=", "-", ".", ",", "§", ")", "´", ";"].includes(pismeno))
 
 }
 </script>
@@ -163,6 +175,7 @@ function potrebujeShift(pismeno: string) {
     line-height: 1.3em;
     width: 675px;
     margin-top: 40px;
+    user-select: none;
 }
 
 .radek {
@@ -182,5 +195,4 @@ function potrebujeShift(pismeno: string) {
     width: 10px;
     padding-top: 2px;
 }
-
 </style>

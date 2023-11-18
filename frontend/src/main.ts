@@ -8,7 +8,7 @@ import { createHead } from "@unhead/vue"
 const app = createApp(App)
 const head = createHead()
 
-axios.defaults.baseURL = "http://localhost:8080/api" // http://localhost:8080/api na production jen /api
+axios.defaults.baseURL = "http://localhost:44871/api" // http:||localhost:44871|api na production jen |api
 
 app.use(router)
 app.use(head)

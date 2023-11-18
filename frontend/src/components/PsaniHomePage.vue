@@ -25,9 +25,9 @@ function dalsi() {
 <template>
     <div id="box">
         <TransitionGroup name="pismenka">
-            <p v-for="(p, i) in viditelny" :class="{ spravnePismeno: i < 2 }" class="pismeno" :key="p.toString()">
+            <span v-for="(p, i) in viditelny" :class="{ spravnePismeno: i < 2 }" class="pismeno" :key="p.toString()">
                 {{ p[1] != " " ? p[1] : "&nbsp" }}
-            </p>
+            </span>
         </TransitionGroup>
         <div id="cara"></div>
     </div>
@@ -60,19 +60,19 @@ function dalsi() {
     border-radius: 1px;
     background-color: var(--bila);
     position: absolute;
-    left: 8.7em;
+    left: 8.7rem;
     top: 125px;
 }
 
 #box {
-    height: 8.2em;
+    height: 8.2rem;
     display: flex;
     position: relative;
 }
 
 .pismeno {
     font-family: 'Red Hat Mono', monospace !important;
-    font-size: 7.1em;
+    font-size: 7.1rem;
     font-weight: 600 !important;
     line-height: 1.2;
     text-decoration: none;
@@ -83,9 +83,9 @@ function dalsi() {
     color: rgba(100, 100, 100, 20);
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 1100px) {
     .pismeno {
-        font-size: 3.6em;
+        font-size: 3.6rem;
     }
 
     #cara {
