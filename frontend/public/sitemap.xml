@@ -11,6 +11,11 @@
         <changefreq>daily</changefreq>
     </url>
     <url>
+        <loc>https://jakopavouk.cz/procvic</loc>
+        <priority>1.0</priority>
+        <changefreq>daily</changefreq>
+    </url>
+    <url>
         <loc>https://jakopavouk.cz/jak-psat</loc>
         <priority>1.0</priority>
         <changefreq>daily</changefreq>

@@ -241,6 +241,7 @@ function zmenaJmena() {
 #nadpisy h1 {
     margin-bottom: 0;
     align-self: flex-start;
+    direction: ltr;
 }
 
 #nadpisy h2 {

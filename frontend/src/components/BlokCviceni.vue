@@ -46,7 +46,7 @@ onMounted(() => {
 
 <template>
     <router-link v-if="prihlasen && typ !== '...' && !mobil" class="cvicBlok" :class="{ dokoncenyBlok: dokonceno }"
-        :to="'/lekce/' + encodeURIComponent(pismena) + '/' + index">
+        :to="'/lekce/' + pismena + '/' + index">
         <h2>{{ index }}</h2>
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>
@@ -69,7 +69,7 @@ onMounted(() => {
         <h3>...</h3>
         <img class="playVetsi" src="../assets/icony/start.svg" alt="Začít lekci">
     </a>
-    <a v-else-if="!mobil" class="cvicBlok" @click="pridatOznameni('Nejprve se prosím přihlašte')">
+    <a v-else-if="!mobil" class="cvicBlok" @click="pridatOznameni('Bez přihlášení si můžete psaní vyzkoušet v sekci Procvičování')">
         <h2>{{ index }}</h2>
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>

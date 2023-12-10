@@ -19,7 +19,7 @@ function format(p: string) {
 
 <template>
     <RouterLink v-if="pismena !== '...'" class="lekceBlok" :class="{ hotovoBlok: jeDokoncena }"
-        :to="'/lekce/' + encodeURIComponent(pismena)">
+        :to="'/lekce/' + pismena">
         <h2>Lekce: <span class="tlusty">{{ format(pismena) }}</span></h2>
         <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
     </RouterLink>

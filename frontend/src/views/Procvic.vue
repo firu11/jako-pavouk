@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { formatovanyPismena, getToken, pridatOznameni } from '../utils';
+import { getToken, pridatOznameni } from '../utils';
 import SipkaZpet from '../components/SipkaZpet.vue';
 import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
@@ -12,11 +12,10 @@ import { useHead } from '@unhead/vue';
 
 const router = useRouter()
 const route = useRoute()
-const pismena: string = Array.isArray(route.params.pismena) ? route.params.pismena[0] : route.params.pismena
-const cislo: string = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
+const id: string = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
 
 useHead({
-    title: "Cvičení " + pismena
+    title: "Procvičování " + ""
 })
 
 const text = ref([[]] as { id: number, znak: string, spatne: number, }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
@@ -31,8 +30,8 @@ let indexPosunuti = -1
 
 let predchoziZnak = ""
 
-const posledni = ref(false)
 const klavesnice = ref("")
+const jmeno = ref(". . .")
 
 const zvukyZaply = ref(true)
 let tmp = localStorage.getItem("pavouk_zvuk")
@@ -61,7 +60,7 @@ const aktivniPismeno = computed(() => {
 })
 
 function get() {
-    axios.get("/cvic/" + encodeURIComponent(pismena) + "/" + cislo, {
+    axios.get("/procvic/" + id, {
         headers: {
             Authorization: `Bearer ${getToken()}`
         }
@@ -74,9 +73,10 @@ function get() {
                 delkaTextu.value++
             })
         })
-        posledni.value = response.data.posledni
+        jmeno.value = response.data.jmeno
         klavesnice.value = response.data.klavesnice
-    }).catch(_ => {
+    }).catch(e => {
+        console.log(e)
         pridatOznameni()
         router.back()
     });
@@ -233,19 +233,13 @@ function toggleZvuk() {
     localStorage.setItem("pavouk_zvuk", zvukyZaply.value.toString())
 }
 
-function format(p: string) {
-    if (p === "Zbylá diakritika" || p === "Velká písmena (Shift)") return p
-    return formatovanyPismena(p)
-}
 </script>
 
 <template>
     <h1 class="nadpisSeSipkou" style="margin: 0; direction: ltr;">
         <SipkaZpet />
-        Lekce: {{ format(pismena) }}
+        {{ jmeno }}
     </h1>
-    <h2>Cviceni: {{ cislo }}</h2>
-
     <div id="flex" v-if="!konec">
         <div id="nabidka">
             <h3 id="cas">{{ casFormat }}s</h3>
@@ -280,7 +274,7 @@ function format(p: string) {
         </div>
 
         <Vysledek v-else @restart="restart" :preklepy="preklepy" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas"
-            :pismena="pismena" :cislo="cislo" :posledni="posledni"></Vysledek>
+            :cislo="''" :posledni="true"></Vysledek>
 </template>
 
 <style scoped>

@@ -20,6 +20,10 @@ const router = createRouter({
             component: () => import('./views/SeznamLekci.vue')
         },
         {
+            path: '/procvic',
+            component: () => import('./views/SeznamProcvicovani.vue')
+        },
+        {
             path: '/jak-psat',
             component: () => import('./views/Teorie.vue'),
         },
@@ -50,6 +54,10 @@ const router = createRouter({
             meta: { requireAuth: true }
         },
         {
+            path: '/procvic/:id',
+            component: () => import('./views/Procvic.vue'),
+        },
+        {
             path: '/:pathMatch(.*)*',
             component: () => import('./views/404.vue')
         }
@@ -62,9 +70,13 @@ router.beforeEach((to, _, next) => { // kdyz potrebuje auth tak => prihlaseni
         if (!getToken()) {
             next("/prihlaseni");
         } else {
+            to.fullPath = to.fullPath.toLocaleLowerCase()
+            to.path = to.path.toLocaleLowerCase()
             next();
         }
     } else {
+        to.fullPath = to.fullPath.toLocaleLowerCase()
+        to.path = to.path.toLocaleLowerCase()
         next();
     }
 });

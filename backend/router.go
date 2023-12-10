@@ -62,6 +62,7 @@ func SetupRouter(app *fiber.App) {
 	api.Get("/lekce/:pismena", getCviceniVLekci)
 	api.Get("/cvic/:pismena/:cislo", getCviceni)
 	api.Post("/dokonceno/:pismena/:cislo", dokoncitCvic)
+	api.Get("/procvic", getVsechnyProcvic)
 	api.Get("/procvic/:cislo", getProcvic)
 
 	api.Post("/overit-email", overitEmail)
@@ -121,7 +122,7 @@ func getCviceniVLekci(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
 	}
 	pismena, HTTPerr := utils.DecodeURL(c.Params("pismena"))
-	if err != nil {
+	if HTTPerr != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(HTTPerr.Error()))
 	}
 	cvic, err := databaze.GetCviceniVLekciByPismena(id, pismena)
@@ -142,7 +143,7 @@ func getCviceni(c *fiber.Ctx) error {
 		return err
 	}
 	pismena, HTTPerr := utils.DecodeURL(c.Params("pismena"))
-	if err != nil {
+	if HTTPerr != nil {
 		return HTTPerr
 	}
 	vsechnyCviceni, err := databaze.GetCviceniVLekciByPismena(id, pismena)
@@ -262,7 +263,7 @@ func dokoncitCvic(c *fiber.Ctx) error {
 		return fiber.ErrInternalServerError
 	}
 	pismena, HTTPerr := utils.DecodeURL(c.Params("pismena"))
-	if err != nil {
+	if HTTPerr != nil {
 		return HTTPerr
 	}
 	vsechnyCviceni, err := databaze.GetCviceniVLekciByPismena(id, pismena)
@@ -283,9 +284,39 @@ func dokoncitCvic(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+func getVsechnyProcvic(c *fiber.Ctx) error {
+	texty, err := databaze.GetTexty()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
+	}
+	return c.JSON(fiber.Map{"texty": texty})
+}
+
 func getProcvic(c *fiber.Ctx) error {
-	cislo := c.Params("cislo")
-	return c.JSON(cislo)
+	id, err := utils.Autentizace(c, false)
+	if err != nil {
+		return err
+	}
+	var klavesnice string
+	if id == 0 { // neni prihlaseny
+		klavesnice = "qwertz"
+	} else {
+		u, err := databaze.GetUzivByID(id)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+		}
+		klavesnice = u.Klavesnice
+	}
+	cislo, err := strconv.Atoi(c.Params("cislo")) // str -> int
+	if err != nil {
+		return fiber.ErrInternalServerError
+	}
+	nazev, text, err := databaze.GetProcvicovani(cislo)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "jmeno": nazev, "klavesnice": klavesnice})
 }
 
 func overitEmail(c *fiber.Ctx) error {

@@ -23,14 +23,14 @@ function dalsi() {
 </script>
 
 <template>
-    <div id="box">
+    <h1 id="box">
         <TransitionGroup name="pismenka">
             <span v-for="(p, i) in viditelny" :class="{ spravnePismeno: i < 2 }" class="pismeno" :key="p.toString()">
                 {{ p[1] != " " ? p[1] : "&nbsp" }}
             </span>
         </TransitionGroup>
         <div id="cara"></div>
-    </div>
+    </h1>
 </template>
 
 <style scoped>
@@ -68,6 +68,10 @@ function dalsi() {
     height: 8.2rem;
     display: flex;
     position: relative;
+    margin: 0;
+    max-width: none;
+    margin-bottom: 2rem;
+    direction: ltr;
 }
 
 .pismeno {
@@ -91,13 +95,13 @@ function dalsi() {
     #cara {
         width: 30px;
         height: 4px;
-        left: 4.5em;
+        left: 4.5rem;
         top: 62px;
         border-radius: 1px;
     }
 
     #box {
-        height: 4.6em;
+        height: 4rem;
         margin-top: 50px;
     }
 

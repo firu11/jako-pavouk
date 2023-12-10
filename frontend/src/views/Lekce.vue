@@ -76,6 +76,9 @@ function format(p: string) {
 </template>
 
 <style scoped>
+h1 {
+    direction: ltr;
+}
 .kontejnr {
     display: flex;
     gap: 15px;

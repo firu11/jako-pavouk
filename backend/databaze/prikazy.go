@@ -3,6 +3,8 @@ package databaze
 import (
 	"errors"
 	"math"
+	"math/rand"
+	"strconv"
 	"strings"
 	"time"
 
@@ -113,6 +115,42 @@ func GetDokonceneLekce(uzivID uint) ([]int32, error) {
 		vysledek = append(vysledek, int32(id))
 	}
 	return vysledek, nil
+}
+
+func GetTexty() ([]string, error) {
+	var texty []string
+
+	rows, err := DB.Queryx(`SELECT jmeno FROM texty ORDER BY id;`)
+	if err != nil {
+		return texty, err
+	}
+
+	for rows.Next() {
+		var t string
+		if err = rows.Scan(&t); err != nil {
+			return texty, err
+		}
+		texty = append(texty, t)
+	}
+	return texty, nil
+}
+
+func GetProcvicovani(id int) (string, []string, error) {
+	var text string
+	var nazev string
+	var randomText string = strconv.Itoa(rand.Intn(5-1) + 1)
+
+	err := DB.QueryRowx(`SELECT jmeno, text`+randomText+` FROM texty WHERE id = $1;`, id).Scan(&nazev, &text)
+	if err != nil {
+		return "", []string{}, err
+	}
+
+	var textArr []string = strings.Fields(text)
+	for i := 0; i < len(textArr)-1; i++ {
+		textArr[i] += " "
+	}
+
+	return nazev, textArr, nil
 }
 
 type Cvic struct {

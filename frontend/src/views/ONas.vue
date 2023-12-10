@@ -31,7 +31,7 @@ useHead({
 
 <style scoped>
 p {
-    margin-bottom: 25px;
+    margin-top: 25px;
     width: 110%;
     display: flex;
     flex-direction: column;

@@ -15,7 +15,7 @@ useHead({
 
 <template>
     <PsaniHomePage></PsaniHomePage>
-    <h1 style="opacity: 0; user-select: none; margin: 0;">Jako Pavouk</h1> <!-- Pro SEO -->
+    <h1 style="opacity: 0.0000000000001; user-select: none; margin: 0; position: absolute;">Jako Pavouk</h1> <!-- Pro SEO (nevim jestli funguje) -->
     <div class="bloky">
         <img src="/klavesniceSPavoukem.png" alt="Pavouk s klávesnicí">
         <div class="text">

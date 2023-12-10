@@ -8,7 +8,7 @@ import axios from 'axios';
 import router from './router';
 
 useHead({
-    titleTemplate: (title?: string) => title == "" || title == undefined ? "Jako Pavouk | Psaní všemi deseti" : `${title} | Jako Pavouk`
+    titleTemplate: (title?: string) => title == "" || title == undefined ? "Psaní všemi deseti | Jako Pavouk" : `${title} | Jako Pavouk`
 })
 
 onMounted(() => {
@@ -48,6 +48,7 @@ const mobilMenu = ref(false)
             <MenuLink jmeno="Domů" cesta="/" />
             <MenuLink jmeno="Jak psát" cesta="/jak-psat" />
             <MenuLink jmeno="Lekce" cesta="/lekce" />
+            <MenuLink jmeno="Procvičování" cesta="/procvic" />
             <MenuLink jmeno="O nás" cesta="/o-nas" />
             <MenuLink v-if="!prihlasen" jmeno="Přihlásit se" cesta="/prihlaseni" />
             <MenuLink v-else jmeno="Můj účet" cesta="/ucet" />
@@ -110,7 +111,7 @@ const mobilMenu = ref(false)
     min-height: 60px;
     background-color: var(--tmave-fialova);
     min-width: 100px;
-    max-width: min(80%, 390px);
+    max-width: min(80%, 330px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -118,6 +119,10 @@ const mobilMenu = ref(false)
     padding: 10px 20px 10px 20px;
     gap: 20px;
     box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.75);
+}
+
+.alert p {
+    font-size: 1rem;
 }
 
 nav {

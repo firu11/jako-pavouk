@@ -181,7 +181,7 @@ hr {
         gap: 20px;
     }
 
-    div:nth-of-type(odd).bloky {
+    div:nth-of-type(even).bloky {
         flex-direction: column;
     }
 
@@ -199,6 +199,7 @@ hr {
     h1 {
         font-size: 1.8em;
         max-width: 60%;
+        direction: rtl;
     }
 
     .bloky .text p,
@@ -208,7 +209,7 @@ hr {
 
     .bloky .text h2 {
         margin-bottom: 10px;
-        font-size: 1.4em;
+        font-size: 1.5em;
     }
 
     p {
