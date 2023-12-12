@@ -4,7 +4,7 @@
   </a>
 </div>
 
-[Jako Pavouk](https://sheepcrm.com) | Psaní všemi deseti 🕷️
+[Jako Pavouk](https://jakopavouk.cz) | Psaní všemi deseti 🕷️
 ================================
 
 Umět psát všemi deseti je krásná dovednost. Ne všichni však ví jak začít. Přitom postup je jednoduchý:
