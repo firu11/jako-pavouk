@@ -6,7 +6,7 @@ useHead({
     meta: [
         {
             name: "description",
-            content: "Teorie psaní všemi deseti na české klávesnici",
+            content: "Teorie psaní všemi deseti na české klávesnici. Popsaný prstoklad i tipy na zlepšení přesnosti.",
         },
         {
             name: "keywords",
@@ -25,8 +25,8 @@ useHead({
             <p>
                 Základním principem je mít prsty ve správné výchozí pozici, která je velice prostá. <br> Ukazováčky položíme
                 na
-                <span class="tlusty">písmena F, J</span>, kde často bývá fyzická značka, abyste se jich mohli držet.
-                Ostatní prsty umístíme <span class="tlusty">do stran ve stejné řadě</span>.
+                <b>písmena F, J</b>, kde často bývá fyzická značka, abyste se jich mohli držet.
+                Ostatní prsty umístíme <b>do stran ve stejné řadě</b>.
                 Tedy levý prostředníček bude na D, prsteníček na S a malíček na A. Zrcadlově na druhé ruce.
             </p>
         </div>
@@ -37,9 +37,9 @@ useHead({
         <div class="text">
             <h2>Co zbytek klávesnice?</h2>
             <p>
-                Každý prst si hlídá svůj pomyslný <span class="tlusty">sloupeček</span> označený jednou barvou.
+                Každý prst si hlídá svůj pomyslný <b>sloupeček</b> označený jednou barvou.
                 Například zelené klávesy mačkáme v ideálním případě pouze pravým ukazováčem. <br>
-                <span class="tlusty">Výjimkou jsou palce</span>, které se starají pouze o mezerník.
+                <b>Výjimkou jsou palce</b>, které se starají pouze o mezerník.
             </p>
         </div>
     </div>
@@ -47,32 +47,59 @@ useHead({
         <div class="text" style="display: flex; flex-direction: column; text-align: center;">
             <h2>Státní zkouška</h2>
             <ol>
-                <li>Základní (<span class="tlusty">200+</span> CPM*)</li>
-                <li>Se zvýšenou rychlostí (<span class="tlusty">300+</span> CPM*)</li>
-                <li>Mistrovská (<span class="tlusty">400+</span> CPM*)</li>
+                <li>Základní (<b>200+</b> CPM*)</li>
+                <li>Se zvýšenou rychlostí (<b>300+</b> CPM*)</li>
+                <li>Mistrovská (<b>400+</b> CPM*)</li>
             </ol>
             <hr>
             <p>
-                Přesnost min. <span class="tlusty">99.5 %</span>
-                přičemž za chybu se odečítá <span class="tlusty">10 úhozů</span>.
+                Přesnost min. <b>99.5 %</b>
+                přičemž za chybu se odečítá <b>10 úhozů</b>.
             </p>
             <div id="spodni">
-                <a href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target=”_blank”>VÍCE ZDE</a>
+                <a href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target=”_blank” rel="nofollow">VÍCE
+                    ZDE</a>
                 <span>*(CPM = úhozů za minutu)</span>
             </div>
         </div>
-        <a id="npi" href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target=”_blank”>
+        <a id="npi" href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target=”_blank” rel="nofollow">
             <img src="/npi.jpg" alt="Národní pedagogický institut">
         </a>
+    </div>
+    <div class="bloky">
+        <img src="/klavesniceSPavoukem.png" alt="Pavouk s klávesnicí">
+        <div class="text">
+            <h2>Tipy a triky</h2>
+            <ul>
+                <li><b>Ctrl + Backspace</b> smaže celé slovo abyste to nemuseli vyťukávat po jednom</li>
+                <li><u>Pohyb po Pavoukovi:</u>
+                    <ul class="mensiPadding">
+                        <li><b>Šipkama</b> vybereš lekci / cviční</li>
+                        <li><b>Enter</b> zvolí vybranou lekci / cvičení</li>
+                        <li><b>Mezerník</b> opakuje cvičení</li>
+                        <li><b>Šipka doprava</b> pokračuje na další cvičení</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
     </div>
 </template>
 
 <style scoped>
+li {
+    font-size: 1.1rem;
+}
+
+.mensiPadding li {
+    padding: 4px 0 !important;
+}
+
 h1 {
     margin-bottom: 0;
 }
 
-ol {
+ol,
+ul {
     text-align: center;
     margin-left: 20px;
 }
@@ -108,6 +135,14 @@ ol {
 
     ol {
         margin-left: 0;
+    }
+
+    img {
+        max-width: 20rem !important;
+    }
+
+    #npi img {
+        max-width: 14rem !important;
     }
 }
 </style>

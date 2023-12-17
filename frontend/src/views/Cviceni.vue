@@ -136,6 +136,11 @@ function klik(this: any, e: KeyboardEvent) {
     e.preventDefault() // ať to nescrolluje a nehazí nějaký stupid zkratky
     startTimer()
 
+    if (delkaTextu.value == 0) {
+        console.log(e.key)
+        return
+    }
+
     if (e.key === aktivniPismeno.value.znak || jeSHackem(e.key)) {
         if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
         if (aktivniPismeno.value.spatne === 1) {
@@ -234,7 +239,8 @@ function toggleZvuk() {
 }
 
 function format(p: string) {
-    if (p === "Zbylá diakritika" || p === "Velká písmena (Shift)") return p
+    if (p === "zbylá diakritika") return "Zbylá diakritika"
+    else if (p === "velká písmena (shift)") return "Velká písmena (Shift)"
     return formatovanyPismena(p)
 }
 </script>

@@ -8,23 +8,25 @@ defineProps({
         default: ""
     },
     jeDokoncena: Boolean,
+    oznacena: Boolean
 })
 
 function format(p: string) {
-    if (p === "Zbylá diakritika" || p === "Velká písmena (Shift)") return p
+    if (p === "zbylá diakritika") return "Zbylá diakritika"
+    else if (p === "velká písmena (shift)") return "Velká písmena (Shift)"
     return formatovanyPismena(p)
 }
 
 </script>
 
 <template>
-    <RouterLink v-if="pismena !== '...'" class="lekceBlok" :class="{ hotovoBlok: jeDokoncena }"
+    <RouterLink v-if="pismena !== '...'" class="lekceBlok" :class="{ hotovoBlok: jeDokoncena, oznacene: oznacena }"
         :to="'/lekce/' + pismena">
-        <h2>Lekce: <span class="tlusty">{{ format(pismena) }}</span></h2>
+        <h2>Lekce: <b>{{ format(pismena) }}</b></h2>
         <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
     </RouterLink>
     <a v-else class="lekceBlok"> <!-- aby na to neslo kliknout nez se to nacte -->
-        <h2>Lekce: <span class="tlusty">{{ formatovanyPismena(pismena) }}</span></h2>
+        <h2>Lekce: <b>{{ formatovanyPismena(pismena) }}</b></h2>
         <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
     </a>
 </template>
@@ -46,7 +48,7 @@ function format(p: string) {
     /* kvuli tomu neprihlasenymu */
 }
 
-.lekceBlok:hover {
+.lekceBlok:hover, .oznacene {
     background-color: var(--fialova);
     transition-duration: 0.2s;
 }

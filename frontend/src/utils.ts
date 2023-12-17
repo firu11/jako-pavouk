@@ -32,3 +32,27 @@ export function checkTeapot(e: any) {
     }
     return false
 }
+
+export class Oznacene {
+    index = ref(0)
+    max: number = 3
+    mensi() {
+        if (this.index.value > 1) {
+            this.index.value--
+        }
+    }
+    vetsi() {
+        if (this.index.value < this.max) {
+            this.index.value++
+        }
+    }
+    setMax(max: number) {
+        this.max = max
+    }
+    is(n: number) {
+        if (n < 6 && n == this.index.value) return true
+        else if (n >= 6 && 14 > n && this.index.value + 1 == n) return true
+        else if (n >= 14 && this.index.value + 2 == n) return true
+        return false
+    }
+}

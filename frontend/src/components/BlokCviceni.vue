@@ -19,6 +19,7 @@ const props = defineProps({
         type: Number,
         default: 0
     },
+    oznacena: Boolean
 })
 
 const mobil = ref(document.body.clientWidth <= 1000)
@@ -45,7 +46,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <router-link v-if="prihlasen && typ !== '...' && !mobil" class="cvicBlok" :class="{ dokoncenyBlok: dokonceno }"
+    <router-link v-if="prihlasen && typ !== '...' && !mobil" class="cvicBlok" :class="{ dokoncenyBlok: dokonceno, oznacene: oznacena }"
         :to="'/lekce/' + pismena + '/' + index">
         <h2>{{ index }}</h2>
         <hr>
@@ -118,7 +119,7 @@ onMounted(() => {
     padding: 15px 15px 30px 15px;
 }
 
-.cvicBlok:hover {
+.cvicBlok:hover, .oznacene {
     background-color: var(--fialova);
     transition-duration: 0.2s;
 }

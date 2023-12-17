@@ -48,6 +48,10 @@ function poslatEmail(e: Event) {
 
 function overitZmenu(e: Event) {
     e.preventDefault(); //aby se nerefreshla stranka
+    if (spatnyHeslo.value) {
+        pridatOznameni("Heslo musí být alespoň 5 znaků. Toť vše")
+        return
+    }
     if (spatnyHeslo.value || spatnyKod.value) return
     axios.post('/overeni-zmeny-hesla', {
         "email": email.value,
@@ -68,7 +72,7 @@ function overitZmenu(e: Event) {
 
 function chekujUdaje(jaky: string) {
     if (jaky === 'email' && email.value) spatnyEmail.value = !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(email.value); //test jestli email
-    else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{5,30}$/.test(heslo.value) //heslo 5-30 aspon jeden CAPS a cislice
+    else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*[a-zA-Z]).{5,128}$/.test(heslo.value)
     else if (jaky === 'kod' && kod.value !== undefined) spatnyKod.value = !/^\d{5}$/.test(kod.value) //kod 5 dlouhy
 }
 

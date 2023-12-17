@@ -23,8 +23,8 @@ useHead({
         <a href="https://ko-fi.com/jakopavouk" target=”_blank”><img id="kofi" src="../assets/kofi_button.webp" alt="Podpořit"></a>
     </p>
     <p>
-        Objevili jste nějakou chybu/bug? Máte nějaký zajímavý nápad jak vylepšit tuto aplikaci nebo snad chcete jen dát zpětnou
-        vazbu? Využijte náš Discord! <br>
+        Objevil/a jsi nějakou chybu/bug? Máš nějaký zajímavý nápad jak vylepšit tuto aplikaci nebo snad chceš jen dát zpětnou
+        vazbu? Využij náš Discord! <br>
         <a href="https://discord.gg/kMGRR6f3cb" target=”_blank”><img id="discord" src="../assets/discord.png" alt="Discord"></a>
     </p>
 </template>

@@ -163,14 +163,16 @@ func getCviceni(c *fiber.Ctx) error {
 
 	switch vsechnyCviceni[cislo-1].Typ {
 	case "nova":
-		if pismena == "Zbylá diakritika" {
+		if pismena == "zbylá diakritika" {
 			pismena = "óďťň"
 		}
+		var pismenaRuny []rune = []rune(pismena)
+
 		var slovo strings.Builder
 		for i := 0; i < pocetSlov; i++ {
 			for j := 0; j < pocetPismenVeSlovu; j++ {
-				r := rand.Intn(utf8.RuneCountInString(pismena)) // utf-8 jsou sus
-				slovo.WriteRune([]rune(pismena)[r])
+				r := rand.Intn(len(pismenaRuny)) // utf-8 jsou sus
+				slovo.WriteRune(pismenaRuny[r])
 			}
 			slovo.WriteRune(' ')
 			text = append(text, slovo.String())
@@ -178,8 +180,10 @@ func getCviceni(c *fiber.Ctx) error {
 		}
 	case "naucena":
 		var naucenaPismena string
-		if pismena == "Velká písmena (Shift)" {
-			naucenaPismena = "fjghdkslaůtzrueiwoqpúvbcnxmyěščřžýáíéFJGHDKSLAŮTZRUEIWOQPÚVBCNXMYĚŠČŘŽÝÁÍÉ"
+		if pismena == "velká písmena (shift)" {
+			naucenaPismena = "fjghdkslaůtzrueiwoqpúvbcnxmyěščřžýáíéňďťóFJGHDKSLAŮTZRUEIWOQPÚVBCNXMYĚŠČŘŽÝÁÍÉŇĎŤÓ"
+		} else if pismena == "zbylá diakritika" {
+			naucenaPismena = "fjghdkslaůtzrueiwoqpúvbcnxmyěščřžýáíéňďťó"
 		} else {
 			naucenaPismena, err = databaze.GetNaucenaPismena(id, pismena)
 			if err != nil {
@@ -220,7 +224,7 @@ func getCviceni(c *fiber.Ctx) error {
 			}
 		}
 
-		if pismena == "Velká písmena (Shift)" { // dam kazdy prvni pismeno velkym
+		if pismena == "velká písmena (shift)" { // dam kazdy prvni pismeno velkym
 			for i := 0; i < len(text); i++ {
 				r := []rune(text[i])
 				text[i] = fmt.Sprintf("%c%s", unicode.ToUpper(r[0]), string(r[1:]))

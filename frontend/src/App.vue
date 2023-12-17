@@ -35,9 +35,7 @@ onMounted(() => {
         })
     }
 })
-
 const mobilMenu = ref(false)
-
 </script>
 
 <template>

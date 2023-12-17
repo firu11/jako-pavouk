@@ -91,6 +91,7 @@ onMounted(() => {
 onUnmounted(() => {
     document.removeEventListener("keypress", klik)
     document.removeEventListener("keydown", specialniKlik)
+    delkaTextu.value = 0
 })
 
 function capslockCheck(e: KeyboardEvent) { // TODO chtelo by to checknout hned po nacteni stranky ale nevim jestli to jde (spíš ne)
@@ -136,6 +137,11 @@ function klik(this: any, e: KeyboardEvent) {
     e.preventDefault() // ať to nescrolluje a nehazí nějaký stupid zkratky
     startTimer()
 
+    if (delkaTextu.value == 0) {
+        console.log(e.key)
+        return
+    }
+
     if (e.key === aktivniPismeno.value.znak || jeSHackem(e.key)) {
         if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
         if (aktivniPismeno.value.spatne === 1) {
@@ -155,7 +161,7 @@ function klik(this: any, e: KeyboardEvent) {
         if (indexPosunuti > 0) textElem.value!.style.top = `${indexPosunuti * (-2.2 - 0.188)}rem` // posunuti dolu
     }
 
-    if (aktivniPismeno.value.id === -1) { // konec
+    if (aktivniPismeno.value.id === -1 && text.value.length != 0) { // konec
         clearInterval(interval)
         calcCas() // naposledy
         konec.value = true

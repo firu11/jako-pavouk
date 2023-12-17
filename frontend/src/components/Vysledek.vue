@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios';
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getToken } from '../utils';
 import { levelyRychlosti, levelyPresnosti } from '../stores';
@@ -89,8 +89,9 @@ onMounted(() => {
         hvezdy.value = 0
     }
 
-    if (props.cislo == "") return // je to procvicovani takze neposilame
+    document.addEventListener('keydown', e1)
 
+    if (props.cislo == "") return // je to procvicovani takze neposilame
 
     axios.post('/dokonceno/' + encodeURIComponent(props.pismena) + '/' + props.cislo, {
         "cpm": rychlost,
@@ -106,6 +107,19 @@ onMounted(() => {
     })
 })
 
+onUnmounted(() => {
+    document.removeEventListener('keydown', e1)
+})
+
+function e1(e: KeyboardEvent) {
+    if (e.key == ' ') {
+        e.preventDefault()
+        reset()
+    } else if (e.key == "ArrowRight") {
+        e.preventDefault()
+        dalsi()
+    }
+}
 </script>
 
 <template>

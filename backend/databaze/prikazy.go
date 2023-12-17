@@ -376,7 +376,7 @@ func GetSlovaProLekci(uzivID uint, pismena string, pocet int) ([]string, error) 
 	var vysledek []string
 	var rows *sqlx.Rows
 
-	if pismena == "Velká písmena (Shift)" {
+	if pismena == "velká písmena (shift)" {
 		var err error
 		rows, err = DB.Queryx(`SELECT slovo FROM slovnik WHERE lekceqwertz_id <= (SELECT id from lekce WHERE pismena = $1) ORDER BY RANDOM() LIMIT $2;`, pismena, pocet)
 		if err != nil {

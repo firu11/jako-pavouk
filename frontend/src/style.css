@@ -13,7 +13,7 @@
 :root {
     --cerna: #171528;
     --bila: #f0f0f0;
-    --seda: #888888;
+    --seda: #aaaaaa;
     --tmave-fialova: #3F3351;
     --sirka-menu: 230px;
     --sirka-textoveho-pole: 650px;
@@ -126,7 +126,7 @@ hr {
     /* posunuti o pulku sipky */
 }
 
-.tlusty {
+b {
     font-weight: 500;
 }
 
@@ -155,20 +155,25 @@ hr {
 
 .bloky .text li {
     text-align: left;
-    text-indent: -1em;
+    text-indent: -1rem;
     margin-left: 10px;
 }
 
 .bloky .text p,
 .bloky .text li {
-    font-size: 1.1em;
+    font-size: 1.1rem;
     padding: 8px;
-    line-height: 1.3em;
+    line-height: 1.3rem;
 }
 
 .bloky .text h2 {
     margin-bottom: 20px;
-    font-size: 1.6em;
+    font-size: 1.6rem;
+}
+
+.nohover {
+    pointer-events: none;
+    transition-duration: 0.1s;
 }
 
 @media screen and (max-width: 1100px) {
@@ -197,7 +202,7 @@ hr {
     }
 
     h1 {
-        font-size: 1.8em;
+        font-size: 1.8rem;
         max-width: 60%;
         direction: rtl;
     }
@@ -209,11 +214,11 @@ hr {
 
     .bloky .text h2 {
         margin-bottom: 10px;
-        font-size: 1.5em;
+        font-size: 1.5rem;
     }
 
     p {
-        font-size: 1.1em;
+        font-size: 1.1rem;
     }
 }
 

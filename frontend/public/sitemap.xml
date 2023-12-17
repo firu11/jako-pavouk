@@ -35,4 +35,9 @@
         <priority>1.0</priority>
         <changefreq>weekly</changefreq>
     </url>
+    <url>
+        <loc>https://jakopavouk.cz/pavoucek.ico</loc>
+        <priority>1.0</priority>
+        <changefreq>weekly</changefreq>
+    </url>
 </urlset>

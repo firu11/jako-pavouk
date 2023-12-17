@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useHead } from 'unhead'
-import { checkTeapot, pridatOznameni } from '../utils';
+import { Oznacene, checkTeapot, pridatOznameni } from '../utils';
 import axios from 'axios';
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 
 useHead({
     title: "Procvičování"
@@ -10,16 +10,47 @@ useHead({
 
 const texty = ref([])
 const mobil = ref(document.body.clientWidth <= 1000)
+const o = new Oznacene()
 
 onMounted(() => {
     axios.get("/procvic")
         .then(response => {
             texty.value = response.data.texty
+            o.setMax(texty.value.length)
         }).catch(e => {
             if (!checkTeapot(e)) {
                 pridatOznameni()
             }
         })
+    document.addEventListener('keydown', e1)
+    document.addEventListener('mousemove', e2)
+})
+
+function e1(e: KeyboardEvent) {
+    if (e.key == 'ArrowUp') {
+        e.preventDefault()
+        o.mensi()
+        let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
+        window.scrollTo({ top: lekce?.offsetTop! - 500 })
+    } else if (e.key == 'ArrowDown') {
+        e.preventDefault()
+        o.vetsi()
+        let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
+        window.scrollTo({ top: lekce?.offsetTop! - 200 })
+    } else if (e.key == 'Enter') {
+        e.preventDefault()
+        let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
+        lekce?.click()
+    }
+}
+
+function e2() {
+    o.index.value = 0
+}
+
+onUnmounted(() => {
+    document.removeEventListener('keydown', e1)
+    document.removeEventListener('mousemove', e2)
 })
 
 </script>
@@ -28,13 +59,14 @@ onMounted(() => {
     <h1>Procvičování</h1>
     <div id="seznam">
         <h2>Texty</h2>
-        <RouterLink v-if="!mobil" v-for="t, i in texty" :to="`/procvic/${i+1}`" class="blok">
+        <RouterLink v-if="!mobil" v-for="t, i in texty" :to="`/procvic/${i + 1}`" class="blok" :i="i + 1 == o.index.value"
+            :class="{ oznacene: i + 1 == o.index.value, nohover: o.index.value != 0 }">
             <h2>{{ t }}</h2>
         </RouterLink>
         <div v-else v-for="t in texty" class="blok" @click="pridatOznameni('Psaní na telefonech zatím neučíme...')">
             <h2>{{ t }}</h2>
         </div>
-        <h2>Písmena na míru</h2>
+        <h2>Texty na míru</h2>
         <div class="blok">
             <h2>Pavouci už na tom pilně pracují...</h2>
         </div>
@@ -69,7 +101,8 @@ h2 {
     /* kvuli tomu neprihlasenymu */
 }
 
-.blok:hover {
+.blok:hover,
+.oznacene {
     background-color: var(--fialova);
     transition-duration: 0.2s;
 }
@@ -90,6 +123,7 @@ h2 {
     h2 {
         align-self: start;
     }
+
     .blok {
         min-width: 260px;
         width: 100%;
@@ -100,7 +134,7 @@ h2 {
         transition-duration: 0.2s;
 
         /* kvuli tomu neprihlasenymu */
-        cursor: pointer; 
+        cursor: pointer;
     }
 }
 </style>
