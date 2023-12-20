@@ -17,7 +17,7 @@ useHead({
     <PsaniHomePage></PsaniHomePage>
     <h1 style="opacity: 0.0000000000001; user-select: none; margin: 0; position: absolute;">Jako Pavouk</h1> <!-- Pro SEO (nevim jestli funguje) -->
     <div class="bloky">
-        <img src="/klavesniceSPavoukem.png" alt="Pavouk s klávesnicí">
+        <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí">
         <div class="text">
             <h2>Proč psát všemi deseti?</h2>
             <ul>
@@ -37,7 +37,7 @@ useHead({
                 Ale od toho, aby to netrvalo věčnost, jsme tu my!
             </p>
         </div>
-        <img src="/pavoukNaZlate.svg" alt="Bohatý pavouk">
+        <img src="../assets/pavoukNaZlate.svg" alt="Bohatý pavouk">
     </div>
 </template>
 

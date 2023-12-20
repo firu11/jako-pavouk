@@ -40,7 +40,7 @@ if (tmp == null) {
 } else {
     zvukyZaply.value = JSON.parse(tmp) === true // nejde to dat na jednu lajnu TS sus
 }
-const zvuky = [useSound('/zvuky/klik1.ogg'), useSound('/zvuky/klik2.ogg'), useSound('/zvuky/klik3.ogg'), useSound('/zvuky/miss.ogg')]
+const zvuky = [useSound(new URL('../assets/zvuky/klik1.ogg', import.meta.url).href), useSound(new URL('../assets/zvuky/klik2.ogg', import.meta.url).href), useSound(new URL('../assets/zvuky/klik3.ogg', import.meta.url).href), useSound(new URL('../assets/zvuky/miss.ogg', import.meta.url).href)]
 
 const capslock = ref(false)
 let interval: number

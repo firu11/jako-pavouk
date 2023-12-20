@@ -1,5 +1,5 @@
 backend/.env
 backend/backend
 backend/backend.exe
-backend/tmp
+backend/slovnik.csv
 .vscode

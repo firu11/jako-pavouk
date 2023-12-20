@@ -41,7 +41,7 @@ const mobilMenu = ref(false)
 <template>
     <header>
         <div id="menuMobilniBtn" @click="mobilMenu = !mobilMenu"><img id="menuIcon" src="./assets/icony/menu.svg"
-                alt="Menu"></div>
+                alt="Menu"  width="40" height="40"></div>
         <nav :class="{ mobilHidden: !mobilMenu }" @click="mobilMenu = !mobilMenu">
             <MenuLink jmeno="Domů" cesta="/" />
             <MenuLink jmeno="Jak psát" cesta="/jak-psat" />

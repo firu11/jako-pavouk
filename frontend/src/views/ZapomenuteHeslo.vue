@@ -103,7 +103,7 @@ function presmerovat(e: Event) {
         <button type="submit" class="tlacitko" @click="overitZmenu">Potvrdit</button>
     </form>
     <form v-else-if="state === 'konec'">
-        <img src="/pavoucekBezPozadi.svg" alt="Pavouk">
+        <img src="../assets/pavoucekBezPozadi.svg" alt="Pavouk">
         <h3>Heslo úspěšně změněno!</h3>
         <h3><br>Tentokrát si heslo<br> prosím pamatujte. Díky!</h3>
         <button class="tlacitko" @click="presmerovat">Přihlásit</button>

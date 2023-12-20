@@ -30,10 +30,10 @@ useHead({
                 Tedy levý prostředníček bude na D, prsteníček na S a malíček na A. Zrcadlově na druhé ruce.
             </p>
         </div>
-        <img src="/vychoziKlavesy.png" alt="Výchozí klávesy">
+        <img src="../assets/vychoziKlavesy.webp" alt="Výchozí klávesy">
     </div>
     <div class="bloky">
-        <img src="/klavesniceSPavoukem.png" alt="Pavouk s klávesnicí">
+        <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí">
         <div class="text">
             <h2>Co zbytek klávesnice?</h2>
             <p>
@@ -63,11 +63,11 @@ useHead({
             </div>
         </div>
         <a id="npi" href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target=”_blank” rel="nofollow">
-            <img src="/npi.jpg" alt="Národní pedagogický institut">
+            <img src="../assets/npi.webp" alt="Národní pedagogický institut">
         </a>
     </div>
     <div class="bloky">
-        <img src="/klavesniceSPavoukem.png" alt="Pavouk s klávesnicí">
+        <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí">
         <div class="text">
             <h2>Tipy a triky</h2>
             <ul>

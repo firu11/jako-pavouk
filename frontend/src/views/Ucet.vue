@@ -102,7 +102,7 @@ function zmenaJmena() {
 
 <template>
     <div id="ucet">
-        <img src="/pavoucekBezPozadi.svg" alt="uzivatel">
+        <img src="../assets//pavoucekBezPozadi.svg" alt="uzivatel">
         <div id="nadpisy">
             <h1 v-if="!uprava">{{ info.jmeno }} <img v-if="!uprava" @click="uprava = true" id="upravit"
                     src="../assets/icony/upravit.svg" alt="Upravit"></h1>

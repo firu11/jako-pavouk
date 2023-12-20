@@ -24,8 +24,8 @@ useHead({
     </p>
     <p>
         Objevil/a jsi nějakou chybu/bug? Máš nějaký zajímavý nápad jak vylepšit tuto aplikaci nebo snad chceš jen dát zpětnou
-        vazbu? Využij náš Discord! <br>
-        <a href="https://discord.gg/kMGRR6f3cb" target=”_blank”><img id="discord" src="../assets/discord.png" alt="Discord"></a>
+        vazbu? Využij náš Discord!<br>
+        <a href="https://discord.gg/kMGRR6f3cb" target=”_blank”><img id="discord" src="../assets/discord.webp" alt="Discord"></a>
     </p>
 </template>
 
