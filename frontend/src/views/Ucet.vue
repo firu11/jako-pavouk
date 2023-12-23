@@ -59,6 +59,7 @@ async function getInfo() {
 
 function postSmazat() {
     axios.post('/ucet-zmena', { "zmena": "smazat" }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
+        prihlasen.value = false
         router.push("/prihlaseni")
     }).catch(e => {
         console.log(e)

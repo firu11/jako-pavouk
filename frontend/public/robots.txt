@@ -1,4 +1,4 @@
-sitemap: http://www.jakopavouk.cz/sitemap.xml
+Sitemap: http://www.jakopavouk.cz/sitemap.xml
 
 #                   _____
 #                  |     |

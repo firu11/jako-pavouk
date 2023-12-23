@@ -6,6 +6,10 @@ useHead({
     title: "",
     meta: [
         {
+            name: "description",
+            content: "Webová aplikace pro výuku psaní všemi deseti. Chcete se naučit psát rychle Jako Pavouk? Během pár týdnu se budete cítit jako profík.",
+        },
+        {
             name: "keywords",
             content: "jako, pavouk, psani, psaní, všemi, vsemi, všema, vsema, deseti, prsty, klavesnici, klavesnice, prst, klávesnice, klávesnici, rychle, rychlé, výuka, vyuka, zdarma, free, pavoucek, pociatci, pocitac, notebooku, notebook, stroj, stroji, na, online, program, aplikace, webovka, atf, procvicovani, procvičování, test",
         }
@@ -15,9 +19,9 @@ useHead({
 
 <template>
     <PsaniHomePage></PsaniHomePage>
-    <h1 style="opacity: 0.0000000000001; user-select: none; margin: 0; position: absolute;">Jako Pavouk</h1> <!-- Pro SEO (nevim jestli funguje) -->
+    <h1 id="schovat">Psaní všemi deseti Jako Pavouk</h1> <!-- Pro SEO (nevim jestli funguje) -->
     <div class="bloky">
-        <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí">
+        <img src="../assets/klavesniceSPavoukemMensi.webp" alt="Pavouk s klávesnicí" width="285" height="220">
         <div class="text">
             <h2>Proč psát všemi deseti?</h2>
             <ul>
@@ -37,7 +41,7 @@ useHead({
                 Ale od toho, aby to netrvalo věčnost, jsme tu my!
             </p>
         </div>
-        <img src="../assets/pavoukNaZlate.svg" alt="Bohatý pavouk">
+        <img src="../assets/pavoukNaZlate.svg" width="287" height="180" alt="Bohatý pavouk">
     </div>
 </template>
 

@@ -46,10 +46,10 @@ onUnmounted(() => {
 })
 
 function e1(e: KeyboardEvent) {
-    if (e.key == 'ArrowLeft') {
+    if (e.key == 'ArrowLeft' || e.key == 'ArrowUp') {
         e.preventDefault()
         o.mensi()
-    } else if (e.key == 'ArrowRight') {
+    } else if (e.key == 'ArrowRight' || e.key == 'ArrowDown') {
         e.preventDefault()
         o.vetsi()
     } else if (e.key == 'Enter') {

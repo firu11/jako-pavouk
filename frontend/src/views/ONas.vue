@@ -2,7 +2,13 @@
 import { useHead } from 'unhead'
 
 useHead({
-    title: "O nás"
+    title: "O nás",
+    meta: [
+        {
+            name: "description",
+            content: "Jako Pavouk je studentský projekt na výuku psaní všemi deseti. Obsahuje spoustu lekcí a cviční díky kterým si brzy osvojíte celou českou klávesnici.",
+        }
+    ]
 })
 </script>
 

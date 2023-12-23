@@ -86,8 +86,8 @@ function presmerovat(e: Event) {
 <template>
     <h2>Zapomenuté heslo</h2>
     <form v-if="state === 'email'">
-        <h3 style="margin-bottom: 20px;">Na email vám bude zaslán <br> ověřovací kód pro obnovení hesla</h3>
-        <h3 class="nadpis">Zadejte email:</h3>
+        <h3 style="margin-bottom: 20px;">Na email ti bude zaslán <br> ověřovací kód pro obnovení hesla</h3>
+        <h3 class="nadpis">Zadej email:</h3>
         <input :class="{ spatnej_input: spatnyEmail }" :oninput="zmena" type="text" v-model="email"
             placeholder="Např: pepa@zdepa.cz" inputmode="email">
         <button type="submit" class="tlacitko" @click="poslatEmail">Poslat email</button>
@@ -105,8 +105,8 @@ function presmerovat(e: Event) {
     <form v-else-if="state === 'konec'">
         <img src="../assets/pavoucekBezPozadi.svg" alt="Pavouk">
         <h3>Heslo úspěšně změněno!</h3>
-        <h3><br>Tentokrát si heslo<br> prosím pamatujte. Díky!</h3>
-        <button class="tlacitko" @click="presmerovat">Přihlásit</button>
+        <h3><br>Tentokrát si heslo<br> prosím pamatuj. Díky!</h3>
+        <button style="margin-top: 25px;" class="tlacitko" @click="presmerovat">Přihlásit</button>
     </form>
 
     <p v-if="state !== 'konec'">

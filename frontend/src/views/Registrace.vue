@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { onBeforeRouteLeave, useRouter } from 'vue-router';
 import { prihlasen, tokenJmeno } from '../stores';
 import { pridatOznameni } from '../utils';
 import { useHead } from 'unhead'
@@ -20,10 +20,10 @@ const spatnyHeslo = ref(false)
 const spatnyJmeno = ref(false)
 const spatnyEmail = ref(false)
 const spatnyKod = ref(false)
-const emailExistuje = ref(false)
-const jmenoExistuje = ref(false)
 
 const overeni = ref(false)
+
+const posilame = ref(false)
 
 function registr(e: Event) {
     e.preventDefault(); //aby se nerefreshla stranka
@@ -33,12 +33,14 @@ function registr(e: Event) {
     if (!jmeno.value) spatnyJmeno.value = true
 
     if (spatnyEmail.value || spatnyHeslo.value || spatnyJmeno.value) {
-        if (spatnyJmeno.value && jmeno.value.length > 12) pridatOznameni("Moc dlouhé jméno (> 12)")
-        else if (spatnyJmeno.value && jmeno.value.length < 3) pridatOznameni("Moc krátké jméno (< 3)")
-        else if (spatnyEmail.value) pridatOznameni("Email není validní")
-        else if (spatnyHeslo.value) pridatOznameni("Heslo musí být alespoň 5 znaků. Toť vše")
+        if (spatnyJmeno.value && jmeno.value.length > 12) pridatOznameni("Moc dlouhé jméno (> 12).")
+        else if (spatnyJmeno.value && jmeno.value.length < 3) pridatOznameni("Moc krátké jméno (< 3).")
+        else if (spatnyEmail.value) pridatOznameni("Email není validní.")
+        else if (spatnyHeslo.value) pridatOznameni("Heslo musí být alespoň 5 znaků. Toť vše.")
         return
     }
+
+    posilame.value = true
 
     axios
         .post('/registrace', {
@@ -49,13 +51,22 @@ function registr(e: Event) {
         .then(_ => {
             overeni.value = true
             heslo.value = "" // radsi uz smazem idk
+            posilame.value = false
         }).catch(e => {
-            if (e.response.data.error.search("email") != -1) emailExistuje.value = true
-            else if (e.response.data.error.search("jmen") != -1) {
-                jmenoExistuje.value = true
+            if (e.response.data.error.search("email") != -1) {
+                spatnyEmail.value = true
+                pridatOznameni("Uživatel s tímto emailem už existuje.")
+            }
+            else if (e.response.data.error.search("docasne") != -1) {
+                spatnyJmeno.value = true
                 pridatOznameni("Jméno je dočasně rezervováno. Za max. 10min možná bude volné.")
             }
+            else if (e.response.data.error.search("jmenem") != -1) {
+                spatnyJmeno.value = true
+                pridatOznameni("Uživatel s tímto jménem už existuje.")
+            }
             else pridatOznameni()
+            posilame.value = false
         })
 }
 
@@ -89,11 +100,9 @@ function chekujUdaje(jaky: string) {
     else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*[a-zA-Z]).{5,128}$/.test(heslo.value) //heslo min 5 znaku
     else if (jaky === 'jmeno' && jmeno.value !== undefined) spatnyJmeno.value = !/^[a-zA-Z0-9!@#$%^&*_ ]{3,12}$/.test(jmeno.value) //jmeno 3-12
     else if (jaky === 'kod' && kod.value !== undefined) spatnyKod.value = !/^\d{5}$/.test(kod.value) //kod 5 dlouhy
-    if (jaky === 'email') emailExistuje.value = false
-    else if (jaky === 'jmeno') jmenoExistuje.value = false
     if (jaky === 'email' && email.value.length === 0) spatnyEmail.value = false
-    else if (jaky === 'jmeno' && jmeno.value.length === 0 ) spatnyJmeno.value = false
-    else if (jaky === 'heslo' && heslo.value.length === 0 ) spatnyHeslo.value = false
+    else if (jaky === 'jmeno' && jmeno.value.length === 0) spatnyJmeno.value = false
+    else if (jaky === 'heslo' && heslo.value.length === 0) spatnyHeslo.value = false
 }
 
 function openInfo() {
@@ -104,6 +113,12 @@ function closeInfo() {
     document.getElementsByClassName('info')[0].id = 'infoHide';
 }
 
+onBeforeRouteLeave(() => {
+    if (!overeni.value || prihlasen.value) return
+    const answer = window.confirm("Hej! Email už je na cestě! \nOpravdu chceš odejít a zahodit tento pokus?")
+    if (!answer) return false
+})
+
 </script>
 
 <template>
@@ -111,18 +126,17 @@ function closeInfo() {
     <div v-if="!overeni">
         <form class="pruhledne">
             <h3 class="nadpis">Uživatelské jméno:</h3>
-            <input :class="{ spatnej_input: spatnyJmeno || jmenoExistuje }" @:input="chekujUdaje('jmeno')" type="text"
-                v-model="jmeno" placeholder="Např: Pepa z depa">
-            <h4 :class="{ opacity0: !jmenoExistuje }" class="chybaExistuje">Uživatel s tímto jménem už existuje</h4>
+            <input :class="{ spatnej_input: spatnyJmeno }" @:input="chekujUdaje('jmeno')" type="text" v-model="jmeno"
+                placeholder="Např: Pepa z depa">
             <h3 class="nadpis">Email:</h3>
-            <input :class="{ spatnej_input: spatnyEmail || emailExistuje }" @:input="chekujUdaje('email')" type="email"
-                v-model="email" placeholder="Např: pepa@zdepa.cz" inputmode="email">
-            <h4 :class="{ opacity0: !emailExistuje }" class="chybaExistuje">Uživatel s tímto emailem už existuje</h4>
+            <input :class="{ spatnej_input: spatnyEmail }" @:input="chekujUdaje('email')" type="email" v-model="email"
+                placeholder="Např: pepa@zdepa.cz" inputmode="email">
             <h3 class="nadpis infoNadpis">Heslo: <img src="../assets/icony/info.svg" alt="info" @mouseover="openInfo"
                     @mouseleave="closeInfo"></h3>
             <input :class="{ spatnej_input: spatnyHeslo }" @:input="chekujUdaje('heslo')" type="password" v-model="heslo"
                 placeholder='Rozhodně ne "Pepa123"'>
-            <button type="submit" class="tlacitko" @click="registr">Registrovat</button>
+            <button type="submit" class="tlacitko" @click="registr" :disabled="posilame">{{ posilame ? ". . ." :
+                "Registrovat" }}</button>
         </form>
         <div id="infoHide" class="info">
             Doporučujeme:

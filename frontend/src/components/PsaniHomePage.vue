@@ -23,14 +23,14 @@ function dalsi() {
 </script>
 
 <template>
-    <h1 id="box">
+    <div id="box">
         <TransitionGroup name="pismenka">
             <span v-for="(p, i) in viditelny" :class="{ spravnePismeno: i < 2 }" class="pismeno" :key="p.toString()">
                 {{ p[1] != " " ? p[1] : "&nbsp" }}
             </span>
         </TransitionGroup>
         <div id="cara"></div>
-    </h1>
+    </div>
 </template>
 
 <style scoped>
@@ -60,7 +60,7 @@ function dalsi() {
     border-radius: 1px;
     background-color: var(--bila);
     position: absolute;
-    left: 8.7rem;
+    left: 8.6rem;
     top: 125px;
 }
 
@@ -69,18 +69,18 @@ function dalsi() {
     display: flex;
     position: relative;
     margin: 0;
-    max-width: none;
     margin-bottom: 2rem;
     direction: ltr;
 }
 
 .pismeno {
-    font-family: 'Red Hat Mono', monospace !important;
-    font-size: 7.1rem;
-    font-weight: 600 !important;
+    font-family: 'Red Hat Mono', monospace;
     line-height: 1.2;
     text-decoration: none;
     color: var(--bila);
+    font-size: 7.1rem;
+    font-weight: 600;
+    max-width: 67px;
 }
 
 .spravnePismeno {
@@ -90,12 +90,13 @@ function dalsi() {
 @media screen and (max-width: 1100px) {
     .pismeno {
         font-size: 3.6rem;
+        max-width: 34px;
     }
 
     #cara {
-        width: 30px;
+        width: 31px;
         height: 4px;
-        left: 4.5rem;
+        left: 4.4rem;
         top: 62px;
         border-radius: 1px;
     }
@@ -106,13 +107,27 @@ function dalsi() {
     }
 
     .pismenka-enter-from {
-        transform: translateX(22px); /* nevim proc ale vzdycky to odsoucalo to hamburget tlacitko */
+        transform: translateX(30px); /* nevim proc ale vzdycky to odsoucalo to hamburget tlacitko */
         opacity: 0;
     }
 
     .pismenka-leave-to {
-        transform: translateX(-22px);
+        transform: translateX(-30px);
         opacity: 0;
+    }
+}
+
+@media screen and (max-width: 350px) {
+    .pismeno {
+        font-size: 2.6rem;
+        max-width: 25px;
+    }
+    #cara {
+        width: 23px;
+        height: 3px;
+        left: 3.2rem;
+        top: 44px;
+        border-radius: 1px;
     }
 }
 </style>

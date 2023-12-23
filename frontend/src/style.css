@@ -1,12 +1,12 @@
 @font-face {
     font-family: "Montserrat";
-    src: url("/Montserrat-VariableFont_wght.ttf");
+    src: url("/Montserrat.woff2") format('woff2');
     font-display: swap;
 }
 
 @font-face {
     font-family: "Red Hat Mono";
-    src: url("/RedHatMono-VariableFont_wght.ttf");
+    src: url("/RedHatMono.woff2") format('woff2');
     font-display: swap;
 }
 
@@ -27,7 +27,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Montserrat", sans-serif;
+    font-family: "Montserrat", Candara;
     font-weight: 300;
 }
 
@@ -176,6 +176,18 @@ b {
     transition-duration: 0.1s;
 }
 
+#schovat {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
 @media screen and (max-width: 1100px) {
     .bloky {
         margin-top: 25px;
@@ -199,6 +211,7 @@ b {
     .bloky a {
         width: 100%;
         height: 40%;
+        max-width: 20rem;
     }
 
     h1 {

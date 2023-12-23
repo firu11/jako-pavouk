@@ -35,7 +35,7 @@ form input {
     color: var(--bila);
     padding: 10px;
     font-weight: normal;
-    margin: 0 5px 0 5px;
+    margin: 0 5px 20px 5px;
 }
 
 form input:focus {
@@ -119,10 +119,6 @@ form img {
 
 .opacity0 {
     opacity: 0;
-}
-
-form button {
-    margin-top: 20px;
 }
 
 #view {

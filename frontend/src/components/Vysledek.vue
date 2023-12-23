@@ -112,10 +112,10 @@ onUnmounted(() => {
 })
 
 function e1(e: KeyboardEvent) {
-    if (e.key == ' ') {
+    if (e.key == " ") {
         e.preventDefault()
         reset()
-    } else if (e.key == "ArrowRight") {
+    } else if (e.key == "ArrowRight" || e.key === "Enter") {
         e.preventDefault()
         dalsi()
     }

@@ -33,7 +33,7 @@ useHead({
         <img src="../assets/vychoziKlavesy.webp" alt="Výchozí klávesy">
     </div>
     <div class="bloky">
-        <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí">
+        <img src="../assets/klavesniceSPavoukemMensi.webp" alt="Pavouk s klávesnicí">
         <div class="text">
             <h2>Co zbytek klávesnice?</h2>
             <p>
@@ -63,21 +63,22 @@ useHead({
             </div>
         </div>
         <a id="npi" href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target=”_blank” rel="nofollow">
-            <img src="../assets/npi.webp" alt="Národní pedagogický institut">
+            <img src="../assets/npi.webp" alt="Národní pedagogický institut" width="220" height="220">
         </a>
     </div>
     <div class="bloky">
-        <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí">
+        <img src="../assets/sipky.svg" alt="Pavouk s klávesnicí">
         <div class="text">
-            <h2>Tipy a triky</h2>
+            <h2 style="margin-bottom: 10px;">Tipy a triky</h2>
             <ul>
-                <li><b>Ctrl + Backspace</b> smaže celé slovo abyste to nemuseli vyťukávat po jednom</li>
+                <li><b>Ctrl + Backspace</b> smaže celé slovo, abys to nemusel vyťukávat po jednom</li>
                 <li><u>Pohyb po Pavoukovi:</u>
                     <ul class="mensiPadding">
                         <li><b>Šipkama</b> vybereš lekci / cviční</li>
                         <li><b>Enter</b> zvolí vybranou lekci / cvičení</li>
                         <li><b>Mezerník</b> opakuje cvičení</li>
-                        <li><b>Šipka doprava</b> pokračuje na další cvičení</li>
+                        <li><b>Šipka doprava / Enter</b> pokračuje na další cvičení</li>
+                        <li><b>Escape</b> se vrátí zpět</li>
                     </ul>
                 </li>
             </ul>
@@ -91,7 +92,7 @@ li {
 }
 
 .mensiPadding li {
-    padding: 4px 0 !important;
+    padding: 2px 0 !important;
 }
 
 h1 {
@@ -123,9 +124,9 @@ ul {
 }
 
 #npi img {
-    border-radius: 1000px;
+    border-radius: 1000rem;
+    aspect-ratio: 1 / 1;
     width: 100%;
-    height: 100%;
 }
 
 @media screen and (max-width: 1100px) {
@@ -142,7 +143,12 @@ ul {
     }
 
     #npi img {
-        max-width: 14rem !important;
+        max-width: 12rem !important;
+        height: 100%;
+    }
+
+    #npi {
+        padding: 0;
     }
 }
 </style>

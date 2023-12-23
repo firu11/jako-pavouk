@@ -65,7 +65,7 @@ const mobilMenu = ref(false)
         </TransitionGroup>
     </div>
 
-    <img id="pavucina1" src="./assets/pavucina.svg" alt="Pavucina">
+    <img id="pavucina" src="./assets/pavucina.svg" alt="Pavucina">
 </template>
 
 <style scoped>
@@ -146,8 +146,8 @@ nav {
     align-items: center;
 }
 
-#pavucina1 {
-    position: absolute;
+#pavucina {
+    position: fixed;
     top: 0;
     right: 0;
     transform: rotate(180deg);
@@ -201,12 +201,12 @@ nav {
         justify-content: center;
     }
 
-    #pavucina1 {
-        position: absolute;
+    #pavucina {
+        position: fixed;
         top: 0;
         right: 0;
         transform: rotate(180deg);
-        width: 400px;
+        width: 85vw;
         z-index: -1000;
         opacity: 0.3;
     }
