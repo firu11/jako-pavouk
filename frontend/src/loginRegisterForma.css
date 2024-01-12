@@ -125,6 +125,10 @@ form img {
     width: 100% !important;
 }
 
+#overeni {
+    max-width: 370px;
+}
+
 @media screen and (max-width:450px) {
     form {
         width: 85vw;
@@ -143,7 +147,6 @@ form img {
 
     form input:focus {
         width: 102%;
-        margin: 0;
     }
 
     form img {

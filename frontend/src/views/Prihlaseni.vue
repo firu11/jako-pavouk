@@ -7,7 +7,13 @@ import { pridatOznameni } from '../utils';
 import { useHead } from 'unhead'
 
 useHead({
-    title: "Přihlášení"
+    title: "Přihlášení",
+    link: [
+        {
+            rel: "canonical",
+            href: "https://jakopavouk.cz/prihlaseni"
+        }
+    ]
 })
 
 const router = useRouter()
@@ -69,13 +75,12 @@ function zmena() { // pokud zacnu znova psat tak zrusim znaceni spatnyho inputu
         <input :class="{ spatnej_input: spatnyHeslo }" :oninput="zmena" type="password" v-model="heslo"
             placeholder='Rozhodně ne "Pepa123"'>
         <button type="submit" class="tlacitko" @click="login">Přihlásit</button>
-
     </form>
-    <p>Nemáte ještě účet?
+    <p>Nemáš ještě účet?
         <router-link to="/registrace">Registrace</router-link>
     </p>
 
-    <router-link to="/zapomenute-heslo">Zapomněli jste heslo?</router-link>
+    <router-link to="/zapomenute-heslo">Zapomenuté heslo?</router-link>
 </template>
 
 <style scoped>

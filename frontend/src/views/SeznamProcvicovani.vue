@@ -5,7 +5,13 @@ import axios from 'axios';
 import { onMounted, onUnmounted, ref } from 'vue';
 
 useHead({
-    title: "Procvičování"
+    title: "Procvičování",
+    link: [
+        {
+            rel: "canonical",
+            href: "https://jakopavouk.cz/procvic"
+        }
+    ]
 })
 
 const texty = ref([])

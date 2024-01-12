@@ -135,7 +135,7 @@ b {
     width: 110%;
     height: 20em;
     display: flex;
-    gap: 15px;
+    gap: 20px;
     background-color: var(--tmave-fialova);
     border-radius: 10px;
     align-items: center;

@@ -141,6 +141,8 @@ function jeSHackem(key: string) {
         if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ú" && (!velkym && key === "u" || velkym && key === "U")) return true
     } else if (predchoziZnak === "°") {
         if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ů" && (!velkym && key === "u" || velkym && key === "U")) return true
+    } else {
+        return false
     }
 }
 
@@ -148,17 +150,15 @@ function klik(this: any, e: KeyboardEvent) {
     e.preventDefault() // ať to nescrolluje a nehazí nějaký stupid zkratky
     startTimer()
 
+    console.log("normal: '" + e.key + "'")
+
     if (delkaTextu.value == 0) {
         console.log(e.key)
         return
     }
 
-    if (e.key == "ˇ" || e.key == "´" || e.key == "°") {
-        predchoziZnak = e.key
-        return
-    }
-
     let hacek = jeSHackem(e.key)
+    if (hacek) predchoziZnak = ""
 
     if (e.key === aktivniPismeno.value.znak || hacek) {
         if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
@@ -192,7 +192,16 @@ function klik(this: any, e: KeyboardEvent) {
 
 function specialniKlik(e: KeyboardEvent) {
     capslockCheck(e)
-    if (e.key === "Backspace") {
+    console.log("special: '" + e.key + "'")
+    if (e.key === "Dead" && e.code === "Equal") {
+        e.preventDefault()
+        if (e.shiftKey) predchoziZnak = "ˇ"
+        else predchoziZnak = "´"
+    } else if (e.key === "Dead" && e.code === "Backquote") {
+        e.preventDefault()
+        if (e.shiftKey) predchoziZnak = "°"
+    } else if (e.key === "Backspace" || e.code === "Backspace") {
+        e.preventDefault()
         if (aktivniPismeno.value.id !== 0) {
             if (e.ctrlKey) { // tak dáme celé slovo pryč (Ctrl + Backspace zkratka)
                 let lastY = document.getElementById("p" + (aktivniPismeno.value.id))?.getBoundingClientRect().y!

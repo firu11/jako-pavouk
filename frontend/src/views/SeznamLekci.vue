@@ -6,7 +6,13 @@ import { Oznacene, checkTeapot, getToken, pridatOznameni } from "../utils";
 import { useHead } from 'unhead'
 
 useHead({
-    title: "Lekce"
+    title: "Lekce",
+    link: [
+        {
+            rel: "canonical",
+            href: "https://jakopavouk.cz/lekce"
+        }
+    ]
 })
 
 const lekce = ref([[]])

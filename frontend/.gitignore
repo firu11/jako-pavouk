@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+public/seznam-wmt-BUnHTQ6XWvu0wBfMQUVc2QkzAKbmEEiS.txt
 
 # Editor directories and files
 .vscode/*

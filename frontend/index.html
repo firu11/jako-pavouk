@@ -5,8 +5,9 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/x-icon" href="/pavoucek.ico">
     <link rel="shortcut icon" type="image/x-icon" href="/pavoucek.ico">
-    <link rel="canonical" href="https://jakopavouk.cz">
+    <meta name="darkreader-lock"> <!-- aby se nespouštělo dark reader rozšíření -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <!-- Facebook Meta Tags -->
     <meta property="og:url" content="https://jakopavouk.cz/">
     <meta property="og:type" content="website">
@@ -30,10 +31,28 @@
     <meta name="keywords"
         content="jako, pavouk, psani, psaní, všemi, vsemi, všema, vsema, deseti, hrave, hravě, prsty, klavesnici, klavesnice, prst, klávesnice, klávesnici, rychle, rychlé, výuka, vyuka, zdarma, free, pavoucek, pocitaci, pocitac, notebooku, notebook, stroj, stroji, na, online, program, aplikace, webovka, procvicovani, procvičování, test">
     <title>Psaní všemi deseti | Jako Pavouk</title>
+    <style>
+        #pavucina {
+            position: fixed;
+            top: 0;
+            right: 0;
+            transform: rotate(180deg);
+            width: 700px;
+            z-index: -1000;
+            opacity: 0.3;
+        }
+    
+        @media screen and (max-width: 1100px) {
+            #pavucina {
+                width: 85vw;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <div id="app"></div>
+    <img id="pavucina" src="./src/assets/pavucina.svg" alt="Pavucina"> <!-- je tady aby ji mohl browser nacist co nejdrive ještě drive než js -->
     <script type="module" src="/src/main.ts"></script>
 </body>
 

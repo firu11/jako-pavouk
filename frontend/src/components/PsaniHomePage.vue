@@ -55,12 +55,12 @@ function dalsi() {
 }
 
 #cara {
-    width: 64px;
+    width: 65px;
     height: 7px;
     border-radius: 1px;
     background-color: var(--bila);
     position: absolute;
-    left: 8.6rem;
+    left: 8.46rem;
     top: 125px;
 }
 
@@ -94,9 +94,9 @@ function dalsi() {
     }
 
     #cara {
-        width: 31px;
+        width: 34px;
         height: 4px;
-        left: 4.4rem;
+        left: 4.3rem;
         top: 62px;
         border-radius: 1px;
     }
@@ -126,7 +126,7 @@ function dalsi() {
         width: 23px;
         height: 3px;
         left: 3.2rem;
-        top: 44px;
+        top: 45px;
         border-radius: 1px;
     }
 }

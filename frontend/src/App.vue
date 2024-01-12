@@ -11,6 +11,8 @@ useHead({
     titleTemplate: (title?: string) => title == "" || title == undefined ? "Psaní všemi deseti | Jako Pavouk" : `${title} | Jako Pavouk`
 })
 
+const mobilMenu = ref(false)
+
 onMounted(() => {
     console.log("%cCo sem koukáš koloušku?", "color: white; font-size: x-large"); // troulin
     if (getToken()) {
@@ -35,13 +37,13 @@ onMounted(() => {
         })
     }
 })
-const mobilMenu = ref(false)
+
 </script>
 
 <template>
     <header>
-        <div id="menuMobilniBtn" @click="mobilMenu = !mobilMenu"><img id="menuIcon" src="./assets/icony/menu.svg"
-                alt="Menu"  width="40" height="40"></div>
+        <div id="menuMobilniBtn" @click="mobilMenu = !mobilMenu"><img id="menuIcon" src="./assets/icony/menu.svg" alt="Menu"
+                width="40" height="40"></div>
         <nav :class="{ mobilHidden: !mobilMenu }" @click="mobilMenu = !mobilMenu">
             <MenuLink jmeno="Domů" cesta="/" />
             <MenuLink jmeno="Jak psát" cesta="/jak-psat" />
@@ -64,8 +66,6 @@ const mobilMenu = ref(false)
             </div>
         </TransitionGroup>
     </div>
-
-    <img id="pavucina" src="./assets/pavucina.svg" alt="Pavucina">
 </template>
 
 <style scoped>
@@ -109,7 +109,7 @@ const mobilMenu = ref(false)
     min-height: 60px;
     background-color: var(--tmave-fialova);
     min-width: 100px;
-    max-width: min(80%, 330px);
+    max-width: min(85%, 330px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -117,10 +117,6 @@ const mobilMenu = ref(false)
     padding: 10px 20px 10px 20px;
     gap: 20px;
     box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.75);
-}
-
-.alert p {
-    font-size: 1rem;
 }
 
 nav {
@@ -133,6 +129,7 @@ nav {
     border-radius: 10px;
     background-color: var(--tmave-fialova);
     transition: ease-in-out 0.3s;
+    overflow: hidden;
 }
 
 #view {
@@ -146,18 +143,18 @@ nav {
     align-items: center;
 }
 
-#pavucina {
-    position: fixed;
-    top: 0;
-    right: 0;
-    transform: rotate(180deg);
-    width: 700px;
-    z-index: -1000;
-    opacity: 0.3;
-}
-
 #menuMobilniBtn {
     display: none;
+}
+
+#vanocni {
+    position: absolute;
+    top: 3em;
+    right: -5em;
+    width: 300px;
+    transform: rotate(55deg);
+    user-select: none;
+    pointer-events: none
 }
 
 @media screen and (max-width: 1100px) {
@@ -199,16 +196,6 @@ nav {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-    }
-
-    #pavucina {
-        position: fixed;
-        top: 0;
-        right: 0;
-        transform: rotate(180deg);
-        width: 85vw;
-        z-index: -1000;
-        opacity: 0.3;
     }
 }
 </style>

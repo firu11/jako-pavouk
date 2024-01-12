@@ -87,7 +87,15 @@ onMounted(() => {
         <h3 v-else-if="typ === 'naucena'">Probraná písmenka</h3>
         <h3 v-else-if="typ === 'slova'">Se slovy</h3>
         <h3 v-else>...</h3>
-        <img class="playVetsi" src="../assets/icony/start.svg" alt="Začít lekci">
+        <div v-if="dokonceno" id="hvezdy">
+            <img v-if="hvezdy >= 1" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
+            <img v-if="hvezdy >= 2" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
+            <img v-if="hvezdy == 3" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
+        </div>
+        <img class="playVetsi" v-else src="../assets/icony/start.svg" alt="Začít lekci">
     </a>
 </template>
 
@@ -159,7 +167,7 @@ h2 {
         background-color: var(--tmave-fialova);
         height: 180px;
         transition-duration: 0.2s;
-        padding: 15px 15px 30px 15px;
+        padding: 15px;
         font-size: 0.8em;
     }
 
@@ -168,6 +176,7 @@ h2 {
         width: 100px;
         height: 30px;
         align-self: center;
+        margin-bottom: 10px;
     }
 
     h3 {
@@ -176,6 +185,11 @@ h2 {
 
     .cvicBlok hr {
         width: 130px;
+    }
+
+    .hvezda {
+        width: 35px;
+        height: 35px;
     }
 }
 </style>

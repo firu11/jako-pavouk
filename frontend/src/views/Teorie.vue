@@ -12,6 +12,12 @@ useHead({
             name: "keywords",
             content: "psani, psaní, všemi, vsemi, všema, vsema, deseti, teorie, jak, psát, klávesy, princip",
         }
+    ],
+    link: [
+        {
+            rel: "canonical",
+            href: "https://jakopavouk.cz/jak-psat"
+        }
     ]
 })
 </script>
@@ -23,17 +29,16 @@ useHead({
         <div class="text">
             <h2>Výchozí pozice</h2>
             <p>
-                Základním principem je mít prsty ve správné výchozí pozici, která je velice prostá. <br> Ukazováčky položíme
-                na
-                <b>písmena F, J</b>, kde často bývá fyzická značka, abyste se jich mohli držet.
+                Základem je mít prsty ve správné výchozí pozici, která je velice prostá. Ukazováčky položíme na
+                <b>písmena F, J</b>, kde často bývá fyzická značka, abychom se jich mohli držet.
                 Ostatní prsty umístíme <b>do stran ve stejné řadě</b>.
                 Tedy levý prostředníček bude na D, prsteníček na S a malíček na A. Zrcadlově na druhé ruce.
             </p>
         </div>
-        <img src="../assets/vychoziKlavesy.webp" alt="Výchozí klávesy">
+        <img src="../assets/vychoziKlavesy.webp" alt="Výchozí klávesy" width="285" height="100">
     </div>
     <div class="bloky">
-        <img src="../assets/klavesniceSPavoukemMensi.webp" alt="Pavouk s klávesnicí">
+        <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí" width="285" height="220">
         <div class="text">
             <h2>Co zbytek klávesnice?</h2>
             <p>
@@ -63,15 +68,15 @@ useHead({
             </div>
         </div>
         <a id="npi" href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target=”_blank” rel="nofollow">
-            <img src="../assets/npi.webp" alt="Národní pedagogický institut" width="220" height="220">
+            <img src="../assets/npi.webp" alt="Národní pedagogický institut" width="225" height="225">
         </a>
     </div>
     <div class="bloky">
-        <img src="../assets/sipky.svg" alt="Pavouk s klávesnicí">
+        <img src="../assets/sipky.svg" alt="Pavouk s klávesnicí" width="285" height="200">
         <div class="text">
             <h2 style="margin-bottom: 10px;">Tipy a triky</h2>
             <ul>
-                <li><b>Ctrl + Backspace</b> smaže celé slovo, abys to nemusel vyťukávat po jednom</li>
+                <li><b>Ctrl + Backspace</b> smaže celé slovo, abys to nemusel/a vyťukávat po jednom</li>
                 <li><u>Pohyb po Pavoukovi:</u>
                     <ul class="mensiPadding">
                         <li><b>Šipkama</b> vybereš lekci / cviční</li>

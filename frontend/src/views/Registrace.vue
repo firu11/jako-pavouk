@@ -7,7 +7,13 @@ import { pridatOznameni } from '../utils';
 import { useHead } from 'unhead'
 
 useHead({
-    title: "Registrace"
+    title: "Registrace",
+    link: [
+        {
+            rel: "canonical",
+            href: "https://jakopavouk.cz/registrace"
+        }
+    ]
 })
 
 const router = useRouter()
@@ -124,7 +130,7 @@ onBeforeRouteLeave(() => {
 <template>
     <h2>Registrace</h2>
     <div v-if="!overeni">
-        <form class="pruhledne">
+        <form>
             <h3 class="nadpis">Uživatelské jméno:</h3>
             <input :class="{ spatnej_input: spatnyJmeno }" @:input="chekujUdaje('jmeno')" type="text" v-model="jmeno"
                 placeholder="Např: Pepa z depa">
@@ -148,15 +154,15 @@ onBeforeRouteLeave(() => {
         </div>
     </div>
     <div v-else>
-        <form class="pruhledne">
-            <h3 style="margin-bottom: 20px;">Na email vám byl zaslán <br>ověřovací kód</h3>
-            <h3 class="nadpis">Zadejte kód z emailu:</h3>
+        <form id="overeni">
+            <h3 style="margin-bottom: 20px;">Na email: "<i>{{ email }}</i>" ti byl zaslán ověřovací kód</h3>
+            <h3 class="nadpis">Zadej kód z emailu:</h3>
             <input :class="{ spatnej_input: spatnyKod }" @:input="chekujUdaje('kod')" type="text" inputmode="numeric"
                 v-model.trim="kod" placeholder="Např: 12345">
             <button type="submit" class="tlacitko" @click="overeniPost">Potvrdit</button>
         </form>
     </div>
-    <p>Máte už účet?
+    <p>Máš už účet?
         <router-link to="/prihlaseni">Přihlášení</router-link>
     </p>
 </template>

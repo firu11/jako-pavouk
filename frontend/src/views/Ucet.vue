@@ -55,6 +55,21 @@ async function getInfo() {
             prihlasen.value = false
         }
     }
+    setTimeout(() => {
+        let jmeno = document.getElementById("jmeno")
+        let velikost = 2
+        while (jmeno?.clientWidth! > 300) { // hnus ale potřebuju to zmenšit natolik aby se to tam vešlo
+            jmeno!.style.fontSize = `${velikost}em`
+            velikost -= 0.2
+        }
+        let email = document.getElementById("email")
+        velikost = 1.5
+        while (email?.clientWidth! > 300) { // hnus ale potřebuju to zmenšit natolik aby se to tam vešlo
+            email!.style.fontSize = `${velikost}em`
+            velikost -= 0.1
+        }
+    }, 1)
+
 }
 
 function postSmazat() {
@@ -86,7 +101,8 @@ function postKlavesnice() {
     })
 }
 
-function zmenaJmena() {
+function zmenaJmena(e: Event) {
+    e.preventDefault()
     if (jmenoUprava.value == info.value.jmeno) {
         uprava.value = false
         return
@@ -105,11 +121,15 @@ function zmenaJmena() {
     <div id="ucet">
         <img src="../assets//pavoucekBezPozadi.svg" alt="uzivatel">
         <div id="nadpisy">
-            <h1 v-if="!uprava">{{ info.jmeno }} <img v-if="!uprava" @click="uprava = true" id="upravit"
-                    src="../assets/icony/upravit.svg" alt="Upravit"></h1>
-            <h2 v-if="!uprava">{{ info.email }}</h2>
-            <input v-if="uprava" v-model="jmenoUprava" type="text">
-            <button v-if="uprava" type="submit" @click="zmenaJmena" id="tlacitko">Uložit</button>
+            <h1 v-if="!uprava" id="jmeno">{{ info.jmeno }}
+                <img v-if="!uprava" @click="uprava = true" id="upravit" src="../assets/icony/upravit.svg" alt="Upravit">
+            </h1>
+            <h2 v-if="!uprava" id="email">{{ info.email }}</h2>
+            <form v-if="uprava" style="margin: 0; max-width: 280px;">
+                <input v-model="jmenoUprava" type="text">
+                <button type="submit" @click="zmenaJmena" id="tlacitko">Uložit</button>
+            </form>
+
         </div>
     </div>
     <div id="progres">
@@ -236,19 +256,24 @@ function zmenaJmena() {
     flex-direction: column;
     justify-content: center;
     align-items: start;
-    max-width: 260px;
 }
 
 #nadpisy h1 {
     margin-bottom: 0;
     align-self: flex-start;
     direction: ltr;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    max-width: 100%;
+    font-weight: 500;
 }
 
 #nadpisy h2 {
     overflow: hidden;
     text-overflow: ellipsis !important;
     width: 100%;
+    text-align: left;
 }
 
 #nadpisy h2:hover {
@@ -266,13 +291,14 @@ function zmenaJmena() {
     width: 30px;
     height: 25px !important;
     cursor: pointer;
+    margin: 3px;
 }
 
 #ucet {
     display: flex;
     background-color: var(--tmave-fialova);
     margin-bottom: 40px;
-    padding: 15px 30px 15px 5px;
+    padding: 15px 20px 15px 5px;
     border-radius: 10px;
     gap: 5px;
     justify-content: space-around;
@@ -327,6 +353,7 @@ function zmenaJmena() {
     #bloky {
         align-items: center;
         justify-content: center;
+        max-width: 720px;
     }
 
     #progres {
@@ -336,7 +363,6 @@ function zmenaJmena() {
     #ucet {
         flex-direction: column;
         padding: 25px 25px 25px 25px;
-        max-width: 60%;
     }
 
     #ucet #nadpisy h2 {
@@ -350,6 +376,7 @@ function zmenaJmena() {
 
     #ucet #nadpisy h1 {
         font-size: 1.7em;
+        max-width: 100% !important;
     }
 
     #ucet input {
