@@ -20,6 +20,7 @@ var delkaTextu int
 var tokenTimeDuration time.Duration = time.Hour * 24 * 15 // v nanosekundach, 14 + 1 dni asi good (den predem uz odhlasime aby se nestalo ze neco dela a neulozi se to)
 
 func main() {
+	log.Println("Načítám .env soubor...")
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error .env", err)
@@ -28,9 +29,11 @@ func main() {
 	pocetSlov, pocetPismenVeSlovu = getEnvDelky()
 	delkaTextu = (pocetPismenVeSlovu+1)*pocetSlov - 1
 
+	log.Println("Připojuji se k databázi...")
 	databaze.DBConnect()
 	inject()
 
+	log.Println("Zapínám Fiber...")
 	app := fiber.New(fiber.Config{
 		AppName: "Pavouk",
 	})
@@ -51,7 +54,7 @@ func main() {
 
 	SetupRouter(app)
 
-	err = app.Listen("127.0.0.1:44871") // http://localhost:8080
+	err = app.Listen("127.0.0.1:44871")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -193,14 +193,14 @@ function klik(this: any, e: KeyboardEvent) {
 function specialniKlik(e: KeyboardEvent) {
     capslockCheck(e)
     console.log("special: '" + e.key + "'")
-    if (e.key === "Dead" && e.code === "Equal") {
+    if (e.key === "Dead" && e.code === "Equal") { // kvůli macos :)
         e.preventDefault()
         if (e.shiftKey) predchoziZnak = "ˇ"
         else predchoziZnak = "´"
     } else if (e.key === "Dead" && e.code === "Backquote") {
         e.preventDefault()
         if (e.shiftKey) predchoziZnak = "°"
-    } else if (e.key === "Backspace" || e.code === "Backspace") {
+    } else if (e.key === "Backspace" || e.code === "Backspace" || e.keyCode == 8) { 
         e.preventDefault()
         if (aktivniPismeno.value.id !== 0) {
             if (e.ctrlKey) { // tak dáme celé slovo pryč (Ctrl + Backspace zkratka)

@@ -298,7 +298,7 @@ function zmenaJmena(e: Event) {
     display: flex;
     background-color: var(--tmave-fialova);
     margin-bottom: 40px;
-    padding: 15px 20px 15px 5px;
+    padding: 15px 25px 15px 5px;
     border-radius: 10px;
     gap: 5px;
     justify-content: space-around;

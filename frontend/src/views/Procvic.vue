@@ -128,8 +128,22 @@ function jeSHackem(key: string) {
         if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ď" && (!velkym && key === "d" || velkym && key === "D")) return true
         if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ň" && (!velkym && key === "n" || velkym && key === "N")) return true
         if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ť" && (!velkym && key === "t" || velkym && key === "T")) return true
+        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ž" && (!velkym && key === "z" || velkym && key === "Z")) return true
+        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ř" && (!velkym && key === "r" || velkym && key === "R")) return true
+        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "č" && (!velkym && key === "c" || velkym && key === "C")) return true
+        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "š" && (!velkym && key === "s" || velkym && key === "S")) return true
+        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ě" && (!velkym && key === "e" || velkym && key === "E")) return true
     } else if (predchoziZnak === "´") {
-        if (aktivniPismeno.value.znak === "ó" && key === "o") return true
+        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ó" && (!velkym && key === "o" || velkym && key === "O")) return true
+        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "é" && (!velkym && key === "e" || velkym && key === "E")) return true
+        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "í" && (!velkym && key === "i" || velkym && key === "I")) return true
+        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "á" && (!velkym && key === "a" || velkym && key === "A")) return true
+        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ý" && (!velkym && key === "y" || velkym && key === "Y")) return true
+        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ú" && (!velkym && key === "u" || velkym && key === "U")) return true
+    } else if (predchoziZnak === "°") {
+        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ů" && (!velkym && key === "u" || velkym && key === "U")) return true
+    } else {
+        return false
     }
 }
 
@@ -137,12 +151,17 @@ function klik(this: any, e: KeyboardEvent) {
     e.preventDefault() // ať to nescrolluje a nehazí nějaký stupid zkratky
     startTimer()
 
+    console.log("normal: '" + e.key + "'")
+
     if (delkaTextu.value == 0) {
         console.log(e.key)
         return
     }
 
-    if (e.key === aktivniPismeno.value.znak || jeSHackem(e.key)) {
+    let hacek = jeSHackem(e.key)
+    if (hacek) predchoziZnak = ""
+
+    if (e.key === aktivniPismeno.value.znak || hacek) {
         if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
         if (aktivniPismeno.value.spatne === 1) {
             aktivniPismeno.value.spatne = 2
@@ -161,18 +180,29 @@ function klik(this: any, e: KeyboardEvent) {
         if (indexPosunuti > 0) textElem.value!.style.top = `${indexPosunuti * (-2.2 - 0.188)}rem` // posunuti dolu
     }
 
-    if (aktivniPismeno.value.id === -1 && text.value.length != 0) { // konec
+    if (aktivniPismeno.value.id === -1) { // konec
         clearInterval(interval)
         calcCas() // naposledy
         konec.value = true
         document.removeEventListener("keypress", klik)
         document.removeEventListener("keydown", specialniKlik)
     }
+
+    if (predchoziZnak != "") predchoziZnak = ""
 }
 
 function specialniKlik(e: KeyboardEvent) {
     capslockCheck(e)
-    if (e.key === "Backspace") {
+    console.log("special: '" + e.key + "'")
+    if (e.key === "Dead" && e.code === "Equal") { // kvůli macos :)
+        e.preventDefault()
+        if (e.shiftKey) predchoziZnak = "ˇ"
+        else predchoziZnak = "´"
+    } else if (e.key === "Dead" && e.code === "Backquote") {
+        e.preventDefault()
+        if (e.shiftKey) predchoziZnak = "°"
+    } else if (e.key === "Backspace" || e.code === "Backspace" || e.keyCode == 8) { 
+        e.preventDefault()
         if (aktivniPismeno.value.id !== 0) {
             if (e.ctrlKey) { // tak dáme celé slovo pryč (Ctrl + Backspace zkratka)
                 let lastY = document.getElementById("p" + (aktivniPismeno.value.id))?.getBoundingClientRect().y!

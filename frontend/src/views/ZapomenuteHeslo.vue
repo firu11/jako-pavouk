@@ -93,7 +93,7 @@ function presmerovat(e: Event) {
         <button type="submit" class="tlacitko" @click="poslatEmail">Poslat email</button>
     </form>
     <form v-else-if="state === 'kod'">
-        <h3 style="margin-bottom: 20px;">Zkontrolujte prosím svou<br> emailovou schránku</h3>
+        <h3 style="margin-bottom: 20px;">Zkontroluj prosím svou<br> emailovou schránku</h3>
         <h3 class="nadpis">Kód z emailu:</h3>
         <input style="margin-bottom: 20px;" :class="{ spatnej_input: spatnyKod }" @:input="chekujUdaje('kod')" type="text"
             inputmode="numeric" v-model.trim="kod" placeholder="Např: 12345">
