@@ -10,5 +10,5 @@
 Umět psát všemi deseti je krásná dovednost. Ne všichni však ví jak začít. Přitom postup je jednoduchý:
 1. založ si **účet** na Pavoukovi
 2. dokonči **všechny lekce** (aby sis osvojil/a prstoklad a věděl/a kde jaká klávesa je)
-3. psát všemi deseti **_všechno, všude a vždy_**, i když zatím píšeš jako šnek (🐌 -> 🕷️)
+3. piš všemi deseti **_všechno, všude a vždy_**, i když zatím píšeš jako šnek (🐌 -> 🕷️)
 4. **doporuč** stránku známým
