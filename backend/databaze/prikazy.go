@@ -263,6 +263,27 @@ func GetUzivByJmeno(jmeno string) (Uzivatel, error) {
 	return uziv, err
 }
 
+func GetVsechnyJmenaUziv() ([]string, error) {
+	var uzivatele []string
+	rows, err := DB.Queryx(`SELECT jmeno FROM uzivatel;`)
+	if err != nil {
+		return uzivatele, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var uziv Uzivatel
+		err := rows.StructScan(&uziv)
+		if err != nil {
+			return uzivatele, err
+		}
+
+		uzivatele = append(uzivatele, uziv.Jmeno)
+	}
+
+	return uzivatele, nil
+}
+
 func SmazatUzivatele(id uint) error {
 	_, err := DB.Exec(`DELETE FROM uzivatel WHERE id = $1;`, id)
 	return err

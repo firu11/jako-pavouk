@@ -75,6 +75,7 @@ async function getInfo() {
 function postSmazat() {
     axios.post('/ucet-zmena', { "zmena": "smazat" }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
         prihlasen.value = false
+        localStorage.removeItem("pavouk_token")
         router.push("/prihlaseni")
     }).catch(e => {
         console.log(e)
@@ -129,7 +130,6 @@ function zmenaJmena(e: Event) {
                 <input v-model="jmenoUprava" type="text">
                 <button type="submit" @click="zmenaJmena" id="tlacitko">Uložit</button>
             </form>
-
         </div>
     </div>
     <div id="progres">

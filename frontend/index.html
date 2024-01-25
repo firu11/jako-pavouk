@@ -7,7 +7,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="/pavoucek.ico">
     <meta name="darkreader-lock"> <!-- aby se nespouštělo dark reader rozšíření -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- Facebook Meta Tags -->
     <meta property="og:url" content="https://jakopavouk.cz/">
     <meta property="og:type" content="website">
@@ -41,7 +41,7 @@
             z-index: -1000;
             opacity: 0.3;
         }
-    
+
         @media screen and (max-width: 1100px) {
             #pavucina {
                 width: 85vw;
@@ -52,8 +52,27 @@
 
 <body>
     <div id="app"></div>
-    <img id="pavucina" src="./src/assets/pavucina.svg" alt="Pavucina"> <!-- je tady aby ji mohl browser nacist co nejdrive ještě drive než js -->
+    <img id="pavucina" src="./src/assets/pavucina.svg" alt="Pavucina">
+    <!-- je tady aby ji mohl browser nacist co nejdrive ještě drive než js -->
     <script type="module" src="/src/main.ts"></script>
+
+    <!-- <script src="https://accounts.google.com/gsi/client" async></script> -->
 </body>
+<!-- <script>
+    function handleCredentialResponse(response) {
+        console.log("Encoded JWT ID token: " + response.credential);
+    }
+    window.onload = function () {
+        google.accounts.id.initialize({
+            client_id: "YOUR_GOOGLE_CLIENT_ID",
+            callback: handleCredentialResponse
+        });
+        google.accounts.id.renderButton(
+            document.getElementById("buttonDiv"),
+            { theme: "outline", size: "large" }  // customization attributes
+        );
+        google.accounts.id.prompt(); // also display the One Tap dialog
+    }
+</script> -->
 
 </html>

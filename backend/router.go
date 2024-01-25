@@ -30,7 +30,7 @@ type (
 
 	bodyRegistrace struct {
 		Email string `json:"email" validate:"required,email"`
-		Jmeno string `json:"jmeno" validate:"required,min=3,max=25"`
+		Jmeno string `json:"jmeno" validate:"required,min=3,max=12"`
 		Heslo string `json:"heslo" validate:"required,min=5,max=128"`
 	}
 
@@ -53,6 +53,10 @@ type (
 		Kod   string `json:"kod" validate:"required,len=5"`
 		Heslo string `json:"heslo" validate:"required,min=5,max=128"`
 	}
+
+	bodyGoogle struct {
+		AccessToken string `json:"access_token"`
+	}
 )
 
 func SetupRouter(app *fiber.App) {
@@ -70,6 +74,7 @@ func SetupRouter(app *fiber.App) {
 	api.Post("/prihlaseni", prihlaseni)
 	api.Post("/zmena-hesla", zmenaHesla)
 	api.Post("/overeni-zmeny-hesla", overitZmenuHesla)
+	api.Post("/google", google)
 
 	api.Get("/ja", prehled)
 	api.Post("/ucet-zmena", upravaUctu)
@@ -436,6 +441,9 @@ func prihlaseni(c *fiber.Ctx) error {
 	}
 
 	if err := utils.CheckPassword(body.Heslo, uziv.Heslo); err != nil {
+		if err.Error() == "ucet je pres google" {
+			return c.Status(fiber.StatusUnauthorized).JSON(chyba("Účet je registrován přes google"))
+		}
 		return c.Status(fiber.StatusUnauthorized).JSON(chyba("Heslo je spatne"))
 	} else {
 		token, err := utils.GenerovatToken(uziv.Email, uziv.ID)
@@ -445,6 +453,43 @@ func prihlaseni(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
 		}
 	}
+}
+
+func google(c *fiber.Ctx) error {
+	var body bodyGoogle
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
+	err := utils.ValidateStruct(&body)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
+
+	email, jmeno, err := utils.GoogleTokenNaData(body.AccessToken)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
+
+	var token string
+	uziv, err := databaze.GetUzivByEmail(email)
+	if err != nil { // neexistuje
+		id, err := databaze.CreateUziv(email, "google", jmeno)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+		}
+		token, err = utils.GenerovatToken(email, id)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba("Token se pokazil"))
+		}
+		go utils.MobilNotifikace(jmeno + " - " + email + " (google)")
+	} else {
+		token, err = utils.GenerovatToken(email, uziv.ID)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba("Token se pokazil"))
+		}
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
 }
 
 func zmenaHesla(c *fiber.Ctx) error {

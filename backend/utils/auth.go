@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"os"
 	"time"
 
@@ -26,6 +27,9 @@ func HashPassword(heslo string) (string, error) {
 }
 
 func CheckPassword(hesloRequest string, hesloDB string) error {
+	if hesloDB == "google" {
+		return errors.New("ucet je pres google")
+	}
 	err := bcrypt.CompareHashAndPassword([]byte(hesloDB), []byte(hesloRequest))
 	if err != nil {
 		return err

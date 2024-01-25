@@ -18,6 +18,8 @@ const spatnyEmail = ref(false)
 const spatnyKod = ref(false)
 const spatnyHeslo = ref(false)
 
+const posilame = ref(false)
+
 const state = ref("email")
 
 function zmena() { // pokud zacnu znova psat tak zrusim znaceni spatnyho inputu
@@ -29,10 +31,13 @@ function zmena() { // pokud zacnu znova psat tak zrusim znaceni spatnyho inputu
 function poslatEmail(e: Event) {
     e.preventDefault(); //aby se nerefreshla stranka
     if (spatnyEmail.value) return
+
+    posilame.value = true
     axios.post('/zmena-hesla', {
         "email": email.value,
     }).then(_ => {
         state.value = "kod"
+        posilame.value = false
     }).catch(e => {
         if (e.response.data.error.toLowerCase().search("email") != -1) {
             spatnyEmail.value = true
@@ -53,6 +58,7 @@ function overitZmenu(e: Event) {
         return
     }
     if (spatnyHeslo.value || spatnyKod.value) return
+
     axios.post('/overeni-zmeny-hesla', {
         "email": email.value,
         "heslo": heslo.value,
@@ -90,7 +96,7 @@ function presmerovat(e: Event) {
         <h3 class="nadpis">Zadej email:</h3>
         <input :class="{ spatnej_input: spatnyEmail }" :oninput="zmena" type="text" v-model="email"
             placeholder="Např: pepa@zdepa.cz" inputmode="email">
-        <button type="submit" class="tlacitko" @click="poslatEmail">Poslat email</button>
+        <button type="submit" class="tlacitko" @click="poslatEmail" :disabled="posilame">{{ posilame ? ". . ." : "Poslat email" }}</button>
     </form>
     <form v-else-if="state === 'kod'">
         <h3 style="margin-bottom: 20px;">Zkontroluj prosím svou<br> emailovou schránku</h3>

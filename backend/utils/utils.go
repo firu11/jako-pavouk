@@ -1,17 +1,22 @@
 package utils
 
 import (
+	"backend/databaze"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"math/rand"
 	"net/http"
 	"net/mail"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	godiacritics "gopkg.in/Regis24GmbH/go-diacritics.v2"
 )
 
 func ValidFormat(email string) bool {
@@ -92,4 +97,73 @@ func DelkaTextuArray(a []string) int {
 		x += len(v)
 	}
 	return x
+}
+
+/* vrací email, jmeno, error */
+func GoogleTokenNaData(token string) (string, string, error) {
+	res, err := http.Get(fmt.Sprintf("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%v", token))
+	if err != nil {
+		return "", "", err
+	}
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", "", err
+	}
+
+	m := make(map[string]string)
+	err = json.Unmarshal(body, &m)
+	if err != nil {
+		return "", "", err
+	}
+
+	if m["aud"] != os.Getenv("GOOGLE_CLIENT_ID") {
+		return "", "", errors.New("fake token")
+	}
+
+	jmeno, err := volbaJmena(m["name"])
+	if err != nil {
+		return "", "", err
+	}
+
+	return m["email"], jmeno, err
+}
+
+func volbaJmena(celeJmeno string) (string, error) {
+	celeJmeno = godiacritics.Normalize(celeJmeno)
+	var jmeno []string = strings.Fields(celeJmeno) // rozdělim na jmeno a prijimeni
+
+	vsechnyJmena, err := databaze.GetVsechnyJmenaUziv()
+	if err != nil {
+		return "", err
+	}
+
+	var mapa = make(map[string]bool) // použijeme hash mapu žejoooo O(1)
+	for _, v := range vsechnyJmena {
+		mapa[v] = true
+	}
+
+	if testJmena(jmeno[0]+" "+jmeno[1], mapa) { // zkusim cely jmeno
+		return jmeno[0] + " " + jmeno[1], nil
+	}
+	if testJmena(jmeno[0]+jmeno[1], mapa) { // zkusim cely jmeno bez mezery
+		return jmeno[0] + jmeno[1], nil
+	}
+	if testJmena(jmeno[0], mapa) { // zkusim jmeno
+		return jmeno[0], nil
+	}
+	if testJmena(jmeno[1], mapa) { // zkusim prijimeni
+		return jmeno[1], nil
+	}
+
+	for i := 1; i < 999_999; i++ { // zkusim PavoukXXXXXX
+		var j string = fmt.Sprintf("Pavouk%v", i)
+		if !mapa[j] {
+			return j, nil
+		}
+	}
+	return "", errors.New("konec sveta")
+}
+
+func testJmena(s string, mapa map[string]bool) bool {
+	return len(s) <= 12 && len(s) >= 3 && !mapa[s] && !strings.Contains(s, "'") && !strings.Contains(s, ".") && !strings.Contains(s, "-")
 }

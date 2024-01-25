@@ -12,9 +12,9 @@
     "@unhead/vue": "^1.8.9",
     "@vueuse/sound": "^2.0.1",
     "axios": "^1.6.5",
-    "next-vue-storage-watcher": "^0.0.8",
     "vue": "^3.4.5",
-    "vue-router": "^4.2.5"
+    "vue-router": "^4.2.5",
+    "vue3-google-login": "^2.0.25"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.2",

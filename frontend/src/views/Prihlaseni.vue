@@ -51,6 +51,9 @@ function login(e: Event) {
                 spatnyHeslo.value = true
                 pridatOznameni("Špatné heslo")
             }
+            else if (e.response.data.error.search("google") !== -1) {
+                pridatOznameni(e.response.data.error)
+            }
             else pridatOznameni()
         } else {
             pridatOznameni()
@@ -63,18 +66,37 @@ function zmena() { // pokud zacnu znova psat tak zrusim znaceni spatnyho inputu
     spatnyHeslo.value = false
 }
 
+const handleLoginSuccess = (response: any) => {
+    //const { credential } = response;
+    axios.post("/google", {
+        "access_token": response.credential,
+    }).then(response => {
+        localStorage.setItem(tokenJmeno, response.data.token)
+        prihlasen.value = true
+        router.push("/ucet")
+    }).catch(_ => {
+        pridatOznameni()
+    })
+}
 </script>
 
 <template>
     <h2>Přihlášení</h2>
     <form>
         <h3 class="nadpis">Email nebo jméno:</h3>
-        <input :class="{ spatnej_input: spatnyEmail }" :oninput="zmena" type="text"
-            v-model="email" placeholder="Např: pepa@zdepa.cz" inputmode="email">
+        <input :class="{ spatnej_input: spatnyEmail }" :oninput="zmena" type="text" v-model="email"
+            placeholder="Např: pan@pavouk.cz" inputmode="email">
         <h3 class="nadpis">Heslo:</h3>
         <input :class="{ spatnej_input: spatnyHeslo }" :oninput="zmena" type="password" v-model="heslo"
-            placeholder='Rozhodně ne "Pepa123"'>
+            placeholder='Rozhodně ne "Pavouk123"'>
         <button type="submit" class="tlacitko" @click="login">Přihlásit</button>
+
+        <hr id="predel">
+
+        <KeepAlive>
+            <GoogleLogin id="google" :callback="handleLoginSuccess" :error="pridatOznameni"
+                :buttonConfig="{ text: 'continue_with' }" />
+        </KeepAlive>
     </form>
     <p>Nemáš ještě účet?
         <router-link to="/registrace">Registrace</router-link>

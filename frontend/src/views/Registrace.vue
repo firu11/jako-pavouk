@@ -133,14 +133,14 @@ onBeforeRouteLeave(() => {
         <form>
             <h3 class="nadpis">Uživatelské jméno:</h3>
             <input :class="{ spatnej_input: spatnyJmeno }" @:input="chekujUdaje('jmeno')" type="text" v-model="jmeno"
-                placeholder="Např: Pepa z depa">
+                placeholder="Např: Pan Pavouk">
             <h3 class="nadpis">Email:</h3>
             <input :class="{ spatnej_input: spatnyEmail }" @:input="chekujUdaje('email')" type="email" v-model="email"
-                placeholder="Např: pepa@zdepa.cz" inputmode="email">
+                placeholder="Např: pan@pavouk.cz" inputmode="email">
             <h3 class="nadpis infoNadpis">Heslo: <img src="../assets/icony/info.svg" alt="info" @mouseover="openInfo"
                     @mouseleave="closeInfo"></h3>
             <input :class="{ spatnej_input: spatnyHeslo }" @:input="chekujUdaje('heslo')" type="password" v-model="heslo"
-                placeholder='Rozhodně ne "Pepa123"'>
+                placeholder='Rozhodně ne "Pavouk123"'>
             <button type="submit" class="tlacitko" @click="registr" :disabled="posilame">{{ posilame ? ". . ." :
                 "Registrovat" }}</button>
         </form>
