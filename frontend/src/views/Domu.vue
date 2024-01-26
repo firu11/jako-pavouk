@@ -31,7 +31,7 @@ useHead({
         <div class="text">
             <h2>Proč psát všemi deseti?</h2>
             <ul>
-                <li>Ušetříš spoustu vašeho drahocenného času</li>
+                <li>Ušetříš spoustu svého drahocenného času</li>
                 <li>Snížíš chybovost při psaní</li>
                 <li>Předejdeš bolesti krku a hlavy z ustavičného koukání na klávesnici</li>
             </ul>
@@ -41,10 +41,10 @@ useHead({
         <div class="text">
             <h2>Co tě to bude stát?</h2>
             <p>
-                <span class="tlusty">Vůbec nic.</span> <br>
-                Celý kurz Jako Pavouk je zcela zdarma! <br>
+                <span class="tlusty"><b>Vůbec nic.</b></span> <br>
+                Celý kurz Jako Pavouk je zcela <b>zdarma</b>! <br>
                 Avšak než si osvojíš všechny klávesy, bude to chvíli trvat.
-                Ale od toho, aby to netrvalo věčnost, jsme tu my!
+                Od toho, aby to netrvalo věčnost, jsme tu ale my!
             </p>
         </div>
         <img src="../assets/pavoukNaZlate.svg" width="287" height="180" alt="Bohatý pavouk">

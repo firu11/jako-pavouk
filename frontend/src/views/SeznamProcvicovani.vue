@@ -65,7 +65,10 @@ onUnmounted(() => {
     <h1>Procvičování</h1>
     <div id="seznam">
         <h2>Texty</h2>
-        <RouterLink v-if="!mobil" v-for="t, i in texty" :to="`/procvic/${i + 1}`" class="blok" :i="i + 1 == o.index.value"
+        <div v-if="texty.length == 0" v-for="_ in 3" class="blok">
+            <h2>. . .</h2>
+        </div>
+        <RouterLink v-else-if="!mobil" v-for="t, i in texty" :to="`/procvic/${i + 1}`" class="blok" :i="i + 1 == o.index.value"
             :class="{ oznacene: i + 1 == o.index.value, nohover: o.index.value != 0 }">
             <h2>{{ t }}</h2>
         </RouterLink>
