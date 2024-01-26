@@ -12,6 +12,10 @@ const props = defineProps({
         type: Number,
         default: 0
     },
+    opravenych: {
+        type: Number,
+        default: 0
+    },
     delkaTextu: {
         type: Number,
         default: 1
@@ -139,22 +143,26 @@ function e1(e: KeyboardEvent) {
             <h2>{{ rychlost }}</h2>
             <hr>
             <p class="jednotka">CPM</p>
+            <p class="jednotka">&zwnj;</p>
             <h3>Rychlost</h3>
         </div>
         <div class="blok">
-            <h2>{{ Math.round(presnost * 10) / 10 }}%</h2>
+            <h2>{{ Math.round(presnost * 10) / 10 }}<span class="procento">%</span></h2>
             <hr>
-            <p v-if="preklepy == 1" class="jednotka">{{ preklepy }} překlep</p>
-            <p v-else-if="preklepy >= 2 && preklepy <= 4" class="jednotka">{{ preklepy }} překlepy</p>
-            <p v-else-if="preklepy >= 5 || preklepy == 0" class="jednotka">{{ preklepy }} překlepů</p>
+            <p v-if="preklepy == 1" class="jednotka">{{ preklepy }} neopravený</p>
+            <p v-else-if="preklepy >= 2 && preklepy <= 4" class="jednotka">{{ preklepy }} neopravené</p>
+            <p v-else-if="preklepy >= 5 || preklepy == 0" class="jednotka">{{ preklepy }} neopravených</p>
+            <p v-if="opravenych == 1" class="jednotka">{{ opravenych }} opravený</p>
+            <p v-else-if="opravenych >= 2 && opravenych <= 4" class="jednotka">{{ opravenych }} opravené</p>
+            <p v-else-if="opravenych >= 5 || opravenych == 0" class="jednotka">{{ opravenych }} opravených</p>
             <h3>Přesnost</h3>
         </div>
         <div class="blok">
-            <h2>{{ cas < 60 ? Math.round(cas * 10) / 10 : `${Math.floor(cas / 60)}:${Math.floor(cas % 60 * 10) / 10 < 10
-                ? "0" + Math.floor(cas % 60 * 10) / 10 : Math.floor(cas % 60 * 10) / 10}` }}s</h2>
-                    <hr>
-                    <p class="jednotka">&zwnj;</p>
-                    <h3>Čas</h3>
+            <h2>{{ cas < 60 ? Math.round(cas * 10) / 10 : `${Math.floor(cas / 60)}:${Math.floor(cas % 60 * 10) / 10 < 10 ? "0" + Math.floor(cas % 60 * 10) / 10 : Math.floor(cas % 60 * 10) / 10}` }}</h2>
+            <hr>
+            <p class="jednotka">MM:SS</p>
+            <p class="jednotka">&zwnj;</p>
+            <h3>Čas</h3>
         </div>
     </div>
 
@@ -203,9 +211,7 @@ function e1(e: KeyboardEvent) {
 }
 
 .procento {
-    font-size: 20px;
-    position: relative;
-    top: -3px;
+    font-size: 0.7em;
 }
 
 .blok {
@@ -214,11 +220,10 @@ function e1(e: KeyboardEvent) {
     flex-direction: column;
     text-decoration: none;
     border-radius: 10px;
-    width: 200px;
+    width: 220px;
     background-color: var(--tmave-fialova);
-    height: 140px;
     transition-duration: 0.2s;
-    padding: 15px;
+    padding: 15px 15px 20px 15px;
 }
 
 .blok h2 {
@@ -226,15 +231,21 @@ function e1(e: KeyboardEvent) {
     font-weight: 500;
 }
 
-.blok p {
+.jednotka {
     font-size: 14px;
-    margin-bottom: 10px;
-    margin-top: 4px;
 }
 
 .blok hr {
-    width: 160px;
+    width: 180px;
     align-self: center;
+    position: relative;
+    top: -3px;
+    margin-bottom: 4px;
+}
+
+#bloky h3 {
+    font-weight: 500;
+    margin-top: 12px;
 }
 
 #tlacitka_kontainer {

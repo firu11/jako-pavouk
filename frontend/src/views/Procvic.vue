@@ -23,6 +23,7 @@ const delkaTextu = ref(0)
 const counter = ref(0)
 const counterSlov = ref(0)
 const preklepy = ref(0)
+const opravene = new Map<String, Boolean>()
 const timerZacatek = ref(0)
 const cas = ref(0)
 const textElem = ref<HTMLInputElement>()
@@ -115,10 +116,16 @@ function backPismeno() {
     if (counter.value === 0) { // prvni pismeno ve slovu
         counterSlov.value--
         counter.value = text.value[counterSlov.value].length - 1
-        if (aktivniPismeno.value.spatne === 1) preklepy.value--
+        if (aktivniPismeno.value.spatne === 1) { 
+            preklepy.value--
+            opravene.set(`${counterSlov.value}${counter.value}`, true)
+        }
     } else {
         counter.value--
-        if (aktivniPismeno.value.spatne === 1) preklepy.value--
+        if (aktivniPismeno.value.spatne === 1) {
+            preklepy.value--
+            opravene.set(`${counterSlov.value}${counter.value}`, true)
+        }
     }
 }
 
@@ -309,7 +316,7 @@ function toggleZvuk() {
             </div>
         </div>
 
-        <Vysledek v-else @restart="restart" :preklepy="preklepy" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas"
+        <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravene.size" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas"
             :cislo="''" :posledni="true"></Vysledek>
 </template>
 
