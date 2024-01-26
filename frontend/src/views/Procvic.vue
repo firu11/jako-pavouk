@@ -158,8 +158,6 @@ function klik(this: any, e: KeyboardEvent) {
     e.preventDefault() // ať to nescrolluje a nehazí nějaký stupid zkratky
     startTimer()
 
-    console.log("normal: '" + e.key + "'")
-
     if (delkaTextu.value == 0) {
         console.log(e.key)
         return
@@ -200,7 +198,6 @@ function klik(this: any, e: KeyboardEvent) {
 
 function specialniKlik(e: KeyboardEvent) {
     capslockCheck(e)
-    console.log("special: '" + e.key + "'")
     if (e.key === "Dead" && e.code === "Equal") { // kvůli macos :)
         e.preventDefault()
         if (e.shiftKey) predchoziZnak = "ˇ"

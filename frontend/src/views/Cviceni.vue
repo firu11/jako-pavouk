@@ -115,7 +115,7 @@ function backPismeno() {
     if (counter.value === 0) { // prvni pismeno ve slovu
         counterSlov.value--
         counter.value = text.value[counterSlov.value].length - 1
-        if (aktivniPismeno.value.spatne === 1) { 
+        if (aktivniPismeno.value.spatne === 1) {
             preklepy.value--
             opravene.set(`${counterSlov.value}${counter.value}`, true)
         }
@@ -157,8 +157,6 @@ function klik(this: any, e: KeyboardEvent) {
     e.preventDefault() // ať to nescrolluje a nehazí nějaký stupid zkratky
     startTimer()
 
-    console.log("normal: '" + e.key + "'")
-
     if (delkaTextu.value == 0) {
         console.log(e.key)
         return
@@ -199,7 +197,6 @@ function klik(this: any, e: KeyboardEvent) {
 
 function specialniKlik(e: KeyboardEvent) {
     capslockCheck(e)
-    console.log("special: '" + e.key + "'")
     if (e.key === "Dead" && e.code === "Equal") { // kvůli macos :)
         e.preventDefault()
         if (e.shiftKey) predchoziZnak = "ˇ"
@@ -207,7 +204,7 @@ function specialniKlik(e: KeyboardEvent) {
     } else if (e.key === "Dead" && e.code === "Backquote") {
         e.preventDefault()
         if (e.shiftKey) predchoziZnak = "°"
-    } else if (e.key === "Backspace" || e.code === "Backspace" || e.keyCode == 8) { 
+    } else if (e.key === "Backspace" || e.code === "Backspace" || e.keyCode == 8) {
         e.preventDefault()
         if (aktivniPismeno.value.id !== 0) {
             if (e.ctrlKey) { // tak dáme celé slovo pryč (Ctrl + Backspace zkratka)
@@ -322,8 +319,8 @@ function format(p: string) {
             </div>
         </div>
 
-        <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravene.size" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas"
-            :cislo="''" :posledni="true"></Vysledek>
+        <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravene.size" :delkaTextu="delkaTextu"
+            :casF="casFormat" :cas="cas" :cislo="cislo" :posledni="posledni" :pismena="pismena"></Vysledek>
 </template>
 
 <style scoped>
