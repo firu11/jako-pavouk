@@ -62,7 +62,7 @@ onMounted(() => {
         <TransitionGroup name="list">
             <div v-for="(o, i) in oznameni" class="alert" :key="i">
                 <img src="./assets/icony/alert.svg" alt="Vykřičník">
-                {{ o.text }}
+                <span v-html="o.text"></span>
             </div>
         </TransitionGroup>
     </div>
@@ -102,7 +102,7 @@ onMounted(() => {
     padding: 20px;
     min-height: 100px;
     min-width: 410px;
-    pointer-events: none
+    pointer-events: none;
 }
 
 .alert {

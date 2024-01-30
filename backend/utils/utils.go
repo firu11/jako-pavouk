@@ -12,12 +12,15 @@ import (
 	"net/mail"
 	"net/url"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	godiacritics "gopkg.in/Regis24GmbH/go-diacritics.v2"
 )
+
+var RegexJmeno *regexp.Regexp
 
 func ValidFormat(email string) bool {
 	_, err := mail.ParseAddress(email)
@@ -165,5 +168,5 @@ func volbaJmena(celeJmeno string) (string, error) {
 }
 
 func testJmena(s string, mapa map[string]bool) bool {
-	return len(s) <= 12 && len(s) >= 3 && !mapa[s] && !strings.Contains(s, "'") && !strings.Contains(s, ".") && !strings.Contains(s, "-")
+	return RegexJmeno.MatchString(s) && !mapa[s]
 }

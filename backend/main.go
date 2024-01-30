@@ -5,6 +5,7 @@ import (
 	"backend/utils"
 	"log"
 	"os"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -18,9 +19,9 @@ var pocetSlov int
 var pocetPismenVeSlovu int
 var delkaTextu int
 var tokenTimeDuration time.Duration = time.Hour * 24 * 15 // v nanosekundach, 14 + 1 dni asi good (den predem uz odhlasime aby se nestalo ze neco dela a neulozi se to)
+var regexJmeno *regexp.Regexp = regexp.MustCompile(`^[a-zA-Z0-9_\-+*!? ]{3,12}$`)
 
 func main() {
-	log.Println("Načítám .env soubor...")
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error .env", err)
@@ -29,11 +30,9 @@ func main() {
 	pocetSlov, pocetPismenVeSlovu = getEnvDelky()
 	delkaTextu = (pocetPismenVeSlovu+1)*pocetSlov - 1
 
-	log.Println("Připojuji se k databázi...")
 	databaze.DBConnect()
 	inject()
 
-	log.Println("Zapínám Fiber...")
 	app := fiber.New(fiber.Config{
 		AppName: "Pavouk",
 	})
@@ -62,6 +61,7 @@ func main() {
 
 func inject() {
 	utils.TokenTimeDuration = tokenTimeDuration
+	utils.RegexJmeno = regexJmeno
 }
 
 // abych pro testing měl kratší texty

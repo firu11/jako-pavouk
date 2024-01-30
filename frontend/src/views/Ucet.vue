@@ -108,11 +108,13 @@ function zmenaJmena(e: Event) {
         uprava.value = false
         return
     }
-    if (/^[a-zA-Z0-9!@#$%^&*_ ]{3,12}$/.test(jmenoUprava.value)) {
+    if (/^[a-zA-Z0-9_\-+*!? ]{3,12}$/.test(jmenoUprava.value)) {
         postJmeno()
         uprava.value = false
     } else {
-        pridatOznameni("Jméno musí obsahovat jen znaky !@#$%^&*_ a může být 3-12 znaků dlouhé")
+        if (jmenoUprava.value.length < 3) pridatOznameni("Jméno je moc krátké.<br>(3-12 znaků)")
+        else if (jmenoUprava.value.length > 12) pridatOznameni("Jméno je moc dlouhé.<br>(3-12 znaků)")
+        else pridatOznameni("Jméno může obsahovat jen velká a malá písmena, čísla a znaky _-+*!?")
     }
 }
 

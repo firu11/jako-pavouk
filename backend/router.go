@@ -287,7 +287,6 @@ func dokoncitCvic(c *fiber.Ctx) error {
 
 	err = databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.CPM, body.Preklepy, body.Cas, body.DelkaTextu)
 	if err != nil {
-		log.Println(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 	return c.SendStatus(fiber.StatusOK)
@@ -385,19 +384,20 @@ func registrace(c *fiber.Ctx) error {
 	if !utils.ValidFormat(body.Email) {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Invalidni email"))
 	}
+	if _, err := databaze.GetUzivByEmail(body.Email); err == nil { // uz existuje
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s timto emailem jiz existuje"))
+	}
+	if _, err := databaze.GetUzivByJmeno(body.Jmeno); err == nil { // uz existuje
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s timto jmenem jiz existuje"))
+	}
+	if !regexJmeno.MatchString(body.Jmeno) {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Invalidni jmeno"))
+	}
 
 	hesloHASH, err := utils.HashPassword(body.Heslo)
 	if err != nil {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
-	}
-
-	if _, err = databaze.GetUzivByEmail(body.Email); err == nil { // uz existuje
-		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s timto emailem jiz existuje"))
-	}
-
-	if _, err = databaze.GetUzivByJmeno(body.Jmeno); err == nil { // uz existuje
-		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s timto jmenem jiz existuje"))
 	}
 
 	var randomKod string = utils.GenKod()
@@ -638,10 +638,15 @@ func upravaUctu(c *fiber.Ctx) error {
 	} else if body.Zmena == "klavesnice" {
 		databaze.ZmenitKlavesnici(id, body.Hodnota)
 	} else if body.Zmena == "jmeno" {
-		err := databaze.PrejmenovatUziv(id, body.Hodnota)
+		if !regexJmeno.MatchString(body.Hodnota) {
+			return c.Status(fiber.StatusBadRequest).JSON(chyba("Jmeno obsahuje nepovolene znaky nebo ma spatnou delku"))
+		}
+		err = databaze.PrejmenovatUziv(id, body.Hodnota)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 		}
+	} else {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("prázdný request"))
 	}
-	return nil
+	return c.SendStatus(fiber.StatusOK)
 }

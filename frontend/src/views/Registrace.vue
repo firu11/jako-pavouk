@@ -104,7 +104,7 @@ function overeniPost(e: Event) {
 function chekujUdaje(jaky: string) {
     if (jaky === 'email' && email.value) spatnyEmail.value = !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(email.value); //test jestli email
     else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*[a-zA-Z]).{5,128}$/.test(heslo.value) //heslo min 5 znaku
-    else if (jaky === 'jmeno' && jmeno.value !== undefined) spatnyJmeno.value = !/^[a-zA-Z0-9!@#$%^&*_ ]{3,12}$/.test(jmeno.value) //jmeno 3-12
+    else if (jaky === 'jmeno' && jmeno.value !== undefined) spatnyJmeno.value = !/^[a-zA-Z0-9_\-+*!? ]{3,12}$/.test(jmeno.value) //jmeno 3-12
     else if (jaky === 'kod' && kod.value !== undefined) spatnyKod.value = !/^\d{5}$/.test(kod.value) //kod 5 dlouhy
     if (jaky === 'email' && email.value.length === 0) spatnyEmail.value = false
     else if (jaky === 'jmeno' && jmeno.value.length === 0) spatnyJmeno.value = false
