@@ -2,7 +2,7 @@
 import axios from "axios"
 import BlokLekce from "../components/BlokLekce.vue";
 import { onMounted, onUnmounted, ref } from "vue"
-import { Oznacene, checkTeapot, getToken, pridatOznameni } from "../utils";
+import { Oznacene, checkTeapot, getToken, pridatOznameni, napovedaKNavigaci } from "../utils";
 import { useHead } from 'unhead'
 
 useHead({
@@ -56,6 +56,9 @@ function e1(e: KeyboardEvent) {
         e.preventDefault()
         let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
         lekce?.click()
+    } else if (e.key == 'Tab') {
+        e.preventDefault()
+        napovedaKNavigaci()
     }
 }
 

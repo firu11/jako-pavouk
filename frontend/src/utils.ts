@@ -23,6 +23,10 @@ export function pridatOznameni(text: string = "Něco se pokazilo", cas: number =
     }, cas)
 }
 
+export function napovedaKNavigaci() {
+    pridatOznameni("Pro nápovědu k navigaci se podívej do záložky Jak psát.")
+}
+
 export function checkTeapot(e: any) {
     if (e.response && e.response.status == 418) {
         if (oznameni.value.length == 0) {

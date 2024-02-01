@@ -2,7 +2,7 @@
 import axios from 'axios'
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router'
-import { Oznacene, formatovanyPismena, getToken } from '../utils';
+import { Oznacene, formatovanyPismena, getToken, napovedaKNavigaci } from '../utils';
 import BlokCviceni from '../components/BlokCviceni.vue';
 import SipkaZpet from '../components/SipkaZpet.vue';
 import { useHead } from 'unhead'
@@ -56,6 +56,9 @@ function e1(e: KeyboardEvent) {
         e.preventDefault()
         let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
         lekce?.click()
+    } else if (e.key == 'Tab') {
+        e.preventDefault()
+        napovedaKNavigaci()
     }
 }
 

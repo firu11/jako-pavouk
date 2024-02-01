@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getToken } from '../utils';
+import { getToken, napovedaKNavigaci } from '../utils';
 import { levelyRychlosti, levelyPresnosti } from '../stores';
 
 const emit = defineEmits(["restart"])
@@ -122,6 +122,9 @@ function e1(e: KeyboardEvent) {
     } else if (e.key == "ArrowRight" || e.key === "Enter") {
         e.preventDefault()
         dalsi()
+    } else if (e.key == 'Tab') {
+        e.preventDefault()
+        napovedaKNavigaci()
     }
 }
 </script>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useHead } from 'unhead'
-import { Oznacene, checkTeapot, pridatOznameni } from '../utils';
+import { Oznacene, checkTeapot, napovedaKNavigaci, pridatOznameni } from '../utils';
 import axios from 'axios';
 import { onMounted, onUnmounted, ref } from 'vue';
 
@@ -47,6 +47,9 @@ function e1(e: KeyboardEvent) {
         e.preventDefault()
         let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
         lekce?.click()
+    } else if (e.key == 'Tab') {
+        e.preventDefault()
+        napovedaKNavigaci()
     }
 }
 
