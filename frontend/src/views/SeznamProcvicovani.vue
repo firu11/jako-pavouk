@@ -79,7 +79,7 @@ onUnmounted(() => {
             <h2>{{ t }}</h2>
         </div>
         <h2>Texty na míru</h2>
-        <div class="blok">
+        <div class="blok" style="pointer-events: none">
             <h2>Pavouci už na tom pilně pracují...</h2>
         </div>
     </div>

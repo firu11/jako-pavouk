@@ -52,7 +52,7 @@ onMounted(() => {
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>
         <h3 v-else-if="typ === 'naucena'">Probraná písmenka</h3>
-        <h3 v-else-if="typ === 'slova'">Se slovy</h3>
+        <h3 v-else-if="typ === 'slova' || typ === 'programator'">Se slovy</h3>
         <h3 v-else>...</h3>
         <div v-if="dokonceno" id="hvezdy">
             <img v-if="hvezdy >= 1" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
@@ -70,7 +70,7 @@ onMounted(() => {
         <h3>...</h3>
         <img class="playVetsi" src="../assets/icony/start.svg" alt="Začít lekci">
     </a>
-    <a v-else-if="!mobil" class="cvicBlok" @click="pridatOznameni('Bez přihlášení si můžete psaní vyzkoušet v sekci Procvičování')">
+    <a v-else-if="!mobil" class="cvicBlok" @click="pridatOznameni('Bez přihlášení si můžeš psaní vyzkoušet v sekci Procvičování')">
         <h2>{{ index }}</h2>
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>

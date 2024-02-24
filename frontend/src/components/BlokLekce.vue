@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { prihlasen } from '../stores'
-import { formatovanyPismena } from '../utils';
+import { formatovanyPismena, format } from '../utils';
 
 defineProps({
     pismena: {
@@ -10,12 +10,6 @@ defineProps({
     jeDokoncena: Boolean,
     oznacena: Boolean
 })
-
-function format(p: string) {
-    if (p === "zbylá diakritika") return "Zbylá diakritika"
-    else if (p === "velká písmena (shift)") return "Velká písmena (Shift)"
-    return formatovanyPismena(p)
-}
 
 </script>
 

@@ -18,8 +18,9 @@ import (
 var pocetSlov int
 var pocetPismenVeSlovu int
 var delkaTextu int
-var tokenTimeDuration time.Duration = time.Hour * 24 * 15 // v nanosekundach, 14 + 1 dni asi good (den predem uz odhlasime aby se nestalo ze neco dela a neulozi se to)
-var regexJmeno *regexp.Regexp = regexp.MustCompile(`^[a-zA-Z0-9_\-+*!? ]{3,12}$`)
+
+const tokenTimeDuration time.Duration = time.Hour * 24 * 15 // v nanosekundach, 14 + 1 dni asi good (den predem uz odhlasime aby se nestalo ze neco dela a neulozi se to)
+var regexJmeno *regexp.Regexp = regexp.MustCompile(`^[a-zA-Z0-9ěščřžýáíéůúťňďóĚŠČŘŽÝÁÍÉŮÚŤŇĎÓ_\-+*! ]{3,12}$`)
 
 func main() {
 	err := godotenv.Load(".env")

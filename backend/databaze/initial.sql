@@ -1,4 +1,4 @@
--- Active: 1685821706808@@46.36.41.4@5432@sus
+-- Active: 1700310705275@@localhost@5432@db5490
 
 /* DROP TABLE IF EXISTS dokoncene;
 
@@ -73,6 +73,12 @@ CREATE TABLE
         lekceQWERTZ_id INT,
         lekceQWERTY_id INT
     );
+
+CREATE TABLE
+IF NOT EXISTS slovnik_programator (
+    id SERIAL PRIMARY KEY,
+    slovo VARCHAR(50)
+);
 
 CREATE TABLE
     IF NOT EXISTS texty (

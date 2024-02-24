@@ -108,7 +108,7 @@ function zmenaJmena(e: Event) {
         uprava.value = false
         return
     }
-    if (/^[a-zA-Z0-9_\-+*!? ]{3,12}$/.test(jmenoUprava.value)) {
+    if (/^[a-zA-Z0-9ěščřžýáíéůúťňďóĚŠČŘŽÝÁÍÉŮÚŤŇĎÓ_\-+*! ]{3,12}$/.test(jmenoUprava.value)) {
         postJmeno()
         uprava.value = false
     } else {

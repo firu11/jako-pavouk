@@ -2,7 +2,7 @@
 import axios from 'axios'
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router'
-import { Oznacene, formatovanyPismena, getToken, napovedaKNavigaci } from '../utils';
+import { Oznacene, format, getToken, napovedaKNavigaci } from '../utils';
 import BlokCviceni from '../components/BlokCviceni.vue';
 import SipkaZpet from '../components/SipkaZpet.vue';
 import { useHead } from 'unhead'
@@ -78,12 +78,6 @@ function cvicID(id: number) {
         if (cvic.Id == id) return cvic
     }
     return { Id: 0, Cpm: 0, Presnost: 0 }
-}
-
-function format(p: string) {
-    if (p === "zbylá diakritika") return "Zbylá diakritika"
-    else if (p === "velká písmena (shift)") return "Velká písmena (Shift)"
-    return formatovanyPismena(p)
 }
 
 </script>

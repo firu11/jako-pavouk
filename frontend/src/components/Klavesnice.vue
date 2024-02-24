@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRoute } from 'vue-router';
 
 const props = defineProps({
     aktivniPismeno: {
@@ -12,7 +13,9 @@ const props = defineProps({
     },
 })
 
-let barvy = ["#6ada56", "#81bffc", "#fa5ca1", "#ff8800", "#6f86f7"]
+const cesta = useRoute().path.split("/")[2]
+
+const barvy = ["#6ada56", "#81bffc", "#fa5ca1", "#ff8800", "#6f86f7"]
 let schema = [
     ["°;", "1+", "2ě", "3š", "4č", "5ř", "6ž", "7ý", "8á", "9í", "0é", "%=", "ˇ´", "⟵"],
     ["TAB", "Q", "W", "E", "R", "T", "Z", "U", "I", "O", "P", "/ú", "()", "'¨"],
@@ -20,7 +23,7 @@ let schema = [
     ["Shift", "Y", "X", "C", "V", "B", "N", "M", "?,", ":.", "_-", "Shift"],
     ["  ", "", "", "", "______", "", "", "", "∧∨", ""]
 ]
-const delkaKlaves: { [id: string]: number } = { "⟵": 3, "Shift": 1, "Enter ↵": 1, "CapsLock": 1, "TAB": 1, "______": 24, "  ": 2 }
+const delkaKlaves: { [id: string]: number } = { "⟵": 3, "Shift": 1, "Enter ↵": 1, "CapsLock": 1, "TAB": 1, "______": 24, "  ": 2, "Ctrl": 2 }
 const prstoklad: { [id: string]: string[] } = {
     "P_Ukaz": [barvy[0], "J", "H", "U", "Z", "N", "M", "7ý", "6ž"],
     "L_Ukaz": [barvy[1], "G", "T", "R", "F", "V", "B", "5ř", "4č"],
@@ -30,7 +33,7 @@ const prstoklad: { [id: string]: string[] } = {
     "L_Prs": [barvy[3], "X", "S", "W", "2ě"],
     "P_Mali": [barvy[4], '"ů', "P", "_-", "0é", '%=', 'ˇ´', '⟵', '()', '/ú', "'¨", '!§', 'Enter ↵', 'Shift'],
     "L_Mali": [barvy[4], "Shift", "A", "Q", "Y", "1+", "°;", "TAB", "CapsLock", "Ctrl"],
-    "Palce": ["#bc73ff", "______"]
+    "Palce": ["#bc73ff", "______", "Alt"]
 }
 const shiftSviti = ref(false)
 
@@ -39,6 +42,10 @@ if (props.typ == "qwerty") {
     schema[3][1] = "Z"
     prstoklad.P_Ukaz[4] = "Y"
     prstoklad.L_Mali[4] = "Z"
+}
+if (cesta == "zavorky" || cesta == "operátory") {
+    schema[4][0] = "Ctrl"
+    schema[4][3] = "Alt"
 }
 
 function tlacPismeno(cislo: number, tlacitko: string) {
@@ -63,6 +70,23 @@ function oznacene(tlacitko: string) {
     } else if ('óťňď'.includes(pismeno)) {
         if (tlacitko == 'ˇ´') return true
         if ((tlacitko == 'O' && pismeno == 'ó') || (tlacitko == 'T' && pismeno == 'ť') || (tlacitko == 'N' && pismeno == 'ň') || (tlacitko == 'D' && pismeno == 'ď')) return true
+    } else if ("[]{}<>*".includes(pismeno)) {
+        if (tlacitko === "Ctrl" || tlacitko === "Alt") return true
+        if (props.typ === "qwertz") {
+            if (pismeno === "[" && tlacitko === "F") return true
+            if (pismeno === "]" && tlacitko === "G") return true
+            if (pismeno === "{" && tlacitko === "B") return true
+            if (pismeno === "}" && tlacitko === "N") return true
+            if (pismeno == "*" && tlacitko == "_-") return true
+        } else {
+            if (pismeno === "[" && tlacitko === "/ú") return true
+            if (pismeno === "]" && tlacitko === "()") return true
+            if (pismeno === "{" && tlacitko === "/ú") return true
+            if (pismeno === "}" && tlacitko === "()") return true
+            if (pismeno == "*" && tlacitko == "8á") return true
+        }
+        if (pismeno === "<" && tlacitko === "?,") return true
+        if (pismeno === ">" && tlacitko === ":.") return true
     } else {
         return false
     }
@@ -74,6 +98,7 @@ function barva(tlacitko: string) {
         if (potrebujeShift(pismeno) && pismeno !== " ") {
             shiftSviti.value = true
         } else shiftSviti.value = false
+
         return prstoklad['P_Mali'][0]
 
     } else if (tlacitko.length === 2 && tlacitko.toLowerCase().includes(pismeno.toLowerCase())) {
@@ -108,11 +133,13 @@ function potrebujeShift(pismeno: string) {
     if (['"', '/', '?', ':', '_', '!', '(', '%', 'ˇ', '°', 'ť', 'Ť', 'ď', 'Ď', 'ň', 'Ň', 'Ě', 'Š', 'Č', 'Ř', 'Ž', 'Ý', 'Á', 'Í', 'É', 'Ú', 'Ů'].includes(pismeno)) {
         return true
     } else if (/^\d$/.test(pismeno)) { // jestli to je cislo
-        return true
+        return true 
     }
 
-    return (pismeno === pismeno.toUpperCase() && !["+", "=", "-", ".", ",", "§", ")", "´", ";"].includes(pismeno))
+    if (props.typ === "qwertz" && "[]{}<>*".includes(pismeno)) return false
+    else if (props.typ === "qwerty" && "<>[]*".includes(pismeno)) return false
 
+    return (pismeno === pismeno.toUpperCase() && !["+", "=", "-", ".", ",", "§", ")", "´", ";"].includes(pismeno))
 }
 </script>
 

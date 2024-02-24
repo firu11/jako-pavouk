@@ -1,4 +1,5 @@
 import { ref } from "vue";
+import { cislaProcvicJmeno, tokenJmeno } from "./stores";
 
 export function formatovanyPismena(pismena: string | string[] | undefined) {
     if (pismena === "..." || pismena === undefined) return pismena
@@ -9,8 +10,31 @@ export function formatovanyPismena(pismena: string | string[] | undefined) {
     return vratit;
 }
 
+export function format(p: string) {
+    if (p === "zbylá diakritika") return "Zbylá diakritika"
+    else if (p === "velká písmena (shift)") return "Velká písmena (Shift)"
+    else if (p === "závorky") return "Závorky"
+    else if (p === "operátory") return "Operátory"
+    else if (p === "čísla") return "Číslovky"
+    return formatovanyPismena(p)
+}
+
 export function getToken() {
-    return localStorage.getItem("pavouk_token")
+    return localStorage.getItem(tokenJmeno)
+}
+
+export function getCisloProcvic(id: string) {
+    let cislo = localStorage.getItem(cislaProcvicJmeno + id)
+    if (cislo === null) {
+        localStorage.setItem(cislaProcvicJmeno + id, "2")
+        return "1"
+    }
+    if (cislo == "10") {
+        localStorage.setItem(cislaProcvicJmeno + id, "1")
+        return cislo
+    }
+    localStorage.setItem(cislaProcvicJmeno + id, String(Number(cislo) + 1))
+    return cislo
 }
 
 export const oznameni = ref([] as { text: String }[])

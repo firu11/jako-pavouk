@@ -6,7 +6,7 @@ tasks:
   brun:
     dir: backend
     cmds:
-      - arelo -p '**/*.go' -i '**/.*' -i '**/*_test.go' -- go run .
+      - arelo -p '**/*.go' -p '**/.env' -i '**/*_test.go' -- go run .
   
   bbuild:
     dir: backend

@@ -67,7 +67,7 @@ func SetupRouter(app *fiber.App) {
 	api.Get("/cvic/:pismena/:cislo", getCviceni)
 	api.Post("/dokonceno/:pismena/:cislo", dokoncitCvic)
 	api.Get("/procvic", getVsechnyProcvic)
-	api.Get("/procvic/:cislo", getProcvic)
+	api.Get("/procvic/:cisloProcvic/:cislo", getProcvic)
 
 	api.Post("/overit-email", overitEmail)
 	api.Post("/registrace", registrace)
@@ -80,6 +80,7 @@ func SetupRouter(app *fiber.App) {
 	api.Post("/ucet-zmena", upravaUctu)
 
 	api.Get("/token-expirace", testVyprseniTokenu)
+	api.Post("/navsteva", navsteva)
 	api.Get("/test", test)
 }
 
@@ -189,10 +190,12 @@ func getCviceni(c *fiber.Ctx) error {
 			naucenaPismena = "fjghdkslaůtzrueiwoqpúvbcnxmyěščřžýáíéňďťóFJGHDKSLAŮTZRUEIWOQPÚVBCNXMYĚŠČŘŽÝÁÍÉŇĎŤÓ"
 		} else if pismena == "zbylá diakritika" {
 			naucenaPismena = "fjghdkslaůtzrueiwoqpúvbcnxmyěščřžýáíéňďťó"
+		} else if pismena == "čísla" {
+			naucenaPismena = "fjghdkslaůtzrueiwoqpúvbcnxmyěščřžýáíéňďťó1234567890"
 		} else {
 			naucenaPismena, err = databaze.GetNaucenaPismena(id, pismena)
 			if err != nil {
-				log.Print(err)
+				log.Println(err)
 				return fiber.ErrInternalServerError
 			}
 		}
@@ -211,21 +214,21 @@ func getCviceni(c *fiber.Ctx) error {
 		var slova []string
 		slova, err = databaze.GetSlovaProLekci(id, pismena, pocetSlov)
 		if err != nil {
-			log.Print(err)
+			log.Println(err)
 			return fiber.ErrInternalServerError
 		}
 
-		pocetSlovKMani := len(slova)
-		var druhejCounter int = 0
-		for i := 0; i < pocetSlov; i++ {
+		var pocetSlovKMani int = len(slova)
+		var i int = 0
+		for {
 			if utils.DelkaTextuArray(text) >= delkaTextu-3 { // priblizne idk
 				break
 			}
+			text = append(text, slova[i]+" ")
+
+			i++
 			if i >= pocetSlovKMani {
-				text = append(text, slova[druhejCounter]+" ")
-				druhejCounter++
-			} else {
-				text = append(text, slova[i]+" ")
+				i = 0
 			}
 		}
 
@@ -233,6 +236,64 @@ func getCviceni(c *fiber.Ctx) error {
 			for i := 0; i < len(text); i++ {
 				r := []rune(text[i])
 				text[i] = fmt.Sprintf("%c%s", unicode.ToUpper(r[0]), string(r[1:]))
+			}
+		} else if pismena == "čísla" {
+			for i := 1; i < len(text); i += 2 {
+				r := rand.Intn(8999) + 1000
+				text[i] = strconv.Itoa(r) + " "
+			}
+		}
+	case "programator":
+		var slova []string
+		slova, err = databaze.GetProgramatorSlova()
+		if err != nil {
+			log.Println(err)
+			return fiber.ErrInternalServerError
+		}
+		var pocetSlovKMani int = len(slova)
+
+		if pismena == "závorky" {
+			var zavorky []string = []string{"[\u005D", "()", "{}", "<>"}
+			var zavorkyLen = len(zavorky)
+			var i int = 0
+			var zi int = 0
+			rand.Shuffle(zavorkyLen, func(i, j int) { zavorky[i], zavorky[j] = zavorky[j], zavorky[i] })
+			for {
+				if utils.DelkaTextuArray(text) >= delkaTextu-3 { // priblizne idk
+					break
+				}
+				text = append(text, fmt.Sprintf("%s%v%s ", string([]rune(zavorky[zi])[0]), slova[i], string([]rune(zavorky[zi])[1])))
+
+				i++
+				zi++
+				if i >= pocetSlovKMani {
+					i = 0
+				}
+				if zi >= zavorkyLen {
+					zi = 0
+				}
+			}
+		} else if pismena == "operátory" {
+			var oper []string = []string{"=", "==", "!=", "<=", ">=", "<", ">", "+", "-", "*", "/", "%", "+=", "-=", "*=", "/="}
+			var operLen = len(oper)
+			var i int = 0
+			var zi int = 0
+			rand.Shuffle(operLen, func(i, j int) { oper[i], oper[j] = oper[j], oper[i] })
+			text = append(text, slova[pocetSlovKMani-1]+" ")
+			for {
+				if utils.DelkaTextuArray(text) >= delkaTextu-3 { // priblizne idk
+					break
+				}
+				text = append(text, fmt.Sprintf("%s %v ", string([]rune(oper[zi])), slova[i]))
+
+				i++
+				zi++
+				if i >= pocetSlovKMani {
+					i = 0
+				}
+				if zi >= operLen {
+					zi = 0
+				}
 			}
 		}
 	default:
@@ -315,11 +376,12 @@ func getProcvic(c *fiber.Ctx) error {
 		}
 		klavesnice = u.Klavesnice
 	}
-	cislo, err := strconv.Atoi(c.Params("cislo")) // str -> int
+	cisloProcvic, err := strconv.Atoi(c.Params("cisloProcvic")) // str -> int
 	if err != nil {
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
-	nazev, text, err := databaze.GetProcvicovani(cislo)
+	cislo := c.Params("cislo") // str -> int
+	nazev, text, err := databaze.GetProcvicovani(cisloProcvic, cislo)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
@@ -460,6 +522,7 @@ func google(c *fiber.Ctx) error {
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 	}
+
 	err := utils.ValidateStruct(&body)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
@@ -618,6 +681,11 @@ func testVyprseniTokenu(c *fiber.Ctx) error {
 	} else {
 		return c.Status(fiber.StatusUnauthorized).JSON(chyba(""))
 	}
+}
+
+func navsteva(c *fiber.Ctx) error {
+	databaze.NovaNavsteva()
+	return c.SendStatus(fiber.StatusOK)
 }
 
 func upravaUctu(c *fiber.Ctx) error {

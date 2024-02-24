@@ -39,8 +39,9 @@ function registr(e: Event) {
     if (!jmeno.value) spatnyJmeno.value = true
 
     if (spatnyEmail.value || spatnyHeslo.value || spatnyJmeno.value) {
-        if (spatnyJmeno.value && jmeno.value.length > 12) pridatOznameni("Moc dlouhé jméno (> 12).")
-        else if (spatnyJmeno.value && jmeno.value.length < 3) pridatOznameni("Moc krátké jméno (< 3).")
+        if (spatnyJmeno.value && jmeno.value.length > 12) pridatOznameni("Jméno je moc krátké.<br>(3-12 znaků)")
+        else if (spatnyJmeno.value && jmeno.value.length < 3) pridatOznameni("Jméno je moc dlouhé.<br>(3-12 znaků)")
+        else if (spatnyJmeno.value) pridatOznameni("Jméno může obsahovat jen velká a malá písmena, čísla a znaky _-+*!?")
         else if (spatnyEmail.value) pridatOznameni("Email není validní.")
         else if (spatnyHeslo.value) pridatOznameni("Heslo musí být alespoň 5 znaků. Toť vše.")
         return
@@ -104,8 +105,8 @@ function overeniPost(e: Event) {
 function chekujUdaje(jaky: string) {
     if (jaky === 'email' && email.value) spatnyEmail.value = !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(email.value); //test jestli email
     else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*[a-zA-Z]).{5,128}$/.test(heslo.value) //heslo min 5 znaku
-    else if (jaky === 'jmeno' && jmeno.value !== undefined) spatnyJmeno.value = !/^[a-zA-Z0-9_\-+*!? ]{3,12}$/.test(jmeno.value) //jmeno 3-12
-    else if (jaky === 'kod' && kod.value !== undefined) spatnyKod.value = !/^\d{5}$/.test(kod.value) //kod 5 dlouhy
+    else if (jaky === 'jmeno' && jmeno.value !== undefined) spatnyJmeno.value = !/^[a-zA-Z0-9ěščřžýáíéůúťňďóĚŠČŘŽÝÁÍÉŮÚŤŇĎÓ_\-+*! ]{3,12}$/.test(jmeno.value) //jmeno 3-12
+    else if (jaky === 'kod' && kod.value !== undefined) spatnyKod.value = /^\d{5}$/.test(kod.value) //kod 5 dlouhy
     if (jaky === 'email' && email.value.length === 0) spatnyEmail.value = false
     else if (jaky === 'jmeno' && jmeno.value.length === 0) spatnyJmeno.value = false
     else if (jaky === 'heslo' && heslo.value.length === 0) spatnyHeslo.value = false

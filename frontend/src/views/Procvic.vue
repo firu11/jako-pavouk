@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { getToken, pridatOznameni } from '../utils';
+import { getCisloProcvic, getToken, pridatOznameni } from '../utils';
 import SipkaZpet from '../components/SipkaZpet.vue';
 import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
@@ -32,7 +32,7 @@ const casFormat = computed(() => {
 })
 
 function get() {
-    axios.get("/procvic/" + id, {
+    axios.get("/procvic/" + id + "/" + getCisloProcvic(id), {
         headers: {
             Authorization: `Bearer ${getToken()}`
         }

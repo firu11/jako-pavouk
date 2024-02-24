@@ -142,9 +142,9 @@ func PushSlovnik() {
 		pismenkaZ = ""
 		indexZ = -1
 		for _, p := range lekceZ {
-			if p.Pismena == "Zbylá diakritika" {
+			if p.Pismena == "zbylá diakritika" {
 				pismenkaZ += "óďťň"
-			} else if p.Pismena != "Velká písmena (Shift)" {
+			} else if p.Pismena != "velká písmena (Shift)" && p.Pismena != "závorky" && p.Pismena != "operátory" && p.Pismena != "čísla" {
 				pismenkaZ += p.Pismena
 			}
 			if obsahujeJenOKPismena(v[0], pismenkaZ) {
@@ -157,9 +157,9 @@ func PushSlovnik() {
 		pismenkaY = ""
 		indexY = -1
 		for _, p := range lekceY {
-			if p.Pismena == "Zbylá diakritika" {
+			if p.Pismena == "zbylá diakritika" {
 				pismenkaY += "óďťň"
-			} else if p.Pismena != "Velká písmena (Shift)" {
+			} else if p.Pismena != "velká písmena (shift)" && p.Pismena != "závorky" && p.Pismena != "operátory" && p.Pismena != "čísla" {
 				pismenkaY += p.Pismena
 			}
 			if obsahujeJenOKPismena(v[0], pismenkaY) {

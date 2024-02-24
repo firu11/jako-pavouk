@@ -2,7 +2,7 @@
 import { useHead } from 'unhead'
 
 useHead({
-    title: "Jak psát",
+    title: "Jak psát všemi deseti",
     meta: [
         {
             name: "description",

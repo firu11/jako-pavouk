@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { formatovanyPismena, getToken, pridatOznameni } from '../utils';
+import { format, getToken, pridatOznameni } from '../utils';
 import SipkaZpet from '../components/SipkaZpet.vue';
 import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
@@ -73,11 +73,6 @@ function konecTextu(c: number, o: number, p: number) {
     konec.value = true
 }
 
-function format(p: string) {
-    if (p === "zbylá diakritika") return "Zbylá diakritika"
-    else if (p === "velká písmena (shift)") return "Velká písmena (Shift)"
-    return formatovanyPismena(p)
-}
 </script>
 
 <template>

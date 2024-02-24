@@ -25,7 +25,7 @@ onMounted(() => {
                 localStorage.removeItem(tokenJmeno)
                 prihlasen.value = false
                 router.push("/prihlaseni")
-                pridatOznameni("Z bezpečnostních důvodů jste byli odhlášeni", 8000)
+                pridatOznameni("Z bezpečnostních důvodů jsme tě odhlásili ze sítě 🕸️", 8000)
             } else {
                 prihlasen.value = true
             }
@@ -35,6 +35,8 @@ onMounted(() => {
                 pridatOznameni()
             }
         })
+    } else {
+        axios.post("/navsteva")
     }
 })
 

@@ -3,8 +3,6 @@ package databaze
 import (
 	"errors"
 	"math"
-	"math/rand"
-	"strconv"
 	"strings"
 	"time"
 
@@ -135,12 +133,11 @@ func GetTexty() ([]string, error) {
 	return texty, nil
 }
 
-func GetProcvicovani(id int) (string, []string, error) {
+func GetProcvicovani(id int, cislo string) (string, []string, error) {
 	var text string
 	var nazev string
-	var randomText string = strconv.Itoa(rand.Intn(5-1) + 1)
 
-	err := DB.QueryRowx(`SELECT jmeno, text`+randomText+` FROM texty WHERE id = $1;`, id).Scan(&nazev, &text)
+	err := DB.QueryRowx(`SELECT jmeno, text`+cislo+` FROM texty WHERE id = $1;`, id).Scan(&nazev, &text)
 	if err != nil {
 		return "", []string{}, err
 	}
@@ -299,7 +296,7 @@ func PrejmenovatUziv(id uint, noveJmeno string) error {
 	return err // buď nil nebo error
 }
 
-/* preklepy, cpm, daystreak, cas, delka */
+/*                        preklepy, cpm, daystreak, cas, delka */
 func GetUdaje(uzivID uint) (int, []float32, int, float32, int, error) {
 	var preklepy int
 	var delkaVsechTextu int = 0
@@ -397,7 +394,7 @@ func GetSlovaProLekci(uzivID uint, pismena string, pocet int) ([]string, error) 
 	var vysledek []string
 	var rows *sqlx.Rows
 
-	if pismena == "velká písmena (shift)" {
+	if pismena == "velká písmena (shift)" || pismena == "čísla" {
 		var err error
 		rows, err = DB.Queryx(`SELECT slovo FROM slovnik WHERE lekceqwertz_id <= (SELECT id from lekce WHERE pismena = $1) ORDER BY RANDOM() LIMIT $2;`, pismena, pocet)
 		if err != nil {
@@ -432,6 +429,28 @@ func GetSlovaProLekci(uzivID uint, pismena string, pocet int) ([]string, error) 
 		vysledek = append(vysledek, slovo)
 	}
 	return vysledek, nil
+}
+
+func GetProgramatorSlova() ([]string, error) {
+	var slova []string
+
+	rows, err := DB.Queryx(`SELECT slovo FROM slovnik_programator ORDER BY RANDOM();`)
+	if err != nil {
+		return slova, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var slovo string
+		err := rows.Scan(&slovo)
+		if err != nil {
+			return slova, err
+		}
+
+		slova = append(slova, slovo)
+	}
+
+	return slova, nil
 }
 
 func GetNaucenaPismena(uzivID uint, pismena string) (string, error) {
@@ -501,5 +520,10 @@ func GetZmenuHesla(email string) (ZmenaHeslaUziv, error) {
 
 func ZmenitHeslo(email, hesloHASH string) error {
 	_, err := DB.Exec(`UPDATE uzivatel SET heslo = $1 WHERE email = $2`, hesloHASH, email)
+	return err
+}
+
+func NovaNavsteva() error {
+	_, err := DB.Exec(`INSERT INTO navstevnost (den, pocet) VALUES (CURRENT_DATE, 1) ON CONFLICT (den) DO UPDATE SET pocet = navstevnost.pocet + 1;`)
 	return err
 }

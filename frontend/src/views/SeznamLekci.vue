@@ -91,6 +91,10 @@ function e2() {
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 3" pismena="..." :jeDokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[4]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
             :oznacena="o.is(l['id'])" :i="o.is(l['id'])" :class="{ nohover: o.index.value != 0 }" />
+        <h2>Pro programátory</h2>
+        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 3" pismena="..." :jeDokoncena="false" />
+        <BlokLekce v-else v-for="l in lekce[5]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
+            :oznacena="o.is(l['id'])" :i="o.is(l['id'])" :class="{ nohover: o.index.value != 0 }" />
     </div>
 </template>
 
