@@ -43,7 +43,7 @@ if (props.typ == "qwerty") {
     prstoklad.P_Ukaz[4] = "Y"
     prstoklad.L_Mali[4] = "Z"
 }
-if (cesta == "zavorky" || cesta == "operátory") {
+if (cesta == "závorky" || cesta == "operátory") {
     schema[4][0] = "Ctrl"
     schema[4][3] = "Alt"
 }

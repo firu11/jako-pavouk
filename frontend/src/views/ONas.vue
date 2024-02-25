@@ -80,6 +80,8 @@ p {
     height: auto;
     transition: 0.2s;
     cursor: pointer;
+    text-align: center;
+    color: var(--svetle-fialova);
 }
 
 #kofi:hover,

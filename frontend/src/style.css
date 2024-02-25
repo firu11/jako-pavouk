@@ -146,6 +146,8 @@ b {
 .bloky a {
     width: 40%;
     height: auto;
+    text-align: center;
+    color: var(--svetle-fialova);
 }
 
 .bloky .text {
