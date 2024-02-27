@@ -390,6 +390,50 @@ func OdebratDokonceneCvic(cvicID uint, uzivID uint) error {
 	return err
 }
 
+func GetVsechnySlova(pocet int) ([]string, error) {
+	var vysledek []string
+	var err error
+
+	rows, err := DB.Queryx(`SELECT slovo FROM slovnik ORDER BY RANDOM() LIMIT $1;`, pocet)
+	if err != nil {
+		return vysledek, err
+	}
+	defer rows.Close()
+
+	var slovo string
+	for rows.Next() {
+		slovo = ""
+		err := rows.Scan(&slovo)
+		if err != nil {
+			return vysledek, err
+		}
+		vysledek = append(vysledek, slovo)
+	}
+	return vysledek, nil
+}
+
+func GetVsechnyVety(pocet int) ([]string, error) {
+	var vysledek []string
+	var err error
+
+	rows, err := DB.Queryx(`SELECT veta FROM vety ORDER BY RANDOM() LIMIT $1;`, pocet)
+	if err != nil {
+		return vysledek, err
+	}
+	defer rows.Close()
+
+	var veta string
+	for rows.Next() {
+		veta = ""
+		err := rows.Scan(&veta)
+		if err != nil {
+			return vysledek, err
+		}
+		vysledek = append(vysledek, veta)
+	}
+	return vysledek, nil
+}
+
 func GetSlovaProLekci(uzivID uint, pismena string, pocet int) ([]string, error) {
 	var vysledek []string
 	var rows *sqlx.Rows

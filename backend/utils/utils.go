@@ -14,9 +14,13 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"unicode"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/text/runes"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 	godiacritics "gopkg.in/Regis24GmbH/go-diacritics.v2"
 )
 
@@ -28,6 +32,7 @@ func ValidFormat(email string) bool {
 }
 
 var validate = validator.New()
+var t transform.Transformer = transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 
 func ValidateStruct(s interface{}) error {
 	err := validate.Struct(s)
@@ -169,4 +174,20 @@ func volbaJmena(celeJmeno string) (string, error) {
 
 func testJmena(s string, mapa map[string]bool) bool {
 	return RegexJmeno.MatchString(s) && !mapa[s]
+}
+
+func BezDiakritiky(text []string, mezera bool) []string {
+	for i := 0; i < len(text); i++ {
+		slovo, _, err := transform.String(t, text[i])
+		if err != nil {
+			return text
+		}
+		if mezera {
+			text[i] = slovo + " "
+		} else {
+			text[i] = slovo
+		}
+	}
+	text[len(text)-1] = text[len(text)-1][:len(text[len(text)-1])-1] // smazat mezeru na konci
+	return text
 }

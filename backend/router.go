@@ -57,6 +57,12 @@ type (
 	bodyGoogle struct {
 		AccessToken string `json:"access_token"`
 	}
+
+	bodyTestPsani struct {
+		Typ        string `json:"typ" validate:"required"`
+		Delka      int    `json:"delka" validate:"min=1,max=200"`
+		Diakritika bool   `json:"diakritika"`
+	}
 )
 
 func SetupRouter(app *fiber.App) {
@@ -68,6 +74,7 @@ func SetupRouter(app *fiber.App) {
 	api.Post("/dokonceno/:pismena/:cislo", dokoncitCvic)
 	api.Get("/procvic", getVsechnyProcvic)
 	api.Get("/procvic/:cisloProcvic/:cislo", getProcvic)
+	api.Get("/test-psani", testPsani)
 
 	api.Post("/overit-email", overitEmail)
 	api.Post("/registrace", registrace)
@@ -81,7 +88,7 @@ func SetupRouter(app *fiber.App) {
 
 	api.Get("/token-expirace", testVyprseniTokenu)
 	api.Post("/navsteva", navsteva)
-	api.Get("/test", test)
+	api.Get("/testovaci-get-request", test)
 }
 
 func chyba(msg string) fiber.Map {
@@ -96,7 +103,70 @@ func test(c *fiber.Ctx) error {
 	log.Println(utils.ValidFormat("firu"))
 	utils.MobilNotifikace("Jmeno - email@ema.il") */
 	/* databaze.PushSlovnik() */
+	databaze.PushPohadky()
 	return c.JSON("Vypadni")
+}
+
+func testPsani(c *fiber.Ctx) error {
+	id, err := utils.Autentizace(c, true)
+	if err != nil {
+		return err
+	}
+
+	var body = bodyTestPsani{}
+	if err := c.BodyParser(&body); err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
+	}
+	if err := utils.ValidateStruct(&body); err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
+	}
+
+	var text []string
+	switch body.Typ {
+	case "slova":
+		text, err = databaze.GetVsechnySlova(body.Delka)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
+		}
+
+		if !body.Diakritika {
+			text = utils.BezDiakritiky(text, true)
+		} else {
+			for i := 0; i < len(text)-1; i++ {
+				text[i] += " "
+			}
+		}
+
+	case "vety":
+		vety, err := databaze.GetVsechnyVety(body.Delka)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
+		}
+		for i := 0; i < len(vety); i++ {
+			slova := strings.Split(vety[i], " ")
+			for _, v := range slova {
+				text = append(text, v+" ")
+			}
+		}
+		if !body.Diakritika {
+			text = utils.BezDiakritiky(text, false)
+		} else {
+			text[len(text)-1] = text[len(text)-1][:len(text[len(text)-1])-1] // smazat mezeru na konci
+		}
+
+	case "nacas":
+
+	default:
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Spatny typ testu psani"))
+	}
+
+	u, err := databaze.GetUzivByID(id)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "klavesnice": u.Klavesnice})
 }
 
 func getVsechnyLekce(c *fiber.Ctx) error {
@@ -138,7 +208,7 @@ func getCviceniVLekci(c *fiber.Ctx) error {
 	doko, err := databaze.GetDokonceneCvicVLekci(id, 0, pismena)
 	if err != nil {
 		log.Print(err)
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"cviceni": cvic, "dokoncene": doko})
 }
@@ -155,14 +225,14 @@ func getCviceni(c *fiber.Ctx) error {
 	vsechnyCviceni, err := databaze.GetCviceniVLekciByPismena(id, pismena)
 	if err != nil {
 		log.Print(err)
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 	cislo, err := strconv.Atoi(c.Params("cislo")) // str -> int
 	if err != nil {
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 	if cislo > len(vsechnyCviceni) {
-		return c.Status(fiber.StatusBadRequest).JSON("Cviceni neexistuje")
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Cviceni neexistuje"))
 	}
 
 	var text []string
@@ -196,7 +266,7 @@ func getCviceni(c *fiber.Ctx) error {
 			naucenaPismena, err = databaze.GetNaucenaPismena(id, pismena)
 			if err != nil {
 				log.Println(err)
-				return fiber.ErrInternalServerError
+				return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 			}
 		}
 
@@ -215,7 +285,7 @@ func getCviceni(c *fiber.Ctx) error {
 		slova, err = databaze.GetSlovaProLekci(id, pismena, pocetSlov)
 		if err != nil {
 			log.Println(err)
-			return fiber.ErrInternalServerError
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 		}
 
 		var pocetSlovKMani int = len(slova)
@@ -248,7 +318,7 @@ func getCviceni(c *fiber.Ctx) error {
 		slova, err = databaze.GetProgramatorSlova()
 		if err != nil {
 			log.Println(err)
-			return fiber.ErrInternalServerError
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 		}
 		var pocetSlovKMani int = len(slova)
 
@@ -298,7 +368,7 @@ func getCviceni(c *fiber.Ctx) error {
 		}
 	default:
 		log.Print("Cviceni ma divnej typ")
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 
 	var posledni bool = int(cislo-1) == len(vsechnyCviceni)-1
@@ -321,16 +391,16 @@ func dokoncitCvic(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(&body); err != nil {
 		log.Print(err)
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 	if err := utils.ValidateStruct(&body); err != nil {
 		log.Print(err)
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 	cislo, err := strconv.ParseUint(c.Params("cislo"), 10, 32)
 	if err != nil {
 		log.Print(err)
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 	pismena, HTTPerr := utils.DecodeURL(c.Params("pismena"))
 	if HTTPerr != nil {
@@ -339,7 +409,7 @@ func dokoncitCvic(c *fiber.Ctx) error {
 	vsechnyCviceni, err := databaze.GetCviceniVLekciByPismena(id, pismena)
 	if err != nil {
 		log.Print(err)
-		return fiber.ErrInternalServerError
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 	if int(cislo-1) >= len(vsechnyCviceni) { // error index out of range nebude
 		log.Print("Takovy cviceni neni")
@@ -476,11 +546,10 @@ func registrace(c *fiber.Ctx) error {
 }
 
 func prihlaseni(c *fiber.Ctx) error {
-	// validace body dat
 	var body bodyPrihlaseni
 
 	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
 	err := utils.ValidateStruct(&body)
 	if err != nil {
