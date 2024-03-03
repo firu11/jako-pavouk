@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -13,6 +14,8 @@ import (
 	"unicode/utf8"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/valyala/fasthttp/fasthttpadaptor"
+	"zgo.at/isbot"
 )
 
 type (
@@ -61,7 +64,7 @@ type (
 	bodyTestPsani struct {
 		Typ        string `json:"typ" validate:"required"`
 		Delka      int    `json:"delka" validate:"min=1,max=200"`
-		Diakritika bool   `json:"diakritika"`
+		Diakritika bool   `json:"diakritika" default:"true"`
 	}
 )
 
@@ -74,7 +77,7 @@ func SetupRouter(app *fiber.App) {
 	api.Post("/dokonceno/:pismena/:cislo", dokoncitCvic)
 	api.Get("/procvic", getVsechnyProcvic)
 	api.Get("/procvic/:cisloProcvic/:cislo", getProcvic)
-	api.Get("/test-psani", testPsani)
+	api.Post("/test-psani", testPsani)
 
 	api.Post("/overit-email", overitEmail)
 	api.Post("/registrace", registrace)
@@ -108,7 +111,7 @@ func test(c *fiber.Ctx) error {
 }
 
 func testPsani(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
+	id, err := utils.Autentizace(c, false)
 	if err != nil {
 		return err
 	}
@@ -164,7 +167,7 @@ func testPsani(c *fiber.Ctx) error {
 
 	u, err := databaze.GetUzivByID(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "klavesnice": "qwertz"})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "klavesnice": u.Klavesnice})
 }
@@ -753,7 +756,12 @@ func testVyprseniTokenu(c *fiber.Ctx) error {
 }
 
 func navsteva(c *fiber.Ctx) error {
-	databaze.NovaNavsteva()
+	var httpRequest http.Request
+	err := fasthttpadaptor.ConvertRequest(c.Context(), &httpRequest, false)
+	log.Println(err, isbot.Is(isbot.Bot(&httpRequest)))
+	if !isbot.Is(isbot.Bot(&httpRequest)) && err == nil {
+		databaze.NovaNavsteva()
+	}
 	return c.SendStatus(fiber.StatusOK)
 }
 

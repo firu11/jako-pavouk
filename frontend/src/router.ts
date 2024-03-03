@@ -58,6 +58,10 @@ const router = createRouter({
             component: () => import('./views/Procvic.vue'),
         },
         {
+            path: '/test-psani',
+            component: () => import('./views/TestPsani.vue'),
+        },
+        {
             path: '/:pathMatch(.*)*',
             component: () => import('./views/404.vue')
         }

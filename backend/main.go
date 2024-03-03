@@ -39,7 +39,7 @@ func main() {
 	})
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:5173, https://jakopavouk.cz",
+		AllowOrigins: "http://localhost:5173,https://jakopavouk.cz/", //TODO maj to rozbity ted ale už je to fixnuty -> po dalsim update dát mezeru za čárku
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
@@ -65,7 +65,7 @@ func inject() {
 	utils.RegexJmeno = regexJmeno
 }
 
-// abych pro testing měl kratší texty
+// abych pro testing měl kratší texty tak to mám v .env
 func getEnvDelky() (int, int) {
 	x, err := strconv.Atoi(os.Getenv("POCET_SLOV"))
 	if err != nil {

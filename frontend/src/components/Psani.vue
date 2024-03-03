@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { Ref, computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { onUnmounted } from 'vue';
 import Klavesnice from '../components/Klavesnice.vue';
 import { useSound } from '@vueuse/sound';
 
-const emit = defineEmits(["konec"])
+const emit = defineEmits(["konec", "pise"])
 
 const props = defineProps<{
     text: { id: number, znak: string, spatne: number }[][]
     delkaTextu: number,
-    klavesnice: string
+    klavesnice: string,
+    hideKlavesnice: boolean
 }>()
-
-const text: Ref<{ id: number, znak: string, spatne: number }[][]> = ref(props.text)
 
 const counter = ref(0)
 const counterSlov = ref(0)
@@ -46,7 +45,7 @@ const progress = computed(() => {
 })
 
 const aktivniPismeno = computed(() => {
-    if (counterSlov.value < text.value.length - 1) return text.value[counterSlov.value][counter.value]
+    if (counterSlov.value < props.text.length - 1) return props.text[counterSlov.value][counter.value]
     return { id: -1, znak: "", spatne: 0 }
 })
 
@@ -65,7 +64,7 @@ function capslockCheck(e: KeyboardEvent) { // TODO chtelo by to checknout hned p
 }
 
 function nextPismeno() {
-    if (text.value[counterSlov.value].length - 1 === counter.value) { // posledni pismeno ve slovu
+    if (props.text[counterSlov.value].length - 1 === counter.value) { // posledni pismeno ve slovu
         if (aktivniPismeno.value.spatne === 1) {
             preklepy.value++
         }
@@ -75,12 +74,13 @@ function nextPismeno() {
         if (aktivniPismeno.value.spatne === 1) preklepy.value++
         counter.value++
     }
+    emit("pise")
 }
 
 function backPismeno() {
     if (counter.value === 0) { // prvni pismeno ve slovu
         counterSlov.value--
-        counter.value = text.value[counterSlov.value].length - 1
+        counter.value = props.text[counterSlov.value].length - 1
         if (aktivniPismeno.value.spatne === 1) {
             preklepy.value--
             opravene.set(`${counterSlov.value}${counter.value}`, true)
@@ -92,6 +92,7 @@ function backPismeno() {
             opravene.set(`${counterSlov.value}${counter.value}`, true)
         }
     }
+    emit("pise")
 }
 
 function jeSHackem(key: string) {
@@ -124,7 +125,7 @@ function klik(this: any, e: KeyboardEvent) {
     startTimer()
 
     if (props.delkaTextu == 0) {
-        console.log(e.key)
+        console.log(props.text)
         return
     }
 
@@ -143,12 +144,7 @@ function klik(this: any, e: KeyboardEvent) {
         nextPismeno()
     }
 
-    let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y!
-    let lastY = document.getElementById("p" + (aktivniPismeno.value.id - 1))?.getBoundingClientRect().y!
-    if (aktualniY - lastY > 30) {
-        indexPosunuti++
-        if (indexPosunuti > 0) textElem.value!.style.top = `${indexPosunuti * (-2.2 - 0.188)}rem` // posunuti dolu
-    }
+    posunoutRadek()
 
     if (aktivniPismeno.value.id === -1) { // konec
         clearInterval(interval)
@@ -160,6 +156,15 @@ function klik(this: any, e: KeyboardEvent) {
     }
 
     if (predchoziZnak != "") predchoziZnak = ""
+}
+
+function posunoutRadek() {
+    let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y!
+    let lastY = document.getElementById("p" + (aktivniPismeno.value.id - 1))?.getBoundingClientRect().y!
+    if (aktualniY - lastY > 30) {
+        indexPosunuti++
+        if (indexPosunuti > 0) textElem.value!.style.top = `${indexPosunuti * (-2.2 - 0.188)}rem` // posunuti dolu
+    }
 }
 
 function specialniKlik(e: KeyboardEvent) {
@@ -223,12 +228,17 @@ function toggleZvuk() {
 }
 
 function restart() {
+    clearInterval(interval)
     timerZacatek.value = 0
     cas.value = 0
     counter.value = 0
     counterSlov.value = 0
     preklepy.value = 0
+    indexPosunuti = -1
+    textElem.value!.style.top = "0rem" // reset posunuti
 }
+
+defineExpose({ restart })
 </script>
 
 <template>
@@ -242,7 +252,7 @@ function restart() {
         <div id="ramecek">
             <div id="fade">
                 <div id="text" ref="textElem">
-                    <div class="slovo" v-for="s in text">
+                    <div class="slovo" v-for="s in text.slice(0, 60)">
                         <div v-for="p in s" class="pismeno" :id="'p' + p.id"
                             :class="{ podtrzeni: p.id === aktivniPismeno.id, spatnePismeno: p.spatne === 1 && aktivniPismeno.id > p.id, opravenePismeno: p.spatne === 2 && aktivniPismeno.id > p.id, spravnePismeno: !p.spatne && aktivniPismeno.id > p.id }">
                             {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp") }} </div>
@@ -255,7 +265,7 @@ function restart() {
                 </div>
             </div>
 
-            <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak"></Klavesnice>
+            <Klavesnice v-if="klavesnice != '' && !hideKlavesnice" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak"></Klavesnice>
 
             <div id="zvukBtn" @click="toggleZvuk">
                 <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvukIcon" src="../assets/icony/zvukOn.svg"
@@ -267,6 +277,7 @@ function restart() {
 </template>
 
 <style scoped>
+
 .zvukIcon {
     width: 45px;
     height: 35px;
@@ -276,7 +287,7 @@ function restart() {
 #zvukBtn {
     position: absolute;
     right: 30px;
-    bottom: 20px;
+    bottom: 25px;
     background-color: var(--tmave-fialova);
     border-radius: 100px;
     width: 55px;

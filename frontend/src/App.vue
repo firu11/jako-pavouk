@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import MenuLink from './components/MenuLink.vue';
 import { prihlasen, tokenJmeno } from './stores';
-import { checkTeapot, getToken, oznameni, pridatOznameni } from './utils';
+import { checkTeapot, jeToRobot, getToken, oznameni, pridatOznameni } from './utils';
 import { useHead } from 'unhead'
 import axios from 'axios';
 import router from './router';
@@ -35,7 +35,7 @@ onMounted(() => {
                 pridatOznameni()
             }
         })
-    } else {
+    } else if (!jeToRobot(navigator.userAgent)) { //test jestli to neni bot
         axios.post("/navsteva")
     }
 })
@@ -51,6 +51,7 @@ onMounted(() => {
             <MenuLink jmeno="Jak psát" cesta="/jak-psat" />
             <MenuLink jmeno="Lekce" cesta="/lekce" />
             <MenuLink jmeno="Procvičování" cesta="/procvic" />
+            <MenuLink jmeno="Test psaní" cesta="/test-psani" />
             <MenuLink jmeno="O nás" cesta="/o-nas" />
             <MenuLink v-if="!prihlasen" jmeno="Přihlásit se" cesta="/prihlaseni" />
             <MenuLink v-else jmeno="Můj účet" cesta="/ucet" />

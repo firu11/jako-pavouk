@@ -84,7 +84,7 @@ function konecTextu(c: number, o: number, p: number) {
         {{ jmeno }}
     </h1>
 
-    <Psani v-if="!konec" @konec="konecTextu" :text="text" :delkaTextu="delkaTextu" :klavesnice="klavesnice" />
+    <Psani v-if="!konec" @konec="konecTextu" :text="text" :delkaTextu="delkaTextu" :klavesnice="klavesnice" :hide-klavesnice="false" />
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu"
         :casF="casFormat" :cas="cas" :cislo="''" :posledni="true" />
