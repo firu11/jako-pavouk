@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { getToken } from './utils';
+import { prihlasen } from './stores';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -76,7 +76,7 @@ const router = createRouter({
 
 router.beforeEach((to, _, next) => { // kdyz potrebuje auth tak => prihlaseni
     if (to.meta.requireAuth) { 
-        if (!getToken()) {
+        if (!prihlasen) {
             next("/prihlaseni");
         } else {
             to.fullPath = to.fullPath.toLocaleLowerCase()

@@ -65,6 +65,17 @@ body {
     justify-content: space-evenly;
 }
 
+#view {
+    padding-top: 30px;
+    margin-left: calc(var(--sirka-menu) + 10px);
+    margin-bottom: 50px;
+    text-align: center;
+    width: 720px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 hr {
     border: #afafaf 1px solid;
 }

@@ -12,6 +12,7 @@ useHead({
 })
 
 const mobilMenu = ref(false)
+const mobil = document.body.clientWidth <= 1000
 
 onMounted(() => {
     console.log("%cCo sem koukáš koloušku?", "color: white; font-size: x-large"); // troulin
@@ -44,14 +45,14 @@ onMounted(() => {
 
 <template>
     <header>
-        <div id="menuMobilniBtn" @click="mobilMenu = !mobilMenu"><img id="menuIcon" src="./assets/icony/menu.svg" alt="Menu"
-                width="40" height="40"></div>
+        <div id="menuMobilniBtn" @click="mobilMenu = !mobilMenu"><img id="menuIcon" src="./assets/icony/menu.svg"
+                alt="Menu" width="40" height="40"></div>
         <nav :class="{ mobilHidden: !mobilMenu }" @click="mobilMenu = !mobilMenu">
             <MenuLink jmeno="Domů" cesta="/" />
             <MenuLink jmeno="Jak psát" cesta="/jak-psat" />
             <MenuLink jmeno="Lekce" cesta="/lekce" />
             <MenuLink jmeno="Procvičování" cesta="/procvic" />
-            <MenuLink jmeno="Test psaní" cesta="/test-psani" />
+            <MenuLink jmeno="Test psaní" cesta="/test-psani" :mobil="mobil" />
             <MenuLink jmeno="O nás" cesta="/o-nas" />
             <MenuLink v-if="!prihlasen" jmeno="Přihlásit se" cesta="/prihlaseni" />
             <MenuLink v-else jmeno="Můj účet" cesta="/ucet" />
@@ -104,8 +105,8 @@ onMounted(() => {
     overflow: hidden;
     padding: 20px;
     min-height: 100px;
-    min-width: 410px;
     pointer-events: none;
+    width: 100vw;
 }
 
 .alert {
@@ -133,17 +134,6 @@ nav {
     background-color: var(--tmave-fialova);
     transition: ease-in-out 0.3s;
     overflow: hidden;
-}
-
-#view {
-    padding-top: 30px;
-    margin-left: calc(var(--sirka-menu) + 10px);
-    margin-bottom: 50px;
-    text-align: center;
-    width: 720px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
 #menuMobilniBtn {

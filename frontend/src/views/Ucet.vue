@@ -128,7 +128,7 @@ function zmenaJmena(e: Event) {
                 <img v-if="!uprava" @click="uprava = true" id="upravit" src="../assets/icony/upravit.svg" alt="Upravit">
             </h1>
             <h2 v-if="!uprava" id="email">{{ info.email }}</h2>
-            <form v-if="uprava" style="margin: 0; max-width: 280px;">
+            <form v-if="uprava">
                 <input v-model="jmenoUprava" type="text">
                 <button type="submit" @click="zmenaJmena" id="tlacitko">Uložit</button>
             </form>
@@ -139,7 +139,7 @@ function zmenaJmena(e: Event) {
             <div id="nacitani" :style="{ width: info.dokonceno + '%' }"></div>
         </div>
         <span class="popis" style="width: 100%;">Dokončeno: <span class="cislo">{{ zaokrouhlit(info.dokonceno)
-        }}%</span></span>
+                }}%</span></span>
     </div>
     <div id="bloky">
         <div class="blok">
@@ -157,7 +157,8 @@ function zmenaJmena(e: Event) {
         <div class="blok">
             <img src="../assets/icony/terc.svg" alt="Přesnost">
             <span v-if="info.uspesnost == -1">Zatím nic</span>
-            <span v-else class="popis">Přesnost:<br><span class="cislo">{{ zaokrouhlit(info.uspesnost) }}</span> %</span>
+            <span v-else class="popis">Přesnost:<br><span class="cislo">{{ zaokrouhlit(info.uspesnost) }}</span>
+                %</span>
         </div>
         <div class="blok">
             <img src="../assets/icony/kalendar.svg" alt="Kalendář">
@@ -285,6 +286,11 @@ function zmenaJmena(e: Event) {
     border-radius: 5px;
 }
 
+#nadpisy form {
+    margin: 0;
+    max-width: 280px;
+}
+
 #ucet img {
     height: 100px;
 }
@@ -359,7 +365,11 @@ function zmenaJmena(e: Event) {
     }
 
     #progres {
-        width: 320px;
+        width: 270px;
+    }
+
+    .blok {
+        width: 270px;
     }
 
     #ucet {
@@ -383,6 +393,15 @@ function zmenaJmena(e: Event) {
 
     #ucet input {
         width: 100%;
+    }
+
+    .tlacitko,
+    .cerveneTlacitko {
+        width: 120px;
+    }
+
+    #nadpisy form {
+        max-width: 215px;
     }
 }
 </style>
