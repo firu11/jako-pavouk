@@ -67,7 +67,6 @@ function zmena() { // pokud zacnu znova psat tak zrusim znaceni spatnyho inputu
 }
 
 const handleLoginSuccess = (response: any) => {
-    //const { credential } = response;
     axios.post("/google", {
         "access_token": response.credential,
     }).then(response => {
@@ -93,10 +92,8 @@ const handleLoginSuccess = (response: any) => {
 
         <hr id="predel">
 
-        <KeepAlive>
-            <GoogleLogin id="google" :callback="handleLoginSuccess" :error="pridatOznameni"
-                :buttonConfig="{ text: 'continue_with' }" />
-        </KeepAlive>
+        <GoogleLogin id="google" :callback="handleLoginSuccess" :error="pridatOznameni"
+            :buttonConfig="{ text: 'continue_with' }" />
     </form>
     <p>Nemáš ještě účet?
         <router-link to="/registrace">Registrace</router-link>

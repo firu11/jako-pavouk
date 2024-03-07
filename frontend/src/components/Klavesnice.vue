@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router';
 
 const props = defineProps({
@@ -37,12 +37,20 @@ const prstoklad: { [id: string]: string[] } = {
 }
 const shiftSviti = ref(false)
 
-if (props.typ == "qwerty") {
-    schema[1][6] = "Y"
-    schema[3][1] = "Z"
-    prstoklad.P_Ukaz[4] = "Y"
-    prstoklad.L_Mali[4] = "Z"
-}
+watch(() => props.typ, (ted) => {
+    if (ted == "qwerty") {
+        schema[1][6] = "Y"
+        schema[3][1] = "Z"
+        prstoklad.P_Ukaz[4] = "Y"
+        prstoklad.L_Mali[4] = "Z"
+    } else {
+        schema[1][6] = "Z"
+        schema[3][1] = "Y"
+        prstoklad.P_Ukaz[4] = "Z"
+        prstoklad.L_Mali[4] = "Y"
+    }
+})
+
 if (cesta == "závorky" || cesta == "operátory") {
     schema[4][0] = "Ctrl"
     schema[4][3] = "Alt"
@@ -133,7 +141,7 @@ function potrebujeShift(pismeno: string) {
     if (['"', '/', '?', ':', '_', '!', '(', '%', 'ˇ', '°', 'ť', 'Ť', 'ď', 'Ď', 'ň', 'Ň', 'Ě', 'Š', 'Č', 'Ř', 'Ž', 'Ý', 'Á', 'Í', 'É', 'Ú', 'Ů'].includes(pismeno)) {
         return true
     } else if (/^\d$/.test(pismeno)) { // jestli to je cislo
-        return true 
+        return true
     }
 
     if (props.typ === "qwertz" && "[]{}<>*".includes(pismeno)) return false
@@ -144,7 +152,7 @@ function potrebujeShift(pismeno: string) {
 </script>
 
 <template>
-    <div id="klavesnice" class="pruhledne">
+    <div id="klavesnice">
         <div class="radek" v-for="radek in schema">
             <div v-for="tlacitko in radek" class="klavesa"
                 :class="{ oznacenaKlavesa: oznacene(tlacitko) || (tlacitko === 'Shift' && shiftSviti), fjPodtrzeni: tlacitko === 'F' || tlacitko === 'J' }"
@@ -178,7 +186,8 @@ function potrebujeShift(pismeno: string) {
 
 .oznacenaKlavesa {
     border: #fff solid 3px;
-    filter: brightness(150%);
+    transition: 0.1s;
+    filter: brightness(1.5) saturate(2);
 }
 
 .oznacenaKlavesa div {
@@ -203,6 +212,7 @@ function potrebujeShift(pismeno: string) {
     width: 675px;
     margin-top: 40px;
     user-select: none;
+    transition: filter 0.2s;
 }
 
 .radek {

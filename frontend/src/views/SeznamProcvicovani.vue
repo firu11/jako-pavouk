@@ -22,7 +22,7 @@ onMounted(() => {
     axios.get("/procvic")
         .then(response => {
             texty.value = response.data.texty
-            o.setMax(texty.value.length)
+            o.setMax(texty.value.length + 1)
         }).catch(e => {
             if (!checkTeapot(e)) {
                 pridatOznameni()
@@ -78,10 +78,11 @@ onUnmounted(() => {
         <div v-else v-for="t in texty" class="blok" @click="pridatOznameni('Psaní na telefonech zatím neučíme...')">
             <h2>{{ t }}</h2>
         </div>
-        <h2>Texty na míru</h2>
-        <div class="blok" style="pointer-events: none">
-            <h2>Pavouci už na tom pilně pracují...</h2>
-        </div>
+        <h2>Na míru</h2>
+        <RouterLink :to="'/test-psani'" class="blok" :i="4 == o.index.value"
+            :class="{ oznacene: 4 == o.index.value, nohover: o.index.value != 0 }">
+            <h2>Test psaní</h2>
+        </RouterLink>
     </div>
 </template>
 

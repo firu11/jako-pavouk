@@ -3,8 +3,8 @@ module backend
 go 1.22
 
 require (
-	github.com/go-playground/validator/v10 v10.18.0
-	github.com/gofiber/fiber/v2 v2.52.1
+	github.com/go-playground/validator/v10 v10.19.0
+	github.com/gofiber/fiber/v2 v2.52.2
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/joho/godotenv v1.5.1
 	github.com/rickb777/date v1.20.6

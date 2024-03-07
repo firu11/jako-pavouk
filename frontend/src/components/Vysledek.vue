@@ -95,7 +95,12 @@ onMounted(() => {
 
     document.addEventListener('keydown', e1)
 
-    if (props.cislo == "") return // je to procvicovani takze neposilame
+    if (props.cislo == "" || props.cislo == 'test-psani') return // je to procvicovani / test takze neposilame
+
+    if (props.cislo == "prvni-psani") {
+        hodnoceni.value = "Píšeš krásně, ale tohle byl jen začátek..."
+        return
+    }
 
     axios.post('/dokonceno/' + encodeURIComponent(props.pismena) + '/' + props.cislo, {
         "cpm": rychlost,
@@ -169,9 +174,16 @@ function e1(e: KeyboardEvent) {
         </div>
     </div>
 
-    <div id="tlacitka_kontainer">
+    <div v-if="props.cislo != 'prvni-psani' && props.cislo != 'test-psani'" id="tlacitka_kontainer">
         <button class="tlacitko" @click="reset">Zkusit znovu</button>
         <button class="tlacitko" @click="dalsi()">Pokračovat</button>
+    </div>
+    <div v-else-if="props.cislo == 'test-psani'" id="tlacitka_kontainer">
+        <button class="tlacitko" @click="reset">Zkusit znovu</button>
+    </div>
+    <div v-else id="tlacitka_kontainer" style="align-items: center;">
+        <span>Líbí se ti aplikace?</span>
+        <button class="tlacitko" @click="router.push('/registrace')">Vytvořit účet</button>
     </div>
 </template>
 
@@ -254,6 +266,10 @@ function e1(e: KeyboardEvent) {
 #tlacitka_kontainer {
     display: inline-flex;
     gap: 20px;
-    margin-top: 10px;
+    margin-top: 20px;
+}
+
+#tlacitka_kontainer .tlacitko {
+    margin: 0 !important;
 }
 </style>

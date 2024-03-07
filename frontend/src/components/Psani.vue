@@ -2,7 +2,11 @@
 import { computed, onMounted, ref } from 'vue';
 import { onUnmounted } from 'vue';
 import Klavesnice from '../components/Klavesnice.vue';
-import { useSound } from '@vueuse/sound';
+import { Howl } from 'howler';
+import klik1 from '../assets/zvuky/klik1.ogg';
+import klik2 from '../assets/zvuky/klik2.ogg';
+import klik3 from '../assets/zvuky/klik3.ogg';
+import miss from '../assets/zvuky/miss.ogg';
 
 const emit = defineEmits(["konec", "pise"])
 
@@ -25,13 +29,7 @@ let indexPosunuti = -1
 let predchoziZnak = ""
 
 const zvukyZaply = ref(true)
-let tmp = localStorage.getItem("pavouk_zvuk")
-if (tmp == null) {
-    zvukyZaply.value = true
-} else {
-    zvukyZaply.value = JSON.parse(tmp) === true // nejde to dat na jednu lajnu TS sus
-}
-const zvuky = [useSound(new URL('../assets/zvuky/klik1.ogg', import.meta.url).href), useSound(new URL('../assets/zvuky/klik2.ogg', import.meta.url).href), useSound(new URL('../assets/zvuky/klik3.ogg', import.meta.url).href), useSound(new URL('../assets/zvuky/miss.ogg', import.meta.url).href)]
+const zvuky: Howl[] = []
 
 const capslock = ref(false)
 let interval: number
@@ -238,6 +236,37 @@ function restart() {
     textElem.value!.style.top = "0rem" // reset posunuti
 }
 
+function loadZvuk() {
+    let tmp = localStorage.getItem("pavouk_zvuk")
+    if (tmp == null) {
+        zvukyZaply.value = true
+    } else {
+        zvukyZaply.value = JSON.parse(tmp) === true // nejde to dat na jednu lajnu TS sus
+    }
+
+    zvuky.push(
+        new Howl({
+            src: [klik1],
+            pool: 5,
+        }), new Howl({
+            src: [klik2],
+            pool: 5,
+        }),
+        new Howl({
+            src: [klik3],
+            pool: 5,
+        }),
+        new Howl({
+            src: [miss],
+            pool: 5,
+        })
+    )
+}
+
+onMounted(() => {
+    loadZvuk()
+})
+
 defineExpose({ restart })
 </script>
 
@@ -252,10 +281,11 @@ defineExpose({ restart })
         <div id="ramecek">
             <div id="fade">
                 <div id="text" ref="textElem">
-                    <div class="slovo" v-for="s in text.slice(0, 60)">
+                    <div class="slovo" v-for="s in text">
                         <div v-for="p in s" class="pismeno" :id="'p' + p.id"
                             :class="{ podtrzeni: p.id === aktivniPismeno.id, spatnePismeno: p.spatne === 1 && aktivniPismeno.id > p.id, opravenePismeno: p.spatne === 2 && aktivniPismeno.id > p.id, spravnePismeno: !p.spatne && aktivniPismeno.id > p.id }">
-                            {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp") }} </div>
+                            {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp") }}
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -265,7 +295,10 @@ defineExpose({ restart })
                 </div>
             </div>
 
-            <Klavesnice v-if="klavesnice != '' && !hideKlavesnice" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak"></Klavesnice>
+            <Transition>
+                <Klavesnice v-if="klavesnice != ''" :typ="klavesnice"
+                    :aktivniPismeno="aktivniPismeno.znak" :class="{ rozmazany: hideKlavesnice}" />
+            </Transition>
 
             <div id="zvukBtn" @click="toggleZvuk">
                 <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvukIcon" src="../assets/icony/zvukOn.svg"
@@ -277,6 +310,13 @@ defineExpose({ restart })
 </template>
 
 <style scoped>
+.v-enter-active {
+    transition: 0.3s !important;
+}
+
+.v-enter-from {
+    opacity: 0;
+}
 
 .zvukIcon {
     width: 45px;
@@ -384,6 +424,8 @@ defineExpose({ restart })
     border-bottom-left-radius: 10px;
     transition: ease 0.22s;
     text-align: right;
+    font-size: 0.9em;
+    padding: 0.1em 0;
 }
 
 #bar {
@@ -409,5 +451,9 @@ defineExpose({ restart })
 
 .opravenePismeno {
     color: #b1529c;
+}
+
+.rozmazany {
+    filter: blur(3px) brightness(20%) contrast(110%);
 }
 </style>

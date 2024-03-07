@@ -6,10 +6,19 @@ import Vysledek from '../components/Vysledek.vue';
 import { useHead } from '@unhead/vue';
 import Psani from '../components/Psani.vue';
 import { prihlasen } from '../stores';
+import { useRouter } from 'vue-router';
 
 useHead({
-    title: "Test psaní"
+    title: "Test psaní",
+    link: [
+        {
+            rel: "canonical",
+            href: "https://jakopavouk.cz/test-psani"
+        }
+    ]
 })
+
+const router = useRouter()
 
 const text = ref([[]] as { id: number, znak: string, spatne: number, }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
 const delkaTextu = ref(0)
@@ -21,6 +30,7 @@ const typ = ref(true) // false = slova, true = vety
 const delka = ref(1)
 
 const klavesnice = ref("")
+const diakritika = ref(true)
 
 const psaniRef = ref()
 
@@ -37,7 +47,7 @@ function get() {
         {
             typ: typ.value ? "vety" : "slova",
             delka: delka.value,
-            diakritika: true
+            diakritika: diakritika.value
         },
         {
             headers: {
@@ -65,6 +75,12 @@ function get() {
 }
 
 onMounted(() => {
+    const mobil = document.body.clientWidth <= 1000
+    if (mobil) {
+        router.back()
+        pridatOznameni('Psaní na telefonech zatím neučíme...')
+        return
+    }
     get()
 })
 
@@ -100,6 +116,7 @@ function animace() {
 const rotace = computed(() => {
     return `rotate(${rotaceStupne.value}deg)`
 })
+
 const klavModel = ref(false)
 function switchKlavesnice() {
     if (klavesnice.value == "qwertz") klavesnice.value = "qwerty"
@@ -115,34 +132,37 @@ function switchKlavesnice() {
         :klavesnice="klavesnice" :hide-klavesnice="hideKlavecnice" ref="psaniRef" />
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu"
-        :casF="casFormat" :cas="cas" :cislo="''" :posledni="true" />
+        :casF="casFormat" :cas="cas" :cislo="'test-psani'" :posledni="true" />
 
-    <div v-if="!konec && hideKlavecnice" id="psani-menu">
-        <input v-model="typ" v-on:change="d(typ ? 1 : 10)" type="checkbox" id="toggle" class="toggleCheckbox" />
-        <label for="toggle" class="toggleContainer">
-            <div>Slova</div>
-            <div>Věty</div>
-        </label>
+    <Transition>
+        <div v-if="!konec && hideKlavecnice" id="psani-menu">
+            <input v-model="typ" v-on:change="d(typ ? 1 : 10)" type="checkbox" id="toggle" class="toggleCheckbox" />
+            <label for="toggle" class="toggleContainer">
+                <div>Slova</div>
+                <div>Věty</div>
+            </label>
 
-        <div v-if="typ" id="delka">
-            <button @keyup="disabledBtn" :class="{ aktivni: 1 == delka }" @click="d(1)">1</button>
-            <button @keyup="disabledBtn" :class="{ aktivni: 3 == delka }" @click="d(3)">3</button>
-            <button @keyup="disabledBtn" :class="{ aktivni: 5 == delka }" @click="d(5)">5</button>
-            <button @keyup="disabledBtn" :class="{ aktivni: 10 == delka }" @click="d(10)">10</button>
+            <div v-if="typ" id="delka">
+                <button @keyup="disabledBtn" :class="{ aktivni: 1 == delka }" @click="d(1)">1</button>
+                <button @keyup="disabledBtn" :class="{ aktivni: 3 == delka }" @click="d(3)">3</button>
+                <button @keyup="disabledBtn" :class="{ aktivni: 5 == delka }" @click="d(5)">5</button>
+                <button @keyup="disabledBtn" :class="{ aktivni: 10 == delka }" @click="d(10)">10</button>
+            </div>
+            <div v-else id="delka">
+                <button @keyup="disabledBtn" :class="{ aktivni: 10 == delka }" @click="d(10)">10</button>
+                <button @keyup="disabledBtn" :class="{ aktivni: 25 == delka }" @click="d(25)">25</button>
+                <button @keyup="disabledBtn" :class="{ aktivni: 50 == delka }" @click="d(50)">50</button>
+                <button @keyup="disabledBtn" :class="{ aktivni: 100 == delka }" @click="d(100)">100</button>
+            </div>
+
+            <input v-if="!prihlasen" v-on:change="switchKlavesnice" v-model="klavModel" type="checkbox" id="toggle2"
+                class="toggleCheckbox" />
+            <label v-if="!prihlasen" for="toggle2" class="toggleContainer">
+                <div>Qwertz</div>
+                <div>Qwerty</div>
+            </label>
         </div>
-        <div v-else id="delka">
-            <button @keyup="disabledBtn" :class="{ aktivni: 10 == delka }" @click="d(10)">10</button>
-            <button @keyup="disabledBtn" :class="{ aktivni: 25 == delka }" @click="d(25)">25</button>
-            <button @keyup="disabledBtn" :class="{ aktivni: 50 == delka }" @click="d(50)">50</button>
-            <button @keyup="disabledBtn" :class="{ aktivni: 100 == delka }" @click="d(100)">100</button>
-        </div>
-
-        <input v-if="!prihlasen" v-on:change="switchKlavesnice" v-model="klavModel" type="checkbox" id="toggle2" class="toggleCheckbox" />
-        <label v-if="!prihlasen" for="toggle2" class="toggleContainer">
-            <div>Qwertz</div>
-            <div>Qwerty</div>
-        </label>
-    </div>
+    </Transition>
 
     <div v-if="!konec && klavesnice != ''" id="nastaveniBtn" @click="hideKlavecnice = !hideKlavecnice; animace()">
         <img :style="{ transform: rotace }" src="../assets/icony/nastaveni.svg" alt="Nastavení">
@@ -150,8 +170,18 @@ function switchKlavesnice() {
 </template>
 
 <style scoped>
+.v-enter-active,
+.v-leave-active {
+    transition: opacity 0.2s;
+}
+
+.v-enter-from,
+.v-leave-to {
+    opacity: 0;
+}
+
 #nastaveniBtn {
-    position: absolute;
+    position: relative;
     width: 55px;
     height: 55px;
     background-color: var(--tmave-fialova);
@@ -159,8 +189,8 @@ function switchKlavesnice() {
     display: flex;
     align-items: center;
     justify-content: center;
-    right: 30px;
-    bottom: 100px;
+    left: 385px;
+    bottom: 236px;
     cursor: pointer;
 }
 
@@ -194,6 +224,8 @@ function switchKlavesnice() {
     margin-top: 40px;
     display: flex;
     gap: 10px;
+    position: absolute;
+    top: 400px;
 }
 
 #psani-menu button {

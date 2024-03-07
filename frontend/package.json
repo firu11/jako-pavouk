@@ -1,25 +1,26 @@
 {
-  "name": "frontend",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@unhead/vue": "^1.8.9",
-    "@vueuse/sound": "^2.0.1",
-    "axios": "^1.6.5",
-    "vue": "^3.4.5",
-    "vue-router": "^4.2.5",
-    "vue3-google-login": "^2.0.25"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.2",
-    "typescript": "^5.3.3",
-    "vite": "^5.0.11",
-    "vue-tsc": "^2.0.2"
-  }
+    "name": "frontend",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vue-tsc && vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@unhead/vue": "^1.8.9",
+        "axios": "^1.6.5",
+        "howler": "^2.2.4",
+        "vue": "^3.4.21",
+        "vue-router": "^4.2.5",
+        "vue3-google-login": "^2.0.25"
+    },
+    "devDependencies": {
+        "@types/howler": "^2.2.11",
+        "@vitejs/plugin-vue": "^5.0.2",
+        "typescript": "^5.3.3",
+        "vite": "^5.0.11",
+        "vue-tsc": "^2.0.2"
+    }
 }

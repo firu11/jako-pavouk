@@ -39,13 +39,13 @@ func main() {
 	})
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:5173,https://jakopavouk.cz/", //TODO maj to rozbity ted ale už je to fixnuty -> po dalsim update dát mezeru za čárku
+		AllowOrigins: "http://localhost:5173, https://jakopavouk.cz/",
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
 	app.Use(limiter.New(limiter.Config{
 		Max:               30,
-		Expiration:        10 * time.Second,
+		Expiration:        15 * time.Second,
 		LimiterMiddleware: limiter.SlidingWindow{},
 		LimitReached: func(c *fiber.Ctx) error {
 			return c.SendStatus(fiber.StatusTeapot) // troulin

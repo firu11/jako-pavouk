@@ -3,7 +3,8 @@ import { getToken } from './utils';
 
 const router = createRouter({
     history: createWebHistory(),
-    scrollBehavior() {
+    scrollBehavior(_, __, savedPos) {
+        if (savedPos) return savedPos
         return { top: 0, behavior: 'smooth' } // aby scroll nezustaval dole na strankach kde se nescrolluje
     },
     routes: [
@@ -60,6 +61,10 @@ const router = createRouter({
         {
             path: '/test-psani',
             component: () => import('./views/TestPsani.vue'),
+        },
+        {
+            path: '/prvni-psani',
+            component: () => import('./views/PrvniPsani.vue'),
         },
         {
             path: '/:pathMatch(.*)*',

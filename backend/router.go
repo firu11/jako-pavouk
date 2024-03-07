@@ -758,7 +758,6 @@ func testVyprseniTokenu(c *fiber.Ctx) error {
 func navsteva(c *fiber.Ctx) error {
 	var httpRequest http.Request
 	err := fasthttpadaptor.ConvertRequest(c.Context(), &httpRequest, false)
-	log.Println(err, isbot.Is(isbot.Bot(&httpRequest)))
 	if !isbot.Is(isbot.Bot(&httpRequest)) && err == nil {
 		databaze.NovaNavsteva()
 	}

@@ -126,6 +126,18 @@ onBeforeRouteLeave(() => {
     if (!answer) return false
 })
 
+const handleLoginSuccess = (response: any) => {
+    axios.post("/google", {
+        "access_token": response.credential,
+    }).then(response => {
+        localStorage.setItem(tokenJmeno, response.data.token)
+        prihlasen.value = true
+        router.push("/ucet")
+    }).catch(_ => {
+        pridatOznameni()
+    })
+}
+
 </script>
 
 <template>
@@ -140,10 +152,15 @@ onBeforeRouteLeave(() => {
                 placeholder="Např: pan@pavouk.cz" inputmode="email">
             <h3 class="nadpis infoNadpis">Heslo: <img src="../assets/icony/info.svg" alt="info" @mouseover="openInfo"
                     @mouseleave="closeInfo"></h3>
-            <input :class="{ spatnej_input: spatnyHeslo }" @:input="chekujUdaje('heslo')" type="password" v-model="heslo"
-                placeholder='Rozhodně ne "Pavouk123"'>
+            <input :class="{ spatnej_input: spatnyHeslo }" @:input="chekujUdaje('heslo')" type="password"
+                v-model="heslo" placeholder='Rozhodně ne "Pavouk123"'>
             <button type="submit" class="tlacitko" @click="registr" :disabled="posilame">{{ posilame ? ". . ." :
-                "Registrovat" }}</button>
+        "Registrovat" }}</button>
+
+            <hr id="predel">
+
+            <GoogleLogin id="google" :callback="handleLoginSuccess" :error="pridatOznameni"
+                :buttonConfig="{ text: 'continue_with' }" />
         </form>
         <div id="infoHide" class="info">
             Doporučujeme:
