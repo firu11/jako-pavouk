@@ -16,8 +16,9 @@ useHead({
 })
 
 const lekce = ref([[]])
-const dokoncene = ref([])
+const dokoncene = ref([] as number[])
 const o = new Oznacene()
+const prvniNedokoncena = ref(1)
 
 onMounted(() => {
     const header = getToken() ? { headers: { Authorization: `Bearer ${getToken()}` } } : {}
@@ -26,6 +27,13 @@ onMounted(() => {
             lekce.value = response.data.lekce
             dokoncene.value = response.data.dokoncene
             o.setMax(lekce.value.join(',').split(',').length) // pocet lekci
+
+            for (let i = 0; i < lekce.value.length; i++) {
+                for (let j = 0; j < lekce.value[i].length; j++) {
+                    if (dokoncene.value.includes(lekce.value[i][j]['id'])) prvniNedokoncena.value += 1
+                    else return
+                }
+            }
         }).catch(e => {
             if (!checkTeapot(e)) {
                 pridatOznameni()
@@ -54,8 +62,12 @@ function e1(e: KeyboardEvent) {
         window.scrollTo({ top: lekce?.offsetTop! - 200 })
     } else if (e.key == 'Enter') {
         e.preventDefault()
-        let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
-        lekce?.click()
+        let lekceE: HTMLElement | null = document.querySelector(`[i="true"]`)
+        if (lekceE == null) {
+            let lekceE: HTMLElement = document.getElementsByClassName(`lekceBlok`)[prvniNedokoncena.value - 1] as HTMLElement
+            if (lekceE == null) lekceE = document.getElementsByClassName(`lekceBlok`)[0] as HTMLElement
+            lekceE?.click()
+        } else lekceE?.click()
     } else if (e.key == 'Tab') {
         e.preventDefault()
         napovedaKNavigaci()
@@ -84,15 +96,15 @@ function e2() {
         <BlokLekce v-else v-for="l in lekce[2]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
             :oznacena="o.is(l['id'])" :i="o.is(l['id'])" :class="{ nohover: o.index.value != 0 }" />
         <h2>Diakritika</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 4" pismena="..." :jeDokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 5" pismena="..." :jeDokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[3]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
             :oznacena="o.is(l['id'])" :i="o.is(l['id'])" :class="{ nohover: o.index.value != 0 }" />
         <h2>Poslední soud</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 3" pismena="..." :jeDokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 2" pismena="..." :jeDokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[4]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
             :oznacena="o.is(l['id'])" :i="o.is(l['id'])" :class="{ nohover: o.index.value != 0 }" />
         <h2>Pro programátory</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 3" pismena="..." :jeDokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 2" pismena="..." :jeDokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[5]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
             :oznacena="o.is(l['id'])" :i="o.is(l['id'])" :class="{ nohover: o.index.value != 0 }" />
     </div>

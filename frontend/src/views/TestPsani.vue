@@ -10,6 +10,12 @@ import { useRouter } from 'vue-router';
 
 useHead({
     title: "Test psaní",
+    meta: [
+        {
+            name: "description",
+            content: "Test psaní všemi deseti. Zjisti jak rychle píšeš a jak jsi přesný!",
+        }
+    ],
     link: [
         {
             rel: "canonical",

@@ -21,6 +21,11 @@
         <changefreq>daily</changefreq>
     </url>
     <url>
+        <loc>https://jakopavouk.cz/test-psani</loc>
+        <priority>1.0</priority>
+        <changefreq>daily</changefreq>
+    </url>
+    <url>
         <loc>https://jakopavouk.cz/o-nas</loc>
         <priority>1.0</priority>
         <changefreq>daily</changefreq>

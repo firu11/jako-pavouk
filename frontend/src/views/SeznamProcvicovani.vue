@@ -45,8 +45,11 @@ function e1(e: KeyboardEvent) {
         window.scrollTo({ top: lekce?.offsetTop! - 200 })
     } else if (e.key == 'Enter') {
         e.preventDefault()
-        let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
-        lekce?.click()
+        let lekceE: HTMLElement | null = document.querySelector(`[i="true"]`)
+        if (lekceE == null) {
+            let lekceE: HTMLElement = document.getElementsByClassName(`blok`)[Math.floor(Math.random() * 3)] as HTMLElement
+            lekceE?.click()
+        } else lekceE?.click()
     } else if (e.key == 'Tab') {
         e.preventDefault()
         napovedaKNavigaci()
