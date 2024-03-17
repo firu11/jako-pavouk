@@ -7,6 +7,12 @@ import { useHead } from 'unhead'
 
 useHead({
     title: "Lekce",
+    meta: [
+        {
+            name: "description",
+            content: "Jako Pavouk nabízí spoustu lekcí s řadou typů cviční. Od jednotlivých písmen, přes slova až k celým větám. Naučte se psát všemi deseti!",
+        },
+    ],
     link: [
         {
             rel: "canonical",

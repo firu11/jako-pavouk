@@ -11,12 +11,8 @@ useHead({
     meta: [
         {
             name: "description",
-            content: "Webová aplikace pro výuku psaní všemi deseti. Chcete se naučit psát rychle Jako Pavouk? Během pár týdnu se budete cítit jako profík.",
+            content: "Webová aplikace na výuku psaní všemi deseti. Chceš se naučit psát rychle Jako Pavouk? Buď pánem své klávesnice!",
         },
-        {
-            name: "keywords",
-            content: "jako, pavouk, psani, psaní, všemi, vsemi, všema, vsema, deseti, prsty, klavesnici, klavesnice, prst, klávesnice, klávesnici, rychle, rychlé, výuka, vyuka, zdarma, free, pavoucek, pociatci, pocitac, notebooku, notebook, stroj, stroji, na, online, program, aplikace, webovka, atf, procvicovani, procvičování, test",
-        }
     ],
     link: [
         {
@@ -61,9 +57,8 @@ function zacit() {
             <h2>Co tě to bude stát?</h2>
             <p>
                 <span class="tlusty"><b>Vůbec nic.</b></span> <br>
-                Celý kurz Jako Pavouk je zcela <b>zdarma</b>! <br>
+                Celý kurz psaní všemi deseti je zcela <b>zdarma</b>! <br>
                 Avšak než si osvojíš všechny klávesy, bude to chvíli trvat.
-                Od toho, aby to netrvalo věčnost, jsme tu ale my!
             </p>
         </div>
         <img src="../assets/pavoukNaZlate.svg" width="287" height="180" alt="Bohatý pavouk">
@@ -78,6 +73,10 @@ function zacit() {
     }
     .text:nth-of-type(1) p {
         font-size: 1.2em !important;
+    }
+    .bloky img {
+        max-height: 230px;
+        width: auto;
     }
 }
 </style>

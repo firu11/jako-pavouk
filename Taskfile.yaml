@@ -14,7 +14,7 @@ tasks:
     dir: backend
     cmds:
       - sed -i 's\127.0.0.1:44871\:44871\g' main.go  # zmenim url
-      - GOOS=linux GOARCH=amd64 go build .
+      - GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" .
       - sed -i 's\:44871\127.0.0.1:44871\g' main.go  # zmenim zpět
 
   frun:

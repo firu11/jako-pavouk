@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { checkTeapot, getToken, pridatOznameni } from '../utils';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, toRaw } from 'vue';
 import axios from 'axios';
 import Vysledek from '../components/Vysledek.vue';
 import { useHead } from '@unhead/vue';
 import Psani from '../components/Psani.vue';
-import { prihlasen } from '../stores';
+import { nastaveniJmeno, prihlasen } from '../stores';
 import { useRouter } from 'vue-router';
 
 useHead({
@@ -37,6 +37,7 @@ const delka = ref(1)
 
 const klavesnice = ref("")
 const diakritika = ref(true)
+const velkaPismena = ref(false)
 
 const psaniRef = ref()
 
@@ -53,7 +54,6 @@ function get() {
         {
             typ: typ.value ? "vety" : "slova",
             delka: delka.value,
-            diakritika: diakritika.value
         },
         {
             headers: {
@@ -71,6 +71,8 @@ function get() {
             })
         })
         text.value = text2
+        loadAlternativy()
+        toggleDiakritikaAVelkaPismena()
         klavesnice.value = response.data.klavesnice
     }).catch(e => {
         if (!checkTeapot(e)) {
@@ -86,6 +88,16 @@ onMounted(() => {
         router.back()
         pridatOznameni('Psaní na telefonech zatím neučíme...')
         return
+    }
+    let nastaveni = localStorage.getItem(nastaveniJmeno)
+    if (nastaveni !== null) {
+        let obj = JSON.parse(nastaveni)
+        diakritika.value = obj.diakritika
+        velkaPismena.value = obj.velkaPismena
+        typ.value = obj.typ
+        if (!typ.value) {
+            delka.value = 10
+        }
     }
     get()
 })
@@ -129,6 +141,45 @@ function switchKlavesnice() {
     else klavesnice.value = "qwertz"
 }
 
+let puvodniText = [[]] as { id: number, znak: string, spatne: number }[][]
+let textBezDiakritiky = [[]] as { id: number, znak: string, spatne: number }[][]
+let textMalym = [[]] as { id: number, znak: string, spatne: number }[][]
+let textOboje = [[]] as { id: number, znak: string, spatne: number }[][]
+
+function toggleDiakritikaAVelkaPismena() {
+    if (!diakritika.value && !velkaPismena.value) {
+        text.value = structuredClone(textOboje)
+    } else if (!diakritika.value) {
+        text.value = structuredClone(textBezDiakritiky)
+    } else if (!velkaPismena.value) {
+        text.value = structuredClone(textMalym)
+    } else {
+        text.value = structuredClone(puvodniText)
+    }
+    localStorage.setItem(nastaveniJmeno, JSON.stringify({"diakritika": diakritika.value, "velkaPismena": velkaPismena.value, "typ": typ.value}))
+}
+
+async function loadAlternativy() {
+    puvodniText = structuredClone(toRaw(text.value))
+    textBezDiakritiky = structuredClone(toRaw(text.value))
+    textBezDiakritiky.forEach(slovo => {
+        slovo.forEach(pismeno => {
+            pismeno.znak = pismeno.znak.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        })
+    })
+    textMalym = structuredClone(toRaw(text.value))
+    textMalym.forEach(slovo => {
+        slovo.forEach(pismeno => {
+            pismeno.znak = pismeno.znak.toLocaleLowerCase()
+        })
+    })
+    textOboje = structuredClone(toRaw(text.value))
+    textOboje.forEach(slovo => {
+        slovo.forEach(pismeno => {
+            pismeno.znak = pismeno.znak.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase()
+        })
+    })
+}
 </script>
 
 <template>
@@ -142,31 +193,50 @@ function switchKlavesnice() {
 
     <Transition>
         <div v-if="!konec && hideKlavecnice" id="psani-menu">
-            <input v-model="typ" v-on:change="d(typ ? 1 : 10)" type="checkbox" id="toggle" class="toggleCheckbox" />
-            <label for="toggle" class="toggleContainer">
-                <div>Slova</div>
-                <div>Věty</div>
-            </label>
 
-            <div v-if="typ" id="delka">
-                <button @keyup="disabledBtn" :class="{ aktivni: 1 == delka }" @click="d(1)">1</button>
-                <button @keyup="disabledBtn" :class="{ aktivni: 3 == delka }" @click="d(3)">3</button>
-                <button @keyup="disabledBtn" :class="{ aktivni: 5 == delka }" @click="d(5)">5</button>
-                <button @keyup="disabledBtn" :class="{ aktivni: 10 == delka }" @click="d(10)">10</button>
-            </div>
-            <div v-else id="delka">
-                <button @keyup="disabledBtn" :class="{ aktivni: 10 == delka }" @click="d(10)">10</button>
-                <button @keyup="disabledBtn" :class="{ aktivni: 25 == delka }" @click="d(25)">25</button>
-                <button @keyup="disabledBtn" :class="{ aktivni: 50 == delka }" @click="d(50)">50</button>
-                <button @keyup="disabledBtn" :class="{ aktivni: 100 == delka }" @click="d(100)">100</button>
+            <div class="kontejner">
+                <input v-model="typ" v-on:change="d(typ ? 1 : 10)" type="checkbox" id="toggle" class="toggleCheckbox" />
+                <label for="toggle" class="toggleContainer">
+                    <div>Slova</div>
+                    <div>Věty</div>
+                </label>
+
+                <div v-if="typ" id="delka" :class="{odsunout: prihlasen}">
+                    <button @keyup="disabledBtn" :class="{ aktivni: 1 == delka }" @click="d(1)">1</button>
+                    <button @keyup="disabledBtn" :class="{ aktivni: 3 == delka }" @click="d(3)">3</button>
+                    <button @keyup="disabledBtn" :class="{ aktivni: 5 == delka }" @click="d(5)">5</button>
+                    <button @keyup="disabledBtn" :class="{ aktivni: 10 == delka }" @click="d(10)">10</button>
+                </div>
+                <div v-else id="delka" :class="{odsunout: prihlasen}">
+                    <button @keyup="disabledBtn" :class="{ aktivni: 10 == delka }" @click="d(10)">10</button>
+                    <button @keyup="disabledBtn" :class="{ aktivni: 25 == delka }" @click="d(25)">25</button>
+                    <button @keyup="disabledBtn" :class="{ aktivni: 50 == delka }" @click="d(50)">50</button>
+                    <button @keyup="disabledBtn" :class="{ aktivni: 100 == delka }" @click="d(100)">100</button>
+                </div>
+
+                <input v-if="!prihlasen" v-on:change="switchKlavesnice" v-model="klavModel" type="checkbox" id="toggle1"
+                    class="toggleCheckbox" />
+                <label v-if="!prihlasen" for="toggle1" class="toggleContainer">
+                    <div>Qwertz</div>
+                    <div>Qwerty</div>
+                </label>
             </div>
 
-            <input v-if="!prihlasen" v-on:change="switchKlavesnice" v-model="klavModel" type="checkbox" id="toggle2"
-                class="toggleCheckbox" />
-            <label v-if="!prihlasen" for="toggle2" class="toggleContainer">
-                <div>Qwertz</div>
-                <div>Qwerty</div>
-            </label>
+            <hr id="predel">
+
+            <div class="kontejner">
+                <label for="toggle2" class="kontejner">
+                    <input v-model="velkaPismena" v-on:change="toggleDiakritikaAVelkaPismena" type="checkbox"
+                        id="toggle2" class="radio" />
+                    Velká písmena
+                </label>
+
+                <label for="toggle3" class="kontejner">
+                    <input v-model="diakritika" v-on:change="toggleDiakritikaAVelkaPismena" type="checkbox" id="toggle3"
+                        class="radio" />
+                    Diakritika
+                </label>
+            </div>
         </div>
     </Transition>
 
@@ -186,6 +256,30 @@ function switchKlavesnice() {
     opacity: 0;
 }
 
+#predel {
+    margin: 12px 0 15px 0;
+    width: 92%;
+    border: 1px solid var(--fialova);
+}
+
+.kontejner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 0 10px;
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+
+label.kontejner:hover {
+    filter: brightness(120%);
+}
+
+.odsunout {
+    margin-left: 18px;
+}
+
 #nastaveniBtn {
     position: relative;
     width: 55px;
@@ -198,6 +292,7 @@ function switchKlavesnice() {
     left: 385px;
     bottom: 236px;
     cursor: pointer;
+    transition: background-color 0.1s;
 }
 
 #nastaveniBtn img {
@@ -209,15 +304,42 @@ function switchKlavesnice() {
     background-color: var(--fialova);
 }
 
+.radio {
+    appearance: none;
+    -webkit-appearance: none;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    font-size: 2rem;
+    padding: 0.2rem;
+    border: 0.15rem solid var(--fialova);
+    border-radius: 10rem;
+    transition: filter 0.1s;
+    width: 1.7rem;
+    height: 1.7rem;
+}
+
+.radio::before {
+    content: "";
+    width: 1rem;
+    height: 1rem;
+    transform: scale(0);
+    background-color: var(--fialova);
+    border-radius: 10rem;
+}
+
+.radio:checked::before {
+    transform: scale(1);
+}
+
 .aktivni {
     color: var(--svetle-fialova) !important;
 }
 
 #delka {
     display: flex;
-    gap: 10px;
+    gap: 6px;
     justify-content: center;
-    margin: 0 auto;
     width: 120px;
 }
 
@@ -225,13 +347,17 @@ function switchKlavesnice() {
     background-color: var(--tmave-fialova);
     padding: 10px;
     border-radius: 8px;
-    height: 50px;
+    min-height: 50px;
     margin-bottom: 186px;
     margin-top: 40px;
     display: flex;
-    gap: 10px;
+    flex-direction: column;
+    gap: 0 10px;
     position: absolute;
     top: 400px;
+    max-width: 420px;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 #psani-menu button {
@@ -241,6 +367,7 @@ function switchKlavesnice() {
     transition: 0.1s;
     font-size: 1em;
     border-radius: 5px;
+    padding: 0 2px;
 }
 
 #psani-menu button:hover {
@@ -267,6 +394,7 @@ function switchKlavesnice() {
     border-radius: 8px;
     border: 1px var(--fialova) solid;
     justify-self: start;
+    height: 30px;
 }
 
 .toggleContainer::before {

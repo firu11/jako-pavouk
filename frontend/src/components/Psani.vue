@@ -25,6 +25,7 @@ const timerZacatek = ref(0)
 const cas = ref(0)
 const textElem = ref<HTMLInputElement>()
 let indexPosunuti = -1
+const mistaPosunuti = ref([0, 0] as number[])
 
 let predchoziZnak = ""
 
@@ -48,6 +49,7 @@ const aktivniPismeno = computed(() => {
 })
 
 onMounted(() => {
+    loadZvuk()
     document.addEventListener("keypress", klik) // je depracated ale je O TOLIK LEPSI ZE HO BUDU POUZIVAT PROSTE https://stackoverflow.com/questions/52882144/replacement-for-deprecated-keypress-dom-event
     document.addEventListener("keydown", specialniKlik)
 })
@@ -160,8 +162,17 @@ function posunoutRadek() {
     let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y!
     let lastY = document.getElementById("p" + (aktivniPismeno.value.id - 1))?.getBoundingClientRect().y!
     if (aktualniY - lastY > 30) {
+        textElem.value!.classList.add("animace")
         indexPosunuti++
-        if (indexPosunuti > 0) textElem.value!.style.top = `${indexPosunuti * (-2.2 - 0.188)}rem` // posunuti dolu
+        if (indexPosunuti == 1) textElem.value!.style.top = "-2.35rem" // posunuti dolu
+        else if (indexPosunuti > 1) textElem.value!.style.top = "-4.7rem" // posunuti dolu
+
+        let slovoID = counterSlov.value
+        setTimeout(() => {
+            textElem.value!.classList.remove("animace")
+            mistaPosunuti.value.push(slovoID)
+            if (indexPosunuti > 0) textElem.value!.style.top = "-2.35rem" // posunuti dolu
+        }, 200)
     }
 }
 
@@ -192,7 +203,13 @@ function specialniKlik(e: KeyboardEvent) {
                 let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y!
                 if (lastY - aktualniY > 30) {
                     indexPosunuti--
-                    if (indexPosunuti > -1) textElem.value!.style.top = `${indexPosunuti * (-2.2 - 0.188)}rem`
+                    textElem.value!.classList.add("animace")
+                    textElem.value!.style.top = "0rem"
+                    setTimeout(() => {
+                        textElem.value!.classList.remove("animace")
+                        mistaPosunuti.value.pop()
+                        if (indexPosunuti > 0) textElem.value!.style.top = "-2.35rem" // posunuti dolu
+                    }, 200)
                 }
             }
             else {
@@ -201,7 +218,13 @@ function specialniKlik(e: KeyboardEvent) {
                 let lastY = document.getElementById("p" + (aktivniPismeno.value.id + 1))?.getBoundingClientRect().y!
                 if (lastY - aktualniY > 30) {
                     indexPosunuti--
-                    if (indexPosunuti > -1) textElem.value!.style.top = `${indexPosunuti * (-2.2 - 0.188)}rem`
+                    textElem.value!.classList.add("animace")
+                    textElem.value!.style.top = "0rem"
+                    setTimeout(() => {
+                        textElem.value!.classList.remove("animace")
+                        mistaPosunuti.value.pop()
+                        if (indexPosunuti > 0) textElem.value!.style.top = "-2.35rem" // posunuti dolu
+                    }, 200)
                 }
             }
             if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
@@ -234,6 +257,7 @@ function restart() {
     preklepy.value = 0
     indexPosunuti = -1
     textElem.value!.style.top = "0rem" // reset posunuti
+    mistaPosunuti.value = [0, 0]
 }
 
 function loadZvuk() {
@@ -263,8 +287,8 @@ function loadZvuk() {
     )
 }
 
-onMounted(() => {
-    loadZvuk()
+const textViditelny = computed(() => {
+    return props.text.slice(mistaPosunuti.value[mistaPosunuti.value.length - 3], mistaPosunuti.value[mistaPosunuti.value.length - 2] + 40)
 })
 
 defineExpose({ restart })
@@ -281,7 +305,7 @@ defineExpose({ restart })
         <div id="ramecek">
             <div id="fade">
                 <div id="text" ref="textElem">
-                    <div class="slovo" v-for="s in text">
+                    <div class="slovo" v-for="s in textViditelny">
                         <div v-for="p in s" class="pismeno" :id="'p' + p.id"
                             :class="{ podtrzeni: p.id === aktivniPismeno.id, spatnePismeno: p.spatne === 1 && aktivniPismeno.id > p.id, opravenePismeno: p.spatne === 2 && aktivniPismeno.id > p.id, spravnePismeno: !p.spatne && aktivniPismeno.id > p.id }">
                             {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp") }}
@@ -290,14 +314,15 @@ defineExpose({ restart })
                     </div>
                 </div>
             </div>
+
             <div id="bar">
                 <div :style="'width: ' + progress + '%'" id="progress">&nbsp{{ Math.floor(progress) }}%&nbsp
                 </div>
             </div>
 
             <Transition>
-                <Klavesnice v-if="klavesnice != ''" :typ="klavesnice"
-                    :aktivniPismeno="aktivniPismeno.znak" :class="{ rozmazany: hideKlavesnice}" />
+                <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak"
+                    :class="{ rozmazany: hideKlavesnice }" />
             </Transition>
 
             <div id="zvukBtn" @click="toggleZvuk">
@@ -336,6 +361,7 @@ defineExpose({ restart })
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    transition: background-color 0.1s;
 }
 
 #zvukBtn:hover {
@@ -386,8 +412,11 @@ defineExpose({ restart })
     display: flex;
     flex-wrap: wrap;
     position: relative;
-    transition: ease 0.2s;
     top: 0em;
+}
+
+.animace {
+    transition: ease 0.2s;
 }
 
 #fade {
@@ -408,13 +437,13 @@ defineExpose({ restart })
     font-weight: 400;
     font-size: 1.56rem;
     line-height: 2.2rem;
+    width: 17px;
     text-decoration: none;
     padding: 0 1px;
     margin-right: 1px;
     border-bottom: 3px solid rgba(255, 255, 255, 0);
     /* aby se nedojebala vyska lajny když jdu na dalsi radek*/
     color: var(--bila);
-    transition: 60ms;
 }
 
 #progress {
@@ -442,7 +471,6 @@ defineExpose({ restart })
 .podtrzeni {
     border-bottom: 3px solid var(--bila);
     border-radius: 0;
-    transition: 60ms;
 }
 
 .spatnePismeno {

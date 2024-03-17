@@ -62,9 +62,8 @@ type (
 	}
 
 	bodyTestPsani struct {
-		Typ        string `json:"typ" validate:"required"`
-		Delka      int    `json:"delka" validate:"min=1,max=200"`
-		Diakritika bool   `json:"diakritika" default:"true"`
+		Typ   string `json:"typ" validate:"required"`
+		Delka int    `json:"delka" validate:"min=1,max=200"`
 	}
 )
 
@@ -134,12 +133,13 @@ func testPsani(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 		}
 
-		if !body.Diakritika {
-			text = utils.BezDiakritiky(text, true)
-		} else {
-			for i := 0; i < len(text)-1; i++ {
-				text[i] += " "
-			}
+		for i := 0; i < len(text)-1; i++ {
+			text[i] += " "
+		}
+
+		for i := 0; i < len(text); i++ {
+			r := []rune(text[i])
+			text[i] = fmt.Sprintf("%c%s", unicode.ToUpper(r[0]), string(r[1:]))
 		}
 
 	case "vety":
@@ -153,11 +153,7 @@ func testPsani(c *fiber.Ctx) error {
 				text = append(text, v+" ")
 			}
 		}
-		if !body.Diakritika {
-			text = utils.BezDiakritiky(text, false)
-		} else {
-			text[len(text)-1] = text[len(text)-1][:len(text[len(text)-1])-1] // smazat mezeru na konci
-		}
+		text[len(text)-1] = text[len(text)-1][:len(text[len(text)-1])-1] // smazat mezeru na konci
 
 	case "nacas":
 

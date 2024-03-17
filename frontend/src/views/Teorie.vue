@@ -43,8 +43,8 @@ useHead({
             <h2>Co zbytek klávesnice?</h2>
             <p>
                 Každý prst si hlídá svůj pomyslný <b>sloupeček</b> označený jednou barvou.
-                Například zelené klávesy mačkáme v ideálním případě pouze pravým ukazováčem. <br>
-                <b>Výjimkou jsou palce</b>, které se starají pouze o mezerník.
+                Například zelené klávesy mačkáme v ideálním případě pouze pravým ukazováčem.
+                <b>Výjimkou jsou palce</b>, které se starají pouze o&nbsp;mezerník.
             </p>
         </div>
     </div>
@@ -82,7 +82,7 @@ useHead({
                         <li><b>Šipkama</b> vybereš lekci / cviční</li>
                         <li><b>Enter</b> zvolí vybranou lekci / cvičení</li>
                         <li><b>Mezerník</b> opakuje cvičení</li>
-                        <li><b>Šipka doprava / Enter</b> pokračuje na další cvičení</li>
+                        <li><b>Šipka doprava / Enter</b> pokračuje na&nbsp;další cvičení</li>
                         <li><b>Escape</b> se vrátí zpět</li>
                     </ul>
                 </li>

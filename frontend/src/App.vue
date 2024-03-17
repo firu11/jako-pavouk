@@ -5,12 +5,14 @@ import { prihlasen, tokenJmeno } from './stores';
 import { checkTeapot, jeToRobot, getToken, oznameni, pridatOznameni } from './utils';
 import { useHead } from 'unhead'
 import axios from 'axios';
-import router from './router';
+import { useRouter } from 'vue-router';
 
 useHead({
     titleTemplate: (title?: string) => title == "" || title == undefined ? "Psaní všemi deseti | Jako Pavouk" : `${title} | Jako Pavouk`
 })
 
+
+const router = useRouter()
 const mobilMenu = ref(false)
 const mobil = document.body.clientWidth <= 1000
 
@@ -33,10 +35,10 @@ onMounted(() => {
         }).catch(e => {
             if (!checkTeapot(e)) {
                 console.log(e)
-                pridatOznameni()
+                pridatOznameni("Chyba serveru")
             }
         })
-    } else if (!jeToRobot(navigator.userAgent)) { //test jestli to neni bot
+    } else if (!jeToRobot(navigator.userAgent) && window.location.host !== "localhost:5173") { //test jestli to neni bot + jen na produkci
         axios.post("/navsteva")
     }
 })
