@@ -35,7 +35,7 @@ useHead({
                 Tedy levý prostředníček bude na D, prsteníček na S a malíček na A. Zrcadlově na druhé ruce.
             </p>
         </div>
-        <img src="../assets/vychoziKlavesy.webp" alt="Výchozí klávesy" width="285" height="100">
+        <img src="../assets/vychoziKlavesy.webp" alt="Výchozí klávesy" width="290" height="100">
     </div>
     <div class="bloky">
         <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí" width="285" height="220">

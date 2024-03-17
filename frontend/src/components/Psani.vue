@@ -297,9 +297,9 @@ defineExpose({ restart })
 <template>
     <div id="flex">
         <div id="nabidka">
-            <h3 id="cas">{{ casFormat }}s</h3>
-            <h3 :style="{ visibility: capslock ? 'visible' : 'hidden' }" id="capslock">CapsLock</h3>
-            <h3 id="preklepy">Překlepy: {{ preklepy }}</h3>
+            <h2 id="cas">{{ casFormat }}s</h2>
+            <h2 :style="{ visibility: capslock ? 'visible' : 'hidden' }" id="capslock">CapsLock</h2>
+            <h2 id="preklepy">Překlepy: {{ preklepy }}</h2>
         </div>
 
         <div id="ramecek">
@@ -462,6 +462,11 @@ defineExpose({ restart })
     width: var(--sirka-textoveho-pole);
     border-radius: 0 0 10px 10px;
     overflow: hidden;
+}
+
+#nabidka h2 {
+    font-size: 1.2em;
+    font-weight: 300;
 }
 
 .spravnePismeno {
