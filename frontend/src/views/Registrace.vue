@@ -91,13 +91,18 @@ function overeniPost(e: Event) {
                 prihlasen.value = true
                 router.push("/ucet")
             }).catch(e => {
-                if (e.response.data.error.search("kod") != -1) spatnyKod.value = true
+                if (e.response.data.error.search("kod") != -1) {
+                    spatnyKod.value = true
+                    pridatOznameni("Špatný kód")
+                }
                 else if (e.response.data.error.search("Cas") != -1) {
                     pridatOznameni("Čas pro ověření vypršel. Zkuste to prosím znovu.")
                     overeni.value = false
                 }
                 else pridatOznameni()
             })
+    } else {
+        pridatOznameni("Kód je 5ti místné číslo")
     }
 }
 
@@ -106,7 +111,7 @@ function chekujUdaje(jaky: string) {
     if (jaky === 'email' && email.value) spatnyEmail.value = !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(email.value); //test jestli email
     else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*[a-zA-Z]).{5,128}$/.test(heslo.value) //heslo min 5 znaku
     else if (jaky === 'jmeno' && jmeno.value !== undefined) spatnyJmeno.value = !/^[a-zA-Z0-9ěščřžýáíéůúťňďóĚŠČŘŽÝÁÍÉŮÚŤŇĎÓ_\-+*! ]{3,12}$/.test(jmeno.value) //jmeno 3-12
-    else if (jaky === 'kod' && kod.value !== undefined) spatnyKod.value = /^\d{5}$/.test(kod.value) //kod 5 dlouhy
+    else if (jaky === 'kod' && kod.value !== undefined) spatnyKod.value = !/^\d{5}$/.test(kod.value) //kod 5 dlouhy
     if (jaky === 'email' && email.value.length === 0) spatnyEmail.value = false
     else if (jaky === 'jmeno' && jmeno.value.length === 0) spatnyJmeno.value = false
     else if (jaky === 'heslo' && heslo.value.length === 0) spatnyHeslo.value = false
