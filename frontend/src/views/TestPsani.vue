@@ -156,7 +156,7 @@ function toggleDiakritikaAVelkaPismena() {
     } else {
         text.value = structuredClone(puvodniText)
     }
-    localStorage.setItem(nastaveniJmeno, JSON.stringify({"diakritika": diakritika.value, "velkaPismena": velkaPismena.value, "typ": typ.value}))
+    localStorage.setItem(nastaveniJmeno, JSON.stringify({ "diakritika": diakritika.value, "velkaPismena": velkaPismena.value, "typ": typ.value }))
 }
 
 async function loadAlternativy() {
@@ -201,13 +201,13 @@ async function loadAlternativy() {
                     <div>Věty</div>
                 </label>
 
-                <div v-if="typ" id="delka" :class="{odsunout: prihlasen}">
+                <div v-if="typ" id="delka" :class="{ odsunout: prihlasen }">
                     <button @keyup="disabledBtn" :class="{ aktivni: 1 == delka }" @click="d(1)">1</button>
                     <button @keyup="disabledBtn" :class="{ aktivni: 3 == delka }" @click="d(3)">3</button>
                     <button @keyup="disabledBtn" :class="{ aktivni: 5 == delka }" @click="d(5)">5</button>
                     <button @keyup="disabledBtn" :class="{ aktivni: 10 == delka }" @click="d(10)">10</button>
                 </div>
-                <div v-else id="delka" :class="{odsunout: prihlasen}">
+                <div v-else id="delka" :class="{ odsunout: prihlasen }">
                     <button @keyup="disabledBtn" :class="{ aktivni: 10 == delka }" @click="d(10)">10</button>
                     <button @keyup="disabledBtn" :class="{ aktivni: 25 == delka }" @click="d(25)">25</button>
                     <button @keyup="disabledBtn" :class="{ aktivni: 50 == delka }" @click="d(50)">50</button>
@@ -296,7 +296,7 @@ label.kontejner:hover {
 }
 
 #nastaveniBtn img {
-    width: 55%;
+    width: 30px;
     transition-duration: 0.4s;
 }
 
@@ -307,28 +307,28 @@ label.kontejner:hover {
 .radio {
     appearance: none;
     -webkit-appearance: none;
-    display: flex;
-    align-content: center;
-    justify-content: center;
-    font-size: 2rem;
-    padding: 0.2rem;
     border: 0.15rem solid var(--fialova);
     border-radius: 10rem;
     transition: filter 0.1s;
-    width: 1.7rem;
-    height: 1.7rem;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .radio::before {
     content: "";
-    width: 1rem;
-    height: 1rem;
+    width: 14px;
+    height: 14px;
     transform: scale(0);
     background-color: var(--fialova);
     border-radius: 10rem;
+    transition: 0.1s;
+    display: block;
 }
 
-.radio:checked::before {
+.radio:checked:before {
     transform: scale(1);
 }
 
