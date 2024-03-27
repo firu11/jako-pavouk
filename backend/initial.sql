@@ -5765,4 +5765,4 @@ COPY public.texty (id, jmeno, text1, text2, text3, text4, text5, text6, text7, t
 \.
 
 -- protože nefungujou emaily tak tady je testovací uživatel heslo: testtest
-INSERT INTO uzivatel (email, jmeno, heslo) VALUES ('test@test.test', 'test', '$2a$10$QOq5R8EPz3Ei/LqI4Bzpm.yPSvFzSdqxK8LK34HdL/SztNngSFXFC');
+INSERT INTO public.uzivatel (email, jmeno, heslo) VALUES ('test@test.test', 'test', '$2a$10$QOq5R8EPz3Ei/LqI4Bzpm.yPSvFzSdqxK8LK34HdL/SztNngSFXFC');

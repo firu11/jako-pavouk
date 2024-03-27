@@ -36,35 +36,37 @@ node -v  # v21 nebo vyšší
 
 # PostgreSQL
 sudo pacman -S postgresql
-postgres --version # postgres (PostgreSQL) 16 nebo vyšší
+postgres --version  # postgres (PostgreSQL) 16 nebo vyšší
 
 
 #----- KONFIGURACE -----#
 
 sudo su postgres
 initdb -D /var/lib/postgres/data
-exit # odhlásit z postgres účtu
+exit  # odhlásit z postgres účtu
 
 sudo systemctl start postgresql
 # teď bychom měli mít databázi 'postgres' vlastněnou uživatelem 'postgres' bez hesla
 # tu můžeme použít pro naší aplikaci
-psql --user=postgres postgres < initial.sql # načteme testovací data
-
-# soubor .env.example přejmenovat na .env (nic se snad nemusí upravovat)
 
 git clone https://github.com/gyarab/2023-4e-ruzicka-jako_pavouk
 
-cd 2023-4e-ruzicka-jako_pavouk/frontend
-npm i
+mv .env.example .env  # upravit se musí jen údaje do db, pokud máte jiné jméno než 'postgres'
+psql --user=postgres postgres < initial.sql  # načteme testovací data
 
 
 #----- SPUŠTĚNÍ -----#
-# nejlépe přes tmux spustit zároveň
+# nejlépe spustit přes tmux zároveň
+
+cd 2023-4e-ruzicka-jako_pavouk/backend
 go run .
+
+cd 2023-4e-ruzicka-jako_pavouk/frontend
+npm i
 npm run dev
 
 # jelikož ověřování emailu asi fungovat nebude, je v databázi testovací uživatel:
 # jméno: test
-# heslo: testtest 
-
+# heslo: testtest
+# bude fungovat jen s tajným klíčem superTajnyKlic
 ```
