@@ -105,8 +105,8 @@ func test(c *fiber.Ctx) error {
 	log.Println(utils.ValidFormat("firu"))
 	utils.MobilNotifikace("Jmeno - email@ema.il") */
 	/* databaze.PushSlovnik() */
-	databaze.PushPohadky()
-	return c.JSON("Vypadni")
+	/* databaze.PushPohadky() */
+	return c.JSON("Vypadni pavouku")
 }
 
 func testPsani(c *fiber.Ctx) error {

@@ -79,7 +79,7 @@ useHead({
                 <li><b>Ctrl + Backspace</b> smaže celé slovo, abys to nemusel/a vyťukávat po jednom</li>
                 <li><u>Pohyb po Pavoukovi:</u>
                     <ul class="mensiPadding">
-                        <li><b>Šipkama</b> vybereš lekci / cviční</li>
+                        <li><b>Šipkami</b> vybereš lekci / cviční</li>
                         <li><b>Enter</b> zvolí vybranou lekci / cvičení</li>
                         <li><b>Mezerník</b> opakuje cvičení</li>
                         <li><b>Šipka doprava / Enter</b> pokračuje na&nbsp;další cvičení</li>

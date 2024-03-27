@@ -21,6 +21,8 @@ import (
 )
 
 var RegexJmeno *regexp.Regexp
+var CifraCislaZaJmenem int
+var MaxCislo int // 10_000
 
 func ValidFormat(email string) bool {
 	_, err := mail.ParseAddress(email)
@@ -135,38 +137,36 @@ func volbaJmena(celeJmeno string) (string, error) {
 	celeJmeno = godiacritics.Normalize(celeJmeno)
 	var jmeno []string = strings.Fields(celeJmeno) // rozdělim na jmeno a prijimeni
 
-	vsechnyJmena, err := databaze.GetVsechnyJmenaUziv()
-	if err != nil {
-		return "", err
-	}
+	for range 20 { // vic než 20x to zkoušet nebudu
+		var cislo int = rand.Intn(MaxCislo-1) + 1
 
-	var mapa = make(map[string]bool) // použijeme hash mapu žejoooo O(1)
-	for _, v := range vsechnyJmena {
-		mapa[v] = true
-	}
-
-	if testJmena(jmeno[0]+" "+jmeno[1], mapa) { // zkusim cely jmeno
-		return jmeno[0] + " " + jmeno[1], nil
-	}
-	if testJmena(jmeno[0]+jmeno[1], mapa) { // zkusim cely jmeno bez mezery
-		return jmeno[0] + jmeno[1], nil
-	}
-	if testJmena(jmeno[0], mapa) { // zkusim jmeno
-		return jmeno[0], nil
-	}
-	if testJmena(jmeno[1], mapa) { // zkusim prijimeni
-		return jmeno[1], nil
-	}
-
-	for i := 1; i < 999_999; i++ { // zkusim PavoukXXXXXX
-		var j string = fmt.Sprintf("Pavouk%v", i)
-		if !mapa[j] {
-			return j, nil
+		var jmenoNaTest string
+		if len(jmeno) >= 1 {
+			jmenoNaTest = fmt.Sprintf("%s%d", jmeno[0], cislo)
+			if RegexJmeno.MatchString(jmenoNaTest) {
+				_, err := databaze.GetUzivByJmeno(jmenoNaTest)
+				if err != nil {
+					return jmenoNaTest, nil
+				}
+			}
+		}
+		if len(jmeno) == 2 {
+			jmenoNaTest = fmt.Sprintf("%s%d", jmeno[1], cislo)
+			if RegexJmeno.MatchString(jmenoNaTest) {
+				_, err := databaze.GetUzivByJmeno(jmenoNaTest)
+				if err != nil { // ještě neexistuje
+					return jmenoNaTest, nil
+				}
+			}
+		}
+		jmenoNaTest = fmt.Sprintf("Pavouk%d", cislo)
+		if RegexJmeno.MatchString(jmenoNaTest) {
+			_, err := databaze.GetUzivByJmeno(jmenoNaTest)
+			if err != nil { // ještě neexistuje
+				return jmenoNaTest, nil
+			}
 		}
 	}
-	return "", errors.New("konec sveta")
-}
 
-func testJmena(s string, mapa map[string]bool) bool {
-	return RegexJmeno.MatchString(s) && !mapa[s]
+	return "", errors.New("konec sveta nenašel jsem jméno")
 }

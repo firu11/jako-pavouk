@@ -156,6 +156,7 @@ function toggleDiakritikaAVelkaPismena() {
     } else {
         text.value = structuredClone(puvodniText)
     }
+    psaniRef.value.restart()
     localStorage.setItem(nastaveniJmeno, JSON.stringify({ "diakritika": diakritika.value, "velkaPismena": velkaPismena.value, "typ": typ.value }))
 }
 
@@ -214,7 +215,7 @@ async function loadAlternativy() {
                     <button @keyup="disabledBtn" :class="{ aktivni: 100 == delka }" @click="d(100)">100</button>
                 </div>
 
-                <input v-if="!prihlasen" v-on:change="switchKlavesnice" v-model="klavModel" type="checkbox" id="toggle1"
+                <input v-if="!prihlasen" @change="switchKlavesnice" v-model="klavModel" type="checkbox" id="toggle1"
                     class="toggleCheckbox" />
                 <label v-if="!prihlasen" for="toggle1" class="toggleContainer">
                     <div>Qwertz</div>
@@ -226,13 +227,13 @@ async function loadAlternativy() {
 
             <div class="kontejner">
                 <label for="toggle2" class="kontejner">
-                    <input v-model="velkaPismena" v-on:change="toggleDiakritikaAVelkaPismena" type="checkbox"
+                    <input v-model="velkaPismena" @change="toggleDiakritikaAVelkaPismena" type="checkbox"
                         id="toggle2" class="radio" />
                     Velká písmena
                 </label>
 
                 <label for="toggle3" class="kontejner">
-                    <input v-model="diakritika" v-on:change="toggleDiakritikaAVelkaPismena" type="checkbox" id="toggle3"
+                    <input v-model="diakritika" @change="toggleDiakritikaAVelkaPismena" type="checkbox" id="toggle3"
                         class="radio" />
                     Diakritika
                 </label>
@@ -325,7 +326,7 @@ label.kontejner:hover {
     background-color: var(--fialova);
     border-radius: 10rem;
     transition: 0.1s;
-    display: block;
+    display: block; 
 }
 
 .radio:checked:before {

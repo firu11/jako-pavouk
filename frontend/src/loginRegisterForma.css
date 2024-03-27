@@ -97,6 +97,8 @@ form img {
 #infoHide {
     opacity: 0;
     transition: ease-in 0.1s;
+    user-select: none;
+    pointer-events: none;
 }
 
 .info ul {
@@ -178,7 +180,7 @@ form img {
 @media screen and (max-width: 1100px) {
     .info {
         top: auto;
-        bottom: 10%;
+        bottom: 5%;
         left: calc(50% - 110px);
         /* - pulka sirky */
         box-shadow: 0px 0px 20px black;

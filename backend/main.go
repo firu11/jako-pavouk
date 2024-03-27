@@ -4,6 +4,7 @@ import (
 	"backend/databaze"
 	"backend/utils"
 	"log"
+	"math"
 	"os"
 	"regexp"
 	"strconv"
@@ -22,10 +23,12 @@ var delkaTextu int
 const tokenTimeDuration time.Duration = time.Hour * 24 * 15 // v nanosekundach, 14 + 1 dni asi good (den predem uz odhlasime aby se nestalo ze neco dela a neulozi se to)
 var regexJmeno *regexp.Regexp = regexp.MustCompile(`^[a-zA-Z0-9ěščřžýáíéůúťňďóĚŠČŘŽÝÁÍÉŮÚŤŇĎÓ_\-+*! ]{3,12}$`)
 
+const cifraCislaZaJmenem int = 4
+
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatal("Error .env", err)
+		log.Fatal("Nenašel jsem soubor .env v /backend.")
 	}
 
 	pocetSlov, pocetPismenVeSlovu = getEnvDelky()
@@ -63,6 +66,8 @@ func main() {
 func inject() {
 	utils.TokenTimeDuration = tokenTimeDuration
 	utils.RegexJmeno = regexJmeno
+	utils.CifraCislaZaJmenem = cifraCislaZaJmenem
+	utils.MaxCislo = int(math.Pow(10, float64(cifraCislaZaJmenem))) // 10_000
 }
 
 // abych pro testing měl kratší texty tak to mám v .env
