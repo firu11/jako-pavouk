@@ -1,7 +1,7 @@
 <div align="center">
-  <a href="https://jakopavouk.cz" target="_blank">
-    <img src='https://jakopavouk.cz/OGnahled.png' width='420' style='border-radius: 10px;'>
-  </a>
+    <a href="https://jakopavouk.cz" target="_blank">
+        <img src='https://jakopavouk.cz/OGnahledZaobleny.png' width='420'>
+    </a>
 </div>
 
 # [Jako Pavouk](https://jakopavouk.cz) | Psaní všemi deseti 🕷️
