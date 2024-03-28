@@ -475,13 +475,21 @@ func overitEmail(c *fiber.Ctx) error {
 	cekajiciUziv, err := databaze.GetNeoverenyUziv(body.Email)
 	if err != nil {
 		go databaze.SmazatPoLimitu()
-		return c.Status(fiber.StatusBadRequest).JSON(chyba("Cas pro overeni vyprsel. Zkuste to prosim znovu"))
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Cas pro overeni vyprsel. Zkus to prosim znovu 1"))
 	}
 
-	if time.Now().Unix() <= cekajiciUziv.Cas && cekajiciUziv.Kod != body.Kod { //vsechno dobry ale spatnej kod
+	// Timing attack: nebudu porovnávat stringy ale inty
+	kodInt, err := strconv.Atoi(cekajiciUziv.Kod)
+	kodInt2, err2 := strconv.Atoi(body.Kod)
+	if err != nil || err2 != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Divny kod"))
+	}
+
+	if time.Now().Unix() <= cekajiciUziv.Cas && kodInt != kodInt2 { // vsechno dobry ale spatnej kod
+		databaze.DalSpatnyKod(body.Email)
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Spatny kod"))
-	} else if time.Now().Unix() > cekajiciUziv.Cas { //vyprselo
-		return c.Status(fiber.StatusBadRequest).JSON(chyba("Cas pro overeni vyprsel. Zkuste to prosim znovu"))
+	} else if time.Now().Unix() > cekajiciUziv.Cas { // vyprselo
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Cas pro overeni vyprsel. Zkus to prosim znovu 2"))
 	}
 
 	uzivID, err := databaze.CreateUziv(cekajiciUziv.Email, cekajiciUziv.Heslo, cekajiciUziv.Jmeno)

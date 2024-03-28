@@ -96,7 +96,8 @@ function overeniPost(e: Event) {
                     pridatOznameni("Špatný kód")
                 }
                 else if (e.response.data.error.search("Cas") != -1) {
-                    pridatOznameni("Čas pro ověření vypršel. Zkuste to prosím znovu.")
+                    kod.value = ""
+                    pridatOznameni("Čas pro ověření vypršel. Zkus to prosím znovu.")
                     overeni.value = false
                 }
                 else pridatOznameni()
@@ -163,7 +164,6 @@ const handleLoginSuccess = (response: any) => {
         "Registrovat" }}</button>
 
             <hr id="predel">
-
             <GoogleLogin id="google" :callback="handleLoginSuccess" :error="pridatOznameni"
                 :buttonConfig="{ text: 'continue_with' }" />
         </form>

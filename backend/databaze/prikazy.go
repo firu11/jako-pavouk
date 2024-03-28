@@ -31,11 +31,12 @@ type Uzivatel struct {
 }
 
 type NeoUziv struct {
-	Email string `json:"email"`
-	Jmeno string `json:"jmeno"`
-	Heslo string `json:"heslo"`
-	Kod   string `json:"kod"`
-	Cas   int64  `json:"cas"`
+	Email  string `json:"email"`
+	Jmeno  string `json:"jmeno"`
+	Heslo  string `json:"heslo"`
+	Kod    string `json:"kod"`
+	Cas    int64  `json:"cas"`
+	Pokusy int    `json:"pokusy"`
 }
 
 type ZmenaHeslaUziv struct {
@@ -528,6 +529,14 @@ func GetNeoverenyUziv(email string) (NeoUziv, error) {
 	var uziv NeoUziv
 	err := DB.QueryRowx(`SELECT * FROM overeni WHERE email = $1;`, email).StructScan(&uziv)
 	return uziv, err
+}
+
+func DalSpatnyKod(email string) {
+	var pokusy int
+	DB.QueryRowx(`UPDATE overeni SET pokusy = pokusy - 1 WHERE email = $1 RETURNING pokusy;`, email).Scan(&pokusy)
+	if pokusy <= 0 {
+		OdebratOvereni(email)
+	}
 }
 
 func OdebratOvereni(email string) error {
