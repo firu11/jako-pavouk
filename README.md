@@ -4,7 +4,7 @@
     </a>
 </div>
 
-# [Jako Pavouk](https://jakopavouk.cz) | Psaní všemi deseti 🕷️
+# [Jako Pavouk](https://jakopavouk.cz) | Psaní všemi deseti 🕷️🕸️
 ### Webová aplikace na výuku psaní všemi deseti. <br> Chceš se naučit psát rychle Jako Pavouk?
 
 Umět psát všemi deseti je krásná dovednost. Jak se ji ale naučit?

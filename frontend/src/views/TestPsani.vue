@@ -31,6 +31,7 @@ const delkaTextu = ref(0)
 const preklepy = ref(0)
 const opravenePocet = ref(0)
 const cas = ref(0)
+const nejcastejsiChyby = ref()
 
 const typ = ref(true) // false = slova, true = vety
 const delka = ref(1)
@@ -79,7 +80,7 @@ function get() {
             console.log(e)
             pridatOznameni()
         }
-    });
+    })
 }
 
 onMounted(() => {
@@ -109,10 +110,11 @@ function restart() {
     konec.value = false
 }
 
-function konecTextu(c: number, o: number, p: number) {
+function konecTextu(c: number, o: number, p: number, n: string[]) {
     cas.value = c
     opravenePocet.value = o
     preklepy.value = p
+    nejcastejsiChyby.value = n
     konec.value = true
 }
 
@@ -190,7 +192,7 @@ async function loadAlternativy() {
         :klavesnice="klavesnice" :hide-klavesnice="hideKlavecnice" ref="psaniRef" />
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu"
-        :casF="casFormat" :cas="cas" :cislo="'test-psani'" :posledni="true" />
+        :casF="casFormat" :cas="cas" :cislo="'test-psani'" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
 
     <Transition>
         <div v-if="!konec && hideKlavecnice" id="psani-menu">

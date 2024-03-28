@@ -21,6 +21,7 @@ const delkaTextu = ref(0)
 const preklepy = ref(0)
 const opravenePocet = ref(0)
 const cas = ref(0)
+const nejcastejsiChyby = ref()
 
 const klavesnice = ref("")
 const jmeno = ref(". . .")
@@ -54,7 +55,7 @@ function get() {
         console.log(e)
         pridatOznameni()
         router.back()
-    });
+    })
 }
 
 onMounted(() => {
@@ -69,10 +70,11 @@ function restart() {
     konec.value = false
 }
 
-function konecTextu(c: number, o: number, p: number) {
+function konecTextu(c: number, o: number, p: number, n: string[]) {
     cas.value = c
     opravenePocet.value = o
     preklepy.value = p
+    nejcastejsiChyby.value = n
     konec.value = true
 }
 
@@ -87,7 +89,7 @@ function konecTextu(c: number, o: number, p: number) {
     <Psani v-if="!konec" @konec="konecTextu" :text="text" :delkaTextu="delkaTextu" :klavesnice="klavesnice" :hide-klavesnice="false" />
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu"
-        :casF="casFormat" :cas="cas" :cislo="''" :posledni="true" />
+        :casF="casFormat" :cas="cas" :cislo="''" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
 </template>
 
 <style scoped>

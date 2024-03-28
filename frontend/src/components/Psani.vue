@@ -17,6 +17,34 @@ const props = defineProps<{
     hideKlavesnice: boolean
 }>()
 
+class MojeMapa extends Map<string, number> {
+    async put(znak: string) {
+        znak = znak.toLocaleLowerCase()
+
+        let pocet = this.get(znak)
+        if (pocet === undefined) {
+            this.set(znak, 1)
+        } else {
+            this.set(znak, +pocet + 1)
+        }
+    }
+    top6() {
+        let nejvetsi: string[] = new Array(6)
+        for (let i = 0; i < 6; i++) {
+            let max = 0
+            this.forEach((pocet, znak) => {
+                if (pocet > max) {
+                    nejvetsi[i] = znak
+                    max = pocet
+                }
+            })
+            this.delete(nejvetsi[i])
+        }
+        if (nejvetsi[0] === undefined) return []
+        return nejvetsi
+    }
+}
+
 const counter = ref(0)
 const counterSlov = ref(0)
 const preklepy = ref(0)
@@ -26,6 +54,7 @@ const cas = ref(0)
 const textElem = ref<HTMLInputElement>()
 let indexPosunuti = -1
 const mistaPosunuti = ref([0, 0] as number[])
+const chybyPismenka = new MojeMapa()
 
 let predchoziZnak = ""
 
@@ -141,6 +170,7 @@ function klik(this: any, e: KeyboardEvent) {
     } else {
         if (zvukyZaply.value) zvuky[3].play()
         aktivniPismeno.value.spatne = 1
+        chybyPismenka.put(aktivniPismeno.value.znak)
         nextPismeno()
     }
 
@@ -151,7 +181,7 @@ function klik(this: any, e: KeyboardEvent) {
         calcCas() // naposledy
         document.removeEventListener("keypress", klik)
         document.removeEventListener("keydown", specialniKlik)
-        emit("konec", cas.value, opravene.size, preklepy.value)
+        emit("konec", cas.value, opravene.size, preklepy.value, chybyPismenka.top6())
         restart()
     }
 
@@ -258,6 +288,7 @@ function restart() {
     indexPosunuti = -1
     textElem.value!.style.top = "0rem" // reset posunuti
     mistaPosunuti.value = [0, 0]
+    chybyPismenka.clear()
 }
 
 function loadZvuk() {

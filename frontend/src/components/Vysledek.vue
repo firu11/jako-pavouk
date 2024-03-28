@@ -29,6 +29,10 @@ const props = defineProps({
         type: String,
         default: ""
     },
+    nejcastejsiChyby: {
+        type: Array<string>,
+        default: ["prvni-psani"]
+    },
     cislo: String,
     posledni: Boolean
 })
@@ -135,22 +139,35 @@ function e1(e: KeyboardEvent) {
 </script>
 
 <template>
-    <div id="hodnoceni" class="blok">
-        <div id="hvezdy">
-            <img v-if="hvezdy >= 1" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
-            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-            <img v-if="hvezdy >= 2" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
-            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-            <img v-if="hvezdy == 3" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
-            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
+    <div id="bloky" style="margin-top: 25px;">
+        <div id="hodnoceni" class="blok">
+            <div id="hvezdy">
+                <img v-if="hvezdy >= 1" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+                <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
+                <img v-if="hvezdy >= 2" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+                <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
+                <img v-if="hvezdy == 3" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+                <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
+            </div>
+            <div style="display: flex; align-items: center; height: 100%;">
+                <h3 style="font-weight: 300; margin: 0">{{ hodnoceni }}</h3>
+            </div>
         </div>
-        <h3>{{ hodnoceni }}</h3>
+        <div v-if="nejcastejsiChyby[0] !== 'prvni-psani'" class="blok" id="chyby">
+            <h2>Nejčastější chyby</h2>
+            <hr>
+            <ol id="list" v-if="nejcastejsiChyby.length !== 0">
+                <li v-for="znak in nejcastejsiChyby"><span>{{ znak == " " ? "_" : znak }}</span></li>
+            </ol>
+            <h3 v-else style="margin-top: 35px;">Žádné!</h3>
+        </div>
     </div>
+
     <div id="bloky">
         <div class="blok">
             <h2>{{ rychlost }}</h2>
             <hr>
-            <p class="jednotka">CPM</p>
+            <p class="jednotka">CPM / úhozů</p>
             <p class="jednotka">&zwnj;</p>
             <h3>Rychlost</h3>
         </div>
@@ -168,7 +185,7 @@ function e1(e: KeyboardEvent) {
         <div class="blok">
             <h2>{{ cas < 60 ? Math.round(cas * 10) / 10 : `${Math.floor(cas / 60)}:${Math.floor(cas % 60 * 10) / 10 < 10 ? "0" + Math.floor(cas % 60 * 10) / 10 : Math.floor(cas % 60 * 10) / 10}` }}</h2>
             <hr>
-            <p class="jednotka">MM:SS</p>
+            <p class="jednotka">{{ cas < 60 ? "Sekund" : "MM:SS" }}</p>
             <p class="jednotka">&zwnj;</p>
             <h3>Čas</h3>
         </div>
@@ -188,6 +205,42 @@ function e1(e: KeyboardEvent) {
 </template>
 
 <style scoped>
+li {
+    width: 30px;
+    font-size: 1.4em;
+    margin-left: 24px;
+}
+
+li span {
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+li::marker {
+    font-weight: 100;
+}
+
+ol {
+    height: 68%;
+    flex-direction: column;
+    align-items: center;
+    display: flex;  
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+}
+
+#chyby {
+    max-height: 155px;
+    padding-bottom: 0;
+}
+
+#chyby h2 {
+    font-size: 1.6em;
+    margin-bottom: 8px;
+    font-size: 1.2em;
+}
+
 .hvezda {
     width: 50px;
     height: 50px;
@@ -210,8 +263,7 @@ function e1(e: KeyboardEvent) {
 }
 
 #hodnoceni {
-    margin-top: 25px;
-    width: 400px;
+    width: 380px;
     display: flex;
     gap: 10px;
     height: auto;
@@ -258,7 +310,7 @@ function e1(e: KeyboardEvent) {
     margin-bottom: 4px;
 }
 
-#bloky h3 {
+.blok h3 {
     font-weight: 500;
     margin-top: 12px;
 }
