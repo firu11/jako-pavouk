@@ -2,5 +2,7 @@ backend/.env
 backend/backend
 backend/backend.exe
 backend/slovnik.csv
-.vscode
 backend/pohadky.txt
+.vscode
+taskfile.yaml
+# https://taskfile.dev/
