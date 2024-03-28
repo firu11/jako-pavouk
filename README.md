@@ -1,6 +1,6 @@
 <div align="center">
     <a href="https://jakopavouk.cz" target="_blank">
-        <img src='https://jakopavouk.cz/OGnahledZaobleny.png' width='420'>
+        <img src='https://jakopavouk.cz/OGnahledZaobleny.png' width='500'>
     </a>
 </div>
 
