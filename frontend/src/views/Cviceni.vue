@@ -67,7 +67,7 @@ function restart() {
     konec.value = false
 }
 
-function konecTextu(c: number, o: number, p: number, n: string[]) {
+function konecTextu(c: number, o: number, p: number, n: any[]) {
     cas.value = c
     opravenePocet.value = o
     preklepy.value = p

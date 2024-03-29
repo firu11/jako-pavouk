@@ -30,7 +30,7 @@ const props = defineProps({
         default: ""
     },
     nejcastejsiChyby: {
-        type: Array<string>,
+        type: Array<any>,
         default: ["prvni-psani"]
     },
     cislo: String,
@@ -153,13 +153,18 @@ function e1(e: KeyboardEvent) {
                 <h3 style="font-weight: 300; margin: 0">{{ hodnoceni }}</h3>
             </div>
         </div>
-        <div v-if="nejcastejsiChyby[0] !== 'prvni-psani'" class="blok" id="chyby">
+        <div v-if="cislo !== 'prvni-psani'" class="blok" id="chyby">
             <h2>Nejčastější chyby</h2>
             <hr>
-            <ol id="list" v-if="nejcastejsiChyby.length !== 0">
-                <li v-for="znak in nejcastejsiChyby"><span>{{ znak == " " ? "_" : znak }}</span></li>
-            </ol>
-            <h3 v-else style="margin-top: 35px;">Žádné!</h3>
+            <div v-if="nejcastejsiChyby.length !== 0">
+                <ol>
+                    <li v-for="znak in nejcastejsiChyby"><span>{{ znak[0] == " " ? "_" : znak[0] }}</span></li>
+                </ol>
+                <ul>
+                    <li v-for="znak in nejcastejsiChyby"><span v-if="znak[1] > 0">{{ znak[1] }}</span></li>
+                </ul>
+            </div>
+            <h3 v-else style="margin-top: 32px;">Žádné!</h3>
         </div>
     </div>
 
@@ -183,11 +188,12 @@ function e1(e: KeyboardEvent) {
             <h3>Přesnost</h3>
         </div>
         <div class="blok">
-            <h2>{{ cas < 60 ? Math.round(cas * 10) / 10 : `${Math.floor(cas / 60)}:${Math.floor(cas % 60 * 10) / 10 < 10 ? "0" + Math.floor(cas % 60 * 10) / 10 : Math.floor(cas % 60 * 10) / 10}` }}</h2>
-            <hr>
-            <p class="jednotka">{{ cas < 60 ? "Sekund" : "MM:SS" }}</p>
-            <p class="jednotka">&zwnj;</p>
-            <h3>Čas</h3>
+            <h2>{{ cas < 60 ? Math.round(cas * 10) / 10 : `${Math.floor(cas / 60)}:${Math.floor(cas % 60 * 10) / 10 < 10
+                    ? "0" + Math.floor(cas % 60 * 10) / 10 : Math.floor(cas % 60 * 10) / 10}` }}</h2>
+                    <hr>
+                    <p class="jednotka">{{ cas < 60 ? "Sekund" : "MM:SS" }}</p>
+                            <p class="jednotka">&zwnj;</p>
+                            <h3>Čas</h3>
         </div>
     </div>
 
@@ -206,39 +212,47 @@ function e1(e: KeyboardEvent) {
 
 <style scoped>
 li {
-    width: 30px;
-    font-size: 1.4em;
-    margin-left: 24px;
+    font-size: 1.1em;
+    opacity: 70%;
 }
 
-li span {
-    font-weight: 600;
-    margin-left: 8px;
+li:first-child {
+    font-size: 1.8em;
+    margin-bottom: 4px;
+    opacity: 100%;
 }
 
-li::marker {
-    font-weight: 100;
+ol li:first-child span {
+    font-weight: 700;
 }
 
-ol {
-    height: 68%;
+ol li span {
+    font-weight: 500;
+}
+
+ol, ul {
+    display: flex;
     flex-direction: column;
     align-items: center;
-    display: flex;  
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 2px;
+    list-style-type: none;
 }
 
 #chyby {
     max-height: 155px;
-    padding-bottom: 0;
+    padding-bottom: 5px;
 }
 
 #chyby h2 {
     font-size: 1.6em;
     margin-bottom: 8px;
     font-size: 1.2em;
+}
+
+#chyby div {
+    display: flex;
+    align-items: center;
+    gap: 44px;
+    height: 65%;
 }
 
 .hvezda {

@@ -29,18 +29,18 @@ class MojeMapa extends Map<string, number> {
         }
     }
     top6() {
-        let nejvetsi: string[] = new Array(6)
-        for (let i = 0; i < 6; i++) {
-            let max = 0
+        let nejvetsi: any[] = []
+        for (let i = 0; i < 3; i++) {
+            nejvetsi.push([undefined, 0])
             this.forEach((pocet, znak) => {
-                if (pocet > max) {
-                    nejvetsi[i] = znak
-                    max = pocet
+                if (pocet > nejvetsi[i][1]) {
+                    nejvetsi[i] = [znak, pocet]
                 }
             })
-            this.delete(nejvetsi[i])
+            this.delete(nejvetsi[i][0])
         }
-        if (nejvetsi[0] === undefined) return []
+        console.log(nejvetsi)
+        if (nejvetsi[0][1] === 0) return []
         return nejvetsi
     }
 }
