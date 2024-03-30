@@ -139,7 +139,11 @@ func testPsani(c *fiber.Ctx) error {
 
 		for i := 0; i < len(text); i++ {
 			r := []rune(text[i])
-			text[i] = fmt.Sprintf("%c%s", unicode.ToUpper(r[0]), string(r[1:]))
+			if i%5 == 0 { //kazdy paty velkym
+				text[i] = fmt.Sprintf("%c%s", unicode.ToUpper(r[0]), string(r[1:]))
+			} else {
+				text[i] = fmt.Sprintf("%c%s", r[0], string(r[1:]))
+			}
 		}
 
 	case "vety":

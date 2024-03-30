@@ -140,7 +140,7 @@ function e1(e: KeyboardEvent) {
 
 <template>
     <div id="bloky" style="margin-top: 25px;">
-        <div id="hodnoceni" class="blok">
+        <div id="hodnoceni" class="blok" :style="{width: cislo == 'prvni-psani' ? '400px' : ''}">
             <div id="hvezdy">
                 <img v-if="hvezdy >= 1" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
                 <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
