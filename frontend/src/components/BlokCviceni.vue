@@ -120,9 +120,9 @@ onMounted(() => {
     flex-direction: column;
     text-decoration: none;
     border-radius: 10px;
-    width: 200px;
+    width: 170px;
     background-color: var(--tmave-fialova);
-    height: 240px;
+    height: 220px;
     transition-duration: 0.2s;
     padding: 15px 15px 30px 15px;
 }
@@ -133,9 +133,10 @@ onMounted(() => {
 }
 
 .cvicBlok hr {
-    width: 160px;
+    width: 135px;
     align-self: center;
     margin: 5px;
+    margin-top: 2px;
     color: gray;
 }
 
@@ -145,8 +146,8 @@ onMounted(() => {
 
 .cvicBlok h3 {
     align-self: center;
-    font-size: 24px;
-    height: 100px;
+    font-size: 23px;
+    height: 85px;
 }
 
 .cvicBlok a {

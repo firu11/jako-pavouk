@@ -107,12 +107,11 @@ h1 {
 }
 
 .kontejnr {
+    width: 101%;
     display: flex;
     gap: 15px;
-    max-width: 700px;
     flex-wrap: wrap;
     justify-content: center;
-    margin-top: 10px;
     margin: 10px 20px 10px 20px;
 }
 
