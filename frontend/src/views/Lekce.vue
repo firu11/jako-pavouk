@@ -16,7 +16,7 @@ useHead({
 })
 
 const cviceni = ref([] as { id: number, typ: string }[])
-const dokoncene = ref([] as any[])
+const dokoncene = ref([] as { id: number, cpm: number, presnost: number }[])
 const fetchProbehl = ref(false)
 const o = new Oznacene()
 const prvniNedokoncene = ref(1)
@@ -40,9 +40,11 @@ onMounted(() => {
             if (dokoIds.includes(cviceni.value[i].id)) prvniNedokoncene.value += 1
             else return
         }
+        o.index.value = prvniNedokoncene.value + 1
     }).catch(_ => {
         router.push('/404')
     })
+
     document.addEventListener('keydown', e1)
     document.addEventListener('keyup', e2)
     document.addEventListener('mousemove', zrusitVyber)
@@ -110,9 +112,8 @@ function cvicID(id: number) {
     <div class="kontejnr">
         <div v-if="cviceni.length !== 0 && fetchProbehl" v-for="({ id, typ }, index) in cviceni">
             <BlokCviceni :dokonceno="jeDokoncene(id)" :typ="typ" :index="index + 1" :pismena="pismena"
-                :rychlost="cvicID(id).cpm" :presnost="cvicID(id).presnost" :fetchProbehl="fetchProbehl"
-                :i="index + 1 == o.index.value" :class="{ nohover: o.index.value != 0 }"
-                :oznacena="index + 1 == o.index.value" />
+                :rychlost="cvicID(id).cpm" :presnost="cvicID(id).presnost" :i="index + 1 == o.index.value"
+                :class="{ nohover: o.index.value != 0 }" :oznacena="index + 1 == o.index.value" />
         </div>
         <p v-else-if="cviceni.length == 0 && fetchProbehl">Tato lekce zatím nemá žádná cvičení</p>
     </div>

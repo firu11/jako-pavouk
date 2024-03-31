@@ -153,7 +153,7 @@ func GetProcvicovani(id int, cislo string) (string, []string, error) {
 
 type Cvic struct {
 	Id       int     `json:"id"`
-	Cpm      float32 `json:"cmp"`
+	Cpm      float32 `json:"cpm"`
 	Presnost float32 `json:"presnost"`
 }
 
