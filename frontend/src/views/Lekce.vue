@@ -19,6 +19,7 @@ const cviceni = ref([] as { id: number, typ: string }[])
 const dokoncene = ref([] as any[])
 const fetchProbehl = ref(false)
 const o = new Oznacene()
+const prvniNedokoncene = ref(1)
 
 onMounted(() => {
     axios.get('/lekce/' + encodeURIComponent(pismena), {
@@ -33,16 +34,24 @@ onMounted(() => {
         dokoncene.value = response.data.dokoncene
         fetchProbehl.value = true
         o.setMax(cviceni.value.length)
+
+        let dokoIds = dokoncene.value.map(a => a.id);
+        for (let i = 0; i < cviceni.value.length; i++) {
+            if (dokoIds.includes(cviceni.value[i].id)) prvniNedokoncene.value += 1
+            else return
+        }
     }).catch(_ => {
         router.push('/404')
     })
     document.addEventListener('keydown', e1)
-    document.addEventListener('mousemove', e2)
+    document.addEventListener('keyup', e2)
+    document.addEventListener('mousemove', zrusitVyber)
 })
 
 onUnmounted(() => {
     document.removeEventListener('keydown', e1)
-    document.removeEventListener('mousemove', e2)
+    document.removeEventListener('keyup', e2)
+    document.removeEventListener('mousemove', zrusitVyber)
 })
 
 function e1(e: KeyboardEvent) {
@@ -54,30 +63,41 @@ function e1(e: KeyboardEvent) {
         o.vetsi()
     } else if (e.key == 'Enter') {
         e.preventDefault()
-        let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
-        lekce?.click()
+        let cvicE: HTMLElement | null = document.querySelector(`[i="true"]`)
+        if (cvicE == null || o.bezOznaceni) {
+            o.bezOznaceni = true
+            o.index.value = prvniNedokoncene.value
+        } else cvicE?.click()
     } else if (e.key == 'Tab') {
         e.preventDefault()
         napovedaKNavigaci()
     }
 }
 
-function e2() {
+function e2(e: KeyboardEvent) {
+    if (e.key == 'Enter') {
+        e.preventDefault()
+        let cvicE: HTMLElement | null = document.querySelector(`[i="true"]`)
+        cvicE?.click()
+    }
+}
+
+function zrusitVyber() {
     o.index.value = 0
 }
 
 function jeDokoncene(id: number) {
     for (const cvic of dokoncene.value) {
-        if (cvic.Id == id) return true
+        if (cvic.id == id) return true
     }
     return false
 }
 
 function cvicID(id: number) {
     for (const cvic of dokoncene.value) {
-        if (cvic.Id == id) return cvic
+        if (cvic.id == id) return cvic
     }
-    return { Id: 0, Cpm: 0, Presnost: 0 }
+    return { id: 0, cpm: 0, presnost: 0 }
 }
 
 </script>
@@ -90,14 +110,11 @@ function cvicID(id: number) {
     <div class="kontejnr">
         <div v-if="cviceni.length !== 0 && fetchProbehl" v-for="({ id, typ }, index) in cviceni">
             <BlokCviceni :dokonceno="jeDokoncene(id)" :typ="typ" :index="index + 1" :pismena="pismena"
-                :rychlost="cvicID(id).Cpm" :presnost="cvicID(id).Presnost" :fetchProbehl="fetchProbehl"
+                :rychlost="cvicID(id).cpm" :presnost="cvicID(id).presnost" :fetchProbehl="fetchProbehl"
                 :i="index + 1 == o.index.value" :class="{ nohover: o.index.value != 0 }"
                 :oznacena="index + 1 == o.index.value" />
         </div>
-        <div v-else-if="cviceni.length === 0 && !fetchProbehl" v-for="index in 5">
-            <BlokCviceni :dokonceno="false" typ="..." :index="index" :pismena="pismena" :fetchProbehl="fetchProbehl" />
-        </div>
-        <p v-else>Tato lekce zatím nemá žádná cvičení</p>
+        <p v-else-if="cviceni.length == 0 && fetchProbehl">Tato lekce zatím nemá žádná cvičení</p>
     </div>
 </template>
 

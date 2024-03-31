@@ -37,12 +37,13 @@ defineProps({
     width: 500px;
     background-color: var(--tmave-fialova);
     height: 64px;
-    transition-duration: 0.2s;
+    transition-duration: 0.1s;
     cursor: pointer;
     /* kvuli tomu neprihlasenymu */
 }
 
-.lekceBlok:hover, .oznacene {
+.lekceBlok:hover,
+.oznacene {
     background-color: var(--fialova);
     transition-duration: 0.2s;
 }
@@ -69,7 +70,7 @@ defineProps({
         transition-duration: 0.2s;
 
         /* kvuli tomu neprihlasenymu */
-        cursor: pointer; 
+        cursor: pointer;
     }
 }
 </style>

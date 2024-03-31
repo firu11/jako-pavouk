@@ -110,9 +110,6 @@ onMounted(() => {
     top: -10px;
 }
 
-#hvezdy {
-}
-
 .cvicBlok {
     color: var(--bila);
     display: flex;

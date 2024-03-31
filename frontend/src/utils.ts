@@ -64,6 +64,7 @@ export function checkTeapot(e: any) {
 export class Oznacene {
     index = ref(0)
     max: number = 4
+    bezOznaceni: boolean = false
     mensi() {
         if (this.index.value > 1) {
             this.index.value--

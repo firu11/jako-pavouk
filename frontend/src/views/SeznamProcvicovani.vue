@@ -17,19 +17,22 @@ useHead({
 const texty = ref([])
 const mobil = ref(document.body.clientWidth <= 1000)
 const o = new Oznacene()
+let randomCvic = 1
 
 onMounted(() => {
     axios.get("/procvic")
         .then(response => {
             texty.value = response.data.texty
             o.setMax(texty.value.length + 1)
+            randomCvic = Math.floor(Math.random() * texty.value.length) + 1
         }).catch(e => {
             if (!checkTeapot(e)) {
                 pridatOznameni()
             }
         })
     document.addEventListener('keydown', e1)
-    document.addEventListener('mousemove', e2)
+    document.addEventListener('keyup', e2)
+    document.addEventListener('mousemove', zrusitVyber)
 })
 
 function e1(e: KeyboardEvent) {
@@ -45,24 +48,33 @@ function e1(e: KeyboardEvent) {
         window.scrollTo({ top: lekce?.offsetTop! - 200 })
     } else if (e.key == 'Enter') {
         e.preventDefault()
-        let lekceE: HTMLElement | null = document.querySelector(`[i="true"]`)
-        if (lekceE == null) {
-            let lekceE: HTMLElement = document.getElementsByClassName(`blok`)[Math.floor(Math.random() * 3)] as HTMLElement
-            lekceE?.click()
-        } else lekceE?.click()
+        let cvicE: HTMLElement | null = document.querySelector(`[i="true"]`)
+        if (cvicE == null || o.bezOznaceni) {
+            o.bezOznaceni = true
+            o.index.value = randomCvic
+        } else cvicE?.click()
     } else if (e.key == 'Tab') {
         e.preventDefault()
         napovedaKNavigaci()
     }
 }
 
-function e2() {
+function e2(e: KeyboardEvent) {
+    if (e.key == 'Enter') {
+        e.preventDefault()
+        let cvicE: HTMLElement | null = document.querySelector(`[i="true"]`)
+        cvicE?.click()
+    }
+}
+
+function zrusitVyber() {
     o.index.value = 0
 }
 
 onUnmounted(() => {
     document.removeEventListener('keydown', e1)
-    document.removeEventListener('mousemove', e2)
+    document.removeEventListener('keyup', e2)
+    document.removeEventListener('mousemove', zrusitVyber)
 })
 
 </script>

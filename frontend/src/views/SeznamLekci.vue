@@ -47,12 +47,14 @@ onMounted(() => {
             }
         })
     document.addEventListener('keydown', e1)
-    document.addEventListener('mousemove', e2)
+    document.addEventListener('keyup', e2)
+    document.addEventListener('mousemove', zrusitVyber)
 })
 
 onUnmounted(() => {
     document.removeEventListener('keydown', e1)
-    document.removeEventListener('mousemove', e2)
+    document.removeEventListener('keyup', e2)
+    document.removeEventListener('mousemove', zrusitVyber)
 })
 
 function e1(e: KeyboardEvent) {
@@ -66,13 +68,12 @@ function e1(e: KeyboardEvent) {
         o.vetsi()
         let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
         window.scrollTo({ top: lekce?.offsetTop! - 200 })
-    } else if (e.key == 'Enter') {
+    } if (e.key == 'Enter') {
         e.preventDefault()
         let lekceE: HTMLElement | null = document.querySelector(`[i="true"]`)
-        if (lekceE == null) {
-            let lekceE: HTMLElement = document.getElementsByClassName(`lekceBlok`)[prvniNedokoncena.value - 1] as HTMLElement
-            if (lekceE == null) lekceE = document.getElementsByClassName(`lekceBlok`)[0] as HTMLElement
-            lekceE?.click()
+        if (lekceE == null || o.bezOznaceni) {
+            o.bezOznaceni = true
+            o.index.value = prvniNedokoncena.value
         } else lekceE?.click()
     } else if (e.key == 'Tab') {
         e.preventDefault()
@@ -80,7 +81,15 @@ function e1(e: KeyboardEvent) {
     }
 }
 
-function e2() {
+function e2(e: KeyboardEvent) {
+    if (e.key == 'Enter') {
+        e.preventDefault()
+        let lekceE: HTMLElement | null = document.querySelector(`[i="true"]`)
+        lekceE?.click()
+    }
+}
+
+function zrusitVyber() {
     o.index.value = 0
 }
 </script>
