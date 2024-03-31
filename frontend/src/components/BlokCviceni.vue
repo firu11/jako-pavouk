@@ -101,8 +101,8 @@ onMounted(() => {
 
 <style scoped>
 .hvezda {
-    width: 50px;
-    height: 50px;
+    width: 45px;
+    height: 45px;
 }
 
 #hvezdy :nth-child(2) {
@@ -111,7 +111,6 @@ onMounted(() => {
 }
 
 #hvezdy {
-    margin-top: 5px;
 }
 
 .cvicBlok {
@@ -124,7 +123,7 @@ onMounted(() => {
     background-color: var(--tmave-fialova);
     height: 220px;
     transition-duration: 0.2s;
-    padding: 15px 15px 30px 15px;
+    padding: 15px 15px 15px 15px;
 }
 
 .cvicBlok:hover, .oznacene {
@@ -147,7 +146,8 @@ onMounted(() => {
 .cvicBlok h3 {
     align-self: center;
     font-size: 23px;
-    height: 85px;
+    height: 60px;
+    margin-bottom: 22px
 }
 
 .cvicBlok a {

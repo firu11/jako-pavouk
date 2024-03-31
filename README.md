@@ -56,7 +56,7 @@ psql --user=postgres postgres < initial.sql  # načteme testovací data
 
 
 #----- SPUŠTĚNÍ -----#
-# nejlépe spustit přes tmux zároveň
+# nejlépe přes tmux zároveň
 
 cd 2023-4e-ruzicka-jako_pavouk/backend
 go run .
@@ -68,5 +68,5 @@ npm run dev
 # jelikož ověřování emailu asi fungovat nebude, je v databázi testovací uživatel:
 # jméno: test
 # heslo: testtest
-# bude fungovat jen s tajným klíčem superTajnyKlic
+# .env KLIC musí být 'superTajnyKlic'
 ```
