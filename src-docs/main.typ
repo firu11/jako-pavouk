@@ -58,13 +58,15 @@
 #include "kapitoly/psani.typ"
 #include "kapitoly/problemy.typ"
 #pagebreak()
+#include "kapitoly/design.typ"
+#pagebreak()
 #include "kapitoly/do-budoucna.typ"
 
 #pagebreak()
 #block()[
   #set par(justify: false) // citace aby se neroztahovaly
   #bibliography(
-    "citace.bib", 
+    "citace.yaml", 
     title: "Odkazy", 
     style: "the-lancet") // 1 = "the-lancet", [1] = "angewandte-chemie", i pod čarou = "gb-7714-2015-note"
 ]

@@ -15,7 +15,7 @@
 
   #block(breakable: false)[ // aby se to nezalomilo na další stranu
   == Prstoklad
-  Když už víme, jak vznikla naše klávesnice, pojďme se podívat, jak rozmístit prsty, abychom ji celou ovládli. Záchranným bodem pro nás jsou klávesy F a J ležící téměř ve středu. Ty na drtivé většině klávesnic mají *malé výstupky*, nahmatatelné i poslepu. Na tyto dvě hlavní umístíme ukazováčky a ostatní prsty na klávesy ve stejné řadě. Vycházet tedy budeme z tlačítek ASDF a JKLŮ. Každý prst si poté hledá svůj *pomyslný sloupeček* jak můžete vidět na @klavesnice[obrázku]. Výjimkou jsou palce. Ty se při psaní starají pouze o mezerník.
+  Když už víme, jak vznikla naše klávesnice, pojďme se podívat, jak rozmístit prsty, abychom ji celou ovládli. Záchranným bodem pro nás jsou klávesy F a J ležící téměř ve středu. Ty na drtivé většině klávesnic mají *malé výstupky*, nahmatatelné i poslepu. Na tyto dvě hlavní umístíme ukazováčky a ostatní prsty na klávesy ve stejné řadě. Vycházet tedy budeme z tlačítek ASDF a JKLŮ. Každý prst si poté hlídá svůj *pomyslný sloupeček*, jak můžete vidět na @klavesnice[obrázku]. Výjimkou jsou palce. Ty se při psaní starají pouze o mezerník.
   
   #v(0.6em)
   #figure(

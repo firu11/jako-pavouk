@@ -47,8 +47,10 @@
     caption: [PageSpeed Insights screenshot],
   ) <seo>
   ]
+
+  Trošku nešťastné je *jméno "Jako Pavouk"*, které sice hezky vystihuje aplikaci a umožňuje mi používat pavouka jako maskota, ale překrývá se se stejnojmenným filmem, a tak boj o první příčky ve výsledcích hledání není jednoduchý.
   
-  Co se týče samotných vyhledávačů, nejpopulárnější Google má paradoxně moji aplikaci rád nejméně. Alternativy jako DuckDuckGo, Qwant nebo Bing zobrazují stránku mnohem častěji a jako jednu z prvních. Naštěstí se ale i pozice na Google vyhledávači postupně zlepšuje.
+  Co se týče samotných vyhledávačů, nejpopulárnější Google má v tuto chvíli paradoxně moji aplikaci rád nejméně. Alternativy jako DuckDuckGo, Qwant nebo Bing zobrazují stránku mnohem častěji a jako jednu z prvních. Naštěstí se ale i pozice na Google vyhledávači postupně zlepšuje.
 
   == Výběr jmen uživatelů
   Jelikož Jako Pavouk disponuje i přihlašováním pomocí Googlu, musel jsem se potýkat s otázkou, jaké *unikátní jméno* uživateli přiřadit pro naši databázi, která nemá stejné požadavky na jeho tvar. Od googlu po přihlášení získám kromě e-mailu i jméno a příjmení uživatele, ze kterého můžu vykouzlit jméno pro naši aplikaci.
