@@ -24,28 +24,28 @@
     image("obrazky/pavoukStudent.svg", width: 50%)
   )
   
-  #v(5em)
+  #v(8em)
   
   #text(20pt)[*Jako Pavouk*]\
   #text(15pt)[Psaní všemi deseti]
   
-  #v(4em)
+  #v(3em)
   
   #text(18pt)[Filip Růžička]
   
   #v(1.5em)
   
-  Květen, 2024
+  Duben, 2024
   
   #v(1fr)
 
   #set page(margin: 1in)
   
   #v(1fr)
-  #set align(left)
-  
-  Prohlašuji, že jsem jediným autorem tohoto projektu, všechny citace jsou řádně označené a všechna použitá literatura a další zdroje jsou v práci uvedené. Tímto dle zákona 121/2000 Sb. (tzv.~Autorský zákon) ve znění pozdějších předpisů uděluji bezúplatně škole Gymnázium, Praha 6, Arabská 14 oprávnění k výkonu práva na rozmnožování díla (§ 13) a práva na sdělování díla veřejnosti (§ 18) na dobu časově neomezenou a bez omezení územního rozsahu.
 
+  #text(hyphenate: false, 
+    "Prohlašuji, že jsem jediným autorem tohoto projektu, všechny citace jsou řádně označené a všechna použitá literatura a další zdroje jsou v práci uvedené. Tímto dle zákona 121/2000 Sb. (tzv.~Autorský zákon) ve znění pozdějších předpisů uděluji bezúplatně škole Gymnázium, Praha 6, Arabská 14 oprávnění k výkonu práva na rozmnožování díla (§ 13) a práva na sdělování díla veřejnosti (§ 18) na dobu časově neomezenou a bez omezení územního rozsahu."
+    )
   #v(4em)
 
   #set align(right)
@@ -57,7 +57,7 @@
 // ---------------- abstract -----------------
 
 #set align(center)
-#text(size: 17pt)[*Anotace*]\
+#text(size: 18pt)[*Anotace*]\
 #text(size: 12pt)[Zadání projektu]
 #v(0.7em)
 

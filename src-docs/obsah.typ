@@ -17,6 +17,6 @@
   }
 )
 
-#align(center)[#text(size: 17pt)[*Obsah*]]
+#align(center)[#text(size: 18pt)[*Obsah*]]
 #v(-1em)
 #outline(title: "")

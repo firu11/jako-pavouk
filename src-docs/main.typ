@@ -6,17 +6,32 @@
 #set text(
   lang: "cs",
   region: "cz",
-  size: 12pt,  // h1 17pt
+  size: 12pt,
+)
+#show heading.where(level: 1): it => text(
+  size: 18pt,
+  it
+)
+#show heading.where(level: 2): it => text(
+  size: 16pt,
+  it
+)
+#show heading.where(level: 3): it => text(
+  size: 14pt,
+  it
 )
 
 #show raw.where(block: true): it => align(block( // nastavení code bloku
-  fill: rgb("#EEE"),
+  stroke: rgb("#ddd"),
+  fill: rgb("#fafafa"),
   inset: 10pt,
-  radius: 0.3em,
+  radius: 0.5em,
   above: 2em,
   below: 2em,
   it
 ), center)
+
+#set raw(syntaxes: "custom_highlighting.yaml")
 
 #show par: set block(spacing: 0.65em)
 #set par(justify: true, first-line-indent: 2em) // hezky rádoby do bloku
@@ -55,12 +70,13 @@
 #include "obsah.typ"
 #counter(page).update(1)
 #include "kapitoly/uvod.typ"
+#pagebreak()
 #include "kapitoly/psani.typ"
 #include "kapitoly/problemy.typ"
-#pagebreak()
 #include "kapitoly/design.typ"
 #pagebreak()
 #include "kapitoly/do-budoucna.typ"
+#include "kapitoly/zaver.typ"
 
 #pagebreak()
 #block()[
