@@ -34,10 +34,12 @@ onMounted(() => {
             dokoncene.value = response.data.dokoncene
             o.setMax(lekce.value.join(',').split(',').length) // pocet lekci
 
-            for (let i = 0; i < lekce.value.length; i++) {
-                for (let j = 0; j < lekce.value[i].length; j++) {
-                    if (dokoncene.value.includes(lekce.value[i][j]['id'])) prvniNedokoncena.value += 1
-                    else return
+            if (dokoncene.value.length != lekce.value.length && dokoncene.value.length != 0) {
+                for (let i = 0; i < lekce.value.length; i++) {
+                    for (let j = 0; j < lekce.value[i].length; j++) {
+                        if (dokoncene.value.includes(lekce.value[i][j]['id'])) prvniNedokoncena.value += 1
+                        else break
+                    }
                 }
             }
         }).catch(e => {
@@ -60,11 +62,13 @@ onUnmounted(() => {
 function e1(e: KeyboardEvent) {
     if (e.key == 'ArrowUp') {
         e.preventDefault()
+        if (o.index.value == 0) o.index.value = prvniNedokoncena.value + 1
         o.mensi()
         let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
         window.scrollTo({ top: lekce?.offsetTop! - 500 })
     } else if (e.key == 'ArrowDown') {
         e.preventDefault()
+        if (o.index.value == 0) o.index.value = prvniNedokoncena.value - 1
         o.vetsi()
         let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
         window.scrollTo({ top: lekce?.offsetTop! - 200 })

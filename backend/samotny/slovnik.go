@@ -1,4 +1,4 @@
-package databaze
+package main
 
 import (
 	"bufio"
@@ -9,20 +9,52 @@ import (
 	"sort"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
+
+var DB *sqlx.DB
 
 type lekcos struct {
 	Id      uint   `json:"id"`
 	Pismena string `json:"pismena"`
 }
 
+func main() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Nenašel jsem soubor .env v /backend.")
+	}
+
+	connStr := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=disable", os.Getenv("DB_UZIV"), os.Getenv("DB_HESLO"), os.Getenv("DB_HOST"), os.Getenv("DB_JMENO"))
+	DB, err = sqlx.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal("Databaze se pokazila", err)
+	}
+
+	for {
+		fmt.Print("Slovnik (s) / Pohadky (p): ")
+		var input string
+		fmt.Scan(&input)
+		if input == "s" {
+			PushSlovnik()
+			break
+		} else if input == "p" {
+			PushPohadky()
+			break
+		}
+	}
+
+	fmt.Println("\nHotovo!")
+}
+
 /*
 Tahle funkce projde vsechny slovicka ve csv souboru a nasazi do databaze do tabulky slovnik spolu s id lekce ve které je pomocí dosavandne naucenych slovicek možné ho napsat
 */
 func PushSlovnik() {
-	fmt.Println("jdem na slovnik")
-
-	DBConnect()
+	fmt.Println("\nJdem na slovník")
 
 	_, err := DB.Exec(`
 		DROP TABLE IF EXISTS slovnik;
@@ -61,16 +93,18 @@ func PushSlovnik() {
 		lekceY = append(lekceY, l)
 	}
 
-	log.Println(lekceZ, lekceY)
+	fmt.Println("Lekce z DB načteny")
 
-	f, err := os.Open("./slovnik.csv")
+	f, err := os.Open("./slovnik.txt")
 	if err != nil {
-		log.Println("spatna cesta k csvcku")
+		log.Println("spatna cesta k slovniku")
 		return
 	}
 	csvReader := csv.NewReader(f)
 	records, _ := csvReader.ReadAll()
 	f.Close()
+
+	fmt.Println("Slova načteny")
 
 	st := `INSERT INTO slovnik (slovo, lekceQWERTZ_id, lekceQWERTY_id) VALUES `
 
@@ -114,7 +148,7 @@ func PushSlovnik() {
 	}
 	st = st[:len(st)-2]
 	st += ";"
-	/* fmt.Println(st) */
+	fmt.Printf("%v slov jde do DB\n", len(records))
 
 	if _, err := DB.Exec(st); err != nil {
 		panic(err)
@@ -133,9 +167,7 @@ func obsahujeJenOKPismena(slovo string, pismena string) bool {
 }
 
 func PushPohadky() {
-	fmt.Println("jdem na pohadky")
-
-	DBConnect()
+	fmt.Println("\nJdem na pohadky")
 
 	_, err := DB.Exec(`
 		DROP TABLE IF EXISTS vety;
@@ -157,6 +189,8 @@ func PushPohadky() {
 	}
 	defer f.Close()
 
+	fmt.Println("Pohádky načteny")
+
 	var st string = `INSERT INTO vety (veta, delka) VALUES `
 
 	scanner := bufio.NewScanner(f)
@@ -169,8 +203,8 @@ func PushPohadky() {
 		return utf8.RuneCountInString(pohadky[i]) < utf8.RuneCountInString(pohadky[j])
 	})
 
+	var pocet int
 	delky := make(map[int]int)
-
 	for _, poh := range pohadky {
 		delka := utf8.RuneCountInString(poh)
 		_, ok := delky[delka]
@@ -180,6 +214,7 @@ func PushPohadky() {
 			delky[utf8.RuneCountInString(poh)] = 1
 		}
 		if delka <= 80 {
+			pocet++
 			st += fmt.Sprintf(`('%s', %v), `, poh, delka)
 		}
 	}
@@ -187,9 +222,9 @@ func PushPohadky() {
 	st = st[:len(st)-2]
 	st += ";"
 
+	fmt.Printf("%v pohádek jde do DB", pocet)
+
 	if _, err := DB.Exec(st); err != nil {
 		panic(err)
 	}
-
-	fmt.Println(delky)
 }

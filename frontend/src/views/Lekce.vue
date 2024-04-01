@@ -35,12 +35,16 @@ onMounted(() => {
         fetchProbehl.value = true
         o.setMax(cviceni.value.length)
 
-        let dokoIds = dokoncene.value.map(a => a.id);
-        for (let i = 0; i < cviceni.value.length; i++) {
-            if (dokoIds.includes(cviceni.value[i].id)) prvniNedokoncene.value += 1
-            else return
+        if (dokoncene.value.length != cviceni.value.length && dokoncene.value.length != 0) {
+            let dokoIds = dokoncene.value.map(a => a.id);
+            for (let i = 0; i < cviceni.value.length; i++) {
+                if (dokoIds.includes(cviceni.value[i].id)) prvniNedokoncene.value += 1
+                else break
+            }
+        } else if (dokoncene.value.length == cviceni.value.length) {
+            prvniNedokoncene.value = Math.ceil(cviceni.value.length/2)
         }
-        o.index.value = prvniNedokoncene.value + 1
+        
     }).catch(_ => {
         router.push('/404')
     })
@@ -59,9 +63,11 @@ onUnmounted(() => {
 function e1(e: KeyboardEvent) {
     if (e.key == 'ArrowLeft' || e.key == 'ArrowUp') {
         e.preventDefault()
+        if (o.index.value == 0) o.index.value = prvniNedokoncene.value + 1
         o.mensi()
     } else if (e.key == 'ArrowRight' || e.key == 'ArrowDown') {
         e.preventDefault()
+        if (o.index.value == 0) o.index.value = prvniNedokoncene.value - 1
         o.vetsi()
     } else if (e.key == 'Enter') {
         e.preventDefault()
