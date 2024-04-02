@@ -25,7 +25,8 @@ useHead({
 <template>
     <h1>Jak psát všemi deseti</h1>
 
-    <div class="bloky">
+    <div class="bloky" id="blok">
+        <img src="../assets/vychoziKlavesy.webp" alt="Výchozí klávesy" width="776" height="291" />
         <div class="text">
             <h2>Výchozí pozice</h2>
             <p>
@@ -35,7 +36,6 @@ useHead({
                 Tedy levý prostředníček bude na D, prsteníček na S a malíček na A. Zrcadlově na druhé ruce.
             </p>
         </div>
-        <img src="../assets/vychoziKlavesy.webp" alt="Výchozí klávesy" width="290" height="100">
     </div>
     <div class="bloky">
         <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí" width="285" height="220">
@@ -79,7 +79,7 @@ useHead({
                 <li><b>Ctrl + Backspace</b> smaže celé slovo, abys to nemusel/a vyťukávat po jednom</li>
                 <li><u>Pohyb po Pavoukovi:</u>
                     <ul class="mensiPadding">
-                        <li><b>Šipkami</b> vybereš lekci / cviční</li>
+                        <li><b>Šipkami</b> vybereš lekci / cvičení</li>
                         <li><b>Enter</b> zvolí vybranou lekci / cvičení</li>
                         <li><b>Mezerník</b> opakuje cvičení</li>
                         <li><b>Šipka doprava / Enter</b> pokračuje na&nbsp;další cvičení</li>
@@ -92,6 +92,25 @@ useHead({
 </template>
 
 <style scoped>
+#blok {
+    flex-direction: column;
+    height: auto;
+    gap: 0px;
+}
+
+#blok .text {
+    width: auto;
+}
+
+#blok .text h2 {
+    margin-bottom: 16px;
+    margin-top: 24px;
+}
+
+#blok img {
+    width: 776px;
+}
+
 li {
     font-size: 1.1rem;
 }
@@ -154,6 +173,11 @@ ul {
 
     #npi {
         padding: 0;
+    }
+
+    #blok img {
+        width: 100%;
+        max-width: 500px !important;
     }
 }
 </style>

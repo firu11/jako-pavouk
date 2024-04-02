@@ -39,7 +39,6 @@ class MojeMapa extends Map<string, number> {
             })
             this.delete(nejvetsi[i][0])
         }
-        console.log(nejvetsi)
         if (nejvetsi[0][1] === 0) return []
         return nejvetsi
     }

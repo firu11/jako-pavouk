@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import axios from "axios"
 import BlokLekce from "../components/BlokLekce.vue";
+import Rada from "../components/Rada.vue"
 import { onMounted, onUnmounted, ref } from "vue"
 import { Oznacene, checkTeapot, getToken, pridatOznameni, napovedaKNavigaci } from "../utils";
 import { useHead } from 'unhead'
@@ -101,6 +102,7 @@ function zrusitVyber() {
 <template>
     <h1>Lekce</h1>
     <div id="seznam">
+        <Rada v-if="dokoncene.length < 2 && lekce.length != 1" />
         <h2>Střední řada</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 4" pismena="..." :jeDokoncena="false" />
         <!-- jen aby tam něco bylo než se to načte -->

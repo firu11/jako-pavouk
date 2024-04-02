@@ -66,7 +66,7 @@ function overitZmenu(e: Event) {
     }).then(_ => {
         state.value = "konec"
     }).catch(e => {
-        console.log(e.response)
+        console.log(e)
         if (e.response.data.error.toLowerCase().search("kod") != -1) spatnyKod.value = true
         else if (e.response.data.error.toLowerCase().search("heslo") != -1) spatnyHeslo.value = true
         else if (!checkTeapot(e)) {
