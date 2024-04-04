@@ -31,7 +31,7 @@ sudo pacman -S go
 go version  # go version go1.22 nebo vyšší
 
 # Node.js
-sudo pacman -S nodejs
+sudo pacman -S nodejs npm
 node -v  # v21 nebo vyšší
 
 # PostgreSQL
