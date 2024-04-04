@@ -59,7 +59,7 @@ useHead({
             <hr>
             <p>
                 Přesnost min. <b>99.5 %</b>
-                přičemž za chybu se odečítá <b>10 úhozů</b>.
+                přičemž za neopravenou chybu se odečítá <b>10 úhozů</b>.
             </p>
             <div id="spodni">
                 <a href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target=”_blank” rel="nofollow">VÍCE

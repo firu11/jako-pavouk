@@ -28,6 +28,7 @@ function hop() {
     width: 500px;
     align-items: center;
     justify-content: space-between;
+    margin-top: 5px;
 }
 
 #box div {
@@ -57,6 +58,7 @@ img {
         flex-direction: column;
         text-align: center;
         gap: 12px;
+        padding-top: 16px;
     }
 
     #box div {

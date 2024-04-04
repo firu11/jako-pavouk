@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useHead } from 'unhead'
+import { ref } from 'vue';
 
 useHead({
     title: "O nás",
@@ -17,6 +18,22 @@ useHead({
     ]
 })
 
+const copy = ref()
+
+function copyEmail() {
+    navigator.clipboard.writeText("firu@jakopavouk.cz").then(function () {
+        copy.value.style.transform = "rotate(-25deg)"
+        setTimeout(() => {
+            copy.value.style.transform = "rotate(15deg)"
+            setTimeout(() => {
+                copy.value.style.transform = "rotate(0deg)"
+            }, 110)
+        }, 110)
+    }, function (err) {
+        console.error('Async: Could not copy text: ', err);
+    });
+}
+
 </script>
 
 <template>
@@ -28,22 +45,27 @@ useHead({
         Nápad a motivace pro vývoj této webové aplikace byl fakt,
         že já sám jsem neuměl psát všemi deseti, a když jsem se to rozhodl naučit,
         <br>
-        se zděšením jsem zjistil, že co se týče české klávesnice, není moc možností, přičemž nějaké z nich vás budou stát
-        skoro 1000 Kč.
+        se zděšením jsem zjistil, že co se týče české klávesnice, není moc možností, přičemž nějaké z nich vás budou
+        stát skoro 1000 Kč.
     </p>
     <p>
         Jelikož je Jako Pavouk kompletně zdarma, je tu možnost tento projekt podpořit přes platformu Ko-fi níže. Moc si
-        vážím vaší
-        podpory! <br>
+        vážím vaší podpory! <br>
         <a href="https://ko-fi.com/jakopavouk" target=”_blank” rel="nofollow"><img id="kofi"
                 src="../assets/kofi_button.webp" alt="Podpořit" width="231" height="36"></a>
     </p>
     <p>
-        Objevil/a jsi nějakou chybu/bug? Máš nějaký zajímavý nápad jak vylepšit tuto aplikaci nebo snad chceš jen dát
-        zpětnou
-        vazbu? Využij náš Discord!<br>
-        <a href="https://discord.gg/kMGRR6f3cb" target=”_blank” rel="nofollow"><img id="discord"
-                src="../assets/discord.webp" alt="Discord" width="192" height="65"></a>
+        Objevil/a jsi nějakou chybu/bug?<br> Máš nějaký zajímavý nápad jak vylepšit tuto aplikaci nebo chceš jen dát
+        zpětnou vazbu?
+        Neboj se mi napsat na e-mail:
+        <span id="btn" @click="copyEmail">
+            <span>firu</span>
+            <span style="display:none;">nebudete mi websrapovat email vy smradlavý smrdi</span>
+            <span>@</span>
+            <span style="display:none;">nebudete mi websrapovat email vy smradlavý smrdi</span>
+            <span>jakopavouk.cz</span>
+            <button @click="copyEmail" ref="copy"><img src="../assets/icony/copy.svg" alt="Kopírovat"></button>
+        </span>
     </p>
 
     <p>
@@ -54,6 +76,37 @@ useHead({
 </template>
 
 <style scoped>
+#btn {
+    margin: -5px;
+    background-color: var(--fialova);
+    padding: 10px 14px 6px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#btn:hover {
+    background-color: var(--svetle-fialova);
+}
+
+button {
+    background-color: transparent;
+    border: 0px;
+    transition: 0.1s ease-in-out;
+    cursor: pointer;
+}
+
+button img {
+    width: 20px;
+    margin-left: 10px;
+    vertical-align: middle;
+    padding-bottom: 5px;
+}
+
+span {
+    font-weight: 500;
+}
+
 p {
     margin-top: 25px;
     width: 110%;
@@ -75,7 +128,8 @@ p {
 }
 
 #kofi,
-#discord,#github {
+#discord,
+#github {
     width: 12em;
     height: auto;
     transition: 0.2s;
