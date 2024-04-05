@@ -79,7 +79,7 @@ function e1(e: KeyboardEvent) {
         window.scrollTo({ top: lekceE?.offsetTop! - 200 })
     } if (e.key == 'Enter') {
         e.preventDefault()
-        let lekceE: HTMLElement | null = document.querySelector(`.oznacena`)
+        let lekceE: HTMLElement | null = document.querySelector(`.oznacene`)
         if (lekceE == null || o.bezOznaceni) {
             o.bezOznaceni = true
             o.index.value = prvniNedokoncena.value
