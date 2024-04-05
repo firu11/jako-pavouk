@@ -313,6 +313,13 @@ func getCviceni(c *fiber.Ctx) error {
 				r := rand.Intn(8999) + 1000
 				text[i] = strconv.Itoa(r) + " "
 			}
+		} else if pismena == "interpunkce" {
+			znamenka := []string{"?", "!", ",", "."}
+			delka := len(znamenka)
+			for i := 0; i < len(text); i++ {
+				r := rand.Intn(delka)
+				text[i] = strings.Replace(text[i], " ", znamenka[r]+" ", 1)
+			}
 		}
 	case "programator":
 		var slova []string

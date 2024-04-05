@@ -37,15 +37,16 @@ onMounted(() => {
 
             if (dokoncene.value.length != lekce.value.length && dokoncene.value.length != 0) {
                 let counter = 1
+                let nebylaNedoko = true
                 for (let i = 0; i < lekce.value.length; i++) {
                     for (let j = 0; j < lekce.value[i].length; j++) {
                         lekce.value[i][j]['cislo'] = counter
                         counter += 1
-                        if (dokoncene.value.includes(lekce.value[i][j]['id'])) prvniNedokoncena.value += 1
+                        if (dokoncene.value.includes(lekce.value[i][j]['id']) && nebylaNedoko) prvniNedokoncena.value += 1
+                        else nebylaNedoko = false
                     }
                 }
             }
-            prvniNedokoncena.value -= 1
         }).catch(e => {
             if (!checkTeapot(e)) {
                 pridatOznameni()

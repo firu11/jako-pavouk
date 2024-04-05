@@ -16,6 +16,7 @@ export function format(p: string) {
     else if (p === "závorky") return "Závorky"
     else if (p === "operátory") return "Operátory"
     else if (p === "čísla") return "Číslovky"
+    else if (p === "interpunkce") return "Interpunkce"
     return formatovanyPismena(p)
 }
 
