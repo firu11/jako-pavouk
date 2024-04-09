@@ -63,6 +63,8 @@ const zvuky: Howl[] = []
 const capslock = ref(false)
 let interval: number
 
+const celyPsani = ref()
+
 const casFormat = computed(() => {
     return cas.value < 60 ? Math.floor(cas.value).toString() : `${Math.floor(cas.value / 60)}:${cas.value % 60 < 10 ? "0" + Math.floor(cas.value % 60).toString() : Math.floor(cas.value % 60)}`
 })
@@ -80,12 +82,18 @@ onMounted(() => {
     loadZvuk()
     document.addEventListener("keypress", klik) // je depracated ale je O TOLIK LEPSI ZE HO BUDU POUZIVAT PROSTE https://stackoverflow.com/questions/52882144/replacement-for-deprecated-keypress-dom-event
     document.addEventListener("keydown", specialniKlik)
+    document.addEventListener("mousemove", enableKurzor)
 })
 
 onUnmounted(() => {
     document.removeEventListener("keypress", klik)
     document.removeEventListener("keydown", specialniKlik)
+    document.removeEventListener("mousemove", enableKurzor)
 })
+
+function enableKurzor() {
+    celyPsani.value.classList.remove("bezKurzoru")
+}
 
 function capslockCheck(e: KeyboardEvent) { // TODO chtelo by to checknout hned po nacteni stranky ale nevim jestli to jde (spíš ne)
     capslock.value = e.getModifierState("CapsLock")
@@ -185,6 +193,8 @@ function klik(this: any, e: KeyboardEvent) {
     }
 
     if (predchoziZnak != "") predchoziZnak = ""
+
+    celyPsani.value.classList.add("bezKurzoru")
 }
 
 function posunoutRadek() {
@@ -325,7 +335,7 @@ defineExpose({ restart })
 </script>
 
 <template>
-    <div id="flex">
+    <div id="flex" ref="celyPsani">
         <div id="nabidka">
             <h2 id="cas">{{ casFormat }}s</h2>
             <h2 :style="{ visibility: capslock ? 'visible' : 'hidden' }" id="capslock">CapsLock</h2>
@@ -365,6 +375,10 @@ defineExpose({ restart })
 </template>
 
 <style scoped>
+.bezKurzoru {
+    cursor: none;
+}
+
 .v-enter-active {
     transition: 0.3s !important;
 }

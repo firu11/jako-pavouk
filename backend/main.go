@@ -25,6 +25,13 @@ var regexJmeno *regexp.Regexp = regexp.MustCompile(`^[a-zA-Z0-9ěščřžýáí�
 
 const cifraCislaZaJmenem int = 4
 
+var MaxCisloZaJmeno int = int(math.Pow(10, float64(cifraCislaZaJmenem))) // 10_000
+
+// # Main - začátek programu
+//  1. načte .env proměnné
+//  2. připojí se k PostgreSQL databázi
+//  3. nakonfiguruje middleware
+//  4. spustí server
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
@@ -63,11 +70,11 @@ func main() {
 	}
 }
 
+// předá proměnné které chci mít všechny na jednom místě do dalších souborů
 func inject() {
 	utils.TokenTimeDuration = tokenTimeDuration
 	utils.RegexJmeno = regexJmeno
-	utils.CifraCislaZaJmenem = cifraCislaZaJmenem
-	utils.MaxCislo = int(math.Pow(10, float64(cifraCislaZaJmenem))) // 10_000
+	utils.MaxCisloZaJmeno = MaxCisloZaJmeno
 }
 
 // abych pro testing měl kratší texty tak to mám v .env

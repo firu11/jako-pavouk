@@ -10,56 +10,58 @@ import (
 	"github.com/rickb777/date"
 )
 
-type Lekce struct {
-	ID      uint   `json:"id"`
-	Pismena string `json:"pismena"`
-	// Skupina uint        nepouzivame ale je tam
-	// Klavesnice string
-}
+type (
+	Lekce struct {
+		ID      uint   `json:"id"`
+		Pismena string `json:"pismena"`
+		// Skupina uint        nepouzivame ale je tam
+		// Klavesnice string
+	}
 
-type Cviceni struct {
-	ID  uint   `json:"id"`
-	Typ string `json:"typ"`
-}
+	Cviceni struct {
+		ID  uint   `json:"id"`
+		Typ string `json:"typ"`
+	}
 
-type Uzivatel struct {
-	ID         uint   `json:"id"`
-	Email      string `json:"email"`
-	Jmeno      string `json:"jmeno"`
-	Heslo      string `json:"heslo"`
-	Klavesnice string `json:"klavesnice"`
-}
+	Uzivatel struct {
+		ID         uint   `json:"id"`
+		Email      string `json:"email"`
+		Jmeno      string `json:"jmeno"`
+		Heslo      string `json:"heslo"`
+		Klavesnice string `json:"klavesnice"`
+	}
 
-type NeoUziv struct {
-	Email  string `json:"email"`
-	Jmeno  string `json:"jmeno"`
-	Heslo  string `json:"heslo"`
-	Kod    string `json:"kod"`
-	Cas    int64  `json:"cas"`
-	Pokusy int    `json:"pokusy"`
-}
+	NeoUziv struct {
+		Email  string `json:"email"`
+		Jmeno  string `json:"jmeno"`
+		Heslo  string `json:"heslo"`
+		Kod    string `json:"kod"`
+		Cas    int64  `json:"cas"`
+		Pokusy int    `json:"pokusy"`
+	}
 
-type ZmenaHeslaUziv struct {
-	Email string `json:"email"`
-	Kod   string `json:"kod"`
-	Cas   int64  `json:"cas"`
-}
+	ZmenaHeslaUziv struct {
+		Email string `json:"email"`
+		Kod   string `json:"kod"`
+		Cas   int64  `json:"cas"`
+	}
 
-type Slovnik struct {
-	ID    uint   `json:"id"`
-	Slovo string `json:"slovo"`
-}
+	Slovnik struct {
+		ID    uint   `json:"id"`
+		Slovo string `json:"slovo"`
+	}
 
-type Dokoncene struct {
-	ID         uint      `json:"id"`
-	UzivID     uint      `json:"uziv_id"`
-	CviceniID  uint      `json:"cviceni_id"`
-	CPM        float32   `json:"cpm"`
-	Preklepy   uint      `json:"preklepy"`
-	Cas        int       `json:"cas"`
-	DelkaTextu int       `json:"delka_textu"`
-	Datum      date.Date `json:"datum"`
-}
+	Dokoncene struct {
+		ID         uint      `json:"id"`
+		UzivID     uint      `json:"uziv_id"`
+		CviceniID  uint      `json:"cviceni_id"`
+		CPM        float32   `json:"cpm"`
+		Preklepy   uint      `json:"preklepy"`
+		Cas        int       `json:"cas"`
+		DelkaTextu int       `json:"delka_textu"`
+		Datum      date.Date `json:"datum"`
+	}
+)
 
 func GetLekce(uzivID uint) ([][]Lekce, error) {
 	var lekce [][]Lekce = [][]Lekce{}

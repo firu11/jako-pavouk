@@ -12,12 +12,14 @@ import (
 var privatniKlic []byte = []byte(os.Getenv("KLIC"))
 var TokenTimeDuration time.Duration
 
+// obsah tokenu
 type Data struct {
 	jwt.StandardClaims
 	Email string
 	Id    uint
 }
 
+// hashování hesla
 func HashPassword(heslo string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(heslo), bcrypt.DefaultCost)
 	if err != nil {
@@ -26,6 +28,7 @@ func HashPassword(heslo string) (string, error) {
 	return string(bytes), nil
 }
 
+// porovnání dvou hesel
 func CheckPassword(hesloRequest string, hesloDB string) error {
 	if hesloDB == "google" {
 		return errors.New("ucet je pres google")
@@ -37,6 +40,7 @@ func CheckPassword(hesloRequest string, hesloDB string) error {
 	return nil
 }
 
+// generace tokenu obsahujícího id, email a doba platnosti
 func GenerovatToken(email string, id uint) (string, error) {
 	data := Data{
 		Email: email,
@@ -50,6 +54,7 @@ func GenerovatToken(email string, id uint) (string, error) {
 	return s, err
 }
 
+// validace celého tokenu
 func ValidovatToken(tokenString string) (bool, uint, error) {
 	data := Data{}
 	token, err := jwt.ParseWithClaims(tokenString, &data, func(token *jwt.Token) (interface{}, error) {
@@ -58,10 +63,10 @@ func ValidovatToken(tokenString string) (bool, uint, error) {
 	if err != nil {
 		return false, 0, err
 	}
-	// fmt.Printf("%+v\n", token)
 	return token.Valid, data.Id, err
 }
 
+// validace pouze toho zda je potřeba ho vyměnit
 func ValidovatExpTokenu(tokenString string) (bool, error) {
 	data := Data{}
 	_, err := jwt.ParseWithClaims(tokenString, &data, func(token *jwt.Token) (interface{}, error) {
@@ -71,6 +76,6 @@ func ValidovatExpTokenu(tokenString string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	// fmt.Println(data.ExpiresAt-time.Now().Unix(), int64(time.Hour.Seconds()*24))
+	// pokud token vyprší během příštích 24 hodin, hodilo by se ho vyměnit už teď, abychom předešli tomu že vyprší ve špatnou chvíli
 	return data.ExpiresAt-time.Now().Unix() <= int64(time.Hour.Seconds()*24), nil
 }

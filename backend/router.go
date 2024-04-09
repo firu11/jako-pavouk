@@ -18,6 +18,7 @@ import (
 	"zgo.at/isbot"
 )
 
+// struct body requestu
 type (
 	bodyDokoncitCvic struct {
 		CPM        float32 `json:"cpm" validate:"required"`
@@ -67,6 +68,7 @@ type (
 	}
 )
 
+// vytvoří skupinu /api a v ní všechny endpointy
 func SetupRouter(app *fiber.App) {
 	api := app.Group("/api")
 
@@ -93,6 +95,7 @@ func SetupRouter(app *fiber.App) {
 	api.Get("/testovaci-get-request", test)
 }
 
+// standardní chybový výstup
 func chyba(msg string) fiber.Map {
 	if msg == "" {
 		msg = "Neco se pokazilo"
@@ -100,6 +103,7 @@ func chyba(msg string) fiber.Map {
 	return fiber.Map{"error": msg}
 }
 
+// testovací endpoint
 func test(c *fiber.Ctx) error {
 	/* log.Println(utils.UzivCekajiciNaOvereni)
 	log.Println(utils.ValidFormat("firu"))
@@ -107,6 +111,9 @@ func test(c *fiber.Ctx) error {
 	return c.JSON("Vypadni pavouku")
 }
 
+// vygeneruje text pro test psaní
+//
+// potřebuje délku textu a jeho typ: slova / věty
 func testPsani(c *fiber.Ctx) error {
 	id, err := utils.Autentizace(c, false)
 	if err != nil {
@@ -170,6 +177,7 @@ func testPsani(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "klavesnice": u.Klavesnice})
 }
 
+// vrací seznam všech lekcí v závislosti na klávesnici
 func getVsechnyLekce(c *fiber.Ctx) error {
 	id, err := utils.Autentizace(c, false)
 	if err != nil {
@@ -193,6 +201,7 @@ func getVsechnyLekce(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"lekce": lekce, "dokoncene": []int{}})
 }
 
+// vrací všechny cvičení v lekci podle písmen lekce z parametru url
 func getCviceniVLekci(c *fiber.Ctx) error {
 	id, err := utils.Autentizace(c, false)
 	if err != nil {
@@ -214,6 +223,9 @@ func getCviceniVLekci(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"cviceni": cvic, "dokoncene": doko})
 }
 
+// generuje texty pro cvičení
+//
+// text vrací v závislosti na jeho typu: nové písmena, naučená písmena, slova, + nějaké speciální (programator...)
 func getCviceni(c *fiber.Ctx) error {
 	id, err := utils.Autentizace(c, true)
 	if err != nil {
@@ -390,6 +402,9 @@ func getCviceni(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "klavesnice": u.Klavesnice, "posledni": posledni})
 }
 
+// přidá do databáze záznam o tom jak uživatel cvičení napsal
+//
+// potřebuje token uživatele, rychlost, preklepy, cas, delku textu
 func dokoncitCvic(c *fiber.Ctx) error {
 	id, err := utils.Autentizace(c, true)
 	if err != nil {
@@ -431,6 +446,7 @@ func dokoncitCvic(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+// vrátí seznam textů k procvičování
 func getVsechnyProcvic(c *fiber.Ctx) error {
 	texty, err := databaze.GetTexty()
 	if err != nil {
@@ -439,6 +455,7 @@ func getVsechnyProcvic(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"texty": texty})
 }
 
+// vrací text k odpovídajícímu procvičování
 func getProcvic(c *fiber.Ctx) error {
 	id, err := utils.Autentizace(c, false)
 	if err != nil {
@@ -467,6 +484,9 @@ func getProcvic(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "jmeno": nazev, "klavesnice": klavesnice})
 }
 
+// porovná kód který byl uživateli zaslán na email s tím který mu přišel
+//
+// kontroluje také zda nevypršel čas ba ověření a maže asynchroně ty, kterým čas vypršel
 func overitEmail(c *fiber.Ctx) error {
 	var body bodyPoslatEmail = bodyPoslatEmail{}
 	if err := c.BodyParser(&body); err != nil {
@@ -487,14 +507,7 @@ func overitEmail(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Cas pro overeni vyprsel. Zkus to prosim znovu 1"))
 	}
 
-	// Timing attack: nebudu porovnávat stringy ale inty
-	kodInt, err := strconv.Atoi(cekajiciUziv.Kod)
-	kodInt2, err2 := strconv.Atoi(body.Kod)
-	if err != nil || err2 != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Divny kod"))
-	}
-
-	if time.Now().Unix() <= cekajiciUziv.Cas && kodInt != kodInt2 { // vsechno dobry ale spatnej kod
+	if time.Now().Unix() <= cekajiciUziv.Cas && !utils.CheckKod(cekajiciUziv.Kod, body.Kod) { // vsechno dobry ale spatnej kod
 		databaze.DalSpatnyKod(body.Email)
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Spatny kod"))
 	} else if time.Now().Unix() > cekajiciUziv.Cas { // vyprselo
@@ -517,6 +530,10 @@ func overitEmail(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
 }
 
+// # Registrace
+//  1. přidá neověřeného uživatele do db
+//  2. vygeneruje a odešle kód na email
+//  3. smaže neověřené uživ. po limitu
 func registrace(c *fiber.Ctx) error {
 	// overeni spravnych dat co prijdou
 	var body bodyRegistrace
@@ -561,6 +578,9 @@ func registrace(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+// kontroluje hashe hesel z db a z frontendu. v případě že se shodují, vygeneruje a vrátí token
+//
+// také ošetřuje účty které jsou registrované přes google -> nemám jejich heslo
 func prihlaseni(c *fiber.Ctx) error {
 	var body bodyPrihlaseni
 
@@ -602,6 +622,7 @@ func prihlaseni(c *fiber.Ctx) error {
 	}
 }
 
+// # Google přihlášení / registrace
 func google(c *fiber.Ctx) error {
 	var body bodyGoogle
 	if err := c.BodyParser(&body); err != nil {
@@ -640,6 +661,7 @@ func google(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
 }
 
+// posílá ověřovací email s kódem pro ověření hesla
 func zmenaHesla(c *fiber.Ctx) error {
 	var body bodyZmenaHesla
 	if err := c.BodyParser(&body); err != nil {
@@ -671,6 +693,7 @@ func zmenaHesla(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+// ověřuje kód který byl zaslán na email s kódem z frontendu
 func overitZmenuHesla(c *fiber.Ctx) error {
 	var body bodyOvereniZmenaHesla
 	if err := c.BodyParser(&body); err != nil {
@@ -692,7 +715,7 @@ func overitZmenuHesla(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 
-	if time.Now().Unix() <= uziv.Cas && uziv.Kod != body.Kod { // vsechno dobry ale spatnej kod
+	if time.Now().Unix() <= uziv.Cas && !utils.CheckKod(uziv.Kod, body.Kod) { // vsechno dobry ale spatnej kod
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Spatny kod"))
 	} else if time.Now().Unix() > uziv.Cas { // vyprselo
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Cas pro overeni vyprsel. Zkuste to prosim znovu"))
@@ -710,6 +733,7 @@ func overitZmenuHesla(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+// vrací statistiky o uživateli podle id z tokenu
 func prehled(c *fiber.Ctx) error {
 	id, err := utils.Autentizace(c, true)
 	if err != nil {
@@ -747,6 +771,7 @@ func prehled(c *fiber.Ctx) error {
 	})
 }
 
+// endpoint který vrací zda je potřeba token co nejdříve vyměnit
 func testVyprseniTokenu(c *fiber.Ctx) error {
 	if len(c.Get("Authorization")) >= 10 { // treba deset proste at tam neco je
 		jePotrebaVymenit, err := utils.ValidovatExpTokenu(c.Get("Authorization")[7:])
@@ -768,6 +793,9 @@ func testVyprseniTokenu(c *fiber.Ctx) error {
 	}
 }
 
+// monitoruje přibližně návštěvníky které na stránku chodí
+//
+// snaží se filtrovat requesty od botů a crawlerů
 func navsteva(c *fiber.Ctx) error {
 	var httpRequest http.Request
 	err := fasthttpadaptor.ConvertRequest(c.Context(), &httpRequest, false)
@@ -777,6 +805,7 @@ func navsteva(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+// mění buď jméno uživatele nebo klávesnici
 func upravaUctu(c *fiber.Ctx) error {
 	id, err := utils.Autentizace(c, true)
 	if err != nil {

@@ -9,6 +9,7 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
+// pošle email s kódem přes emailového poskytovatele
 func PoslatOverovaciEmail(email string, kod string) error {
 	port, err := strconv.Atoi(os.Getenv("EMAIL_PORT"))
 	if err != nil {

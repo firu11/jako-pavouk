@@ -28,6 +28,8 @@ func main() {
 		log.Fatal("Nenašel jsem soubor .env v /backend.")
 	}
 
+	fmt.Printf("Připojuješ se na %s (.env)\n", os.Getenv("DB_JMENO"))
+
 	connStr := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=disable", os.Getenv("DB_UZIV"), os.Getenv("DB_HESLO"), os.Getenv("DB_HOST"), os.Getenv("DB_JMENO"))
 	DB, err = sqlx.Open("postgres", connStr)
 	if err != nil {
@@ -55,20 +57,6 @@ Tahle funkce projde vsechny slovicka ve csv souboru a nasazi do databaze do tabu
 */
 func PushSlovnik() {
 	fmt.Println("\nJdem na slovník")
-
-	_, err := DB.Exec(`
-		DROP TABLE IF EXISTS slovnik;
-		CREATE TABLE
-    		IF NOT EXISTS slovnik (
-        		id SERIAL PRIMARY KEY,
-        		slovo VARCHAR(50),
-        		lekceQWERTZ_id INT,
-        		lekceQWERTY_id INT
-    	);
-	`)
-	if err != nil {
-		log.Panic(err)
-	}
 
 	rowsZ, err1 := DB.Query(`SELECT id, pismena FROM lekce WHERE klavesnice = 'qwertz' OR klavesnice = 'oboje' ORDER BY id ASC;`)
 	rowsY, err2 := DB.Query(`SELECT id, pismena FROM lekce WHERE klavesnice = 'qwerty' OR klavesnice = 'oboje' ORDER BY id ASC;`)
@@ -148,6 +136,21 @@ func PushSlovnik() {
 	}
 	st = st[:len(st)-2]
 	st += ";"
+
+	_, err = DB.Exec(`
+		DROP TABLE IF EXISTS slovnik;
+		CREATE TABLE
+    		IF NOT EXISTS slovnik (
+        		id SERIAL PRIMARY KEY,
+        		slovo VARCHAR(50),
+        		lekceQWERTZ_id INT,
+        		lekceQWERTY_id INT
+    	);
+	`)
+	if err != nil {
+		log.Panic(err)
+	}
+
 	fmt.Printf("%v slov jde do DB\n", len(records))
 
 	if _, err := DB.Exec(st); err != nil {
@@ -168,19 +171,6 @@ func obsahujeJenOKPismena(slovo string, pismena string) bool {
 
 func PushPohadky() {
 	fmt.Println("\nJdem na pohadky")
-
-	_, err := DB.Exec(`
-		DROP TABLE IF EXISTS vety;
-		CREATE TABLE
-    		IF NOT EXISTS vety (
-        		id SERIAL PRIMARY KEY,
-        		veta TEXT NOT NULL,
-				delka INT NOT NULL
-    	);
-	`)
-	if err != nil {
-		log.Panic(err)
-	}
 
 	f, err := os.Open("./pohadky.txt")
 	if err != nil {
@@ -221,6 +211,19 @@ func PushPohadky() {
 
 	st = st[:len(st)-2]
 	st += ";"
+
+	_, err = DB.Exec(`
+		DROP TABLE IF EXISTS vety;
+		CREATE TABLE
+    		IF NOT EXISTS vety (
+        		id SERIAL PRIMARY KEY,
+        		veta TEXT NOT NULL,
+				delka INT NOT NULL
+    	);
+	`)
+	if err != nil {
+		log.Panic(err)
+	}
 
 	fmt.Printf("%v pohádek jde do DB", pocet)
 
