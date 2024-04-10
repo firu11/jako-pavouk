@@ -11,7 +11,7 @@ useHead({
     meta: [
         {
             name: "description",
-            content: "Webová aplikace na výuku psaní všemi deseti. Chceš se naučit psát rychle Jako Pavouk? Buď pánem své klávesnice!",
+            content: "Webová aplikace na výuku psaní všemi deseti zdarma. Chceš se naučit psát rychle Jako Pavouk? Buď pánem své klávesnice!",
         },
     ],
     link: [
