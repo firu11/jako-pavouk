@@ -19,7 +19,7 @@ const props = defineProps({
         type: Number,
         default: 0
     },
-    oznacena: Boolean
+    oznacene: Boolean
 })
 
 const mobil = ref(document.body.clientWidth <= 1000)
@@ -46,7 +46,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <router-link v-if="prihlasen && typ !== '...' && !mobil" class="cvicBlok" :class="{ dokoncenyBlok: dokonceno, oznacene: oznacena }"
+    <router-link v-if="prihlasen && typ !== '...' && !mobil" class="cvicBlok" :class="{ dokoncenyBlok: dokonceno, oznacene: oznacene }"
         :to="'/lekce/' + pismena + '/' + index">
         <h2>{{ index }}</h2>
         <hr>
@@ -70,7 +70,7 @@ onMounted(() => {
         <h3>...</h3>
         <img class="playVetsi" src="../assets/icony/start.svg" alt="Začít lekci">
     </a>
-    <a v-else-if="!mobil" class="cvicBlok" @click="pridatOznameni('Bez přihlášení si můžeš psaní vyzkoušet v sekci Procvičování')">
+    <a v-else-if="!mobil" class="cvicBlok" :class="{ oznacene: oznacene }" @click="pridatOznameni('Bez přihlášení si můžeš psaní vyzkoušet v sekci Procvičování')">
         <h2>{{ index }}</h2>
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>

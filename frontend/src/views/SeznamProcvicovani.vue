@@ -36,12 +36,12 @@ onMounted(() => {
 })
 
 function e1(e: KeyboardEvent) {
-    if (e.key == 'ArrowUp') {
+    if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
         e.preventDefault()
         o.mensi()
         let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
         window.scrollTo({ top: lekce?.offsetTop! - 500 })
-    } else if (e.key == 'ArrowDown') {
+    } else if (e.key == 'ArrowDown' || e.key == 'ArrowRight') {
         e.preventDefault()
         o.vetsi()
         let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)

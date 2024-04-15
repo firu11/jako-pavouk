@@ -33,12 +33,15 @@ function e1(e: KeyboardEvent) { // Escape = šipka zpět
 
 <style scoped>
 div {
-    height: 39px;
+    height: 40px;
+    width: 40px;
     margin-right: 10px;
+    padding: 4px;
 }
 
 div img {
-    height: 42px;
+    height: 32px;
+    width: 32px;
     cursor: pointer;
 }
 

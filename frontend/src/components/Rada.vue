@@ -23,7 +23,7 @@ function hop() {
 #box {
     background-color: var(--tmave-fialova);
     border-radius: 8px;
-    padding: 10px 15px 12px 25px;
+    padding: 16px 15px 12px 25px;
     display: flex;
     width: 500px;
     align-items: center;

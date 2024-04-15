@@ -36,10 +36,10 @@ function zacit() {
     <h1 id="schovat">Psaní všemi deseti Jako Pavouk</h1> <!-- Pro SEO (nevim jestli funguje) -->
     <div class="bloky">
         <div class="text">
-            <p style="font-size: 1.3em; line-height: 1.5em;">Webová apllikace na výuku <br><b>psaní všemi deseti</b>.<br>Chceš se naučit psát jako pavouk?</p>
+            <p style="font-size: 1.3em; line-height: 1.5em;">Webová aplikace na výuku <br><b style="font-weight: 700;">psaní všemi deseti</b> zdarma.<br>Chceš se naučit psát jako pavouk?</p>
             <button class="tlacitko" @click="zacit()" style="transform: scale(1.2); margin-top: 2em;">Začít psát</button>
         </div>
-        <img src="../assets/pavoukStudent.svg" alt="Pavouk s klávesnicí" width="300" height="300">
+        <img src="../assets/pavoukStudent.svg" alt="Pavouk student" width="300" height="300">
     </div>
     <div class="bloky">
         <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí" width="285" height="220">
@@ -57,7 +57,7 @@ function zacit() {
             <h2>Co tě to bude stát?</h2>
             <p>
                 <span class="tlusty"><b>Vůbec nic.</b></span> <br>
-                Celý kurz psaní všemi deseti je zcela <b>zdarma</b>! <br>
+                Celý kurz psaní všemi deseti je zcela <b>ZDARMA</b>! <br>
                 Avšak než si osvojíš všechny klávesy, bude to chvíli trvat.
             </p>
         </div>

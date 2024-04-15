@@ -1,3 +1,5 @@
+// V tomto souboru jsou příkazy do databáze které buď SELECTujou data z databáze, nebo data v databázi upravují.
+// Největší dokumentace je jméno funkcí samotných.
 package databaze
 
 import (

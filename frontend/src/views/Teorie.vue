@@ -10,7 +10,7 @@ useHead({
         },
         {
             name: "keywords",
-            content: "psani, psaní, všemi, vsemi, všema, vsema, deseti, teorie, jak, psát, klávesy, princip",
+            content: "psani, psaní, všemi, vsemi, všema, vsema, deseti, teorie, jak, psát, klávesy, princip, teorie, prstoklad",
         }
     ],
     link: [
@@ -38,7 +38,7 @@ useHead({
         </div>
     </div>
     <div class="bloky">
-        <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí" width="285" height="220">
+        <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí" width="285" height="212">
         <div class="text">
             <h2>Co zbytek klávesnice?</h2>
             <p>
@@ -68,30 +68,54 @@ useHead({
             </div>
         </div>
         <a id="npi" href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target=”_blank” rel="nofollow">
-            <img src="../assets/npi.webp" alt="Národní pedagogický institut" width="225" height="225">
+            <img src="../assets/npi.webp" alt="Národní pedagogický institut" width="226" height="226">
         </a>
     </div>
-    <div class="bloky">
-        <img src="../assets/sipky.svg" alt="Pavouk s klávesnicí" width="285" height="200">
+    <div class="bloky" id="triky">
+        <img src="../assets/sipky.svg" alt="Pavouk s klávesnicí" width="337" height="238">
         <div class="text">
-            <h2 style="margin-bottom: 10px;">Tipy a triky</h2>
-            <ul>
-                <li><b>Ctrl + Backspace</b> smaže celé slovo, abys to nemusel/a vyťukávat po jednom</li>
-                <li><u>Pohyb po Pavoukovi:</u>
-                    <ul class="mensiPadding">
-                        <li><b>Šipkami</b> vybereš lekci / cvičení</li>
-                        <li><b>Enter</b> zvolí vybranou lekci / cvičení</li>
-                        <li><b>Mezerník</b> opakuje cvičení</li>
-                        <li><b>Šipka doprava / Enter</b> pokračuje na&nbsp;další cvičení</li>
-                        <li><b>Escape</b> se vrátí zpět</li>
-                    </ul>
+            <h2>Pohyb po Pavoukovi</h2>
+            <ul class="mensiPadding" style="list-style: none;">
+                <li><b>Výběr lekce / cvičení:</b></li>
+                <ul style="margin: 0 0 1.1rem 0;">
+                    <li><span class="klavesaVTextu">Enter</span> podržet - vybere to, kde jsem skončil</li>
+                    <li><span class="klavesaVTextu" style="margin-right: 5px;"><img src="../assets/icony/sipkaL.svg"
+                                alt="Šipka" class="klavSipka"></span>
+                        <span class="klavesaVTextu"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klavSipka"
+                                style="transform: scaleX(-1);"></span> - přesný výběr,
+                        <span class="klavesaVTextu" style="margin-left: 5px;">Enter</span>
+                        - potvrzení
+                    </li>
+                </ul>
+                <li><span class="klavesaVTextu">SPACE</span> - opakuje cvičení po dokončení</li>
+                <li><span class="klavesaVTextu"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klavSipka"
+                            style="transform: scaleX(-1);"></span> /
+                    <span class="klavesaVTextu">Enter</span> - pokračuje na další cvičení
                 </li>
+                <li><span class="klavesaVTextu">Enter</span> - restart psaní před dokončením</li>
+                <li><span class="klavesaVTextu">Esc</span> - zpět</li>
             </ul>
         </div>
     </div>
 </template>
 
 <style scoped>
+.bloky {
+    height: 350px;
+}
+
+#triky .text {
+    width: 55%;
+}
+
+#triky p {
+    text-align: start;
+}
+
+#triky>img {
+    transform: scale(1.15);
+}
+
 #blok {
     flex-direction: column;
     height: auto;
@@ -116,7 +140,7 @@ li {
 }
 
 .mensiPadding li {
-    padding: 2px 0 !important;
+    padding: 3px 0 !important;
 }
 
 h1 {
@@ -178,6 +202,14 @@ ul {
     #blok img {
         width: 100%;
         max-width: 500px !important;
+    }
+
+    .bloky {
+        height: auto;
+    }
+
+    #triky .text {
+        width: auto;
     }
 }
 </style>

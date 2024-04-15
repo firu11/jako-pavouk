@@ -35,16 +35,14 @@ onMounted(() => {
             dokoncene.value = response.data.dokoncene
             o.setMax(lekce.value.join(',').split(',').length) // pocet lekci
 
-            if (dokoncene.value.length != lekce.value.length && dokoncene.value.length != 0) {
-                let counter = 1
-                let nebylaNedoko = true
-                for (let i = 0; i < lekce.value.length; i++) {
-                    for (let j = 0; j < lekce.value[i].length; j++) {
-                        lekce.value[i][j]['cislo'] = counter
-                        counter += 1
-                        if (dokoncene.value.includes(lekce.value[i][j]['id']) && nebylaNedoko) prvniNedokoncena.value += 1
-                        else nebylaNedoko = false
-                    }
+            let counter = 1
+            let nebylaNedoko = true
+            for (let i = 0; i < lekce.value.length; i++) {
+                for (let j = 0; j < lekce.value[i].length; j++) {
+                    lekce.value[i][j]['cislo'] = counter
+                    counter += 1
+                    if (dokoncene.value.includes(lekce.value[i][j]['id']) && nebylaNedoko) prvniNedokoncena.value += 1
+                    else nebylaNedoko = false
                 }
             }
         }).catch(e => {
@@ -65,13 +63,13 @@ onUnmounted(() => {
 })
 
 function e1(e: KeyboardEvent) {
-    if (e.key == 'ArrowUp') {
+    if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
         e.preventDefault()
         if (o.index.value == 0) o.index.value = prvniNedokoncena.value + 1
         o.mensi()
         let lekceE: HTMLElement | null = document.querySelector(`[i="${o.index.value}"]`)
         window.scrollTo({ top: lekceE?.offsetTop! - 500 })
-    } else if (e.key == 'ArrowDown') {
+    } else if (e.key == 'ArrowDown' || e.key == 'ArrowRight') {
         e.preventDefault()
         if (o.index.value == 0) o.index.value = prvniNedokoncena.value - 1
         o.vetsi()
@@ -116,7 +114,7 @@ function zrusitVyber() {
             :oznacena="o.is(l['id'])" :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
         <h2>Horní řada</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 5" pismena="..." :jeDokoncena="false" />
-        <BlokLekce v-else v-for="l in lekce[1]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
+        <BlokLekce v-else v-for="l in lekce[1]" :pismena="l['pismena'].toString()" :jeDokoncena="dokoncene.includes(l['id'])"
             :oznacena="o.is(l['id'])" :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
         <h2>Dolní řada</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 3" pismena="..." :jeDokoncena="false" />

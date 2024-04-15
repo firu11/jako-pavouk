@@ -62,16 +62,14 @@ function get() {
             }
         }
     ).then(response => {
-        let text2 = [[]] as { id: number, znak: string, spatne: number, }[][]
         response.data.text.forEach((slovo: string, i: number) => {
-            text2.push([])
+            text.value.push([])
             const slovoArr = [...slovo]
             slovoArr.forEach(pismeno => {
-                text2[i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0 })
+                text.value[i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0 })
                 delkaTextu.value++
             })
         })
-        text.value = text2
         loadAlternativy()
         toggleDiakritikaAVelkaPismena()
         klavesnice.value = response.data.klavesnice
@@ -105,6 +103,7 @@ onMounted(() => {
 
 function restart() {
     delkaTextu.value = 0
+    text.value = [[]]
 
     get()
     konec.value = false
@@ -188,7 +187,7 @@ async function loadAlternativy() {
 <template>
     <h1 style="margin: 0">Test psaní</h1>
 
-    <Psani v-if="!konec" @konec="konecTextu" @pise="hideKlavecnice = false" :text="text" :delkaTextu="delkaTextu"
+    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="hideKlavecnice = false" :text="text" :delkaTextu="delkaTextu"
         :klavesnice="klavesnice" :hide-klavesnice="hideKlavecnice" ref="psaniRef" />
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu"

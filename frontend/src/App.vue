@@ -38,7 +38,7 @@ onMounted(() => {
                 pridatOznameni("Chyba serveru")
             }
         })
-    } else if (!jeToRobot(navigator.userAgent) && window.location.host !== "localhost:5173") { //test jestli to neni bot + jen na produkci
+    } else if (!jeToRobot(navigator.userAgent) && window.location.host !== "localhost:5173") { //test jestli to neni bot + počítají se jen na produkci
         axios.post("/navsteva")
     }
 })

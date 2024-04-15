@@ -148,6 +148,7 @@ b {
     background-color: var(--tmave-fialova);
     border-radius: 10px;
     align-items: center;
+    justify-content: space-between;
     padding: 20px 30px;
 }
 
@@ -197,6 +198,22 @@ b {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border-width: 0;
+}
+
+.klavesaVTextu {
+    border-radius: 5px;
+    background-color: var(--bila);
+    color: black;
+    padding: 2px 4px 1px 4px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0px 3px #a7a7a7;
+}
+
+.klavSipka {
+    width: 20px !important; 
+    height: 11px !important; 
+    filter: invert(1);
 }
 
 @media screen and (max-width: 1100px) {

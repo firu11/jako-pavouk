@@ -8,7 +8,7 @@ import klik2 from '../assets/zvuky/klik2.ogg';
 import klik3 from '../assets/zvuky/klik3.ogg';
 import miss from '../assets/zvuky/miss.ogg';
 
-const emit = defineEmits(["konec", "pise"])
+const emit = defineEmits(["konec", "pise", "restart"])
 
 const props = defineProps<{
     text: { id: number, znak: string, spatne: number }[][]
@@ -268,6 +268,11 @@ function specialniKlik(e: KeyboardEvent) {
             }
             if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
         }
+    } else if (e.key == "Enter") {
+        if (aktivniPismeno.value.id == -1) return
+        e.preventDefault()
+        emit("restart")
+        restart()
     }
 }
 
@@ -298,6 +303,7 @@ function restart() {
     textElem.value!.style.top = "0rem" // reset posunuti
     mistaPosunuti.value = [0, 0]
     chybyPismenka.clear()
+    opravene.clear()
 }
 
 function loadZvuk() {

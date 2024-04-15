@@ -63,6 +63,7 @@ function tlacPismeno(cislo: number, tlacitko: string) {
 }
 
 function oznacene(tlacitko: string) {
+    if (props.aktivniPismeno == "") return false
     let velky = props.aktivniPismeno.toUpperCase() === props.aktivniPismeno
     let pismeno = props.aktivniPismeno.toLowerCase()
     if (pismeno.normalize('NFD').length === 2 && velky) {
