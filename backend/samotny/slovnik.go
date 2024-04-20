@@ -62,6 +62,7 @@ func PushSlovnik() {
 	rowsY, err2 := DB.Query(`SELECT id, pismena FROM lekce WHERE klavesnice = 'qwerty' OR klavesnice = 'oboje' ORDER BY id ASC;`)
 
 	if err1 != nil || err2 != nil {
+		fmt.Println("Připojení k databázi se nezdařilo...")
 		return
 	}
 	defer rowsZ.Close()

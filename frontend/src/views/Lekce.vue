@@ -36,7 +36,7 @@ onMounted(() => {
         o.setMax(cviceni.value.length)
 
         if (dokoncene.value.length == cviceni.value.length) {
-            prvniNedokoncene.value = Math.ceil(cviceni.value.length/2)
+            prvniNedokoncene.value = Math.ceil(cviceni.value.length/2) + 1
         } else {
             let dokoIds = dokoncene.value.map(a => a.id);
             for (let i = 0; i < cviceni.value.length; i++) {

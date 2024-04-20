@@ -3,7 +3,7 @@ import axios from 'axios'
 import { prihlasen, tokenJmeno } from '../stores';
 import { useRouter } from 'vue-router';
 import { onMounted, ref } from 'vue';
-import { checkTeapot, getToken, pridatOznameni } from '../utils';
+import { checkTeapot, getToken, MojeMapa, pridatOznameni } from '../utils';
 import { useHead } from 'unhead'
 
 useHead({
@@ -12,11 +12,13 @@ useHead({
 
 const router = useRouter()
 
-const info = ref({ jmeno: "...", email: "...@...", dokonceno: 0, daystreak: 0, prumerRychlosti: -1, uspesnost: -1, klavesnice: "QWERTZ" })
+const info = ref({ jmeno: "...", email: "...@...", dokonceno: 0, daystreak: 0, prumerRychlosti: -1, uspesnost: -1, klavesnice: "QWERTZ", celkovyCas: 0, nejcastejsiChyby: new Map })
 const uprava = ref(false)
 
 const klavesniceUprava = ref("")
 const jmenoUprava = ref("")
+
+const pismenaChyby = ref([] as any[][])
 
 const smazatPotvrzeni = ref(false)
 
@@ -45,6 +47,9 @@ async function getInfo() {
             }
         })
         info.value = resp.data
+        info.value.nejcastejsiChyby = new MojeMapa(Object.entries(info.value.nejcastejsiChyby)).top(6)
+        pismenaChyby.value = Array.from(info.value.nejcastejsiChyby, ([name, value]) => ([name, value]))
+        pismenaChyby.value.sort((a, b) => b[1] - a[1])
         jmenoUprava.value = resp.data.jmeno
         klavesniceUprava.value = resp.data.klavesnice
         klavesniceUprava.value = klavesniceUprava.value.toUpperCase()
@@ -134,14 +139,15 @@ function zmenaJmena(e: Event) {
             </form>
         </div>
     </div>
-    <div id="progres">
-        <div id="nacitani-pozadi">
-            <div id="nacitani" :style="{ width: info.dokonceno + '%' }"></div>
-        </div>
-        <span class="popis" style="width: 100%;">Dokončeno: <span class="cislo">{{ zaokrouhlit(info.dokonceno)
-                }}%</span></span>
-    </div>
+
     <div id="bloky">
+        <div class="blok" id="progres">
+            <div id="nacitani-pozadi">
+                <div id="nacitani" :style="{ width: info.dokonceno + '%' }"></div>
+            </div>
+            <span class="popis" style="width: 100%;">Dokončeno: <span class="cislo">{{ zaokrouhlit(info.dokonceno)
+                    }}%</span></span>
+        </div>
         <div class="blok">
             <img src="../assets/icony/rychlost.svg" alt="Rychlost" width="75">
             <span v-if="info.prumerRychlosti == -1">Zatím nic</span>
@@ -149,20 +155,45 @@ function zmenaJmena(e: Event) {
                 CPM</span>
         </div>
         <div class="blok">
+            <img src="../assets/icony/kalendar.svg" alt="Kalendář">
+            <span class="popis">Počet dní v řadě:<br><span class="cislo">{{ zaokrouhlit(info.daystreak) }}</span></span>
+        </div>
+        <div class="blok">
             <img src="../assets/icony/iconaKlavesnice.svg" alt="Rychlost" width="75">
             <span class="popis">Klávesnice:<br>
                 <button id="tlacitko" @click="postKlavesnice">{{ klavesniceUprava }}</button>
             </span>
         </div>
-        <div class="blok">
-            <img src="../assets/icony/terc.svg" alt="Přesnost">
-            <span v-if="info.uspesnost == -1">Zatím nic</span>
-            <span v-else class="popis">Přesnost:<br><span class="cislo">{{ zaokrouhlit(info.uspesnost) }}</span>
-                %</span>
-        </div>
-        <div class="blok">
-            <img src="../assets/icony/kalendar.svg" alt="Kalendář">
-            <span class="popis">Počet dní v řadě:<br><span class="cislo">{{ zaokrouhlit(info.daystreak) }}</span></span>
+        <div class="blok" id="chyby">
+            <div id="presnost">
+                <img src="../assets/icony/terc.svg" alt="Přesnost">
+                <span v-if="info.uspesnost == -1">Zatím nic</span>
+                <span v-else class="popis">Přesnost:<br><span class="cislo">{{ zaokrouhlit(info.uspesnost) }}</span>
+                    %</span>
+            </div>
+
+            <div>
+                <h2>Nejčastější chyby:</h2>
+                <hr>
+            </div>
+            <div style="width: 100%;">
+                <div v-if="pismenaChyby.length !== 0" id="pismena">
+                    <div id="prvni">
+                        <span v-for="znak, i in pismenaChyby.slice(0, 2)"><span class="cisla">{{ i + 1 }}.</span> <b>{{
+                            znak[0] == " " ? "_" :
+                                znak[0]
+                                }}</b></span>
+                    </div>
+                    <div id="druhy">
+                        <span v-for="znak, i in pismenaChyby.slice(2)"><span class="cisla">{{ i + 3 }}.</span> <b>{{
+                            znak[0] == " " ? "_" : znak[0]
+                                }}</b></span>
+                    </div>
+                </div>
+                <div v-else style="margin: 30px 0;">
+                    <span>Žádné!</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -174,6 +205,75 @@ function zmenaJmena(e: Event) {
 </template>
 
 <style scoped>
+#pismena {
+    display: flex;
+    flex-direction: column;
+    font-weight: 700;
+    gap: 10px;
+    width: 100%;
+}
+
+#prvni {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    gap: 20%;
+}
+
+#druhy {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4em;
+    gap: 12%;
+    opacity: 70%;
+}
+
+.cisla {
+    font-weight: 200;
+    opacity: 70%;
+    font-size: 0.8em;
+}
+
+#prvni b,
+#druhy b {
+    font-weight: 700;
+}
+
+#chyby {
+    height: auto;
+    flex-direction: column;
+    grid-row-start: 1;
+    grid-row-end: 3;
+    grid-column-start: 2;
+    gap: 0;
+    justify-content: space-between;
+}
+
+#chyby h2 {
+    font-size: 1.6em;
+    margin-bottom: 6px;
+    margin-top: 15px;
+    font-size: 1.2em;
+}
+
+#chyby>div:first-child {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 50px;
+    height: 65%;
+}
+
+#chyby hr {
+    width: 180px;
+    align-self: center;
+    position: relative;
+    top: -3px;
+    margin-bottom: 4px;
+}
+
 #tlacitka {
     display: inline-flex;
     margin-top: 10px;
@@ -218,12 +318,11 @@ function zmenaJmena(e: Event) {
 }
 
 #bloky {
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    width: 100%;
     gap: 20px;
-    flex-wrap: wrap-reverse;
+    grid-template-columns: auto auto;
     justify-content: center;
-    align-content: flex-end;
 }
 
 .blok {
@@ -241,17 +340,24 @@ function zmenaJmena(e: Event) {
 }
 
 #progres {
-    margin-bottom: 20px;
     display: flex;
     flex-direction: column;
     text-decoration: none;
-    border-radius: 10px;
-    width: 420px;
+    align-items: normal;
+}
+
+#presnost {
+    display: flex;
+    text-decoration: none;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
     background-color: var(--tmave-fialova);
-    height: 110px;
+    height: 120px;
     transition-duration: 0.2s;
-    padding: 15px;
+    padding: 0 25px;
     gap: 10px;
+    max-height: 100px;
 }
 
 #nadpisy {
@@ -305,7 +411,7 @@ function zmenaJmena(e: Event) {
 #ucet {
     display: flex;
     background-color: var(--tmave-fialova);
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     padding: 15px 25px 15px 5px;
     border-radius: 10px;
     gap: 5px;
@@ -362,10 +468,6 @@ function zmenaJmena(e: Event) {
         align-items: center;
         justify-content: center;
         max-width: 720px;
-    }
-
-    #progres {
-        width: 270px;
     }
 
     .blok {

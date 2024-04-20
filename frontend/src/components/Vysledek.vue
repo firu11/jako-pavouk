@@ -2,8 +2,8 @@
 import axios from 'axios';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getToken, napovedaKNavigaci } from '../utils';
-import { levelyRychlosti, levelyPresnosti } from '../stores';
+import { getCisloPochvaly, getToken, MojeMapa, napovedaKNavigaci } from '../utils';
+import { levelyRychlosti } from '../stores';
 
 const emit = defineEmits(["restart"])
 
@@ -30,14 +30,14 @@ const props = defineProps({
         default: ""
     },
     nejcastejsiChyby: {
-        type: Array<any>,
+        type: MojeMapa,
         default: ["prvni-psani"]
     },
     cislo: String,
     posledni: Boolean
 })
 
-let rychlost = Math.round((props.delkaTextu / props.cas) * 60 * 10) / 10
+let rychlost = ((props.delkaTextu - (10 * props.preklepy)) / props.cas) * 60
 const route = useRoute()
 const router = useRouter()
 const pochavly = ["Dobrá práce!", "Bravo!", "Pěkná práce!", "Skvělá práce!", "Výborně!", "Parádní!", "Skvělý výsledek!", "Paráda!", "Hezký!", "Super výkon!", "Parádní výkon!", "Skvělý výkon!"]
@@ -46,14 +46,14 @@ const vsechnyHodnoceni = [
     ["Ale můžeš ještě zapracovat na rychlosti.", "Leda rychlost jde ještě zlepšovat.", "Cvičení máš hotové ale rychlost můžeš ještě zlepšit."], // dobrý ale rychlost by šla zlepšit
     ["Ale můžeš ještě zapracovat na přesnosti.", "Leda přesnost jde ještě zlepšovat.", "Cvičení máš hotové ale přesnost můžeš ještě zlepšit."], // dobrý ale přesnost by šla zlepšit
     ["Ale můžeš se ještě zlepšit.", "Cvičení máš hotové ale ještě je kam růst."], // dobrý ale oboje jde zlepsit
-    ["Dej tomu jěště chvíli. Jde psát i trochu rychleji.", "Zatím ale moc pomalé.", "Musíš ale ještě trochu zrychlit."], // rychlost není dostatečná
-    ["Dej tomu jěště chvíli. Jde dělat i méně chyb.", "Zatím hodně chybuješ.", "Zaměř se i na přesnost, ještě to není ono."], // přesnost není dostatečná
-    ["Dej tomu jěště chvíli. Zatím ti to moc nejde.", "Zkus to ale ještě jednou."]
+    ["Dej tomu ale jěště chvíli. Jde psát i trochu rychleji.", "Zatím ale moc pomalé.", "Musíš ale ještě trochu zrychlit."], // rychlost není dostatečná
+    ["Dej tomu ale jěště chvíli. Jde dělat i méně chyb.", "Zatím hodně chybuješ.", "Zaměř se i na přesnost, ještě to není ono."], // přesnost není dostatečná
+    ["Dej tomu ale jěště chvíli. Zatím ti to moc nejde.", "Zkus to ale ještě jednou."]
 ]
 const hodnoceni = ref("")
-const hvezdy = ref(0)
 
-let presnost = (props.delkaTextu - props.preklepy) / props.delkaTextu * 100
+let presnost = (props.delkaTextu - props.preklepy - props.opravenych) / props.delkaTextu * 100
+const nejcastejsiChybyTop3 = ref()
 
 function reset() {
     emit("restart")
@@ -73,44 +73,42 @@ function random(list: Array<string>) {
 }
 
 onMounted(() => {
-    hodnoceni.value += random(pochavly) + " "
-    if (rychlost >= levelyRychlosti[1] && presnost >= levelyPresnosti[1]) { // paradni
-        hodnoceni.value += random(vsechnyHodnoceni[0])
-        hvezdy.value = 3
-    } else if (rychlost >= levelyRychlosti[0] && rychlost < levelyRychlosti[1] && presnost >= levelyPresnosti[1]) { // rychlost muze byt lepsi
-        hodnoceni.value += random(vsechnyHodnoceni[1])
-        hvezdy.value = 2
-    } else if (presnost >= levelyPresnosti[0] && presnost < levelyPresnosti[1] && rychlost >= levelyRychlosti[1]) { // presnost muze byt lepsi
-        hodnoceni.value += random(vsechnyHodnoceni[2])
-        hvezdy.value = 2
-    } else if (presnost >= levelyPresnosti[0] && presnost < levelyPresnosti[1] && rychlost >= levelyRychlosti[0] && rychlost <= levelyRychlosti[1]) { // oboje muze byt lepsi
-        hodnoceni.value += random(vsechnyHodnoceni[3])
-        hvezdy.value = 1
-    } else if (rychlost < levelyRychlosti[0] && presnost < levelyPresnosti[0]) { // oboje bad
-        hodnoceni.value += random(vsechnyHodnoceni[6])
-        hvezdy.value = 0
-    } else if (rychlost < levelyRychlosti[0]) { // rychlost bad
-        hodnoceni.value += random(vsechnyHodnoceni[4])
-        hvezdy.value = 0
-    } else if (presnost < levelyPresnosti[0]) { // presnost bad
-        hodnoceni.value += random(vsechnyHodnoceni[5])
-        hvezdy.value = 0
-    }
+    hodnoceni.value = random(pochavly) + " " + random(vsechnyHodnoceni[getCisloPochvaly(rychlost, presnost)])
+
+    nejcastejsiChybyTop3.value = props.nejcastejsiChyby.top(3)
 
     document.addEventListener('keydown', e1)
 
-    if (props.cislo == "" || props.cislo == 'test-psani') return // je to procvicovani / test takze neposilame
+    if (props.pismena == "") { // je to procvicovani / test takze posilame jinam
+        let cislo = props.cislo
+        if (props.cislo == "test-psani") cislo = "0" // test psani
+
+        axios.post('/dokonceno-procvic/' + cislo, {
+            "neopravenePreklepy": props.preklepy,
+            "cas": props.cas,
+            "delkaTextu": props.delkaTextu,
+            "nejcastejsiChyby": Object.fromEntries(props.nejcastejsiChyby)
+        }, {
+            headers: {
+                Authorization: `Bearer ${getToken()}`
+            }
+        }).catch(function (e) {
+            console.log(e)
+        })
+        return
+    }
 
     if (props.cislo == "prvni-psani") {
         hodnoceni.value = "Píšeš krásně, ale tohle byl jen začátek..."
         return
     }
 
+    // jsme ve cviceni
     axios.post('/dokonceno/' + encodeURIComponent(props.pismena) + '/' + props.cislo, {
-        "cpm": rychlost,
-        "preklepy": props.preklepy,
+        "neopravenePreklepy": props.preklepy,
         "cas": props.cas,
-        "delkaTextu": props.delkaTextu
+        "delkaTextu": props.delkaTextu,
+        "nejcastejsiChyby": Object.fromEntries(props.nejcastejsiChyby)
     }, {
         headers: {
             Authorization: `Bearer ${getToken()}`
@@ -140,13 +138,13 @@ function e1(e: KeyboardEvent) {
 
 <template>
     <div id="bloky" style="margin-top: 25px;">
-        <div id="hodnoceni" class="blok" :style="{width: cislo == 'prvni-psani' ? '400px' : ''}">
+        <div id="hodnoceni" class="blok" :style="{ width: cislo == 'prvni-psani' ? '400px' : '' }">
             <div id="hvezdy">
-                <img v-if="hvezdy >= 1" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+                <img v-if="rychlost >= levelyRychlosti[0]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
                 <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-                <img v-if="hvezdy >= 2" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+                <img v-if="rychlost >= levelyRychlosti[1]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
                 <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-                <img v-if="hvezdy == 3" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+                <img v-if="rychlost >= levelyRychlosti[2]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
                 <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
             </div>
             <div style="display: flex; align-items: center; height: 100%;">
@@ -156,21 +154,24 @@ function e1(e: KeyboardEvent) {
         <div v-if="cislo !== 'prvni-psani'" class="blok" id="chyby">
             <h2>Nejčastější chyby</h2>
             <hr>
-            <div v-if="nejcastejsiChyby.length !== 0">
+            <div v-if="nejcastejsiChyby.size !== 0">
                 <ol>
-                    <li v-for="znak in nejcastejsiChyby"><span>{{ znak[0] == " " ? "_" : znak[0] }}</span></li>
+                    <li v-for="znak in nejcastejsiChybyTop3"><span>{{ znak[0] == " " ? "_" : znak[0] }}</span></li>
                 </ol>
                 <ul>
-                    <li v-for="znak in nejcastejsiChyby"><span v-if="znak[1] > 0">{{ znak[1] }}</span></li>
+                    <li v-for="znak in nejcastejsiChybyTop3"><span v-if="znak[1] > 0">{{ znak[1] }}</span></li>
                 </ul>
             </div>
-            <h3 v-else style="margin-top: 32px;">Žádné!</h3>
+            <h3 v-else
+                style="height: 100%; display: flex; justify-content: center; align-items: center; margin-top: 0;">
+                <span>Žádné!</span>
+            </h3>
         </div>
     </div>
 
     <div id="bloky">
         <div class="blok">
-            <h2>{{ rychlost }}</h2>
+            <h2>{{ rychlost > 0 ? Math.round(rychlost * 10) / 10 : 0 }}</h2>
             <hr>
             <p class="jednotka">CPM / úhozů</p>
             <p class="jednotka">&zwnj;</p>
@@ -189,9 +190,9 @@ function e1(e: KeyboardEvent) {
         </div>
         <div class="blok">
             <h2>{{ cas < 60 ? Math.round(cas * 10) / 10 : `${Math.floor(cas / 60)}:${Math.floor(cas % 60 * 10) / 10 < 10
-                    ? "0" + Math.floor(cas % 60 * 10) / 10 : Math.floor(cas % 60 * 10) / 10}` }}</h2>
+                ? "0" + Math.floor(cas % 60 * 10) / 10 : Math.floor(cas % 60 * 10) / 10}` }}</h2>
                     <hr>
-                    <p class="jednotka">{{ cas < 60 ? "Sekund" : "MM:SS" }}</p>
+                    <p class="jednotka">{{ cas < 60 ? "Vteřin" : "MM:SS" }}</p>
                             <p class="jednotka">&zwnj;</p>
                             <h3>Čas</h3>
         </div>
@@ -230,7 +231,8 @@ ol li span {
     font-weight: 500;
 }
 
-ol, ul {
+ol,
+ul {
     display: flex;
     flex-direction: column;
     align-items: center;

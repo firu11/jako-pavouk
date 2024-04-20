@@ -20,11 +20,11 @@ import (
 
 // struct body requestu
 type (
-	bodyDokoncitCvic struct {
-		CPM        float32 `json:"cpm" validate:"required"`
-		Preklepy   int     `json:"preklepy" validate:"min=0"` //sus reqired nebere nulu takze min=0 asi ok
-		Cas        float32 `json:"cas" validate:"required"`
-		DelkaTextu int     `json:"delkaTextu" validate:"required"`
+	bodyDokoncit struct {
+		Preklepy         int            `json:"neopravenePreklepy" validate:"min=0"` //sus reqired nebere nulu takze min=0 asi ok
+		Cas              float32        `json:"cas" validate:"required"`
+		DelkaTextu       int            `json:"delkaTextu" validate:"required"`
+		NejcastejsiChyby map[string]int `json:"nejcastejsiChyby" validate:"required"`
 	}
 
 	bodyPoslatEmail struct {
@@ -76,6 +76,7 @@ func SetupRouter(app *fiber.App) {
 	api.Get("/lekce/:pismena", getCviceniVLekci)
 	api.Get("/cvic/:pismena/:cislo", getCviceni)
 	api.Post("/dokonceno/:pismena/:cislo", dokoncitCvic)
+	api.Post("/dokonceno-procvic/:cislo", dokoncitProcvic)
 	api.Get("/procvic", getVsechnyProcvic)
 	api.Get("/procvic/:cisloProcvic/:cislo", getProcvic)
 	api.Post("/test-psani", testPsani)
@@ -410,7 +411,7 @@ func dokoncitCvic(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	var body = bodyDokoncitCvic{}
+	var body = bodyDokoncit{}
 
 	if err := c.BodyParser(&body); err != nil {
 		log.Print(err)
@@ -439,8 +440,49 @@ func dokoncitCvic(c *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	err = databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.CPM, body.Preklepy, body.Cas, body.DelkaTextu)
+	err = databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.Preklepy, body.Cas, body.DelkaTextu, body.NejcastejsiChyby)
 	if err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	return c.SendStatus(fiber.StatusOK)
+}
+
+// přidá do databáze záznam o tom jak uživatel cvičení napsal
+//
+// potřebuje token uživatele, rychlost, preklepy, cas, delku textu
+func dokoncitProcvic(c *fiber.Ctx) error {
+	id, err := utils.Autentizace(c, false)
+	if err != nil {
+		return err
+	}
+	var body = bodyDokoncit{}
+
+	if err := c.BodyParser(&body); err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	if err := utils.ValidateStruct(&body); err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	cislo, err := strconv.ParseUint(c.Params("cislo"), 10, 32)
+	if err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	vsechnyProcvic, err := databaze.GetTexty()
+	if err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	if int(cislo) > len(vsechnyProcvic) { // error index out of range nebude
+		log.Print("Takovy procvicovani neni")
+		return fiber.ErrBadRequest
+	}
+	err = databaze.PridatDokonceneProcvic(uint(cislo), id, body.Preklepy, body.Cas, body.DelkaTextu, body.NejcastejsiChyby)
+	if err != nil {
+		log.Println(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 	return c.SendStatus(fiber.StatusOK)
@@ -448,11 +490,34 @@ func dokoncitCvic(c *fiber.Ctx) error {
 
 // vrátí seznam textů k procvičování
 func getVsechnyProcvic(c *fiber.Ctx) error {
+	id, err := utils.Autentizace(c, false)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	}
+
 	texty, err := databaze.GetTexty()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
-	return c.JSON(fiber.Map{"texty": texty})
+	rychlosti, err := databaze.GetDokonceneProcvic(id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
+	}
+
+	var rych []float32
+	for i := -1; i < len(texty); i++ {
+		r := rychlosti[i]
+		if r < 0 {
+			rych = append(rych, 0)
+		} else if r == 0 {
+			rych = append(rych, -1)
+		} else {
+			rych = append(rych, r)
+		}
+
+	}
+
+	return c.JSON(fiber.Map{"texty": texty, "rychlosti": rych})
 }
 
 // vrací text k odpovídajícímu procvičování
@@ -634,7 +699,7 @@ func google(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 	}
 
-	email, jmeno, err := utils.GoogleTokenNaData(body.AccessToken)
+	email, jmeno, err := databaze.GoogleTokenNaData(body.AccessToken)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 	}
@@ -745,7 +810,7 @@ func prehled(c *fiber.Ctx) error {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
-	preklepy, cpm, daystreak, cas, delkaVsechTextu, err := databaze.GetUdaje(id)
+	presnost, cpm, daystreak, cas, chybyPismenka, err := databaze.GetUdaje(id)
 	if err != nil {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
@@ -755,19 +820,16 @@ func prehled(c *fiber.Ctx) error {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
-	uspesnost := float32((delkaVsechTextu - preklepy))
-	if uspesnost < 0 {
-		uspesnost = 0 // kvuli adamovi kterej big troulin a měl -10%
-	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"email":           uziv.Email,
-		"jmeno":           uziv.Jmeno,
-		"daystreak":       daystreak,
-		"uspesnost":       uspesnost / float32(delkaVsechTextu) * 100,
-		"prumerRychlosti": utils.Prumer(cpm),
-		"celkovyCas":      cas,
-		"dokonceno":       dokonceno,
-		"klavesnice":      uziv.Klavesnice,
+		"email":            uziv.Email,
+		"jmeno":            uziv.Jmeno,
+		"daystreak":        daystreak,
+		"uspesnost":        presnost,
+		"prumerRychlosti":  utils.Prumer(cpm),
+		"celkovyCas":       cas,
+		"dokonceno":        dokonceno,
+		"nejcastejsiChyby": chybyPismenka,
+		"klavesnice":       uziv.Klavesnice,
 	})
 }
 

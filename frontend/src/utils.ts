@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { cislaProcvicJmeno, tokenJmeno } from "./stores";
+import { cislaProcvicJmeno, levelyPresnosti, levelyRychlosti, tokenJmeno } from "./stores";
 
 export function formatovanyPismena(pismena: string | string[] | undefined) {
     if (pismena === "..." || pismena === undefined) return pismena
@@ -100,7 +100,54 @@ export function jeToRobot(userAgent: string): boolean {
         /facebook/, /instagram/, /pinterest/, /reddit/,          // SOCIAL MEDIA
         /slack/, /twitter/, /whatsapp/, /youtube/,
         /semrush/,                                            // OTHER
-    ] as RegExp[]).map((r) => r.source).join("|"), "i");     // BUILD REGEXP + "i" FLAG
+    ] as RegExp[]).map((r) => r.source).join("|"), "i")     // BUILD REGEXP + "i" FLAG
 
-    return robots.test(userAgent);
-};
+    return robots.test(userAgent)
+}
+
+
+export class MojeMapa extends Map<string, number> {
+    async put(znak: string) {
+        znak = znak.toLocaleLowerCase()
+
+        let pocet = this.get(znak)
+        if (pocet === undefined) {
+            this.set(znak, 1)
+        } else {
+            this.set(znak, +pocet + 1)
+        }
+    }
+    top(n: number) {
+        let nejvetsi = new Map<string, number>();
+        for (let i = 0; i < n; i++) {
+            let nej: any[] = [undefined, 0]
+            this.forEach((pocet, znak) => {
+                if (pocet > nej[1] && nejvetsi.get(znak) == undefined) {
+                    nej[0] = znak
+                    nej[1] = pocet
+                }
+            })
+            if (nej[0] != undefined) nejvetsi.set(nej[0], nej[1])
+        }
+        return nejvetsi
+    }
+}
+
+export function getCisloPochvaly(rychlost: number, presnost: number) {
+    if (rychlost >= levelyRychlosti[2] && presnost >= levelyPresnosti[1]) { // paradni
+        return 0
+    } else if (rychlost >= levelyRychlosti[1] && rychlost < levelyRychlosti[2] && presnost >= levelyPresnosti[1]) { // rychlost muze byt lepsi
+        return 1
+    } else if (presnost >= levelyPresnosti[0] && presnost < levelyPresnosti[1] && rychlost >= levelyRychlosti[2]) { // presnost muze byt lepsi
+        return 2
+    } else if (presnost >= levelyPresnosti[0] && presnost < levelyPresnosti[1] && rychlost >= levelyRychlosti[1] && rychlost < levelyRychlosti[2]) { // oboje muze byt lepsi
+        return 3
+    } else if (rychlost < levelyRychlosti[1] && presnost < levelyPresnosti[0]) { // oboje bad
+        return 6
+    } else if (rychlost < levelyRychlosti[1]) { // rychlost bad
+        return 4
+    } else if (presnost < levelyPresnosti[0]) { // presnost bad
+        return 5
+    }
+    return 0 // nestane se
+}

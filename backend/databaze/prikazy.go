@@ -3,14 +3,27 @@
 package databaze
 
 import (
+	"backend/utils"
+	"database/sql"
+	"encoding/json"
 	"errors"
-	"math"
+	"fmt"
+	"io"
+	mathRand "math/rand"
+	"net/http"
+	"os"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/rickb777/date"
+	godiacritics "gopkg.in/Regis24GmbH/go-diacritics.v2"
 )
+
+var RegexJmeno *regexp.Regexp
+var MaxCisloZaJmeno int // 10_000
 
 type (
 	Lekce struct {
@@ -54,16 +67,88 @@ type (
 	}
 
 	Dokoncene struct {
-		ID         uint      `json:"id"`
-		UzivID     uint      `json:"uziv_id"`
-		CviceniID  uint      `json:"cviceni_id"`
-		CPM        float32   `json:"cpm"`
-		Preklepy   uint      `json:"preklepy"`
-		Cas        int       `json:"cas"`
-		DelkaTextu int       `json:"delka_textu"`
-		Datum      date.Date `json:"datum"`
+		ID            uint           `json:"id"`
+		UzivID        uint           `json:"uziv_id"`
+		CviceniID     uint           `json:"cviceni_id"`
+		Neopravene    uint           `json:"neopravene"`
+		Cas           int            `json:"cas"`
+		DelkaTextu    int            `json:"delka_textu"`
+		Datum         date.Date      `json:"datum"`
+		ChybyPismenka map[string]int `json:"chyby_pismenka"`
 	}
 )
+
+// vybírá jméno pro uživatele který se zaregistroval přes google
+//
+// zkusí kombinace google jména a náhodného čísla, poté Pavouk a číslo
+//
+// číslo přidávám k jménu abych minimalizoval šanci, že takový uživatel již existuje a musím vytvářet nové jméno a znovu kontrolovat v db
+func volbaJmena(celeJmeno string) (string, error) {
+	celeJmeno = godiacritics.Normalize(celeJmeno)
+	var jmeno []string = strings.Fields(celeJmeno) // rozdělim na jmeno a prijimeni
+
+	for range 20 { // vic než 20x to zkoušet nebudu
+		var cislo int = mathRand.Intn(MaxCisloZaJmeno-1) + 1
+
+		var jmenoNaTest string
+		if len(jmeno) >= 1 {
+			jmenoNaTest = fmt.Sprintf("%s%d", jmeno[0], cislo)
+			if RegexJmeno.MatchString(jmenoNaTest) {
+				_, err := GetUzivByJmeno(jmenoNaTest)
+				if err != nil {
+					return jmenoNaTest, nil
+				}
+			}
+		}
+		if len(jmeno) == 2 {
+			jmenoNaTest = fmt.Sprintf("%s%d", jmeno[1], cislo)
+			if RegexJmeno.MatchString(jmenoNaTest) {
+				_, err := GetUzivByJmeno(jmenoNaTest)
+				if err != nil { // ještě neexistuje
+					return jmenoNaTest, nil
+				}
+			}
+		}
+		jmenoNaTest = fmt.Sprintf("Pavouk%d", cislo)
+		if RegexJmeno.MatchString(jmenoNaTest) {
+			_, err := GetUzivByJmeno(jmenoNaTest)
+			if err != nil { // ještě neexistuje
+				return jmenoNaTest, nil
+			}
+		}
+	}
+
+	return "", errors.New("konec sveta nenašel jsem jméno")
+}
+
+// z googlu vrací email, jmeno, error
+func GoogleTokenNaData(token string) (string, string, error) {
+	res, err := http.Get(fmt.Sprintf("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%v", token))
+	if err != nil {
+		return "", "", err
+	}
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", "", err
+	}
+
+	m := make(map[string]string)
+	err = json.Unmarshal(body, &m)
+	if err != nil {
+		return "", "", err
+	}
+
+	if m["aud"] != os.Getenv("GOOGLE_CLIENT_ID") {
+		return "", "", errors.New("fake token")
+	}
+
+	jmeno, err := volbaJmena(m["name"])
+	if err != nil {
+		return "", "", err
+	}
+
+	return m["email"], jmeno, err
+}
 
 func GetLekce(uzivID uint) ([][]Lekce, error) {
 	var lekce [][]Lekce = [][]Lekce{}
@@ -142,7 +227,7 @@ func GetProcvicovani(id int, cislo string) (string, []string, error) {
 	var text string
 	var nazev string
 
-	err := DB.QueryRowx(`SELECT jmeno, text`+cislo+` FROM texty WHERE id = $1;`, id).Scan(&nazev, &text)
+	err := DB.QueryRowx(`SELECT jmeno, text`+cislo+` FROM texty WHERE id = $1 ORDER by id;`, id).Scan(&nazev, &text)
 	if err != nil {
 		return "", []string{}, err
 	}
@@ -156,9 +241,8 @@ func GetProcvicovani(id int, cislo string) (string, []string, error) {
 }
 
 type Cvic struct {
-	Id       int     `json:"id"`
-	Cpm      float32 `json:"cpm"`
-	Presnost float32 `json:"presnost"`
+	Id  int     `json:"id"`
+	Cpm float32 `json:"cpm"`
 }
 
 func GetDokonceneCvicVLekci(uzivID uint, lekceID uint, pismena string) ([]Cvic, error) {
@@ -172,7 +256,7 @@ func GetDokonceneCvicVLekci(uzivID uint, lekceID uint, pismena string) ([]Cvic, 
 			return cviceniIDs, err
 		}
 	}
-	rows, err = DB.Queryx(`SELECT d.cviceni_id, d.cpm, d.delka_textu, d.preklepy FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id WHERE lekce_id = $1 AND uziv_id = $2;`, lekceID, uzivID)
+	rows, err = DB.Queryx(`SELECT cviceni_id, MAX(((d.delka_textu - 10 * d.neopravene) / d.cas) * 60) AS cpm FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id WHERE lekce_id = $1 AND uziv_id = $2 GROUP BY d.cviceni_id;`, lekceID, uzivID)
 	if err != nil {
 		return cviceniIDs, err
 	}
@@ -180,15 +264,39 @@ func GetDokonceneCvicVLekci(uzivID uint, lekceID uint, pismena string) ([]Cvic, 
 	defer rows.Close()
 
 	for rows.Next() {
-		var id, delkaTextu int
-		var preklepy, cpm float32
-		if err = rows.Scan(&id, &cpm, &delkaTextu, &preklepy); err != nil {
+		var id int
+		var cpm float32
+		if err = rows.Scan(&id, &cpm); err != nil {
 			return cviceniIDs, err
 		}
-		cviceniIDs = append(cviceniIDs, Cvic{id, cpm, (float32(delkaTextu) - preklepy) / float32(delkaTextu) * 100})
+		cviceniIDs = append(cviceniIDs, Cvic{id, cpm})
 	}
 
 	return cviceniIDs, nil
+}
+
+func GetDokonceneProcvic(uzivID uint) (map[int]float32, error) {
+	var rychlosti map[int]float32 = make(map[int]float32)
+	var rows *sqlx.Rows
+	var err error
+
+	rows, err = DB.Queryx(`SELECT procvic_id, MAX(((delka_textu - 10 * neopravene) / cas) * 60) AS cpm FROM dokoncene_procvic WHERE uziv_id = $1 GROUP BY procvic_id ORDER BY procvic_id DESC;`, uzivID)
+	if err != nil {
+		return rychlosti, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var id sql.NullInt16
+		var cpm float32
+		if err = rows.Scan(&id, &cpm); err != nil {
+			return rychlosti, err
+		}
+		rychlosti[int(id.Int16)-1] = cpm
+	}
+
+	return rychlosti, nil
 }
 
 func GetLekceIDbyPismena(pismena string) (uint, error) {
@@ -301,38 +409,58 @@ func PrejmenovatUziv(id uint, noveJmeno string) error {
 	return err // buď nil nebo error
 }
 
-/*                        preklepy, cpm, daystreak, cas, delka */
-func GetUdaje(uzivID uint) (int, []float32, int, float32, int, error) {
-	var preklepy int
+/*                          presnost,   cpm, daystreak, cas,   chybyPismenka */
+func GetUdaje(uzivID uint) (float32, []float32, int, float32, map[string]int, error) {
+	var presnost float32
 	var delkaVsechTextu int = 0
 	var cpm []float32
 	var daystreak int = 0
 	var celkovyCas float32 = 0
+	var chybyPismenka map[string]int = make(map[string]int)
 
-	var poslednich int = 10
-	rows, err := DB.Queryx(`SELECT preklepy, cpm, delka_textu FROM dokoncene WHERE uziv_id = $1 ORDER BY den DESC LIMIT $2;`, uzivID, poslednich)
+	var poslednich int = 15
+	rows, err := DB.Queryx(`SELECT neopravene, delka_textu, cas, chyby_pismenka, datum FROM dokoncene WHERE uziv_id = $1 UNION SELECT neopravene, delka_textu, cas, chyby_pismenka, datum FROM dokoncene_procvic WHERE uziv_id = $1 ORDER BY datum DESC LIMIT $2;`, uzivID, poslednich)
 	if err != nil {
-		return preklepy, cpm, daystreak, celkovyCas, delkaVsechTextu, err
+		return presnost, cpm, daystreak, celkovyCas, chybyPismenka, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var preklep int
-		var cpmko float32
-		var delka int
-		err := rows.Scan(&preklep, &cpmko, &delka)
+		var neopravene, delka int
+		var cas float32
+		var chybyPismenkaRowByte []byte
+		var datumNezajima date.Date
+		err := rows.Scan(&neopravene, &delka, &cas, &chybyPismenkaRowByte, &datumNezajima)
 		if err != nil {
-			return preklepy, cpm, daystreak, celkovyCas, delkaVsechTextu, err
+			return presnost, cpm, daystreak, celkovyCas, chybyPismenka, err
 		}
 
-		preklepy += preklep
-		cpm = append(cpm, cpmko)
+		var chybyPismenkaRow map[string]int
+		err = json.Unmarshal(chybyPismenkaRowByte, &chybyPismenkaRow)
+		if err == nil {
+			for key, value := range chybyPismenkaRow {
+				chybyPismenka[key] += value //když to ještě neexistuje, default value je 0
+			}
+		}
+		cpm = append(cpm, utils.CPM(delka, cas, neopravene))
 		delkaVsechTextu += delka
 	}
 
-	rows, err = DB.Queryx(`SELECT den, cas FROM dokoncene WHERE uziv_id = $1 ORDER BY den DESC;`, uzivID)
+	if delkaVsechTextu != 0 {
+		var soucetChyb int = 0
+		for _, hodnota := range chybyPismenka {
+			soucetChyb += hodnota
+		}
+		presnost = float32(delkaVsechTextu-soucetChyb) / float32(delkaVsechTextu) * 100
+		if presnost < 0 {
+			presnost = 0 // kvuli adamovi kterej big troulin a měl -10%
+		}
+	}
+
+	// daystreak
+	rows, err = DB.Queryx(`SELECT datum, cas FROM dokoncene WHERE uziv_id = $1 UNION SELECT datum, cas FROM dokoncene_procvic WHERE uziv_id = $1 ORDER BY datum DESC;`, uzivID)
 	if err != nil {
-		return preklepy, cpm, daystreak, celkovyCas, delkaVsechTextu, err
+		return presnost, cpm, daystreak, celkovyCas, chybyPismenka, err
 	}
 	defer rows.Close()
 
@@ -341,7 +469,7 @@ func GetUdaje(uzivID uint) (int, []float32, int, float32, int, error) {
 		var c float32
 		var d date.Date
 		if err := rows.Scan(&d, &c); err != nil {
-			return preklepy, cpm, daystreak, celkovyCas, delkaVsechTextu, err
+			return presnost, cpm, daystreak, celkovyCas, chybyPismenka, err
 		}
 		celkovyCas += c
 		dny = append(dny, d)
@@ -361,7 +489,7 @@ func GetUdaje(uzivID uint) (int, []float32, int, float32, int, error) {
 	if delkaVsechTextu == 0 {
 		delkaVsechTextu = 1
 	}
-	return preklepy, cpm, daystreak, celkovyCas, delkaVsechTextu, nil
+	return presnost, cpm, daystreak, celkovyCas, chybyPismenka, nil
 }
 
 func DokonceneProcento(uzivID uint) (float32, error) {
@@ -383,10 +511,27 @@ func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
 	return uzivID, nil
 }
 
-func PridatDokonceneCvic(cvicID, uzivID uint, cpm float32, preklepy int, cas float32, delkaTextu int) error {
-	cpm = float32(math.Round(float64(cpm)*100) / 100) // zaokrouhlit na 2 desetiny cisla
-	cas = float32(math.Round(float64(cas)*100) / 100)
-	_, err := DB.Exec(`INSERT INTO dokoncene (uziv_id, cviceni_id, cpm, preklepy, cas, delka_textu) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT ON CONSTRAINT unikatni DO UPDATE SET cpm = EXCLUDED.cpm, preklepy = EXCLUDED.preklepy, cas = EXCLUDED.cas, delka_textu = EXCLUDED.delka_textu, den = CURRENT_TIMESTAMP;`, uzivID, cvicID, cpm, preklepy, cas, delkaTextu)
+func PridatDokonceneCvic(cvicID, uzivID uint, neopravene int, cas float32, delkaTextu int, chybyPismenka map[string]int) error {
+	chybyPismenkaJSON, err := json.Marshal(chybyPismenka)
+	if err != nil {
+		return errors.New("konverze mapy chyb na json se nepovedla")
+	}
+	_, err = DB.Exec(`INSERT INTO dokoncene (uziv_id, cviceni_id, neopravene, cas, delka_textu, chyby_pismenka) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT ON CONSTRAINT duplicitni DO NOTHING`, uzivID, cvicID, neopravene, cas, delkaTextu, chybyPismenkaJSON)
+	return err
+}
+
+func PridatDokonceneProcvic(procvicID, uzivID uint, neopravene int, cas float32, delkaTextu int, chybyPismenka map[string]int) error {
+	chybyPismenkaJSON, err := json.Marshal(chybyPismenka)
+
+	// pokud je procvic 0 neboli je to test psaní, vložim NULL
+	var procvicCislo = sql.NullString{String: strconv.Itoa(int(procvicID)), Valid: true}
+	if procvicID == 0 {
+		procvicCislo = sql.NullString{}
+	}
+	if err != nil {
+		return errors.New("konverze mapy chyb na json se nepovedla")
+	}
+	_, err = DB.Exec(`INSERT INTO dokoncene_procvic (uziv_id, procvic_id, neopravene, cas, delka_textu, chyby_pismenka) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT ON CONSTRAINT duplicitni2 DO NOTHING`, uzivID, procvicCislo, neopravene, cas, delkaTextu, chybyPismenkaJSON)
 	return err
 }
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useHead } from 'unhead'
-import { Oznacene, checkTeapot, napovedaKNavigaci, pridatOznameni } from '../utils';
+import { Oznacene, checkTeapot, getToken, napovedaKNavigaci, pridatOznameni } from '../utils';
 import axios from 'axios';
 import { onMounted, onUnmounted, ref } from 'vue';
 
@@ -15,21 +15,26 @@ useHead({
 })
 
 const texty = ref([])
+const rychlosti = ref([] as number[])
 const mobil = ref(document.body.clientWidth <= 1000)
 const o = new Oznacene()
 let randomCvic = 1
 
 onMounted(() => {
-    axios.get("/procvic")
-        .then(response => {
-            texty.value = response.data.texty
-            o.setMax(texty.value.length + 1)
-            randomCvic = Math.floor(Math.random() * texty.value.length) + 1
-        }).catch(e => {
-            if (!checkTeapot(e)) {
-                pridatOznameni()
-            }
-        })
+    axios.get("/procvic", {
+        headers: {
+            Authorization: `Bearer ${getToken()}`
+        }
+    }).then(response => {
+        texty.value = response.data.texty
+        rychlosti.value = response.data.rychlosti
+        o.setMax(texty.value.length + 1)
+        randomCvic = Math.floor(Math.random() * texty.value.length) + 1
+    }).catch(e => {
+        if (!checkTeapot(e)) {
+            pridatOznameni()
+        }
+    })
     document.addEventListener('keydown', e1)
     document.addEventListener('keyup', e2)
     document.addEventListener('mousemove', zrusitVyber)
@@ -89,6 +94,7 @@ onUnmounted(() => {
         <RouterLink v-else-if="!mobil" v-for="t, i in texty" :to="`/procvic/${i + 1}`" class="blok"
             :i="i + 1 == o.index.value" :class="{ oznacene: i + 1 == o.index.value, nohover: o.index.value != 0 }">
             <h2>{{ t }}</h2>
+            <span v-if="rychlosti[i + 1] != -1"><b>{{ Math.round(rychlosti[i + 1] * 10) / 10 }}</b> CPM</span>
         </RouterLink>
         <div v-else v-for="t in texty" class="blok" @click="pridatOznameni('Psaní na telefonech zatím neučíme...')">
             <h2>{{ t }}</h2>
@@ -97,6 +103,7 @@ onUnmounted(() => {
         <RouterLink :to="'/test-psani'" class="blok" :i="4 == o.index.value"
             :class="{ oznacene: 4 == o.index.value, nohover: o.index.value != 0 }">
             <h2>Test psaní</h2>
+            <span v-if="texty.length != 0 && rychlosti[0] != -1"><b>{{ Math.round(rychlosti[0] * 10) / 10 }}</b> CPM</span>
         </RouterLink>
     </div>
 </template>
@@ -124,6 +131,8 @@ h2 {
     background-color: var(--tmave-fialova);
     min-height: 64px;
     transition-duration: 0.2s;
+    justify-content: space-between;
+
     cursor: pointer;
     user-select: none;
     /* kvuli tomu neprihlasenymu */
@@ -140,6 +149,16 @@ h2 {
     font-weight: 300;
     margin: 0;
     align-self: center;
+}
+
+.blok span {
+    position: relative;
+    top: 3px;
+    font-size: 1.2rem;
+}
+
+.blok span b {
+    font-size: 1.8rem;
 }
 
 @media screen and (max-width: 1100px) {

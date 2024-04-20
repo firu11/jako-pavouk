@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { format, getToken, pridatOznameni } from '../utils';
+import { format, getToken, MojeMapa, pridatOznameni } from '../utils';
 import SipkaZpet from '../components/SipkaZpet.vue';
 import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
@@ -67,11 +67,11 @@ function restart() {
     konec.value = false
 }
 
-function konecTextu(c: number, o: number, p: number, n: any[]) {
-    cas.value = c
+function konecTextu(c: number, o: number, p: number, n: MojeMapa) {
+    cas.value = Math.round(c * 100) / 100
     opravenePocet.value = o
     preklepy.value = p
-    nejcastejsiChyby.value = n
+    nejcastejsiChyby.value = new MojeMapa(n)
     konec.value = true
 }
 

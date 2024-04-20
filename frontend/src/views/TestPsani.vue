@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { checkTeapot, getToken, pridatOznameni } from '../utils';
+import { checkTeapot, getToken, MojeMapa, pridatOznameni } from '../utils';
 import { computed, onMounted, ref, toRaw } from 'vue';
 import axios from 'axios';
 import Vysledek from '../components/Vysledek.vue';
@@ -113,14 +113,14 @@ function konecTextu(c: number, o: number, p: number, n: any[]) {
     cas.value = c
     opravenePocet.value = o
     preklepy.value = p
-    nejcastejsiChyby.value = n
+    nejcastejsiChyby.value = new MojeMapa(n)
     konec.value = true
 }
 
 function d(x: number) {
     delka.value = x
     restart()
-    psaniRef.value.restart()
+    psaniRef.value?.restart()
 }
 
 function disabledBtn(e: KeyboardEvent) {
@@ -157,7 +157,7 @@ function toggleDiakritikaAVelkaPismena() {
     } else {
         text.value = structuredClone(puvodniText)
     }
-    psaniRef.value.restart()
+    psaniRef.value?.restart()
     localStorage.setItem(nastaveniJmeno, JSON.stringify({ "diakritika": diakritika.value, "velkaPismena": velkaPismena.value, "typ": typ.value }))
 }
 

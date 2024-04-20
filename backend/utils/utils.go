@@ -1,30 +1,21 @@
 package utils
 
 import (
-	"backend/databaze"
 	cryptoRand "crypto/rand"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"math/big"
 	mathRand "math/rand"
 	"net/http"
 	"net/mail"
 	"net/url"
-	"os"
-	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
-	godiacritics "gopkg.in/Regis24GmbH/go-diacritics.v2"
 )
-
-var RegexJmeno *regexp.Regexp
-var MaxCisloZaJmeno int // 10_000
 
 // validuje email
 func ValidFormat(email string) bool {
@@ -128,74 +119,11 @@ func DelkaTextuArray(a []string) int {
 	return x
 }
 
-// z googlu vrací email, jmeno, error
-func GoogleTokenNaData(token string) (string, string, error) {
-	res, err := http.Get(fmt.Sprintf("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%v", token))
-	if err != nil {
-		return "", "", err
+// vzorec pro výpočet ryhclosti (založen na pravidlech státní zkoušky)
+func CPM(delkaTextu int, cas float32, preklepy int) float32 {
+	var cpm float32 = (float32(delkaTextu-10*preklepy) / cas) * 60
+	if cpm < 0 {
+		return 0
 	}
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return "", "", err
-	}
-
-	m := make(map[string]string)
-	err = json.Unmarshal(body, &m)
-	if err != nil {
-		return "", "", err
-	}
-
-	if m["aud"] != os.Getenv("GOOGLE_CLIENT_ID") {
-		return "", "", errors.New("fake token")
-	}
-
-	jmeno, err := volbaJmena(m["name"])
-	if err != nil {
-		return "", "", err
-	}
-
-	return m["email"], jmeno, err
-}
-
-// vybírá jméno pro uživatele který se zaregistroval přes google
-//
-// zkusí kombinace google jména a náhodného čísla, poté Pavouk a číslo
-//
-// číslo přidávám k jménu abych minimalizoval šanci, že takový uživatel již existuje a musím vytvářet nové jméno a znovu kontrolovat v db
-func volbaJmena(celeJmeno string) (string, error) {
-	celeJmeno = godiacritics.Normalize(celeJmeno)
-	var jmeno []string = strings.Fields(celeJmeno) // rozdělim na jmeno a prijimeni
-
-	for range 20 { // vic než 20x to zkoušet nebudu
-		var cislo int = mathRand.Intn(MaxCisloZaJmeno-1) + 1
-
-		var jmenoNaTest string
-		if len(jmeno) >= 1 {
-			jmenoNaTest = fmt.Sprintf("%s%d", jmeno[0], cislo)
-			if RegexJmeno.MatchString(jmenoNaTest) {
-				_, err := databaze.GetUzivByJmeno(jmenoNaTest)
-				if err != nil {
-					return jmenoNaTest, nil
-				}
-			}
-		}
-		if len(jmeno) == 2 {
-			jmenoNaTest = fmt.Sprintf("%s%d", jmeno[1], cislo)
-			if RegexJmeno.MatchString(jmenoNaTest) {
-				_, err := databaze.GetUzivByJmeno(jmenoNaTest)
-				if err != nil { // ještě neexistuje
-					return jmenoNaTest, nil
-				}
-			}
-		}
-		jmenoNaTest = fmt.Sprintf("Pavouk%d", cislo)
-		if RegexJmeno.MatchString(jmenoNaTest) {
-			_, err := databaze.GetUzivByJmeno(jmenoNaTest)
-			if err != nil { // ještě neexistuje
-				return jmenoNaTest, nil
-			}
-		}
-	}
-
-	return "", errors.New("konec sveta nenašel jsem jméno")
+	return cpm
 }

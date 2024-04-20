@@ -73,8 +73,8 @@ func main() {
 // předá proměnné které chci mít všechny na jednom místě do dalších souborů
 func inject() {
 	utils.TokenTimeDuration = tokenTimeDuration
-	utils.RegexJmeno = regexJmeno
-	utils.MaxCisloZaJmeno = MaxCisloZaJmeno
+	databaze.RegexJmeno = regexJmeno
+	databaze.MaxCisloZaJmeno = MaxCisloZaJmeno
 }
 
 // abych pro testing měl kratší texty tak to mám v .env

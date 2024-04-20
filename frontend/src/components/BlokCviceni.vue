@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { levelyPresnosti, levelyRychlosti, prihlasen } from '../stores';
+import { ref } from 'vue';
+import { levelyRychlosti, prihlasen } from '../stores';
 import { pridatOznameni } from '../utils';
 
-const props = defineProps({
+defineProps({
     dokonceno: Boolean,
     index: Number,
     pismena: {
@@ -15,39 +15,17 @@ const props = defineProps({
         type: Number,
         default: 0
     },
-    presnost: {
-        type: Number,
-        default: 0
-    },
     oznacene: Boolean
 })
 
 const mobil = ref(document.body.clientWidth <= 1000)
 const hvezdy = ref(0)
 
-onMounted(() => {
-    if (props.rychlost >= levelyRychlosti[1] && props.presnost >= levelyPresnosti[1]) { // paradni
-        hvezdy.value = 3
-    } else if (props.rychlost >= levelyRychlosti[0] && props.rychlost < levelyRychlosti[1] && props.presnost >= levelyPresnosti[1]) { // rychlost muze byt lepsi
-        hvezdy.value = 2
-    } else if (props.presnost >= levelyPresnosti[0] && props.presnost < levelyPresnosti[1] && props.rychlost >= levelyRychlosti[1]) { // presnost muze byt lepsi
-        hvezdy.value = 2
-    } else if (props.presnost >= levelyPresnosti[0] && props.presnost < levelyPresnosti[1] && props.rychlost >= levelyRychlosti[0] && props.rychlost <= levelyRychlosti[1]) { // oboje muze byt lepsi
-        hvezdy.value = 1
-    } else if (props.rychlost < levelyRychlosti[0] && props.presnost < levelyPresnosti[0]) { // oboje bad
-        hvezdy.value = 0
-    } else if (props.rychlost < levelyRychlosti[0]) { // rychlost bad
-        hvezdy.value = 0
-    } else if (props.presnost < levelyPresnosti[0]) { // presnost bad
-        hvezdy.value = 0
-    }
-})
-
 </script>
 
 <template>
-    <router-link v-if="prihlasen && typ !== '...' && !mobil" class="cvicBlok" :class="{ dokoncenyBlok: dokonceno, oznacene: oznacene }"
-        :to="'/lekce/' + pismena + '/' + index">
+    <router-link v-if="prihlasen && typ !== '...' && !mobil" class="cvicBlok"
+        :class="{ dokoncenyBlok: dokonceno, oznacene: oznacene }" :to="'/lekce/' + pismena + '/' + index">
         <h2>{{ index }}</h2>
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>
@@ -55,11 +33,11 @@ onMounted(() => {
         <h3 v-else-if="typ === 'slova' || typ === 'programator'">Se slovy</h3>
         <h3 v-else>...</h3>
         <div v-if="dokonceno" id="hvezdy">
-            <img v-if="hvezdy >= 1" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+            <img v-if="rychlost >= levelyRychlosti[0]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
             <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-            <img v-if="hvezdy >= 2" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+            <img v-if="rychlost >= levelyRychlosti[1]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
             <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-            <img v-if="hvezdy == 3" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+            <img v-if="rychlost >= levelyRychlosti[2]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
             <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
         </div>
         <img class="playVetsi" v-else src="../assets/icony/start.svg" alt="Začít lekci">
@@ -70,7 +48,8 @@ onMounted(() => {
         <h3>...</h3>
         <img class="playVetsi" src="../assets/icony/start.svg" alt="Začít lekci">
     </a>
-    <a v-else-if="!mobil" class="cvicBlok" :class="{ oznacene: oznacene }" @click="pridatOznameni('Bez přihlášení si můžeš psaní vyzkoušet v sekci Procvičování')">
+    <a v-else-if="!mobil" class="cvicBlok" :class="{ oznacene: oznacene }"
+        @click="pridatOznameni('Bez přihlášení si můžeš psaní vyzkoušet v sekci Procvičování')">
         <h2>{{ index }}</h2>
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>
@@ -123,7 +102,8 @@ onMounted(() => {
     padding: 15px 15px 15px 15px;
 }
 
-.cvicBlok:hover, .oznacene {
+.cvicBlok:hover,
+.oznacene {
     background-color: var(--fialova);
     transition-duration: 0.2s;
 }

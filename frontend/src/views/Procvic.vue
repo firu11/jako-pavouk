@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { getCisloProcvic, getToken, pridatOznameni } from '../utils';
+import { getCisloProcvic, getToken, MojeMapa, pridatOznameni } from '../utils';
 import SipkaZpet from '../components/SipkaZpet.vue';
 import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
@@ -74,7 +74,7 @@ function konecTextu(c: number, o: number, p: number, n: any[]) {
     cas.value = c
     opravenePocet.value = o
     preklepy.value = p
-    nejcastejsiChyby.value = n
+    nejcastejsiChyby.value = new MojeMapa(n)
     konec.value = true
 }
 
@@ -89,7 +89,7 @@ function konecTextu(c: number, o: number, p: number, n: any[]) {
     <Psani v-if="!konec" @konec="konecTextu" @restart="restart" :text="text" :delkaTextu="delkaTextu" :klavesnice="klavesnice" :hide-klavesnice="false" />
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu"
-        :casF="casFormat" :cas="cas" :cislo="''" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
+        :casF="casFormat" :cas="cas" :cislo="id" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
 </template>
 
 <style scoped>

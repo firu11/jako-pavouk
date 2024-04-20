@@ -7,6 +7,7 @@ import klik1 from '../assets/zvuky/klik1.ogg';
 import klik2 from '../assets/zvuky/klik2.ogg';
 import klik3 from '../assets/zvuky/klik3.ogg';
 import miss from '../assets/zvuky/miss.ogg';
+import { MojeMapa } from '../utils';
 
 const emit = defineEmits(["konec", "pise", "restart"])
 
@@ -16,33 +17,6 @@ const props = defineProps<{
     klavesnice: string,
     hideKlavesnice: boolean
 }>()
-
-class MojeMapa extends Map<string, number> {
-    async put(znak: string) {
-        znak = znak.toLocaleLowerCase()
-
-        let pocet = this.get(znak)
-        if (pocet === undefined) {
-            this.set(znak, 1)
-        } else {
-            this.set(znak, +pocet + 1)
-        }
-    }
-    top6() {
-        let nejvetsi: any[] = []
-        for (let i = 0; i < 3; i++) {
-            nejvetsi.push([undefined, 0])
-            this.forEach((pocet, znak) => {
-                if (pocet > nejvetsi[i][1]) {
-                    nejvetsi[i] = [znak, pocet]
-                }
-            })
-            this.delete(nejvetsi[i][0])
-        }
-        if (nejvetsi[0][1] === 0) return []
-        return nejvetsi
-    }
-}
 
 const counter = ref(0)
 const counterSlov = ref(0)
@@ -188,7 +162,7 @@ function klik(this: any, e: KeyboardEvent) {
         calcCas() // naposledy
         document.removeEventListener("keypress", klik)
         document.removeEventListener("keydown", specialniKlik)
-        emit("konec", cas.value, opravene.size, preklepy.value, chybyPismenka.top6())
+        emit("konec", cas.value, opravene.size, preklepy.value, chybyPismenka)
         restart()
     }
 
@@ -280,6 +254,7 @@ function startTimer() {
     if (timerZacatek.value === 0) {
         timerZacatek.value = Date.now()
         interval = setInterval(calcCas, 100)
+
     }
 }
 
@@ -446,7 +421,7 @@ defineExpose({ restart })
 #capslock {
     display: inline-block;
     color: red;
-    font-weight: bold;
+    font-weight: bold !important;
 }
 
 #ramecek {
