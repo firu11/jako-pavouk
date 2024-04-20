@@ -62,19 +62,32 @@ onUnmounted(() => {
     document.removeEventListener('mousemove', zrusitVyber)
 })
 
+let jede = false
+let ms = 120
+
 function e1(e: KeyboardEvent) {
     if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
         e.preventDefault()
+        if (jede) return
+
         if (o.index.value == 0) o.index.value = prvniNedokoncena.value + 1
         o.mensi()
         let lekceE: HTMLElement | null = document.querySelector(`[i="${o.index.value}"]`)
+        
+        jede = true
         window.scrollTo({ top: lekceE?.offsetTop! - 500 })
+        setTimeout(() => { jede = false }, ms)
     } else if (e.key == 'ArrowDown' || e.key == 'ArrowRight') {
         e.preventDefault()
+        if (jede) return
+
         if (o.index.value == 0) o.index.value = prvniNedokoncena.value - 1
         o.vetsi()
         let lekceE: HTMLElement | null = document.querySelector(`[i="${o.index.value}"]`)
+
+        jede = true
         window.scrollTo({ top: lekceE?.offsetTop! - 200 })
+        setTimeout(() => { jede = false }, ms)
     } if (e.key == 'Enter') {
         e.preventDefault()
         let lekceE: HTMLElement | null = document.querySelector(`.oznacene`)
@@ -114,8 +127,9 @@ function zrusitVyber() {
             :oznacena="o.is(l['id'])" :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
         <h2>Horní řada</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 5" pismena="..." :jeDokoncena="false" />
-        <BlokLekce v-else v-for="l in lekce[1]" :pismena="l['pismena'].toString()" :jeDokoncena="dokoncene.includes(l['id'])"
-            :oznacena="o.is(l['id'])" :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
+        <BlokLekce v-else v-for="l in lekce[1]" :pismena="l['pismena'].toString()"
+            :jeDokoncena="dokoncene.includes(l['id'])" :oznacena="o.is(l['id'])" :i="l['cislo']"
+            :class="{ nohover: o.index.value != 0 }" />
         <h2>Dolní řada</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 3" pismena="..." :jeDokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[2]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
