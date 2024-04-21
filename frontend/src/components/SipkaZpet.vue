@@ -47,7 +47,9 @@ div img {
 
 @media screen and (max-width: 1100px) {
     div img {
-        height: 38px;
+        height: 35px;
+        position: relative;
+        top: -5px;
     }
 }
 </style>

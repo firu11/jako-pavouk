@@ -19,7 +19,6 @@ defineProps({
 })
 
 const mobil = ref(document.body.clientWidth <= 1000)
-const hvezdy = ref(0)
 
 </script>
 
@@ -67,11 +66,11 @@ const hvezdy = ref(0)
         <h3 v-else-if="typ === 'slova'">Se slovy</h3>
         <h3 v-else>...</h3>
         <div v-if="dokonceno" id="hvezdy">
-            <img v-if="hvezdy >= 1" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+            <img v-if="rychlost >= levelyRychlosti[0]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
             <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-            <img v-if="hvezdy >= 2" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+            <img v-if="rychlost >= levelyRychlosti[1]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
             <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-            <img v-if="hvezdy == 3" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
+            <img v-if="rychlost >= levelyRychlosti[2]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
             <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
         </div>
         <img class="playVetsi" v-else src="../assets/icony/start.svg" alt="Začít lekci">
@@ -152,7 +151,7 @@ h2 {
     .fajvkaVetsi,
     .playVetsi {
         width: 100px;
-        height: 30px;
+        height: 35px;
         align-self: center;
         margin-bottom: 10px;
     }

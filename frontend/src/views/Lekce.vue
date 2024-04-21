@@ -142,7 +142,6 @@ h1 {
     h1 {
         font-size: 1.7em;
         vertical-align: sub;
-        max-width: 70%;
     }
 }
 </style>

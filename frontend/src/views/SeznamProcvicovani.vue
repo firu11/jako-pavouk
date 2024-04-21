@@ -103,7 +103,8 @@ onUnmounted(() => {
         <RouterLink :to="'/test-psani'" class="blok" :i="4 == o.index.value"
             :class="{ oznacene: 4 == o.index.value, nohover: o.index.value != 0 }">
             <h2>Test psaní</h2>
-            <span v-if="texty.length != 0 && rychlosti[0] != -1"><b>{{ Math.round(rychlosti[0] * 10) / 10 }}</b> CPM</span>
+            <span v-if="texty.length != 0 && rychlosti[0] != -1"><b>{{ Math.round(rychlosti[0] * 10) / 10 }}</b>
+                CPM</span>
         </RouterLink>
     </div>
 </template>
@@ -152,9 +153,13 @@ h2 {
 }
 
 .blok span {
-    position: relative;
-    top: 3px;
     font-size: 1.2rem;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    justify-content: end;
+    height: 34px;
+    align-self: center;
 }
 
 .blok span b {
@@ -175,13 +180,28 @@ h2 {
         min-width: 260px;
         width: 100%;
         background-color: var(--tmave-fialova);
-        min-height: 64px;
+        min-height: 48px;
         max-height: 100px;
         height: auto;
         transition-duration: 0.2s;
 
         /* kvuli tomu neprihlasenymu */
         cursor: pointer;
+    }
+
+    .blok span b {
+        font-size: 1.2rem;
+    }
+
+    .blok span {
+        font-size: 0.8rem;
+        top: 13px;
+        gap: 3px;
+        height: 22px;
+    }
+
+    .blok h2 {
+        font-size: 1.3rem;
     }
 }
 </style>

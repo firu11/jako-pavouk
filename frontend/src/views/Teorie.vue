@@ -70,7 +70,7 @@ useHead({
             <img src="../assets/npi.webp" alt="Národní pedagogický institut" width="226" height="226">
         </a>
     </div>
-    <div class="bloky" id="triky">
+    <div class="bloky" id="pohyb">
         <img src="../assets/sipky.svg" alt="Pavouk s klávesnicí" width="337" height="238">
         <div class="text">
             <h2>Pohyb po Pavoukovi</h2>
@@ -103,15 +103,15 @@ useHead({
     height: 350px;
 }
 
-#triky .text {
+#pohyb .text {
     width: 55%;
 }
 
-#triky p {
+#pohyb p {
     text-align: start;
 }
 
-#triky>img {
+#pohyb>img {
     transform: scale(1.15);
 }
 
@@ -207,7 +207,7 @@ ul {
         height: auto;
     }
 
-    #triky .text {
+    #pohyb .text {
         width: auto;
     }
 }

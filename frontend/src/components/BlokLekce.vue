@@ -64,13 +64,22 @@ defineProps({
         min-width: 260px;
         width: 100%;
         background-color: var(--tmave-fialova);
-        min-height: 64px;
+        min-height: 48px;
         max-height: 100px;
         height: auto;
-        transition-duration: 0.2s;
+        padding: 10px 20px 10px 18px;
 
         /* kvuli tomu neprihlasenymu */
         cursor: pointer;
+    }
+
+    .lekceBlok h2 {
+        font-size: 1.3rem;
+    }
+
+    .fajvka {
+        height: 25px;
+        margin-left: 10px;
     }
 }
 </style>
