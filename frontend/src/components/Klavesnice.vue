@@ -188,7 +188,7 @@ function potrebujeShift(pismeno: string) {
 .oznacenaKlavesa {
     border: #fff solid 3px;
     transition: 0.1s;
-    filter: brightness(1.5) saturate(2);
+    filter: brightness(1.5) saturate(2.5);
 }
 
 .oznacenaKlavesa div {
