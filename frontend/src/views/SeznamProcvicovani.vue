@@ -76,6 +76,11 @@ function zrusitVyber() {
     o.index.value = 0
 }
 
+function mobilKlik(e: MouseEvent) {
+    e.preventDefault()
+    pridatOznameni('Psaní na telefonech zatím neučíme...')
+}
+
 onUnmounted(() => {
     document.removeEventListener('keydown', e1)
     document.removeEventListener('keyup', e2)
@@ -96,16 +101,20 @@ onUnmounted(() => {
             <h2>{{ t }}</h2>
             <span v-if="rychlosti[i + 1] != -1"><b>{{ Math.round(rychlosti[i + 1] * 10) / 10 }}</b> CPM</span>
         </RouterLink>
-        <div v-else v-for="t in texty" class="blok" @click="pridatOznameni('Psaní na telefonech zatím neučíme...')">
+        <div v-else v-for="t in texty" class="blok" @click="mobilKlik">
             <h2>{{ t }}</h2>
         </div>
         <h2>Na míru</h2>
-        <RouterLink :to="'/test-psani'" class="blok" :i="4 == o.index.value"
+        <RouterLink v-if="!mobil" :to="'/test-psani'" class="blok" :i="4 == o.index.value"
             :class="{ oznacene: 4 == o.index.value, nohover: o.index.value != 0 }">
             <h2>Test psaní</h2>
             <span v-if="texty.length != 0 && rychlosti[0] != -1"><b>{{ Math.round(rychlosti[0] * 10) / 10 }}</b>
                 CPM</span>
         </RouterLink>
+        <a v-else href="/test-psani" class="blok" :i="4 == o.index.value" style="user-select: none;" @click="mobilKlik">
+            <h2>Test psaní</h2>
+            <span v-if="texty.length != 0 && rychlosti[0] != -1"><b>{{ Math.round(rychlosti[0] * 10) / 10 }}</b> CPM</span>
+        </a>
     </div>
 </template>
 

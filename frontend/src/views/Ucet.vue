@@ -464,10 +464,16 @@ function zmenaJmena(e: Event) {
 }
 
 @media screen and (max-width: 1100px) {
-    #bloky {
-        align-items: center;
-        justify-content: center;
-        max-width: 720px;
+    #chyby {
+        order: -1;
+    }
+
+    #progres {
+        order: -3;
+    }
+
+    .blok:nth-child(2) {
+        order: -2;
     }
 
     .blok {
@@ -504,6 +510,20 @@ function zmenaJmena(e: Event) {
 
     #nadpisy form {
         max-width: 215px;
+    }
+
+    #chyby>div:first-child {
+        gap: 20px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    #bloky {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        max-width: 720px;
     }
 }
 </style>

@@ -20,7 +20,7 @@ function mobilKlik(e: MouseEvent) {
             <p>{{ jmeno }}</p>
         </div>
     </RouterLink>
-    <a v-else @click="mobilKlik" href="/test-psani">
+    <a v-else @click="mobilKlik" href="/test-psani" style="user-select: none;">
         <div class="hover">
             <svg class="tecka" height="10" width="15">
                 <circle cx="5" cy="5" r="5" fill="white" />
