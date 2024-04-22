@@ -5,6 +5,7 @@ import Rada from "../components/Rada.vue"
 import { onMounted, onUnmounted, ref } from "vue"
 import { Oznacene, checkTeapot, getToken, pridatOznameni, napovedaKNavigaci } from "../utils";
 import { useHead } from 'unhead'
+import { useRouter } from "vue-router";
 
 useHead({
     title: "Lekce",
@@ -26,6 +27,8 @@ const lekce = ref([[]] as { id: number, pismena: string, cislo: number }[][])
 const dokoncene = ref([] as number[])
 const o = new Oznacene()
 const prvniNedokoncena = ref(1)
+
+const router = useRouter()
 
 onMounted(() => {
     const header = getToken() ? { headers: { Authorization: `Bearer ${getToken()}` } } : {}
@@ -86,7 +89,9 @@ function e1(e: KeyboardEvent) {
         let lekceE: HTMLElement | null = document.querySelector(`[i="${o.index.value}"]`)
 
         jede = true
-        window.scrollTo({ top: lekceE?.offsetTop! - 200 })
+        
+        console.log(document.body.getBoundingClientRect())
+        window.scrollTo({ top: lekceE?.offsetTop! - 200, behavior: "smooth" })
         setTimeout(() => { jede = false }, ms)
     } if (e.key == 'Enter') {
         e.preventDefault()
@@ -106,8 +111,8 @@ function e1(e: KeyboardEvent) {
 function e2(e: KeyboardEvent) {
     if (e.key == 'Enter') {
         e.preventDefault()
-        let lekceE: HTMLElement | null = document.querySelector(`[i="${o.index.value}"]`)
-        lekceE?.click()
+        let lekceE: HTMLElement | null = document.querySelector(`.oznacene`)
+        router.push(lekceE?.getAttribute("href")!)  // chromium sus
     }
 }
 
