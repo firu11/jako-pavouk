@@ -11,11 +11,11 @@ function hop() {
 <template>
     <div id="box">
         <div>
-            <h3>Nevíš jak na to?</h3>
+            <h2>Nevíš jak na to?</h2>
             <p>Mrkni na trochu teorie! Základem je výchozí pozice.</p>
             <button class="tlacitko" :onclick="hop">Jak psát</button>
         </div>
-        <img src="../assets/theThinker.svg" alt="Pavouk the thinker">
+        <img src="../assets/theThinker.svg" alt="Pavouk the thinker" width="180" height="157">
     </div>
 </template>
 
@@ -36,7 +36,7 @@ function hop() {
     flex-direction: column;
 }
 
-h3 {
+h2 {
     font-size: 1.6rem;
     margin-bottom: 12px;
     font-weight: 300;

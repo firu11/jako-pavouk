@@ -127,13 +127,13 @@ function disabledBtn(e: KeyboardEvent) {
     e.preventDefault()
 }
 
-const rotaceStupne = ref(0)
+const rotacePocet = ref(0)
 function animace() {
-    rotaceStupne.value += 45
+    rotacePocet.value += 1
 }
 
 const rotace = computed(() => {
-    return `rotate(${rotaceStupne.value}deg)`
+    return `rotate(${rotacePocet.value * 45}deg)`
 })
 
 const klavModel = ref(false)
@@ -292,7 +292,7 @@ label.kontejner:hover {
     align-items: center;
     justify-content: center;
     left: 385px;
-    bottom: 236px;
+    bottom: 220px;
     cursor: pointer;
     transition: background-color 0.1s;
 }

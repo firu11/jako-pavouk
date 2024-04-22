@@ -247,6 +247,7 @@ function specialniKlik(e: KeyboardEvent) {
         e.preventDefault()
         emit("restart")
         restart()
+        animace()
     }
 }
 
@@ -312,6 +313,22 @@ const textViditelny = computed(() => {
     return props.text.slice(mistaPosunuti.value[mistaPosunuti.value.length - 3], mistaPosunuti.value[mistaPosunuti.value.length - 2] + 40)
 })
 
+const rotaceStupne = ref(0)
+function animace() {
+    rotaceStupne.value -= 60
+    setTimeout(() => { rotaceStupne.value = 0 }, 180)
+}
+
+const rotace = computed(() => {
+    return `rotate(${rotaceStupne.value}deg)`
+})
+
+function resetTlacitko() {
+    if (aktivniPismeno.value.id == -1) return
+    emit("restart")
+    restart()
+}
+
 defineExpose({ restart })
 </script>
 
@@ -344,6 +361,12 @@ defineExpose({ restart })
             <Transition>
                 <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak"
                     :class="{ rozmazany: hideKlavesnice }" />
+
+            </Transition>
+            <Transition>
+                <div v-if="klavesnice != ''" id="resetBtn" @click="resetTlacitko(); animace()">
+                    <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Nastavení">
+                </div>
             </Transition>
 
             <div id="zvukBtn" @click="toggleZvuk">
@@ -387,6 +410,32 @@ defineExpose({ restart })
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.1s;
+}
+
+#resetBtn {
+    position: relative;
+    width: 55px;
+    height: 55px;
+    background-color: var(--tmave-fialova);
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    left: 385px;
+    bottom: 236px;
+    cursor: pointer;
+    transition: background-color 0.1s;
+}
+
+#resetBtn img {
+    width: 30px;
+    padding-bottom: 1px;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out;
+}
+
+#resetBtn:hover {
+    background-color: var(--fialova);
 }
 
 #zvukBtn:hover {

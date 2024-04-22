@@ -76,16 +76,19 @@ useHead({
             <h2>Pohyb po Pavoukovi</h2>
             <ul class="mensiPadding" style="list-style: none;">
                 <li><b>Výběr lekce / cvičení:</b></li>
-                <ul style="margin: 0 0 1.1rem 0;">
-                    <li><span class="klavesaVTextu">Enter</span> podržet - vybere to, kde jsem skončil</li>
-                    <li><span class="klavesaVTextu" style="margin-right: 5px;"><img src="../assets/icony/sipkaL.svg"
-                                alt="Šipka" class="klavSipka"></span>
-                        <span class="klavesaVTextu"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klavSipka"
-                                style="transform: scaleX(-1);"></span> - přesný výběr,
-                        <span class="klavesaVTextu" style="margin-left: 5px;">Enter</span>
-                        - potvrzení
-                    </li>
-                </ul>
+                <li>
+                    <ul style="margin: 0 0 1.1rem 0.5rem; list-style: none;">
+                        <li><span class="klavesaVTextu">Enter</span> podržet - vybere to, kde jsem skončil</li>
+                        <li><span class="klavesaVTextu" style="margin-right: 5px;"><img src="../assets/icony/sipkaL.svg"
+                                    alt="Šipka" class="klavSipka"></span>
+                            <span class="klavesaVTextu"><img src="../assets/icony/sipkaL.svg" alt="Šipka"
+                                    class="klavSipka" style="transform: scaleX(-1);"></span> - přesný výběr,
+                            <span class="klavesaVTextu" style="margin-left: 5px;">Enter</span>
+                            - potvrzení
+                        </li>
+                    </ul>
+                </li>
+
                 <li><span class="klavesaVTextu">SPACE</span> - opakuje cvičení po dokončení</li>
                 <li><span class="klavesaVTextu"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klavSipka"
                             style="transform: scaleX(-1);"></span> /
