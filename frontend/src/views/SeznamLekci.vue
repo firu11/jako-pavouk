@@ -78,7 +78,9 @@ function e1(e: KeyboardEvent) {
         let lekceE: HTMLElement | null = document.querySelector(`[i="${o.index.value}"]`)
         
         jede = true
-        window.scrollTo({ top: lekceE?.offsetTop! - 500 })
+        
+        let scroll = document.body.getBoundingClientRect().top
+        window.scrollTo({ top: lekceE?.offsetTop! - 200, behavior: Math.abs(-scroll - lekceE?.offsetTop!) > 600 ? "instant" : "smooth"})
         setTimeout(() => { jede = false }, ms)
     } else if (e.key == 'ArrowDown' || e.key == 'ArrowRight') {
         e.preventDefault()
@@ -90,8 +92,8 @@ function e1(e: KeyboardEvent) {
 
         jede = true
         
-        console.log(document.body.getBoundingClientRect())
-        window.scrollTo({ top: lekceE?.offsetTop! - 200, behavior: "smooth" })
+        let scroll = document.body.getBoundingClientRect().top
+        window.scrollTo({ top: lekceE?.offsetTop! - 200, behavior: Math.abs(-scroll - lekceE?.offsetTop!) > 600 ? "instant" : "smooth"})
         setTimeout(() => { jede = false }, ms)
     } if (e.key == 'Enter') {
         e.preventDefault()

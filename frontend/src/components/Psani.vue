@@ -135,7 +135,6 @@ function klik(this: any, e: KeyboardEvent) {
     startTimer()
 
     if (props.delkaTextu == 0) {
-        console.log(props.text)
         return
     }
 

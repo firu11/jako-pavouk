@@ -13,7 +13,7 @@
         "axios": "^1.6.5",
         "howler": "^2.2.4",
         "vue": "^3.4.21",
-        "vue-router": "^4.2.5",
+        "vue-router": "^4.3.2",
         "vue3-google-login": "^2.0.25"
     },
     "devDependencies": {
