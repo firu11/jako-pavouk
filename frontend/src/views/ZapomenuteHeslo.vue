@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import axios from 'axios';
-import { ref } from 'vue';
-import { checkTeapot, pridatOznameni } from '../utils';
-import { useHead } from 'unhead'
-import { useRouter } from 'vue-router';
+import axios from "axios";
+import { ref } from "vue";
+import { checkTeapot, pridatOznameni } from "../utils";
+import { useHead } from "unhead"
+import { useRouter } from "vue-router";
 
 useHead({
     title: "Zapomenuté heslo"
@@ -33,7 +33,7 @@ function poslatEmail(e: Event) {
     if (spatnyEmail.value) return
 
     posilame.value = true
-    axios.post('/zmena-hesla', {
+    axios.post("/zmena-hesla", {
         "email": email.value,
     }).then(_ => {
         state.value = "kod"
@@ -59,7 +59,7 @@ function overitZmenu(e: Event) {
     }
     if (spatnyHeslo.value || spatnyKod.value) return
 
-    axios.post('/overeni-zmeny-hesla', {
+    axios.post("/overeni-zmeny-hesla", {
         "email": email.value,
         "heslo": heslo.value,
         "kod": kod.value
@@ -77,14 +77,14 @@ function overitZmenu(e: Event) {
 }
 
 function chekujUdaje(jaky: string) {
-    if (jaky === 'email' && email.value) spatnyEmail.value = !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(email.value); //test jestli email
-    else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*[a-zA-Z]).{5,128}$/.test(heslo.value)
-    else if (jaky === 'kod' && kod.value !== undefined) spatnyKod.value = !/^\d{5}$/.test(kod.value) //kod 5 dlouhy
+    if (jaky === "email" && email.value) spatnyEmail.value = !/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/g.test(email.value) //test jestli email
+    else if (jaky === "heslo" && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*[a-zA-Z]).{5,128}$/.test(heslo.value)
+    else if (jaky === "kod" && kod.value !== undefined) spatnyKod.value = !/^\d{5}$/.test(kod.value) //kod 5 dlouhy
 }
 
 function presmerovat(e: Event) {
     e.preventDefault()
-    router.push('/prihlaseni')
+    router.push("/prihlaseni")
 }
 
 </script>
@@ -105,7 +105,7 @@ function presmerovat(e: Event) {
             inputmode="numeric" v-model.trim="kod" placeholder="Např: 12345">
         <h3 class="nadpis">Nové heslo:</h3>
         <input :class="{ spatnej_input: spatnyHeslo }" @:input="chekujUdaje('heslo')" type="password" v-model="heslo"
-            placeholder='Rozhodně ne "Pepa123"'>
+            placeholder="Rozhodně ne 'Pepa123'">
         <button type="submit" class="tlacitko" @click="overitZmenu">Potvrdit</button>
     </form>
     <form v-else-if="state === 'konec'">

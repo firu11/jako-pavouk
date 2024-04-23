@@ -1,20 +1,19 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import MenuLink from './components/MenuLink.vue';
-import { prihlasen, tokenJmeno } from './stores';
-import { checkTeapot, jeToRobot, getToken, oznameni, pridatOznameni } from './utils';
-import { useHead } from 'unhead'
-import axios from 'axios';
-import { useRouter } from 'vue-router';
+import { onMounted, ref } from "vue";
+import MenuLink from "./components/MenuLink.vue";
+import { mobil, prihlasen, tokenJmeno } from "./stores";
+import { checkTeapot, jeToRobot, getToken, oznameni, pridatOznameni } from "./utils";
+import { useHead } from "unhead"
+import axios from "axios";
+import { useRouter } from "vue-router";
 
 useHead({
-    titleTemplate: (title?: string) => title == "" || title == undefined ? "Psaní všemi deseti | Jako Pavouk" : `${title} | Jako Pavouk`
+    titleTemplate: (title?: string) => title == "" || title == undefined ? "Psaní všemi deseti zdarma | Jako Pavouk" : `${title} | Jako Pavouk`
 })
 
 
 const router = useRouter()
 const mobilMenu = ref(false)
-const mobil = document.body.clientWidth <= 1000
 
 onMounted(() => {
     console.log("%cCo sem koukáš koloušku?", "color: white; font-size: x-large"); // troulin
@@ -41,6 +40,10 @@ onMounted(() => {
     } else if (!jeToRobot(navigator.userAgent) && window.location.host !== "localhost:5173") { //test jestli to neni bot + počítají se jen na produkci
         axios.post("/navsteva")
     }
+
+    window.addEventListener("resize", function () {
+        mobil.value = document.body.clientWidth <= 900
+    })
 })
 
 </script>
@@ -54,7 +57,7 @@ onMounted(() => {
             <MenuLink jmeno="Jak psát" cesta="/jak-psat" />
             <MenuLink jmeno="Lekce" cesta="/lekce" />
             <MenuLink jmeno="Procvičování" cesta="/procvic" />
-            <MenuLink jmeno="Test psaní" cesta="/test-psani" :mobil="mobil" />
+            <MenuLink jmeno="Test psaní" cesta="/test-psani"/>
             <MenuLink jmeno="O nás" cesta="/o-nas" />
             <MenuLink v-if="!prihlasen" jmeno="Přihlásit se" cesta="/prihlaseni" />
             <MenuLink v-else jmeno="Můj účet" cesta="/ucet" />

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { useHead } from 'unhead'
-import { Oznacene, checkTeapot, getToken, napovedaKNavigaci, pridatOznameni } from '../utils';
-import axios from 'axios';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { useHead } from "unhead"
+import { Oznacene, checkTeapot, getToken, napovedaKNavigaci, pridatOznameni } from "../utils";
+import axios from "axios";
+import { onMounted, onUnmounted, ref } from "vue";
+import {mobil} from "../stores"
 
 useHead({
     title: "Procvičování",
@@ -16,7 +17,6 @@ useHead({
 
 const texty = ref([])
 const rychlosti = ref([] as number[])
-const mobil = ref(document.body.clientWidth <= 1000)
 const o = new Oznacene()
 let randomCvic = 1
 
@@ -35,37 +35,37 @@ onMounted(() => {
             pridatOznameni()
         }
     })
-    document.addEventListener('keydown', e1)
-    document.addEventListener('keyup', e2)
-    document.addEventListener('mousemove', zrusitVyber)
+    document.addEventListener("keydown", e1)
+    document.addEventListener("keyup", e2)
+    document.addEventListener("mousemove", zrusitVyber)
 })
 
 function e1(e: KeyboardEvent) {
-    if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
+    if (e.key == "ArrowUp" || e.key == "ArrowLeft") {
         e.preventDefault()
         o.mensi()
         let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
         window.scrollTo({ top: lekce?.offsetTop! - 500 })
-    } else if (e.key == 'ArrowDown' || e.key == 'ArrowRight') {
+    } else if (e.key == "ArrowDown" || e.key == "ArrowRight") {
         e.preventDefault()
         o.vetsi()
         let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
         window.scrollTo({ top: lekce?.offsetTop! - 200 })
-    } else if (e.key == 'Enter') {
+    } else if (e.key == "Enter") {
         e.preventDefault()
         let cvicE: HTMLElement | null = document.querySelector(`[i="true"]`)
         if (cvicE == null || o.bezOznaceni) {
             o.bezOznaceni = true
             o.index.value = randomCvic
         } else cvicE?.click()
-    } else if (e.key == 'Tab') {
+    } else if (e.key == "Tab") {
         e.preventDefault()
         napovedaKNavigaci()
     }
 }
 
 function e2(e: KeyboardEvent) {
-    if (e.key == 'Enter') {
+    if (e.key == "Enter") {
         e.preventDefault()
         let cvicE: HTMLElement | null = document.querySelector(`[i="true"]`)
         cvicE?.click()
@@ -78,13 +78,13 @@ function zrusitVyber() {
 
 function mobilKlik(e: MouseEvent) {
     e.preventDefault()
-    pridatOznameni('Psaní na telefonech zatím neučíme...')
+    pridatOznameni("Psaní na telefonech zatím neučíme...")
 }
 
 onUnmounted(() => {
-    document.removeEventListener('keydown', e1)
-    document.removeEventListener('keyup', e2)
-    document.removeEventListener('mousemove', zrusitVyber)
+    document.removeEventListener("keydown", e1)
+    document.removeEventListener("keyup", e2)
+    document.removeEventListener("mousemove", zrusitVyber)
 })
 
 </script>

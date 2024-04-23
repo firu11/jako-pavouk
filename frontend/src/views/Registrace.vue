@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import axios from 'axios';
-import { ref } from 'vue';
-import { onBeforeRouteLeave, useRouter } from 'vue-router';
-import { prihlasen, tokenJmeno } from '../stores';
-import { pridatOznameni } from '../utils';
-import { useHead } from 'unhead'
+import axios from "axios";
+import { ref } from "vue";
+import { onBeforeRouteLeave, useRouter } from "vue-router";
+import { prihlasen, tokenJmeno } from "../stores";
+import { pridatOznameni } from "../utils";
+import { useHead } from "unhead"
 
 useHead({
     title: "Registrace",
@@ -50,7 +50,7 @@ function registr(e: Event) {
     posilame.value = true
 
     axios
-        .post('/registrace', {
+        .post("/registrace", {
             "jmeno": jmeno.value,
             "email": email.value,
             "heslo": heslo.value
@@ -82,7 +82,7 @@ function overeniPost(e: Event) {
 
     if (!spatnyKod.value && kod.value.length == 5) {
         axios
-            .post('/overit-email', {
+            .post("/overit-email", {
                 "email": email.value,
                 "kod": kod.value
             })
@@ -109,21 +109,21 @@ function overeniPost(e: Event) {
 
 // krasna funkce ale moc mě to nezajma
 function chekujUdaje(jaky: string) {
-    if (jaky === 'email' && email.value) spatnyEmail.value = !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(email.value); //test jestli email
-    else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*[a-zA-Z]).{5,128}$/.test(heslo.value) //heslo min 5 znaku
-    else if (jaky === 'jmeno' && jmeno.value !== undefined) spatnyJmeno.value = !/^[a-zA-Z0-9ěščřžýáíéůúťňďóĚŠČŘŽÝÁÍÉŮÚŤŇĎÓ_\-+*! ]{3,12}$/.test(jmeno.value) //jmeno 3-12
-    else if (jaky === 'kod' && kod.value !== undefined) spatnyKod.value = !/^\d{5}$/.test(kod.value) //kod 5 dlouhy
-    if (jaky === 'email' && email.value.length === 0) spatnyEmail.value = false
-    else if (jaky === 'jmeno' && jmeno.value.length === 0) spatnyJmeno.value = false
-    else if (jaky === 'heslo' && heslo.value.length === 0) spatnyHeslo.value = false
+    if (jaky === "email" && email.value) spatnyEmail.value = !/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/g.test(email.value)
+    else if (jaky === "heslo" && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*[a-zA-Z]).{5,128}$/.test(heslo.value) //heslo min 5 znaku
+    else if (jaky === "jmeno" && jmeno.value !== undefined) spatnyJmeno.value = !/^[a-zA-Z0-9ěščřžýáíéůúťňďóĚŠČŘŽÝÁÍÉŮÚŤŇĎÓ_\-+*! ]{3,12}$/.test(jmeno.value) //jmeno 3-12
+    else if (jaky === "kod" && kod.value !== undefined) spatnyKod.value = !/^\d{5}$/.test(kod.value) //kod 5 dlouhy
+    if (jaky === "email" && email.value.length === 0) spatnyEmail.value = false
+    else if (jaky === "jmeno" && jmeno.value.length === 0) spatnyJmeno.value = false
+    else if (jaky === "heslo" && heslo.value.length === 0) spatnyHeslo.value = false
 }
 
 function openInfo() {
-    document.getElementsByClassName('info')[0].id = 'infoShow';
+    document.getElementsByClassName("info")[0].id = "infoShow";
 }
 
 function closeInfo() {
-    document.getElementsByClassName('info')[0].id = 'infoHide';
+    document.getElementsByClassName("info")[0].id = "infoHide";
 }
 
 onBeforeRouteLeave(() => {
@@ -159,7 +159,7 @@ const handleLoginSuccess = (response: any) => {
             <h3 class="nadpis infoNadpis">Heslo: <img src="../assets/icony/info.svg" alt="info" @mouseover="openInfo"
                     @mouseleave="closeInfo"></h3>
             <input :class="{ spatnej_input: spatnyHeslo }" @:input="chekujUdaje('heslo')" type="password"
-                v-model="heslo" placeholder='Rozhodně ne "Pavouk123"'>
+                v-model="heslo" placeholder="Rozhodně ne 'Pavouk123'">
             <button type="submit" class="tlacitko" @click="registr" :disabled="posilame">{{ posilame ? ". . ." :
         "Registrovat" }}</button>
 

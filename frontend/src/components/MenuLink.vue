@@ -1,22 +1,21 @@
 <script setup lang="ts">
-import { pridatOznameni } from '../utils';
+import { pridatOznameni } from "../utils";
+import { mobil } from "../stores"
 
-defineProps(["jmeno", "cesta", "mobil"])
+defineProps(["jmeno", "cesta"])
 
 function mobilKlik(e: MouseEvent) {
     e.preventDefault()
-    pridatOznameni('Psaní na telefonech zatím neučíme...')
+    pridatOznameni("Psaní na telefonech zatím neučíme...")
 }
 </script>
 
 <template>
-    <RouterLink v-if="!mobil" :to="cesta">
+    <RouterLink v-if="cesta != '/test-psani' || !mobil" :to="cesta">
         <div class="hover">
-
             <svg class="tecka" height="10" width="15">
                 <circle cx="5" cy="5" r="5" fill="white" />
             </svg>
-
             <p>{{ jmeno }}</p>
         </div>
     </RouterLink>

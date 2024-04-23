@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import PsaniHomePage from '../components/PsaniHomePage.vue';
-import { useHead } from 'unhead'
-import { useRouter } from 'vue-router';
-import { prihlasen } from '../stores';
+import PsaniHomePage from "../components/PsaniHomePage.vue";
+import { useHead } from "unhead"
+import { useRouter } from "vue-router";
+import { mobil, prihlasen } from "../stores";
 
 const router = useRouter()
 
@@ -24,22 +24,21 @@ useHead({
 
 function zacit() {
     if (prihlasen.value) {
-        router.push('/lekce')
+        router.push("/lekce")
     } else {
-        router.push('/prvni-psani')
+        router.push("/prvni-psani")
     }
 }
 
-const mobil = document.body.clientWidth <= 1000
 </script>
 
 <template>
-    <PsaniHomePage></PsaniHomePage>
-    <h1 id="schovat">Psaní všemi deseti Jako Pavouk</h1> <!-- Pro SEO (nevim jestli funguje) -->
+    <PsaniHomePage/>
+    <h1 id="schovat">Psaní všemi deseti zdarma Jako Pavouk</h1> <!-- Pro SEO (nevim jestli funguje) -->
     <div class="bloky">
         <div class="text">
             <p style="font-size: 1.3em; line-height: 1.5em;">Webová aplikace na výuku <br><b style="font-weight: 700;">psaní všemi deseti</b> zdarma.<br>Chceš se naučit psát jako pavouk?</p>
-            <button v-if="!mobil" class="tlacitko" @click="zacit()" style="transform: scale(1.2); margin-top: 2em;">Začít psát</button>
+            <button v-if="!mobil" class="tlacitko" @click="zacit()" style="transform: scale(1.25); margin-top: 2em;">Začít psát</button>
         </div>
         <img src="../assets/pavoukStudent.svg" alt="Pavouk student" width="300" height="300">
     </div>

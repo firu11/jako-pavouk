@@ -179,14 +179,14 @@ function zmenaJmena(e: Event) {
             <div style="width: 100%;">
                 <div v-if="pismenaChyby.length !== 0" id="pismena">
                     <div id="prvni">
-                        <span v-for="znak, i in pismenaChyby.slice(0, 2)"><span class="cisla">{{ i + 1 }}.</span> <b>{{
-                            znak[0] == " " ? "_" :
+                        <span v-for="znak, i in pismenaChyby.slice(0, 2)"><span class="cisla">{{ i + 1 }}.</span> <b :style="{fontSize: znak[0] == ' ' ? '12px' : 'auto'}">{{
+                            znak[0] == " " ? "┗━┛" :
                                 znak[0]
                                 }}</b></span>
                     </div>
                     <div id="druhy">
-                        <span v-for="znak, i in pismenaChyby.slice(2)"><span class="cisla">{{ i + 3 }}.</span> <b>{{
-                            znak[0] == " " ? "_" : znak[0]
+                        <span v-for="znak, i in pismenaChyby.slice(2)"><span class="cisla">{{ i + 3 }}.</span> <b :style="{fontSize: znak[0] == ' ' ? '12px' : 'auto'}">{{
+                            znak[0] == " " ? "┗━┛" : znak[0]
                                 }}</b></span>
                     </div>
                 </div>

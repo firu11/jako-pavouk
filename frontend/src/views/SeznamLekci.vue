@@ -4,8 +4,9 @@ import BlokLekce from "../components/BlokLekce.vue";
 import Rada from "../components/Rada.vue"
 import { onMounted, onUnmounted, ref } from "vue"
 import { Oznacene, checkTeapot, getToken, pridatOznameni, napovedaKNavigaci } from "../utils";
-import { useHead } from 'unhead'
+import { useHead } from "unhead"
 import { useRouter } from "vue-router";
+import { mobil } from "../stores"
 
 useHead({
     title: "Lekce",
@@ -54,35 +55,35 @@ onMounted(() => {
                 console.log(e)
             }
         })
-    document.addEventListener('keydown', e1)
-    document.addEventListener('keyup', e2)
-    document.addEventListener('mousemove', zrusitVyber)
+    document.addEventListener("keydown", e1)
+    document.addEventListener("keyup", e2)
+    document.addEventListener("mousemove", zrusitVyber)
 })
 
 onUnmounted(() => {
-    document.removeEventListener('keydown', e1)
-    document.removeEventListener('keyup', e2)
-    document.removeEventListener('mousemove', zrusitVyber)
+    document.removeEventListener("keydown", e1)
+    document.removeEventListener("keyup", e2)
+    document.removeEventListener("mousemove", zrusitVyber)
 })
 
 let jede = false
 let ms = 120
 
 function e1(e: KeyboardEvent) {
-    if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
+    if (e.key == "ArrowUp" || e.key == "ArrowLeft") {
         e.preventDefault()
         if (jede) return
 
         if (o.index.value == 0) o.index.value = prvniNedokoncena.value + 1
         o.mensi()
         let lekceE: HTMLElement | null = document.querySelector(`[i="${o.index.value}"]`)
-        
+
         jede = true
-        
+
         let scroll = document.body.getBoundingClientRect().top
-        window.scrollTo({ top: lekceE?.offsetTop! - 200, behavior: Math.abs(-scroll - lekceE?.offsetTop!) > 600 ? "instant" : "smooth"})
+        window.scrollTo({ top: lekceE?.offsetTop! - 200, behavior: Math.abs(-scroll - lekceE?.offsetTop!) > 600 ? "instant" : "smooth" })
         setTimeout(() => { jede = false }, ms)
-    } else if (e.key == 'ArrowDown' || e.key == 'ArrowRight') {
+    } else if (e.key == "ArrowDown" || e.key == "ArrowRight") {
         e.preventDefault()
         if (jede) return
 
@@ -91,11 +92,11 @@ function e1(e: KeyboardEvent) {
         let lekceE: HTMLElement | null = document.querySelector(`[i="${o.index.value}"]`)
 
         jede = true
-        
+
         let scroll = document.body.getBoundingClientRect().top
-        window.scrollTo({ top: lekceE?.offsetTop! - 200, behavior: Math.abs(-scroll - lekceE?.offsetTop!) > 600 ? "instant" : "smooth"})
+        window.scrollTo({ top: lekceE?.offsetTop! - 200, behavior: Math.abs(-scroll - lekceE?.offsetTop!) > 600 ? "instant" : "smooth" })
         setTimeout(() => { jede = false }, ms)
-    } if (e.key == 'Enter') {
+    } if (e.key == "Enter") {
         e.preventDefault()
         let lekceE: HTMLElement | null = document.querySelector(`.oznacene`)
         if (lekceE == null || o.bezOznaceni) {
@@ -104,14 +105,14 @@ function e1(e: KeyboardEvent) {
             lekceE = document.querySelector(`[i="${o.index.value}"]`)
             window.scrollTo({ top: lekceE?.offsetTop! - 200 })
         } else lekceE?.click()
-    } else if (e.key == 'Tab') {
+    } else if (e.key == "Tab") {
         e.preventDefault()
         napovedaKNavigaci()
     }
 }
 
 function e2(e: KeyboardEvent) {
-    if (e.key == 'Enter') {
+    if (e.key == "Enter") {
         e.preventDefault()
         let lekceE: HTMLElement | null = document.querySelector(`.oznacene`)
         router.push(lekceE?.getAttribute("href")!)  // chromium sus
@@ -121,12 +122,13 @@ function e2(e: KeyboardEvent) {
 function zrusitVyber() {
     o.index.value = 0
 }
+
 </script>
 
 <template>
     <h1>Lekce</h1>
     <div id="seznam">
-        <Rada v-if="dokoncene.length < 2 && lekce.length != 1" />
+        <Rada v-if="dokoncene.length < 2 && lekce.length != 1 && !mobil" />
         <h2>Střední řada</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 4" pismena="..." :jeDokoncena="false" />
         <!-- jen aby tam něco bylo než se to načte -->

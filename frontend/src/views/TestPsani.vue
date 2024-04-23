@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { checkTeapot, getToken, MojeMapa, pridatOznameni } from '../utils';
-import { computed, onMounted, ref, toRaw } from 'vue';
-import axios from 'axios';
-import Vysledek from '../components/Vysledek.vue';
-import { useHead } from '@unhead/vue';
-import Psani from '../components/Psani.vue';
-import { nastaveniJmeno, prihlasen } from '../stores';
-import { useRouter } from 'vue-router';
+import { checkTeapot, getToken, MojeMapa, pridatOznameni } from "../utils";
+import { computed, onMounted, ref, toRaw } from "vue";
+import axios from "axios";
+import Vysledek from "../components/Vysledek.vue";
+import { useHead } from "@unhead/vue";
+import Psani from "../components/Psani.vue";
+import { nastaveniJmeno, prihlasen, mobil } from "../stores";
+import { useRouter } from "vue-router";
 
 useHead({
     title: "Test psaní",
@@ -82,10 +82,9 @@ function get() {
 }
 
 onMounted(() => {
-    const mobil = document.body.clientWidth <= 1000
-    if (mobil) {
+    if (mobil.value) {
         router.back()
-        pridatOznameni('Psaní na telefonech zatím neučíme...')
+        pridatOznameni("Psaní na telefonech zatím neučíme...")
         return
     }
     let nastaveni = localStorage.getItem(nastaveniJmeno)

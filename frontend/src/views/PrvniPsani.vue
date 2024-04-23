@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { useHead } from '@unhead/vue';
-import Psani from '../components/Psani.vue';
-import { useRouter } from 'vue-router';
-import { pridatOznameni } from '../utils';
-import Vysledek from '../components/Vysledek.vue';
+import { computed, onMounted, ref } from "vue";
+import { useHead } from "@unhead/vue";
+import Psani from "../components/Psani.vue";
+import { useRouter } from "vue-router";
+import { pridatOznameni } from "../utils";
+import Vysledek from "../components/Vysledek.vue";
+import { mobil } from "../stores"
 
 useHead({
     title: "První krůčky"
@@ -31,10 +32,9 @@ function konecTextu(c: number, o: number, p: number) {
 }
 
 onMounted(() => {
-    const mobil = document.body.clientWidth <= 1000
-    if (mobil) {
-        router.push('/registrace')
-        pridatOznameni('Psaní na telefonech zatím neučíme. Registrovat se ale můžeš.')
+    if (mobil.value) {
+        router.push("/registrace")
+        pridatOznameni("Psaní na telefonech zatím neučíme. Registrovat se ale můžeš.")
         return
     }
 

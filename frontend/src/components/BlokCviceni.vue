@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { levelyRychlosti, prihlasen } from '../stores';
-import { pridatOznameni } from '../utils';
+import { levelyRychlosti, prihlasen, mobil } from "../stores";
+import { pridatOznameni } from "../utils";
 
 defineProps({
     dokonceno: Boolean,
@@ -17,8 +16,6 @@ defineProps({
     },
     oznacene: Boolean
 })
-
-const mobil = ref(document.body.clientWidth <= 1000)
 
 </script>
 

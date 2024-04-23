@@ -51,19 +51,4 @@ p {
 img {
     width: 180px;
 }
-
-@media screen and (max-width: 1100px) {
-    #box {
-        width: 100%;
-        flex-direction: column;
-        text-align: center;
-        gap: 12px;
-        padding-top: 16px;
-    }
-
-    #box div {
-        align-items: center;
-    }
-}
-
 </style>
