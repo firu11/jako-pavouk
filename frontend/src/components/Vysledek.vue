@@ -32,7 +32,7 @@ const props = defineProps({
     },
     nejcastejsiChyby: {
         type: MojeMapa,
-        default: ["prvni-psani"]
+        default: new MojeMapa()
     },
     cislo: String,
     posledni: Boolean
@@ -76,6 +76,11 @@ function random(list: Array<string>) {
 onMounted(() => {
     hodnoceni.value = random(pochavly) + " " + random(vsechnyHodnoceni[getCisloPochvaly(rychlost, presnost)])
 
+    if (props.cislo == "prvni-psani") {
+        hodnoceni.value = "Píšeš krásně, ale tohle byl jen začátek..."
+        return
+    }
+    
     nejcastejsiChybyTop3.value = props.nejcastejsiChyby.top(3)
 
     document.addEventListener("keydown", e1)
@@ -96,11 +101,6 @@ onMounted(() => {
         }).catch(function (e) {
             console.log(e)
         })
-        return
-    }
-
-    if (props.cislo == "prvni-psani") {
-        hodnoceni.value = "Píšeš krásně, ale tohle byl jen začátek..."
         return
     }
 
