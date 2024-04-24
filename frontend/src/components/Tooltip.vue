@@ -19,7 +19,6 @@ onMounted(() => {
     if (props.sirka == null) {
         sirka.value = obsah.value.getBoundingClientRect().width
     } else sirka.value = props.sirka
-    console.log(sirka.value, y.value)
 })
 </script>
 

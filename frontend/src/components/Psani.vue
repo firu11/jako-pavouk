@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { onUnmounted } from 'vue';
-import Klavesnice from '../components/Klavesnice.vue';
-import { Howl } from 'howler';
-import klik1 from '../assets/zvuky/klik1.ogg';
-import klik2 from '../assets/zvuky/klik2.ogg';
-import klik3 from '../assets/zvuky/klik3.ogg';
-import miss from '../assets/zvuky/miss.ogg';
-import { MojeMapa } from '../utils';
+import { computed, onMounted, ref } from "vue";
+import { onUnmounted } from "vue";
+import Klavesnice from "../components/Klavesnice.vue";
+import { Howl } from "howler";
+import klik1 from "../assets/zvuky/klik1.ogg";
+import klik2 from "../assets/zvuky/klik2.ogg";
+import klik3 from "../assets/zvuky/klik3.ogg";
+import miss from "../assets/zvuky/miss.ogg";
+import { MojeMapa } from "../utils";
 
 const emit = defineEmits(["konec", "pise", "restart"])
 

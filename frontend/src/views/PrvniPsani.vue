@@ -50,16 +50,66 @@ onMounted(() => {
     }
 })
 
+const ok = ref(false)
+
 </script>
 
 <template>
     <h1 style="margin: 0">První krůčky</h1>
 
     <Psani v-if="!konec" @konec="konecTextu" :text="text" :delkaTextu="delkaTextu" :klavesnice="'qwertz'"
-        :hideKlavesnice="false" />
+        :hideKlavesnice="!ok" />
 
-    <Vysledek v-else :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu"
-        :casF="casFormat" :cas="cas" :cislo="'prvni-psani'" :posledni="true" />
+    <Vysledek v-else :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu" :casF="casFormat"
+        :cas="cas" :cislo="'prvni-psani'" :posledni="true" />
+
+    <Transition>
+        <div id="napoveda" v-if="!ok">
+            <h3>Nápověda</h3>
+            <ul>
+                <li>Podtřežení ukazuje na písmeno, které máš napsat.</li>
+                <li>Pokud uděláš chybu, můžeš se vrátit zpět pomocí klávesy <span class="klavesaVTextu">Backspace</span> a chybu opravit.
+                </li>
+            </ul>
+            <button class="tlacitko" @click="ok = true">Jdu na to!</button>
+        </div>
+    </Transition>
 </template>
 
-<style scoped></style>
+<style scoped>
+#napoveda {
+    background-color: var(--tmave-fialova);
+    padding: 20px;
+    border-radius: 10px;
+    position: relative;
+    top: -280px;
+    max-width: 450px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-direction: column;
+}
+
+#napoveda h3 {
+    font-size: 1.4rem;
+    font-weight: 500;
+}
+
+#napoveda ul {
+    padding-left: 10px;
+    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    line-height: 1.4rem;
+}
+
+
+.v-leave-active {
+    transition: 0.3s !important;
+}
+
+.v-leave-to {
+    opacity: 0;
+}
+</style>
