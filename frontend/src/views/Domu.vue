@@ -33,17 +33,19 @@ function zacit() {
 </script>
 
 <template>
-    <PsaniHomePage/>
+    <PsaniHomePage />
     <h1 id="schovat">Psaní všemi deseti zdarma Jako Pavouk</h1> <!-- Pro SEO (nevim jestli funguje) -->
     <div class="bloky">
         <div class="text">
-            <p style="font-size: 1.3em; line-height: 1.5em;">Webová aplikace na výuku <br><b style="font-weight: 700;">psaní všemi deseti</b> zdarma.<br>Chceš se naučit psát jako pavouk?</p>
-            <button v-if="!mobil" class="tlacitko" @click="zacit()" style="transform: scale(1.25); margin-top: 2em;">Začít psát</button>
+            <p style="font-size: 1.3em; line-height: 1.5em;">Webová aplikace na výuku <br><b
+                    style="font-weight: 700;">psaní všemi deseti</b> zdarma.<br>Chceš se naučit psát jako pavouk?</p>
+            <button v-if="!mobil" class="tlacitko" @click="zacit()"
+                style="transform: scale(1.25); margin-top: 2em;">Začít psát</button>
         </div>
-        <img src="../assets/pavoukStudent.svg" alt="Pavouk student" width="300" height="300">
+        <img src="../assets/pavoukStudent.svg" alt="Pavouk student" width="300" height="253">
     </div>
     <div class="bloky">
-        <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí" width="285" height="220">
+        <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí" width="300" height="223">
         <div class="text">
             <h2>Proč psát všemi deseti?</h2>
             <ul>
@@ -62,21 +64,28 @@ function zacit() {
                 Avšak než si osvojíš všechny klávesy, bude to chvíli trvat.
             </p>
         </div>
-        <img src="../assets/pavoukNaZlate.svg" width="287" height="180" alt="Bohatý pavouk">
+        <img src="../assets/pavoukNaZlate.svg" width="300" height="188" alt="Bohatý pavouk">
     </div>
 </template>
 
 <style scoped>
+.bloky img {
+    width: 300px;
+}
+
 @media screen and (max-width: 1100px) {
     .tlacitko:nth-of-type(1) {
         transform: scale(1) !important;
         margin: 1em 0 !important;
     }
+
     .text:nth-of-type(1) p {
         font-size: 1.2em !important;
     }
+
     .bloky img {
         max-height: 230px;
+        width: auto;
     }
 }
 </style>

@@ -528,10 +528,14 @@ func PridatDokonceneProcvic(procvicID, uzivID uint, neopravene int, cas float32,
 	if procvicID == 0 {
 		procvicCislo = sql.NullString{}
 	}
+	var id = sql.NullInt32{Int32: int32(uzivID), Valid: true}
+	if uzivID == 0 {
+		id = sql.NullInt32{}
+	}
 	if err != nil {
 		return errors.New("konverze mapy chyb na json se nepovedla")
 	}
-	_, err = DB.Exec(`INSERT INTO dokoncene_procvic (uziv_id, procvic_id, neopravene, cas, delka_textu, chyby_pismenka) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT ON CONSTRAINT duplicitni2 DO NOTHING`, uzivID, procvicCislo, neopravene, cas, delkaTextu, chybyPismenkaJSON)
+	_, err = DB.Exec(`INSERT INTO dokoncene_procvic (uziv_id, procvic_id, neopravene, cas, delka_textu, chyby_pismenka) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT ON CONSTRAINT duplicitni2 DO NOTHING`, id, procvicCislo, neopravene, cas, delkaTextu, chybyPismenkaJSON)
 	return err
 }
 
