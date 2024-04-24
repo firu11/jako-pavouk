@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import axios from 'axios';
-import { onMounted, onUnmounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { getCisloPochvaly, getToken, MojeMapa, napovedaKNavigaci } from '../utils';
-import { levelyRychlosti } from '../stores';
+import axios from "axios";
+import { onMounted, onUnmounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { getCisloPochvaly, getToken, MojeMapa, napovedaKNavigaci } from "../utils";
+import { levelyRychlosti } from "../stores";
+import Tooltip from "../components/Tooltip.vue";
 
 const emit = defineEmits(["restart"])
 
@@ -77,13 +78,13 @@ onMounted(() => {
 
     nejcastejsiChybyTop3.value = props.nejcastejsiChyby.top(3)
 
-    document.addEventListener('keydown', e1)
+    document.addEventListener("keydown", e1)
 
     if (props.pismena == "") { // je to procvicovani / test takze posilame jinam
         let cislo = props.cislo
         if (props.cislo == "test-psani") cislo = "0" // test psani
 
-        axios.post('/dokonceno-procvic/' + cislo, {
+        axios.post("/dokonceno-procvic/" + cislo, {
             "neopravenePreklepy": props.preklepy,
             "cas": props.cas,
             "delkaTextu": props.delkaTextu,
@@ -104,7 +105,7 @@ onMounted(() => {
     }
 
     // jsme ve cviceni
-    axios.post('/dokonceno/' + encodeURIComponent(props.pismena) + '/' + props.cislo, {
+    axios.post("/dokonceno/" + encodeURIComponent(props.pismena) + "/" + props.cislo, {
         "neopravenePreklepy": props.preklepy,
         "cas": props.cas,
         "delkaTextu": props.delkaTextu,
@@ -119,7 +120,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-    document.removeEventListener('keydown', e1)
+    document.removeEventListener("keydown", e1)
 })
 
 function e1(e: KeyboardEvent) {
@@ -129,7 +130,7 @@ function e1(e: KeyboardEvent) {
     } else if (e.key == "ArrowRight" || e.key === "Enter") {
         e.preventDefault()
         dalsi()
-    } else if (e.key == 'Tab') {
+    } else if (e.key == "Tab") {
         e.preventDefault()
         napovedaKNavigaci()
     }
@@ -139,14 +140,19 @@ function e1(e: KeyboardEvent) {
 <template>
     <div id="bloky" style="margin-top: 25px;">
         <div id="hodnoceni" class="blok" :style="{ width: cislo == 'prvni-psani' ? '400px' : '' }">
-            <div id="hvezdy">
-                <img v-if="rychlost >= levelyRychlosti[0]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
-                <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-                <img v-if="rychlost >= levelyRychlosti[1]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
-                <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-                <img v-if="rychlost >= levelyRychlosti[2]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
-                <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-            </div>
+            <Tooltip :zprava="`Pro získání 3 hvězd je potřeba dosánout rychlosti min ${levelyRychlosti[2]} CPM. Hodně štěstí!` " :vzdalenost="10">
+                <div id="hvezdy">
+                    <img v-if="rychlost >= levelyRychlosti[0]" src="../assets/icony/hvezda.svg" alt="Hvezda"
+                        class="hvezda">
+                    <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
+                    <img v-if="rychlost >= levelyRychlosti[1]" src="../assets/icony/hvezda.svg" alt="Hvezda"
+                        class="hvezda">
+                    <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
+                    <img v-if="rychlost >= levelyRychlosti[2]" src="../assets/icony/hvezda.svg" alt="Hvezda"
+                        class="hvezda">
+                    <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
+                </div>
+            </Tooltip>
             <div style="display: flex; align-items: center; height: 100%;">
                 <h3 style="font-weight: 300; margin: 0">{{ hodnoceni }}</h3>
             </div>
@@ -156,7 +162,9 @@ function e1(e: KeyboardEvent) {
             <hr>
             <div v-if="nejcastejsiChyby.size !== 0">
                 <ol>
-                    <li v-for="znak in nejcastejsiChybyTop3"><span :style="{fontSize: znak[0] == ' ' ? '10px' : 'auto'}">{{ znak[0] == " " ? "┗━┛" : znak[0] }}</span></li>
+                    <li v-for="znak in nejcastejsiChybyTop3"><span
+                            :style="{ fontSize: znak[0] == ' ' ? '10px' : 'auto' }">{{ znak[0] == " " ? "┗━┛" : znak[0]
+                            }}</span></li>
                 </ol>
                 <ul>
                     <li v-for="znak in nejcastejsiChybyTop3"><span v-if="znak[1] > 0">{{ znak[1] }}</span></li>
@@ -171,14 +179,18 @@ function e1(e: KeyboardEvent) {
 
     <div id="bloky">
         <div class="blok">
-            <h2>{{ rychlost > 0 ? Math.round(rychlost * 10) / 10 : 0 }}</h2>
+            <Tooltip zprava="Za neopravené chyby je adekvátní penalizace." :sirka="100" :vzdalenost="48">
+                <h2>{{ rychlost > 0 ? Math.round(rychlost * 10) / 10 : 0 }}</h2>
+            </Tooltip>
             <hr>
             <p class="jednotka">CPM / úhozů</p>
             <p class="jednotka">&zwnj;</p>
             <h3>Rychlost</h3>
         </div>
         <div class="blok">
-            <h2>{{ Math.round(presnost * 10) / 10 }}<span class="procento">%</span></h2>
+            <Tooltip zprava="Přesnost zahrunuje chyby opravené i neopravené." :sirka="100" :vzdalenost="48">
+                <h2>{{ Math.round(presnost * 10) / 10 }}<span class="procento">%</span></h2>
+            </Tooltip>
             <hr>
             <p v-if="preklepy == 1" class="jednotka">{{ preklepy }} neopravený</p>
             <p v-else-if="preklepy >= 2 && preklepy <= 4" class="jednotka">{{ preklepy }} neopravené</p>

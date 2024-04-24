@@ -3,6 +3,7 @@ import PsaniHomePage from "../components/PsaniHomePage.vue";
 import { useHead } from "unhead"
 import { useRouter } from "vue-router";
 import { mobil, prihlasen } from "../stores";
+import Tooltip from '../components/Tooltip.vue';
 
 const router = useRouter()
 
@@ -64,7 +65,9 @@ function zacit() {
                 Avšak než si osvojíš všechny klávesy, bude to chvíli trvat.
             </p>
         </div>
-        <img src="../assets/pavoukNaZlate.svg" width="300" height="188" alt="Bohatý pavouk">
+        <Tooltip zprava="Hele nevim tohle si musis precist">
+            <img src="../assets/pavoukNaZlate.svg" width="290" height="182" alt="Bohatý pavouk" style="width: 290px;">
+        </Tooltip>
     </div>
 </template>
 

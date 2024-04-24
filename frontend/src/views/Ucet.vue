@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import axios from 'axios'
-import { prihlasen, tokenJmeno } from '../stores';
-import { useRouter } from 'vue-router';
-import { onMounted, ref } from 'vue';
-import { checkTeapot, getToken, MojeMapa, pridatOznameni } from '../utils';
-import { useHead } from 'unhead'
+import axios from "axios"
+import { prihlasen, tokenJmeno } from "../stores";
+import { useRouter } from "vue-router";
+import { onMounted, ref } from "vue";
+import { checkTeapot, getToken, MojeMapa, pridatOznameni } from "../utils";
+import { useHead } from "unhead"
+import Tooltip from "../components/Tooltip.vue";
 
 useHead({
     title: "Účet"
@@ -41,7 +42,7 @@ onMounted(() => {
 
 async function getInfo() {
     try {
-        let resp = await axios.get('/ja', {
+        let resp = await axios.get("/ja", {
             headers: {
                 Authorization: `Bearer ${getToken()}`
             }
@@ -78,7 +79,7 @@ async function getInfo() {
 }
 
 function postSmazat() {
-    axios.post('/ucet-zmena', { "zmena": "smazat" }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
+    axios.post("/ucet-zmena", { "zmena": "smazat" }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
         prihlasen.value = false
         localStorage.removeItem("pavouk_token")
         router.push("/prihlaseni")
@@ -89,7 +90,7 @@ function postSmazat() {
 }
 
 function postJmeno() {
-    axios.post('/ucet-zmena', { "zmena": "jmeno", "hodnota": jmenoUprava.value }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
+    axios.post("/ucet-zmena", { "zmena": "jmeno", "hodnota": jmenoUprava.value }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
         getInfo()
     }).catch(e => {
         if (e.response.data.error.search("uzivatel_jmeno_key")) {
@@ -100,7 +101,7 @@ function postJmeno() {
 
 function postKlavesnice() {
     klavesniceUprava.value = klavesniceUprava.value == "QWERTZ" ? "QWERTY" : "QWERTZ" // otocim
-    axios.post('/ucet-zmena', { "zmena": "klavesnice", "hodnota": klavesniceUprava.value.toLowerCase() }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
+    axios.post("/ucet-zmena", { "zmena": "klavesnice", "hodnota": klavesniceUprava.value.toLowerCase() }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
         getInfo()
     }).catch(e => {
         checkTeapot(e)
@@ -150,9 +151,12 @@ function zmenaJmena(e: Event) {
         </div>
         <div class="blok">
             <img src="../assets/icony/rychlost.svg" alt="Rychlost" width="75">
-            <span v-if="info.prumerRychlosti == -1">Zatím nic</span>
-            <span v-else class="popis">Rychlost:<br><span class="cislo">{{ zaokrouhlit(info.prumerRychlosti) }}</span>
-                CPM</span>
+            <Tooltip zprava="Za neopravené chyby je adekvátní penalizace.">
+                <span v-if="info.prumerRychlosti == -1" class="popis">Rychlost:<br>Zatím nic</span>
+                <span v-else class="popis">Rychlost:<br>
+                    <span class="cislo">{{ zaokrouhlit(info.prumerRychlosti) }}</span>CPM
+                </span>
+            </Tooltip>
         </div>
         <div class="blok">
             <img src="../assets/icony/kalendar.svg" alt="Kalendář">
@@ -167,9 +171,11 @@ function zmenaJmena(e: Event) {
         <div class="blok" id="chyby">
             <div id="presnost">
                 <img src="../assets/icony/terc.svg" alt="Přesnost">
-                <span v-if="info.uspesnost == -1">Zatím nic</span>
-                <span v-else class="popis">Přesnost:<br><span class="cislo">{{ zaokrouhlit(info.uspesnost) }}</span>
-                    %</span>
+                <Tooltip zprava="Přesnost zahrunuje chyby opravené i neopravené." :sirka="100" :vzdalenost="30">
+                    <span v-if="info.uspesnost == -1">Zatím nic</span>
+                    <span v-else class="popis">Přesnost:<br><span class="cislo">{{ zaokrouhlit(info.uspesnost) }}</span>
+                        %</span>
+                </Tooltip>
             </div>
 
             <div>
@@ -179,14 +185,16 @@ function zmenaJmena(e: Event) {
             <div style="width: 100%;">
                 <div v-if="pismenaChyby.length !== 0" id="pismena">
                     <div id="prvni">
-                        <span v-for="znak, i in pismenaChyby.slice(0, 2)"><span class="cisla">{{ i + 1 }}.</span> <b :style="{fontSize: znak[0] == ' ' ? '12px' : 'auto'}">{{
-                            znak[0] == " " ? "┗━┛" :
-                                znak[0]
+                        <span v-for="znak, i in pismenaChyby.slice(0, 2)"><span class="cisla">{{ i + 1 }}.</span> <b
+                                :style="{ fontSize: znak[0] == ' ' ? '12px' : 'auto' }">{{
+                                    znak[0] == " " ? "┗━┛" :
+                                        znak[0]
                                 }}</b></span>
                     </div>
                     <div id="druhy">
-                        <span v-for="znak, i in pismenaChyby.slice(2)"><span class="cisla">{{ i + 3 }}.</span> <b :style="{fontSize: znak[0] == ' ' ? '12px' : 'auto'}">{{
-                            znak[0] == " " ? "┗━┛" : znak[0]
+                        <span v-for="znak, i in pismenaChyby.slice(2)"><span class="cisla">{{ i + 3 }}.</span> <b
+                                :style="{ fontSize: znak[0] == ' ' ? '12px' : 'auto' }">{{
+                                    znak[0] == " " ? "┗━┛" : znak[0]
                                 }}</b></span>
                     </div>
                 </div>
