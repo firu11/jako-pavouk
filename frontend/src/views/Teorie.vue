@@ -38,7 +38,7 @@ useHead({
         </div>
     </div>
     <div class="bloky">
-        <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí" width="285" height="212">
+        <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí" width="300" height="233">
         <div class="text">
             <h2>Co zbytek klávesnice?</h2>
             <p>
@@ -67,11 +67,11 @@ useHead({
             </div>
         </div>
         <a id="npi" href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target=”_blank” rel="nofollow">
-            <img src="../assets/npi.webp" alt="Národní pedagogický institut" width="226" height="226">
+            <img src="../assets/npi.webp" alt="Národní pedagogický institut" width="225" height="225">
         </a>
     </div>
     <div class="bloky" id="pohyb">
-        <img src="../assets/sipky.svg" alt="Pavouk s klávesnicí" width="337" height="238">
+        <img src="../assets/sipky.svg" alt="Pavouk s klávesnicí" width="345" height="244">
         <div class="text">
             <h2>Pohyb po Pavoukovi</h2>
             <ul class="mensiPadding" style="list-style: none;">
@@ -104,6 +104,10 @@ useHead({
 <style scoped>
 .bloky {
     height: 350px;
+}
+
+.bloky img {
+    width: 300px;
 }
 
 #pohyb .text {
@@ -176,7 +180,7 @@ ul {
 #npi img {
     border-radius: 1000rem;
     aspect-ratio: 1 / 1;
-    width: 100%;
+    width: 225px;
 }
 
 @media screen and (max-width: 1100px) {

@@ -137,7 +137,7 @@ nav {
     flex-shrink: 0;
     border-radius: 10px;
     background-color: var(--tmave-fialova);
-    transition: ease-in-out 0.3s;
+    transition: transform ease-in-out 0.3s;
     overflow: hidden;
 }
 
@@ -158,7 +158,7 @@ nav {
 @media screen and (max-width: 1100px) {
     .mobilHidden {
         transform: translateX(-250px);
-        transition: ease-in-out 0.3s;
+        transition: transform ease-in-out 0.3s;
     }
 
     #menuMobilniBtn {

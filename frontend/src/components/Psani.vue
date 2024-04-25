@@ -21,7 +21,7 @@ const props = defineProps<{
 const counter = ref(0)
 const counterSlov = ref(0)
 const preklepy = ref(0)
-const opravene = new Map<String, Boolean>()
+const opravene = ref(0)
 const timerZacatek = ref(0)
 const cas = ref(0)
 const textElem = ref<HTMLInputElement>()
@@ -40,7 +40,7 @@ let interval: number
 const celyPsani = ref()
 
 const casFormat = computed(() => {
-    return cas.value < 60 ? Math.floor(cas.value).toString() : `${Math.floor(cas.value / 60)}:${cas.value % 60 < 10 ? "0" + Math.floor(cas.value % 60).toString() : Math.floor(cas.value % 60)}`
+    return cas.value < 60 ? Math.floor(cas.value).toString() + "s" : `${Math.floor(cas.value / 60)}:${cas.value % 60 < 10 ? "0" + Math.floor(cas.value % 60).toString() : Math.floor(cas.value % 60)}`
 })
 
 const progress = computed(() => {
@@ -93,13 +93,13 @@ function backPismeno() {
         counter.value = props.text[counterSlov.value].length - 1
         if (aktivniPismeno.value.spatne === 1) {
             preklepy.value--
-            opravene.set(`${counterSlov.value}${counter.value}`, true)
+            opravene.value++
         }
     } else {
         counter.value--
         if (aktivniPismeno.value.spatne === 1) {
             preklepy.value--
-            opravene.set(`${counterSlov.value}${counter.value}`, true)
+            opravene.value++
         }
     }
     emit("pise")
@@ -161,7 +161,7 @@ function klik(this: any, e: KeyboardEvent) {
         calcCas() // naposledy
         document.removeEventListener("keypress", klik)
         document.removeEventListener("keydown", specialniKlik)
-        emit("konec", cas.value, opravene.size, preklepy.value, chybyPismenka)
+        emit("konec", cas.value, opravene.value, preklepy.value, chybyPismenka)
         restart()
     }
 
@@ -278,7 +278,7 @@ function restart() {
     textElem.value!.style.top = "0rem" // reset posunuti
     mistaPosunuti.value = [0, 0]
     chybyPismenka.clear()
-    opravene.clear()
+    opravene.value = 0
 }
 
 function loadZvuk() {
@@ -334,7 +334,7 @@ defineExpose({ restart })
 <template>
     <div id="flex" ref="celyPsani">
         <div id="nabidka">
-            <h2 id="cas">{{ casFormat }}s</h2>
+            <h2 id="cas">{{ casFormat }}</h2>
             <h2 :style="{ visibility: capslock ? 'visible' : 'hidden' }" id="capslock">CapsLock</h2>
             <h2 id="preklepy">Překlepy: {{ preklepy }}</h2>
         </div>

@@ -25,14 +25,14 @@ let schema = [
 ]
 const delkaKlaves: { [id: string]: number } = { "⟵": 3, "Shift": 1, "Enter ↵": 1, "CapsLock": 1, "TAB": 1, "______": 24, "  ": 2, "Ctrl": 2 }
 const prstoklad: { [id: string]: string[] } = {
-    "P_Ukaz": [barvy[0], "J", "H", "U", "Z", "N", "M", "7ý", "6ž"],
-    "L_Ukaz": [barvy[1], "G", "T", "R", "F", "V", "B", "5ř", "4č"],
-    "P_Pros": [barvy[2], "K", "I", "?,", "8á"],
-    "L_Pros": [barvy[2], "D", "E", "C", "3š"],
-    "P_Prs": [barvy[3], "O", "L", ":.", "9í"],
-    "L_Prs": [barvy[3], "X", "S", "W", "2ě"],
-    "P_Mali": [barvy[4], '"ů', "P", "_-", "0é", '%=', 'ˇ´', '⟵', '()', '/ú', "'¨", '!§', 'Enter ↵', 'Shift'],
-    "L_Mali": [barvy[4], "Shift", "A", "Q", "Y", "1+", "°;", "TAB", "CapsLock", "Ctrl"],
+    "P_Ukaz": [barvy[0], "J", "H", "U", "Z", "N", "M", "7ý", "8á"],
+    "L_Ukaz": [barvy[1], "G", "T", "R", "F", "V", "B", "5ř", "6ž"],
+    "P_Pros": [barvy[2], "K", "I", "?,", "9í"],
+    "L_Pros": [barvy[2], "D", "E", "C", "4č"],
+    "P_Prs": [barvy[3], "O", "L", ":.", "0é"],
+    "L_Prs": [barvy[3], "X", "S", "W", "3š"],
+    "P_Mali": [barvy[4], '"ů', "P", "_-", '%=', 'ˇ´', '⟵', '()', '/ú', "'¨", '!§', 'Enter ↵', 'Shift'],
+    "L_Mali": [barvy[4], "Shift", "A", "Q", "Y", "1+", "°;", "2ě", "TAB", "CapsLock", "Ctrl"],
     "Palce": ["#bc73ff", "______", "Alt"]
 }
 const shiftSviti = ref(false)
