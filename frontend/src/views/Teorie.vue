@@ -214,6 +214,10 @@ ul {
         height: auto;
     }
 
+    .bloky img {
+        width: 100%;
+    }
+
     #pohyb .text {
         width: auto;
     }

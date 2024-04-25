@@ -88,7 +88,7 @@ function zacit() {
 
     .bloky img {
         max-height: 230px;
-        width: auto;
+        width: 100% !important;
     }
 }
 </style>
