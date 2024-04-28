@@ -1,0 +1,58 @@
+{
+    "name": "Jako Pavouk | Psaní všemi deseti zdarma",
+    "short_name": "Jako Pavouk",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#3F3351",
+    "description": "Tato instalace udělá z webové stránky aplikaci v počítači. (V telefonu je to trošku hloupé 😂)",
+    "icons": [
+        {
+            "src": "/favicon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/favicon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/favicon.svg",
+            "type": "image/svg+xml",
+            "sizes": "any",
+            "purpose": "any"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "screenshot1.png",
+            "sizes": "1920x1080",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Domovská obrazovka"
+        },
+        {
+            "src": "screenshot2.png",
+            "sizes": "1920x1080",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Test psaní"
+        },
+        {
+            "src": "screenshot3.png",
+            "sizes": "1080x2160",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Domovská obrazovka"
+        },
+        {
+            "src": "screenshot4.png",
+            "sizes": "1080x2160",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Jak psát"
+        }
+    ]
+}

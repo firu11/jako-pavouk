@@ -41,7 +41,12 @@
         <changefreq>weekly</changefreq>
     </url>
     <url>
-        <loc>https://jakopavouk.cz/pavoucek.ico</loc>
+        <loc>https://jakopavouk.cz/favicon.ico</loc>
+        <priority>1.0</priority>
+        <changefreq>weekly</changefreq>
+    </url>
+    <url>
+        <loc>https://jakopavouk.cz/favicon.svg</loc>
         <priority>1.0</priority>
         <changefreq>weekly</changefreq>
     </url>
