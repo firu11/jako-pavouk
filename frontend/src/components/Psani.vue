@@ -8,6 +8,7 @@ import klik2 from "../assets/zvuky/klik2.ogg";
 import klik3 from "../assets/zvuky/klik3.ogg";
 import miss from "../assets/zvuky/miss.ogg";
 import { MojeMapa } from "../utils";
+import { useRoute } from "vue-router";
 
 const emit = defineEmits(["konec", "pise", "restart"])
 
@@ -18,6 +19,8 @@ const props = defineProps<{
     hideKlavesnice: boolean,
     nacitamNovej: boolean
 }>()
+
+const route = useRoute()
 
 const counter = ref(0)
 const counterSlov = ref(0)
@@ -360,7 +363,7 @@ defineExpose({ restart })
 
             </Transition>
             <Transition>
-                <div v-if="klavesnice != ''" id="resetBtn" @click="resetTlacitko(); animace()">
+                <div v-if="klavesnice != ''" id="resetBtn" @click="resetTlacitko(); animace()" :class="{schovat: route.fullPath == '/prvni-psani'}">
                     <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Nastavení">
                 </div>
             </Transition>
@@ -375,6 +378,11 @@ defineExpose({ restart })
 </template>
 
 <style scoped>
+.schovat {
+    opacity: 0;
+    cursor: auto !important;
+}
+
 .bezKurzoru {
     cursor: none;
 }

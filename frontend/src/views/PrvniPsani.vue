@@ -58,7 +58,7 @@ const ok = ref(false)
     <h1 style="margin: 0">První krůčky</h1>
 
     <Psani v-if="!konec" @konec="konecTextu" @pise="ok = true" :text="text" :delkaTextu="delkaTextu" :klavesnice="'qwertz'"
-        :hideKlavesnice="!ok" />
+        :hideKlavesnice="!ok" :nacitam-novej="false" />
 
     <Vysledek v-else :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu" :casF="casFormat"
         :cas="cas" :cislo="'prvni-psani'" :posledni="true" />
