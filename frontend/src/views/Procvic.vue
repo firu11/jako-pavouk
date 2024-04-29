@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { getCisloProcvic, getToken, MojeMapa, pridatOznameni } from '../utils';
+import { checkTeapot, getCisloProcvic, getToken, MojeMapa, pridatOznameni } from '../utils';
 import SipkaZpet from '../components/SipkaZpet.vue';
 import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
@@ -27,12 +27,14 @@ const klavesnice = ref("")
 const jmeno = ref(". . .")
 
 const konec = ref(false)
+const nacitamNovej = ref(false)
 
 const casFormat = computed(() => {
     return cas.value < 60 ? Math.floor(cas.value).toString() : `${Math.floor(cas.value / 60)}:${cas.value % 60 < 10 ? "0" + Math.floor(cas.value % 60).toString() : Math.floor(cas.value % 60)}`
 })
 
 function get() {
+    nacitamNovej.value = true
     axios.get("/procvic/" + id + "/" + getCisloProcvic(id), {
         headers: {
             Authorization: `Bearer ${getToken()}`
@@ -48,13 +50,16 @@ function get() {
         })
         jmeno.value = response.data.jmeno
         klavesnice.value = response.data.klavesnice
+        nacitamNovej.value = false
         useHead({
             title: jmeno.value
         })
     }).catch(e => {
-        console.log(e)
-        pridatOznameni()
-        router.back()
+        if (!checkTeapot(e)) {
+            pridatOznameni()
+            router.back()
+        }
+        nacitamNovej.value = false
     })
 }
 
@@ -86,7 +91,7 @@ function konecTextu(c: number, o: number, p: number, n: any[]) {
         {{ jmeno }}
     </h1>
 
-    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" :text="text" :delkaTextu="delkaTextu" :klavesnice="klavesnice" :hide-klavesnice="false" />
+    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" :text="text" :delkaTextu="delkaTextu" :klavesnice="klavesnice" :hide-klavesnice="false" :nacitam-novej="nacitamNovej"/>
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu"
         :casF="casFormat" :cas="cas" :cislo="id" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />

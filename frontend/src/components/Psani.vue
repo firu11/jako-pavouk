@@ -15,7 +15,8 @@ const props = defineProps<{
     text: { id: number, znak: string, spatne: number }[][]
     delkaTextu: number,
     klavesnice: string,
-    hideKlavesnice: boolean
+    hideKlavesnice: boolean,
+    nacitamNovej: boolean
 }>()
 
 const counter = ref(0)
@@ -199,53 +200,50 @@ function specialniKlik(e: KeyboardEvent) {
         if (e.shiftKey) predchoziZnak = "°"
     } else if (e.key === "Backspace" || e.code === "Backspace" || e.keyCode == 8) {
         e.preventDefault()
-        if (aktivniPismeno.value.id !== 0) {
-            if (e.ctrlKey) { // tak dáme celé slovo pryč (Ctrl + Backspace zkratka)
-                let lastY = document.getElementById("p" + (aktivniPismeno.value.id))?.getBoundingClientRect().y!
-                if (aktivniPismeno.value.znak == " ") backPismeno()
-                if (counter.value == 0) backPismeno(); backPismeno()
-                while (aktivniPismeno.value.znak != " ") {
-                    if (aktivniPismeno.value.id !== 0) {
-                        backPismeno()
-                    } else {
-                        break
-                    }
-                }
-                if (aktivniPismeno.value.id !== 0) nextPismeno()
-                let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y!
-                if (lastY - aktualniY > 30) {
-                    indexPosunuti--
-                    textElem.value!.classList.add("animace")
-                    textElem.value!.style.top = "0rem"
-                    setTimeout(() => {
-                        textElem.value!.classList.remove("animace")
-                        mistaPosunuti.value.pop()
-                        if (indexPosunuti > 0) textElem.value!.style.top = "-2.35rem" // posunuti dolu
-                    }, 200)
+        if (aktivniPismeno.value.id == 0 || props.nacitamNovej) return
+        if (e.ctrlKey) { // tak dáme celé slovo pryč (Ctrl + Backspace zkratka)
+            let lastY = document.getElementById("p" + (aktivniPismeno.value.id))?.getBoundingClientRect().y!
+            if (aktivniPismeno.value.znak == " ") backPismeno()
+            if (counter.value == 0) backPismeno(); backPismeno()
+            while (aktivniPismeno.value.znak != " ") {
+                if (aktivniPismeno.value.id !== 0) {
+                    backPismeno()
+                } else {
+                    break
                 }
             }
-            else {
-                backPismeno()
-                let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y!
-                let lastY = document.getElementById("p" + (aktivniPismeno.value.id + 1))?.getBoundingClientRect().y!
-                if (lastY - aktualniY > 30) {
-                    indexPosunuti--
-                    textElem.value!.classList.add("animace")
-                    textElem.value!.style.top = "0rem"
-                    setTimeout(() => {
-                        textElem.value!.classList.remove("animace")
-                        mistaPosunuti.value.pop()
-                        if (indexPosunuti > 0) textElem.value!.style.top = "-2.35rem" // posunuti dolu
-                    }, 200)
-                }
+            if (aktivniPismeno.value.id !== 0) nextPismeno()
+            let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y!
+            if (lastY - aktualniY > 30) {
+                indexPosunuti--
+                textElem.value!.classList.add("animace")
+                textElem.value!.style.top = "0rem"
+                setTimeout(() => {
+                    textElem.value!.classList.remove("animace")
+                    mistaPosunuti.value.pop()
+                    if (indexPosunuti > 0) textElem.value!.style.top = "-2.35rem" // posunuti dolu
+                }, 200)
             }
-            if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
         }
+        else {
+            backPismeno()
+            let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y!
+            let lastY = document.getElementById("p" + (aktivniPismeno.value.id + 1))?.getBoundingClientRect().y!
+            if (lastY - aktualniY > 30) {
+                indexPosunuti--
+                textElem.value!.classList.add("animace")
+                textElem.value!.style.top = "0rem"
+                setTimeout(() => {
+                    textElem.value!.classList.remove("animace")
+                    mistaPosunuti.value.pop()
+                    if (indexPosunuti > 0) textElem.value!.style.top = "-2.35rem" // posunuti dolu
+                }, 200)
+            }
+        }
+        if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
     } else if (e.key == "Enter") {
-        if (aktivniPismeno.value.id == -1) return
         e.preventDefault()
-        emit("restart")
-        restart()
+        resetTlacitko()
         animace()
     }
 }
@@ -254,7 +252,6 @@ function startTimer() {
     if (timerZacatek.value === 0) {
         timerZacatek.value = Date.now()
         interval = setInterval(calcCas, 100)
-
     }
 }
 
@@ -323,7 +320,7 @@ const rotace = computed(() => {
 })
 
 function resetTlacitko() {
-    if (aktivniPismeno.value.id == -1) return
+    if (props.nacitamNovej) return
     emit("restart")
     restart()
 }

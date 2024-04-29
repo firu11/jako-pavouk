@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { format, getToken, MojeMapa, pridatOznameni } from '../utils';
+import { checkTeapot, format, getToken, MojeMapa, pridatOznameni } from '../utils';
 import SipkaZpet from '../components/SipkaZpet.vue';
 import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
@@ -28,12 +28,14 @@ const posledni = ref(false)
 const klavesnice = ref("")
 
 const konec = ref(false)
+const nacitamNovej = ref(false)
 
 const casFormat = computed(() => {
     return cas.value < 60 ? Math.floor(cas.value).toString() : `${Math.floor(cas.value / 60)}:${cas.value % 60 < 10 ? "0" + Math.floor(cas.value % 60).toString() : Math.floor(cas.value % 60)}`
 })
 
 function get() {
+    nacitamNovej.value = true
     axios.get("/cvic/" + encodeURIComponent(pismena) + "/" + cislo, {
         headers: {
             Authorization: `Bearer ${getToken()}`
@@ -49,9 +51,13 @@ function get() {
         })
         posledni.value = response.data.posledni
         klavesnice.value = response.data.klavesnice
-    }).catch(_ => {
-        pridatOznameni()
-        router.back()
+        nacitamNovej.value = false
+    }).catch(e => {
+        if (!checkTeapot(e)) {
+            pridatOznameni()
+            router.back()
+        }
+
     })
 }
 
@@ -84,10 +90,12 @@ function konecTextu(c: number, o: number, p: number, n: MojeMapa) {
     </h1>
     <h2>Cviceni: {{ cislo }}</h2>
 
-    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" :text="text" :delkaTextu="delkaTextu" :klavesnice="klavesnice" :hide-klavesnice="false" />
+    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" :text="text" :delkaTextu="delkaTextu"
+        :klavesnice="klavesnice" :hide-klavesnice="false" :nacitam-novej="nacitamNovej" />
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu"
-        :casF="casFormat" :cas="cas" :cislo="cislo" :posledni="posledni" :pismena="pismena" :nejcastejsiChyby="nejcastejsiChyby" />
+        :casF="casFormat" :cas="cas" :cislo="cislo" :posledni="posledni" :pismena="pismena"
+        :nejcastejsiChyby="nejcastejsiChyby" />
 </template>
 
 <style scoped>

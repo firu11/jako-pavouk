@@ -54,7 +54,7 @@ export function napovedaKNavigaci() {
 
 export function checkTeapot(e: any) {
     if (e.response && e.response.status == 418) {
-        if (oznameni.value.length == 0) {
+        if (oznameni.value.length < 3) {
             pridatOznameni("Dej si čajík a vydýchej se...")
         }
         return true

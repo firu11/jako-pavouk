@@ -43,6 +43,7 @@ const velkaPismena = ref(false)
 const psaniRef = ref()
 
 const konec = ref(false)
+const nacitamNovej = ref(false)
 
 const hideKlavecnice = ref(false)
 
@@ -51,6 +52,7 @@ const casFormat = computed(() => {
 })
 
 function get() {
+    nacitamNovej.value = true
     axios.post("/test-psani",
         {
             typ: typ.value ? "vety" : "slova",
@@ -73,11 +75,13 @@ function get() {
         loadAlternativy()
         toggleDiakritikaAVelkaPismena()
         klavesnice.value = response.data.klavesnice
+        nacitamNovej.value = false
     }).catch(e => {
         if (!checkTeapot(e)) {
             console.log(e)
             pridatOznameni()
         }
+        nacitamNovej.value = false
     })
 }
 
@@ -187,7 +191,7 @@ async function loadAlternativy() {
     <h1 style="margin: 0">Test psaní</h1>
 
     <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="hideKlavecnice = false" :text="text" :delkaTextu="delkaTextu"
-        :klavesnice="klavesnice" :hide-klavesnice="hideKlavecnice" ref="psaniRef" />
+        :klavesnice="klavesnice" :hide-klavesnice="hideKlavecnice" :nacitam-novej="nacitamNovej" ref="psaniRef" />
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu"
         :casF="casFormat" :cas="cas" :cislo="'test-psani'" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />

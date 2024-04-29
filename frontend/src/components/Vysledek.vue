@@ -188,7 +188,7 @@ function e1(e: KeyboardEvent) {
             <h3>Rychlost</h3>
         </div>
         <div class="blok">
-            <Tooltip zprava="Přesnost zahrunuje chyby opravené i neopravené." :sirka="100" :vzdalenost="48">
+            <Tooltip zprava="Přesnost zahrnuje chyby opravené i neopravené." :sirka="100" :vzdalenost="48">
                 <h2>{{ Math.round(presnost * 10) / 10 }}<span class="procento">%</span></h2>
             </Tooltip>
             <hr>
