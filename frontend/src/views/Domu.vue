@@ -3,7 +3,6 @@ import PsaniHomePage from "../components/PsaniHomePage.vue";
 import { useHead } from "unhead"
 import { useRouter } from "vue-router";
 import { mobil, prihlasen } from "../stores";
-import Tooltip from '../components/Tooltip.vue';
 
 const router = useRouter()
 
@@ -43,7 +42,7 @@ function zacit() {
             <button v-if="!mobil" class="tlacitko" @click="zacit()"
                 style="transform: scale(1.25); margin-top: 2em;">Začít psát</button>
         </div>
-        <img src="../assets/pavoukStudent.svg" alt="Pavouk student" width="300" height="253">
+        <img src="../assets/pavoukStudent.svg" alt="Pavouk student" width="300" height="253" style="max-height: 230px;">
     </div>
     <div class="bloky">
         <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí" width="300" height="223">
@@ -65,9 +64,7 @@ function zacit() {
                 Avšak než si osvojíš všechny klávesy, bude to chvíli trvat.
             </p>
         </div>
-        <Tooltip zprava="Hele nevim tohle si musis precist">
-            <img src="../assets/pavoukNaZlate.svg" width="290" height="182" alt="Bohatý pavouk" style="width: 290px;">
-        </Tooltip>
+        <img src="../assets/pavoukNaZlate.svg" width="290" height="182" alt="Bohatý pavouk" style="width: 290px;">
     </div>
 </template>
 
@@ -87,8 +84,7 @@ function zacit() {
     }
 
     .bloky img {
-        max-height: 230px;
-        width: 100% !important;
+        width: 90% !important;
     }
 }
 </style>

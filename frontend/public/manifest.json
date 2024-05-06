@@ -39,20 +39,6 @@
             "type": "image/png",
             "form_factor": "wide",
             "label": "Test psaní"
-        },
-        {
-            "src": "screenshot3.png",
-            "sizes": "1080x2160",
-            "type": "image/png",
-            "form_factor": "narrow",
-            "label": "Domovská obrazovka"
-        },
-        {
-            "src": "screenshot4.png",
-            "sizes": "1080x2160",
-            "type": "image/png",
-            "form_factor": "narrow",
-            "label": "Jak psát"
         }
     ]
 }
