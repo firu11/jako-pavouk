@@ -16,7 +16,7 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json" id="manifest">
     <meta name="theme-color" content="#3F3351">
     <meta name="darkreader-lock"> <!-- aby se nespouštělo dark reader rozšíření -->
     
@@ -41,6 +41,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preload" fetchpriority="high" as="image" href="./src/assets/pavoukStudent.svg" type="image/webp">
+    <link rel="preload" href="/RedHatMono.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/Montserrat.woff2" as="font" type="font/woff2" crossorigin>
     <meta name="robots" content="noarchive">
     
     <style>
@@ -66,6 +68,13 @@
     <div id="app"></div>
     <img id="pavucina" src="./src/assets/pavucina.svg" alt="Pavucina">
     <!-- je tady aby ji mohl browser nacist co nejdrive ještě pred js -->
+
+    <script>
+        // na telefonu chci aby šel web přidat na plochu jako link, ne jako standalone aplikace
+        if (document.body.clientWidth <= 900) {
+            document.getElementById("manifest").remove()
+        }
+    </script>
     <script type="module" src="/src/main.ts"></script>
 </body>
 
