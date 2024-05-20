@@ -39,11 +39,12 @@ type (
 	}
 
 	Uzivatel struct {
-		ID         uint   `json:"id"`
-		Email      string `json:"email"`
-		Jmeno      string `json:"jmeno"`
-		Heslo      string `json:"heslo"`
-		Klavesnice string `json:"klavesnice"`
+		ID         uint      `json:"id"`
+		Email      string    `json:"email"`
+		Jmeno      string    `json:"jmeno"`
+		Heslo      string    `json:"heslo"`
+		Klavesnice string    `json:"klavesnice"`
+		Datum      date.Date `json:"datum"`
 	}
 
 	NeoUziv struct {

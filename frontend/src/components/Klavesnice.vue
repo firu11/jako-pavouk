@@ -57,9 +57,15 @@ if (cesta == "závorky" || cesta == "operátory") {
 }
 
 function tlacPismeno(cislo: number, tlacitko: string) {
-    if (tlacitko.length === 2) return tlacitko.at(cislo)
-    else if (tlacitko.length === 1 && cislo === 0) return tlacitko.at(0)
-    else if (tlacitko.length >= 2 && cislo === 0) return tlacitko
+    try {
+        if (tlacitko.length === 2) return tlacitko.at(cislo)
+        else if (tlacitko.length === 1 && cislo === 0) return tlacitko.at(0)
+        else if (tlacitko.length >= 2 && cislo === 0) return tlacitko
+    } catch { // kvůli starším prohlížečům (koukám na tebe safari <14.0)
+        if (tlacitko.length === 2) return tlacitko.charAt(cislo)
+        else if (tlacitko.length === 1 && cislo === 0) return tlacitko.charAt(0)
+        else if (tlacitko.length >= 2 && cislo === 0) return tlacitko
+    }
 }
 
 function oznacene(tlacitko: string) {

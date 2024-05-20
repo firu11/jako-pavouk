@@ -152,46 +152,57 @@ let textOboje = [[]] as { id: number, znak: string, spatne: number }[][]
 
 function toggleDiakritikaAVelkaPismena() {
     if (!diakritika.value && !velkaPismena.value) {
-        text.value = structuredClone(textOboje)
+        text.value = clone(textOboje)
     } else if (!diakritika.value) {
-        text.value = structuredClone(textBezDiakritiky)
+        text.value = clone(textBezDiakritiky)
     } else if (!velkaPismena.value) {
-        text.value = structuredClone(textMalym)
+        text.value = clone(textMalym)
     } else {
-        text.value = structuredClone(puvodniText)
+        text.value = clone(puvodniText)
     }
     psaniRef.value?.restart()
     localStorage.setItem(nastaveniJmeno, JSON.stringify({ "diakritika": diakritika.value, "velkaPismena": velkaPismena.value, "typ": typ.value }))
 }
 
 async function loadAlternativy() {
-    puvodniText = structuredClone(toRaw(text.value))
-    textBezDiakritiky = structuredClone(toRaw(text.value))
+    puvodniText = clone(toRaw(text.value))
+    textBezDiakritiky = clone(toRaw(text.value))
     textBezDiakritiky.forEach(slovo => {
         slovo.forEach(pismeno => {
             pismeno.znak = pismeno.znak.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
         })
     })
-    textMalym = structuredClone(toRaw(text.value))
+    textMalym = clone(toRaw(text.value))
     textMalym.forEach(slovo => {
         slovo.forEach(pismeno => {
             pismeno.znak = pismeno.znak.toLocaleLowerCase()
         })
     })
-    textOboje = structuredClone(toRaw(text.value))
+    textOboje = clone(toRaw(text.value))
     textOboje.forEach(slovo => {
         slovo.forEach(pismeno => {
             pismeno.znak = pismeno.znak.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase()
         })
     })
 }
+
+function clone(obj: any) { // kvůli starším prohlížečům (koukám na tebe safari <14.0)
+    let x: any
+    try {
+        x = structuredClone(obj)
+    } catch {
+        x = JSON.parse(JSON.stringify(obj))
+    }
+    return x
+}
 </script>
 
 <template>
     <h1 style="margin: 0">Test psaní</h1>
 
-    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="hideKlavecnice = false" :text="text" :delkaTextu="delkaTextu"
-        :klavesnice="klavesnice" :hide-klavesnice="hideKlavecnice" :nacitam-novej="nacitamNovej" ref="psaniRef" />
+    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="hideKlavecnice = false" :text="text"
+        :delkaTextu="delkaTextu" :klavesnice="klavesnice" :hide-klavesnice="hideKlavecnice"
+        :nacitam-novej="nacitamNovej" ref="psaniRef" />
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu"
         :casF="casFormat" :cas="cas" :cislo="'test-psani'" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
@@ -231,8 +242,8 @@ async function loadAlternativy() {
 
             <div class="kontejner">
                 <label for="toggle2" class="kontejner">
-                    <input v-model="velkaPismena" @change="toggleDiakritikaAVelkaPismena" type="checkbox"
-                        id="toggle2" class="radio" />
+                    <input v-model="velkaPismena" @change="toggleDiakritikaAVelkaPismena" type="checkbox" id="toggle2"
+                        class="radio" />
                     Velká písmena
                 </label>
 
@@ -330,7 +341,7 @@ label.kontejner:hover {
     background-color: var(--fialova);
     border-radius: 10rem;
     transition: 0.1s;
-    display: block; 
+    display: block;
 }
 
 .radio:checked:before {
