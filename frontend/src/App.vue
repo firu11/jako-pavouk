@@ -57,7 +57,7 @@ onMounted(() => {
             <MenuLink jmeno="Jak psát" cesta="/jak-psat" />
             <MenuLink jmeno="Lekce" cesta="/lekce" />
             <MenuLink jmeno="Procvičování" cesta="/procvic" />
-            <MenuLink jmeno="Test psaní" cesta="/test-psani"/>
+            <MenuLink jmeno="Test psaní" cesta="/test-psani" />
             <MenuLink jmeno="O nás" cesta="/o-nas" />
             <MenuLink v-if="!prihlasen" jmeno="Přihlásit se" cesta="/prihlaseni" />
             <MenuLink v-else jmeno="Můj účet" cesta="/ucet" />

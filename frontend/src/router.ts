@@ -29,6 +29,10 @@ const router = createRouter({
             component: () => import('./views/Teorie.vue'),
         },
         {
+            path: '/info-skola',
+            component: () => import('./views/InfoSkola.vue'),
+        },
+        {
             path: '/prihlaseni',
             component: () => import('./views/Prihlaseni.vue')
         },

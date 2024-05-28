@@ -66,6 +66,16 @@ function zacit() {
         </div>
         <img src="../assets/pavoukNaZlate.svg" width="290" height="182" alt="Bohatý pavouk" style="width: 290px;">
     </div>
+    <div class="bloky">
+        <img src="../assets/pavoukSkola.svg" width="290" height="182" alt="Bohatý pavouk" style="width: 290px;">
+        <div class="text">
+            <h2>Systém pro školy</h2>
+            <p>
+                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Exercitationem assumenda ratione dolore voluptate in hic.
+            </p>
+            <button class="tlacitko" @click="router.push('/info-skola')">Číst dál</button>
+        </div>
+    </div>
 </template>
 
 <style scoped>

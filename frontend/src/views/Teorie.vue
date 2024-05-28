@@ -6,7 +6,7 @@ useHead({
     meta: [
         {
             name: "description",
-            content: "Teorie psaní všemi deseti na české klávesnici. Popsaný prstoklad i tipy na zlepšení přesnosti.",
+            content: "Teorie jak psát všemi deseti na české klávesnici. Popsaný prstoklad i tipy na zlepšení přesnosti.",
         },
         {
             name: "keywords",
@@ -26,7 +26,7 @@ useHead({
     <h1>Jak psát všemi deseti</h1>
 
     <div class="bloky" id="blok">
-        <img src="../assets/vychoziKlavesy.webp" alt="Výchozí klávesy" width="776" height="291" />
+        <img src="../assets/vychoziKlavesy.webp" alt="Výchozí klávesy" width="732" height="254" />
         <div class="text">
             <h2>Výchozí pozice</h2>
             <p>
@@ -126,6 +126,7 @@ useHead({
     flex-direction: column;
     height: auto;
     gap: 0px;
+    padding-top: 32px;
 }
 
 #blok .text {
@@ -138,7 +139,8 @@ useHead({
 }
 
 #blok img {
-    width: 776px;
+    width: 100%;
+    margin-bottom: 16px;
 }
 
 li {
@@ -208,6 +210,10 @@ ul {
     #blok img {
         width: 100%;
         max-width: 500px !important;
+    }
+
+    #blok {
+        padding: 16px 15px 25px 15px;
     }
 
     .bloky {
