@@ -93,7 +93,6 @@ func SetupRouter(app *fiber.App) {
 
 	api.Get("/token-expirace", testVyprseniTokenu)
 	api.Post("/navsteva", navsteva)
-	api.Get("/testovaci-get-request", test)
 }
 
 // standardní chybový výstup
@@ -102,14 +101,6 @@ func chyba(msg string) fiber.Map {
 		msg = "Neco se pokazilo"
 	}
 	return fiber.Map{"error": msg}
-}
-
-// testovací endpoint
-func test(c *fiber.Ctx) error {
-	/* log.Println(utils.UzivCekajiciNaOvereni)
-	log.Println(utils.ValidFormat("firu"))
-	utils.MobilNotifikace("Jmeno - email@ema.il") */
-	return c.JSON("Vypadni pavouku")
 }
 
 // vygeneruje text pro test psaní

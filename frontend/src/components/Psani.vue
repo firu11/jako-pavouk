@@ -360,7 +360,6 @@ defineExpose({ restart })
             <Transition>
                 <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak"
                     :class="{ rozmazany: hideKlavesnice }" />
-
             </Transition>
             <Transition>
                 <div v-if="klavesnice != ''" id="resetBtn" @click="resetTlacitko(); animace()" :class="{schovat: route.fullPath == '/prvni-psani'}">
@@ -565,6 +564,6 @@ defineExpose({ restart })
 }
 
 .rozmazany {
-    filter: blur(3px) brightness(20%) contrast(110%);
+    filter: blur(2px) brightness(20%) contrast(110%); /* blur je trochu heavy */
 }
 </style>

@@ -140,7 +140,7 @@ function e1(e: KeyboardEvent) {
 <template>
     <div id="bloky" style="margin-top: 25px;">
         <div id="hodnoceni" class="blok" :style="{ width: cislo == 'prvni-psani' ? '400px' : '' }">
-            <Tooltip :zprava="`Pro získání 3 hvězd je potřeba dosánout rychlosti min ${levelyRychlosti[2]} CPM. Hodně štěstí!` " :vzdalenost="10">
+            <Tooltip :zprava="`Pro získání 3 hvězd je potřeba dosánout rychlosti min ${levelyRychlosti[2]} CPM. Hodně štěstí!` " :vzdalenost="10" :sirka="250">
                 <div id="hvezdy">
                     <img v-if="rychlost >= levelyRychlosti[0]" src="../assets/icony/hvezda.svg" alt="Hvezda"
                         class="hvezda">
@@ -179,7 +179,7 @@ function e1(e: KeyboardEvent) {
 
     <div id="bloky">
         <div class="blok">
-            <Tooltip zprava="Za neopravené chyby je adekvátní penalizace." :sirka="100" :vzdalenost="48">
+            <Tooltip zprava="Za neopravené chyby je adekvátní penalizace." :sirka="180" :vzdalenost="48">
                 <h2>{{ rychlost > 0 ? Math.round(rychlost * 10) / 10 : 0 }}</h2>
             </Tooltip>
             <hr>
@@ -188,7 +188,7 @@ function e1(e: KeyboardEvent) {
             <h3>Rychlost</h3>
         </div>
         <div class="blok">
-            <Tooltip zprava="Přesnost zahrnuje chyby opravené i neopravené." :sirka="100" :vzdalenost="48">
+            <Tooltip zprava="Přesnost zahrnuje chyby opravené i neopravené." :sirka="200" :vzdalenost="48">
                 <h2>{{ Math.round(presnost * 10) / 10 }}<span class="procento">%</span></h2>
             </Tooltip>
             <hr>

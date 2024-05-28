@@ -67,8 +67,8 @@ const ok = ref(false)
         <div id="napoveda" v-if="!ok">
             <h3>Nápověda</h3>
             <ul>
-                <li>Podtřežení ukazuje na písmeno, které máš napsat.</li>
-                <li>Pokud uděláš chybu, můžeš se vrátit zpět pomocí klávesy <span class="klavesaVTextu">Backspace</span> a chybu opravit.
+                <li>Podtržení ukazuje na písmeno, které máš napsat.</li>
+                <li>Pokud uděláš chybu, můžeš se vrátit zpět pomocí klávesy <span class="klavesaVTextu">Backspace</span> a překlep opravit.
                 </li>
             </ul>
             <button class="tlacitko" @click="ok = true">Jdu na to!</button>

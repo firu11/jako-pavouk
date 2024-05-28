@@ -171,7 +171,7 @@ function zmenaJmena(e: Event) {
         <div class="blok" id="chyby">
             <div id="presnost">
                 <img src="../assets/icony/terc.svg" alt="Přesnost">
-                <Tooltip zprava="Přesnost zahrunuje chyby opravené i neopravené." :sirka="100" :vzdalenost="30">
+                <Tooltip zprava="Přesnost zahrunuje chyby opravené i neopravené." :sirka="210" :vzdalenost="30">
                     <span v-if="info.uspesnost == -1">Zatím nic</span>
                     <span v-else class="popis">Přesnost:<br><span class="cislo">{{ zaokrouhlit(info.uspesnost) }}</span>
                         %</span>

@@ -17,7 +17,7 @@ const sirka = ref(props.sirka)
 onMounted(() => {
     y.value = obsah.value.getBoundingClientRect().bottom + props.vzdalenost
     if (props.sirka == null) {
-        sirka.value = obsah.value.getBoundingClientRect().width
+        sirka.value = obsah.value.getBoundingClientRect().width * 2.2
     } else sirka.value = props.sirka
 })
 </script>
@@ -27,7 +27,7 @@ onMounted(() => {
         <div id="obsah" ref="obsah">
             <slot />
         </div>
-        <div id="tooltip" :style="{ top: `${y}px`, maxWidth: `calc(${sirka}px + 10%)` }">
+        <div id="tooltip" :style="{ top: `${y}px`, maxWidth: `${sirka}px` }">
             {{ zprava }}
         </div>
     </div>
