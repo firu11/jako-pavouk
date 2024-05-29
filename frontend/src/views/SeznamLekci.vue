@@ -136,9 +136,8 @@ function zrusitVyber() {
             :oznacena="o.is(l['id'])" :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
         <h2>Horní řada</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 5" pismena="..." :jeDokoncena="false" />
-        <BlokLekce v-else v-for="l in lekce[1]" :pismena="l['pismena'].toString()"
-            :jeDokoncena="dokoncene.includes(l['id'])" :oznacena="o.is(l['id'])" :i="l['cislo']"
-            :class="{ nohover: o.index.value != 0 }" />
+        <BlokLekce v-else v-for="l in lekce[1]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
+            :oznacena="o.is(l['id'])" :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
         <h2>Dolní řada</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 3" pismena="..." :jeDokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[2]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"

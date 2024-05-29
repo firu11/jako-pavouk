@@ -93,6 +93,8 @@ func SetupRouter(app *fiber.App) {
 
 	api.Get("/token-expirace", testVyprseniTokenu)
 	api.Post("/navsteva", navsteva)
+
+	SetupSkolniRouter(&api)
 }
 
 // standardní chybový výstup
@@ -665,7 +667,7 @@ func prihlaseni(c *fiber.Ctx) error {
 
 	if err := utils.CheckPassword(body.Heslo, uziv.Heslo); err != nil {
 		if err.Error() == "ucet je pres google" {
-			return c.Status(fiber.StatusUnauthorized).JSON(chyba("Účet je registrován přes google"))
+			return c.Status(fiber.StatusUnauthorized).JSON(chyba("Ucet je registrovan pres google"))
 		}
 		return c.Status(fiber.StatusUnauthorized).JSON(chyba("Heslo je spatne"))
 	} else {
@@ -821,6 +823,7 @@ func prehled(c *fiber.Ctx) error {
 		"dokonceno":        dokonceno,
 		"nejcastejsiChyby": chybyPismenka,
 		"klavesnice":       uziv.Klavesnice,
+		"role":             uziv.Role,
 	})
 }
 

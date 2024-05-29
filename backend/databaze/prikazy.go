@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	mathRand "math/rand"
 	"net/http"
 	"os"
@@ -27,55 +28,57 @@ var MaxCisloZaJmeno int // 10_000
 
 type (
 	Lekce struct {
-		ID      uint   `json:"id"`
-		Pismena string `json:"pismena"`
+		ID      uint   `json:"id" db:"id"`
+		Pismena string `json:"pismena" db:"pismena"`
 		// Skupina uint        nepouzivame ale je tam
 		// Klavesnice string
 	}
 
 	Cviceni struct {
-		ID  uint   `json:"id"`
-		Typ string `json:"typ"`
+		ID  uint   `json:"id" db:"id"`
+		Typ string `json:"typ" db:"typ"`
 	}
 
 	Uzivatel struct {
-		ID         uint      `json:"id"`
-		Email      string    `json:"email"`
-		Jmeno      string    `json:"jmeno"`
-		Heslo      string    `json:"heslo"`
-		Klavesnice string    `json:"klavesnice"`
-		Datum      date.Date `json:"datum"`
+		ID         uint          `json:"id" db:"id"`
+		Email      string        `json:"email" db:"email"`
+		Jmeno      string        `json:"jmeno" db:"jmeno"`
+		Heslo      string        `json:"heslo" db:"heslo"`
+		Klavesnice string        `json:"klavesnice" db:"klavesnice"`
+		Datum      date.Date     `json:"datum" db:"datum"`
+		Role       int           `json:"role" db:"role"`
+		TridaID    sql.NullInt16 `json:"trida" db:"trida_id"`
 	}
 
 	NeoUziv struct {
-		Email  string `json:"email"`
-		Jmeno  string `json:"jmeno"`
-		Heslo  string `json:"heslo"`
-		Kod    string `json:"kod"`
-		Cas    int64  `json:"cas"`
-		Pokusy int    `json:"pokusy"`
+		Email  string `json:"email" db:"email"`
+		Jmeno  string `json:"jmeno" db:"jmeno"`
+		Heslo  string `json:"heslo" db:"heslo"`
+		Kod    string `json:"kod" db:"kod"`
+		Cas    int64  `json:"cas" db:"cas"`
+		Pokusy int    `json:"pokusy" db:"pokusy"`
 	}
 
 	ZmenaHeslaUziv struct {
-		Email string `json:"email"`
-		Kod   string `json:"kod"`
-		Cas   int64  `json:"cas"`
+		Email string `json:"email" db:"email"`
+		Kod   string `json:"kod" db:"kod"`
+		Cas   int64  `json:"cas" db:"cas"`
 	}
 
 	Slovnik struct {
-		ID    uint   `json:"id"`
-		Slovo string `json:"slovo"`
+		ID    uint   `json:"id" db:"id"`
+		Slovo string `json:"slovo" db:"slovo"`
 	}
 
 	Dokoncene struct {
-		ID            uint           `json:"id"`
-		UzivID        uint           `json:"uziv_id"`
-		CviceniID     uint           `json:"cviceni_id"`
-		Neopravene    uint           `json:"neopravene"`
-		Cas           int            `json:"cas"`
-		DelkaTextu    int            `json:"delka_textu"`
-		Datum         date.Date      `json:"datum"`
-		ChybyPismenka map[string]int `json:"chyby_pismenka"`
+		ID            uint           `json:"id" db:"id"`
+		UzivID        uint           `json:"uziv_id" db:"uziv_id"`
+		CviceniID     uint           `json:"cviceni_id" db:"cviceni_id"`
+		Neopravene    uint           `json:"neopravene" db:"neopravene"`
+		Cas           int            `json:"cas" db:"cas"`
+		DelkaTextu    int            `json:"delka_textu" db:"delka_textu"`
+		Datum         date.Date      `json:"datum" db:"datum"`
+		ChybyPismenka map[string]int `json:"chyby_pismenka" db:"chyby_pismenka"`
 	}
 )
 
@@ -371,6 +374,7 @@ func GetUzivByEmail(email string) (Uzivatel, error) {
 func GetUzivByJmeno(jmeno string) (Uzivatel, error) {
 	var uziv Uzivatel
 	err := DB.QueryRowx(`SELECT * FROM uzivatel WHERE jmeno = $1;`, jmeno).StructScan(&uziv)
+	log.Println(uziv.TridaID)
 	return uziv, err
 }
 
@@ -396,7 +400,7 @@ func GetVsechnyJmenaUziv() ([]string, error) {
 }
 
 func SmazatUzivatele(id uint) error {
-	_, err := DB.Exec(`DELETE FROM uzivatel WHERE id = $1;`, id)
+	_, err := DB.Exec(`DELETE FROM uzivatel WHERE id = $1 AND role != 2;`, id)
 	return err
 }
 
@@ -732,5 +736,10 @@ func ZmenitHeslo(email, hesloHASH string) error {
 
 func NovaNavsteva() error {
 	_, err := DB.Exec(`INSERT INTO navstevnost (den, pocet) VALUES (CURRENT_DATE, 1) ON CONFLICT (den) DO UPDATE SET pocet = navstevnost.pocet + 1;`)
+	return err
+}
+
+func CreateTrida(jmeno string, ucitelID uint, kod string) error {
+	_, err := DB.Exec(`INSERT INTO trida (jmeno, ucitel_id, kod) VALUES ($1, $2, $3);`, jmeno, ucitelID, kod)
 	return err
 }
