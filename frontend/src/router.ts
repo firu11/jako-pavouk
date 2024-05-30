@@ -33,6 +33,18 @@ const router = createRouter({
             component: () => import('./views/InfoSkola.vue'),
         },
         {
+            path: '/skola',
+            component: () => import('./views/ucitel/SeznamTrid.vue'),
+        },
+        {
+            path: '/skola/:id',
+            component: () => import('./views/ucitel/Trida.vue'),
+        },
+        {
+            path: '/trida',
+            component: () => import('./views/student/Trida.vue'),
+        },
+        {
             path: '/prihlaseni',
             component: () => import('./views/Prihlaseni.vue')
         },

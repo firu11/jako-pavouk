@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from "axios"
-import { prihlasen, tokenJmeno } from "../stores";
+import { prihlasen, role, tokenJmeno } from "../stores";
 import { useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 import { checkTeapot, getToken, MojeMapa, pridatOznameni } from "../utils";
@@ -25,6 +25,7 @@ const smazatPotvrzeni = ref(false)
 
 function odhlasit() {
     localStorage.removeItem(tokenJmeno)
+    role.value = "basic"
     prihlasen.value = false
     router.push("/prihlaseni")
 }
@@ -54,6 +55,7 @@ async function getInfo() {
         jmenoUprava.value = resp.data.jmeno
         klavesniceUprava.value = resp.data.klavesnice
         klavesniceUprava.value = klavesniceUprava.value.toUpperCase()
+        role.value = resp.data.role
     }
     catch (e: any) {
         if (!checkTeapot(e)) {

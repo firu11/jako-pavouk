@@ -141,3 +141,17 @@ func GenTridaKod() string {
 	}
 	return kod
 }
+
+func GetRole(uzivRole int, trida bool) string {
+	var role string
+	if uzivRole == 2 {
+		role = "ucitel"
+	} else if uzivRole == 1 {
+		if trida {
+			role = "student"
+		} else {
+			role = "basic"
+		}
+	}
+	return role
+}

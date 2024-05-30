@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import MenuLink from "./components/MenuLink.vue";
-import { mobil, prihlasen, tokenJmeno } from "./stores";
+import { mobil, prihlasen, role, tokenJmeno } from "./stores";
 import { checkTeapot, jeToRobot, getToken, oznameni, pridatOznameni } from "./utils";
 import { useHead } from "unhead"
 import axios from "axios";
@@ -17,12 +17,15 @@ const mobilMenu = ref(false)
 
 onMounted(() => {
     console.log("%cCo sem koukáš koloušku?", "color: white; font-size: x-large"); // troulin
+
     if (getToken()) {
         axios.get("/token-expirace", {
             headers: {
                 Authorization: `Bearer ${getToken()}`
             }
         }).then(response => {
+            role.value = response.data.role
+            
             if (response.data.jePotrebaVymenit) {
                 localStorage.removeItem(tokenJmeno)
                 prihlasen.value = false
@@ -58,6 +61,8 @@ onMounted(() => {
             <MenuLink jmeno="Lekce" cesta="/lekce" />
             <MenuLink jmeno="Procvičování" cesta="/procvic" />
             <MenuLink jmeno="Test psaní" cesta="/test-psani" />
+            <MenuLink v-if="role == 'student'" jmeno="Škola" cesta="/trida" />
+            <MenuLink v-else-if="role == 'ucitel'" jmeno="Škola" cesta="/skola" />
             <MenuLink jmeno="O nás" cesta="/o-nas" />
             <MenuLink v-if="!prihlasen" jmeno="Přihlásit se" cesta="/prihlaseni" />
             <MenuLink v-else jmeno="Můj účet" cesta="/ucet" />

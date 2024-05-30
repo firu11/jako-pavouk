@@ -34,7 +34,7 @@ type (
 
 	bodyRegistrace struct {
 		Email string `json:"email" validate:"required,email"`
-		Jmeno string `json:"jmeno" validate:"required,min=3,max=12"`
+		Jmeno string `json:"jmeno" validate:"required,min=3,max=16"`
 		Heslo string `json:"heslo" validate:"required,min=5,max=128"`
 	}
 
@@ -94,7 +94,7 @@ func SetupRouter(app *fiber.App) {
 	api.Get("/token-expirace", testVyprseniTokenu)
 	api.Post("/navsteva", navsteva)
 
-	SetupSkolniRouter(&api)
+	setupSkolniRouter(&api)
 }
 
 // standardní chybový výstup
@@ -823,7 +823,7 @@ func prehled(c *fiber.Ctx) error {
 		"dokonceno":        dokonceno,
 		"nejcastejsiChyby": chybyPismenka,
 		"klavesnice":       uziv.Klavesnice,
-		"role":             uziv.Role,
+		"role":             utils.GetRole(uziv.Role, uziv.TridaID.Valid),
 	})
 }
 
@@ -839,11 +839,11 @@ func testVyprseniTokenu(c *fiber.Ctx) error {
 			log.Print(err)
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 		}
-		_, err = databaze.GetUzivByID(id)
+		uziv, err := databaze.GetUzivByID(id)
 		if err != nil && !jePotrebaVymenit {
 			jePotrebaVymenit = true
 		}
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{"jePotrebaVymenit": jePotrebaVymenit})
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"jePotrebaVymenit": jePotrebaVymenit, "role": utils.GetRole(uziv.Role, uziv.TridaID.Valid)})
 	} else {
 		return c.Status(fiber.StatusUnauthorized).JSON(chyba(""))
 	}
