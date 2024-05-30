@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	mathRand "math/rand"
 	"net/http"
 	"os"
@@ -40,14 +39,15 @@ type (
 	}
 
 	Uzivatel struct {
-		ID         uint          `json:"id" db:"id"`
-		Email      string        `json:"email" db:"email"`
-		Jmeno      string        `json:"jmeno" db:"jmeno"`
-		Heslo      string        `json:"heslo" db:"heslo"`
-		Klavesnice string        `json:"klavesnice" db:"klavesnice"`
-		Datum      date.Date     `json:"datum" db:"datum"`
-		Role       int           `json:"role" db:"role"`
-		TridaID    sql.NullInt16 `json:"trida" db:"trida_id"`
+		ID          uint           `json:"id" db:"id"`
+		Email       string         `json:"email" db:"email"`
+		Jmeno       string         `json:"jmeno" db:"jmeno"`
+		Heslo       string         `json:"heslo" db:"heslo"`
+		Klavesnice  string         `json:"klavesnice" db:"klavesnice"`
+		Datum       date.Date      `json:"datum" db:"datum"`
+		Role        int            `json:"role" db:"role"`
+		TridaID     sql.NullInt16  `json:"trida" db:"trida_id"`
+		SkolniJmeno sql.NullString `json:"skolni_jmeno" db:"skolni_jmeno"`
 	}
 
 	NeoUziv struct {
@@ -79,6 +79,14 @@ type (
 		DelkaTextu    int            `json:"delka_textu" db:"delka_textu"`
 		Datum         date.Date      `json:"datum" db:"datum"`
 		ChybyPismenka map[string]int `json:"chyby_pismenka" db:"chyby_pismenka"`
+	}
+
+	Trida struct {
+		ID       uint   `json:"id" db:"id"`
+		Jmeno    string `json:"jmeno" db:"jmeno"`
+		UcitelID uint   `json:"ucitel_id" db:"ucitel_id"`
+		Kod      string `json:"kod" db:"kod"`
+		Zamknuta bool   `json:"zamknuta" db:"zamknuta"`
 	}
 )
 
@@ -374,7 +382,6 @@ func GetUzivByEmail(email string) (Uzivatel, error) {
 func GetUzivByJmeno(jmeno string) (Uzivatel, error) {
 	var uziv Uzivatel
 	err := DB.QueryRowx(`SELECT * FROM uzivatel WHERE jmeno = $1;`, jmeno).StructScan(&uziv)
-	log.Println(uziv.TridaID)
 	return uziv, err
 }
 
@@ -741,5 +748,73 @@ func NovaNavsteva() error {
 
 func CreateTrida(jmeno string, ucitelID uint, kod string) error {
 	_, err := DB.Exec(`INSERT INTO trida (jmeno, ucitel_id, kod) VALUES ($1, $2, $3);`, jmeno, ucitelID, kod)
+	return err
+}
+
+func GetTrida(id uint) (Trida, error) {
+	var trida Trida
+	err := DB.QueryRowx(`SELECT * FROM trida WHERE id = $1;`, id).StructScan(&trida)
+	return trida, err
+}
+
+type TridaInfo struct {
+	ID            string `json:"id" db:"id"`
+	Jmeno         string `json:"jmeno" db:"jmeno"`
+	Kod           string `json:"kod" db:"kod"`
+	Zamknuta      bool   `json:"zamknuta" db:"zamknuta"`
+	PocetStudentu int    `json:"pocet_studentu" db:"pocet_studentu"`
+}
+
+func GetTridy(ucitelID uint) ([]TridaInfo, error) {
+	var tridy []TridaInfo = []TridaInfo{}
+
+	rows, err := DB.Queryx(`SELECT id, jmeno, kod, zamknuta, (SELECT COUNT(*) FROM uzivatel WHERE trida_id = trida.id) as pocet_studentu FROM trida WHERE ucitel_id = $1;`, ucitelID)
+	if err != nil {
+		return tridy, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var jendaTrida TridaInfo
+		err := rows.StructScan(&jendaTrida)
+		if err != nil {
+			return tridy, err
+		}
+
+		tridy = append(tridy, jendaTrida)
+	}
+	return tridy, nil
+}
+
+func GetStudentyZeTridy(tridaID uint) ([]Uzivatel, error) {
+	var zaci []Uzivatel = []Uzivatel{}
+
+	rows, err := DB.Queryx(`SELECT id, jmeno, email FROM uzivatel WHERE trida_id = $1;`, tridaID)
+	if err != nil {
+		return zaci, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var zak Uzivatel
+		err := rows.StructScan(&zak)
+		if err != nil {
+			return zaci, err
+		}
+
+		zaci = append(zaci, zak)
+	}
+	return zaci, nil
+}
+
+func ZamknoutTridu(tridaID uint) error {
+	_, err := DB.Exec(`UPDATE trida SET zamknuta = NOT zamknuta WHERE id = $1;`, tridaID)
+	return err
+}
+
+func PrejmenovatTridu(tridaID uint, noveJmeno string) error {
+	_, err := DB.Exec(`UPDATE trida SET jmeno = $1 WHERE id = $2;`, noveJmeno, tridaID)
 	return err
 }
