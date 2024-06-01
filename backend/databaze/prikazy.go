@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	mathRand "math/rand"
 	"net/http"
 	"os"
@@ -24,6 +25,7 @@ import (
 
 var RegexJmeno *regexp.Regexp
 var MaxCisloZaJmeno int // 10_000
+var poslednich int = 15
 
 type (
 	Lekce struct {
@@ -39,15 +41,15 @@ type (
 	}
 
 	Uzivatel struct {
-		ID          uint           `json:"id" db:"id"`
-		Email       string         `json:"email" db:"email"`
-		Jmeno       string         `json:"jmeno" db:"jmeno"`
-		Heslo       string         `json:"heslo" db:"heslo"`
-		Klavesnice  string         `json:"klavesnice" db:"klavesnice"`
-		Datum       date.Date      `json:"datum" db:"datum"`
-		Role        int            `json:"role" db:"role"`
-		TridaID     sql.NullInt16  `json:"trida" db:"trida_id"`
-		SkolniJmeno sql.NullString `json:"skolni_jmeno" db:"skolni_jmeno"`
+		ID          uint          `json:"id" db:"id"`
+		Email       string        `json:"email" db:"email"`
+		Jmeno       string        `json:"jmeno" db:"jmeno"`
+		Heslo       string        `json:"heslo" db:"heslo"`
+		Klavesnice  string        `json:"klavesnice" db:"klavesnice"`
+		Datum       date.Date     `json:"datum" db:"datum"`
+		Role        int           `json:"role" db:"role"`
+		TridaID     sql.NullInt16 `json:"trida" db:"trida_id"`
+		SkolniJmeno string        `json:"skolni_jmeno" db:"skolni_jmeno"`
 	}
 
 	NeoUziv struct {
@@ -430,7 +432,6 @@ func GetUdaje(uzivID uint) (float32, []float32, int, float32, map[string]int, er
 	var celkovyCas float32 = 0
 	var chybyPismenka map[string]int = make(map[string]int)
 
-	var poslednich int = 15
 	rows, err := DB.Queryx(`SELECT neopravene, delka_textu, cas, chyby_pismenka, datum FROM dokoncene WHERE uziv_id = $1 UNION SELECT neopravene, delka_textu, cas, chyby_pismenka, datum FROM dokoncene_procvic WHERE uziv_id = $1 ORDER BY datum DESC LIMIT $2;`, uzivID, poslednich)
 	if err != nil {
 		return presnost, cpm, daystreak, celkovyCas, chybyPismenka, err
@@ -787,23 +788,46 @@ func GetTridy(ucitelID uint) ([]TridaInfo, error) {
 	return tridy, nil
 }
 
-func GetStudentyZeTridy(tridaID uint) ([]Uzivatel, error) {
-	var zaci []Uzivatel = []Uzivatel{}
+type Student struct {
+	ID    uint    `json:"id" db:"id"`
+	Jmeno string  `json:"jmeno" db:"skolni_jmeno"`
+	Email string  `json:"email" db:"email"`
+	CPM   float64 `json:"cpm" db:"cpm"`
+}
 
-	rows, err := DB.Queryx(`SELECT id, jmeno, email FROM uzivatel WHERE trida_id = $1;`, tridaID)
+func GetStudentyZeTridy(tridaID uint) ([]Student, error) {
+	var zaci []Student = []Student{}
+
+	rows, err := DB.Queryx(`SELECT id, skolni_jmeno, email FROM uzivatel WHERE trida_id = $1;`, tridaID)
 	if err != nil {
 		return zaci, err
 	}
-
 	defer rows.Close()
 
 	for rows.Next() {
-		var zak Uzivatel
+		var zak Student
 		err := rows.StructScan(&zak)
 		if err != nil {
 			return zaci, err
 		}
 
+		// vypočítám cpm z posledních ~15 cviceni
+		cpms, err := DB.Queryx(`WITH cpm_data AS (SELECT datum, (((delka_textu - 10 * neopravene) / cas) * 60) AS cpm FROM dokoncene WHERE uziv_id = $1	UNION ALL SELECT datum, (((delka_textu - 10 * neopravene) / cas) * 60) AS cpm FROM dokoncene_procvic WHERE uziv_id = $1) SELECT cpm FROM cpm_data ORDER BY datum DESC LIMIT $2;`, zak.ID, poslednich)
+		if err != nil {
+			return zaci, err
+		}
+		defer cpms.Close()
+		var cpmka []float64
+		for cpms.Next() {
+			var cpm float64
+			err := cpms.Scan(&cpm)
+			if err != nil {
+				log.Println("sus")
+				return zaci, err
+			}
+			cpmka = append(cpmka, cpm)
+		}
+		zak.CPM = utils.Median(cpmka)
 		zaci = append(zaci, zak)
 	}
 	return zaci, nil
@@ -816,5 +840,10 @@ func ZamknoutTridu(tridaID uint) error {
 
 func PrejmenovatTridu(tridaID uint, noveJmeno string) error {
 	_, err := DB.Exec(`UPDATE trida SET jmeno = $1 WHERE id = $2;`, noveJmeno, tridaID)
+	return err
+}
+
+func PrejmenovatStudenta(id uint, skolniJmeno string) error {
+	_, err := DB.Exec(`UPDATE uzivatel SET skolni_jmeno = $1 WHERE id = $2;`, skolniJmeno, id)
 	return err
 }

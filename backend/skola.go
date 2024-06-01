@@ -18,6 +18,10 @@ type (
 		Zmena   string `json:"zmena"`
 		Hodnota string `json:"hodnota"`
 	}
+	bodyZmenaJmenaStudenta struct {
+		ID    uint   `json:"id" validate:"required"`
+		Jmeno string `json:"jmeno" validate:"required,min=1,max=30"`
+	}
 )
 
 // typy uživatelů
@@ -30,6 +34,8 @@ func setupSkolniRouter(api *fiber.Router) {
 	skolaApi.Get("/tridy", tridy)
 	skolaApi.Get("/trida/:id", trida)
 	skolaApi.Post("/zmena-tridy", zmenaTridy)
+	skolaApi.Get("/student/:id", student)
+	skolaApi.Post("/student", studentPrejmenovat)
 }
 
 func createTrida(c *fiber.Ctx) error {
@@ -159,6 +165,82 @@ func zmenaTridy(c *fiber.Ctx) error {
 		} else {
 			c.Status(fiber.StatusBadRequest).JSON(chyba("Potrebuju hodnotu"))
 		}
+	}
+
+	return c.SendStatus(fiber.StatusOK)
+}
+
+func student(c *fiber.Ctx) error {
+	id, err := utils.Autentizace(c, true)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	}
+	uziv, err := databaze.GetUzivByID(id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	if uziv.Role != 2 {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Tohle muze pouze ucitel"))
+	}
+
+	studentID, err := strconv.ParseInt(c.Params("id"), 10, 8)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
+	student, err := databaze.GetUzivByID(uint(studentID))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	presnost, cpm, daystreak, _, chybyPismenka, err := databaze.GetUdaje(uint(studentID))
+	if err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	dokonceno, err := databaze.DokonceneProcento(id)
+	if err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"email":            student.Email,
+		"jmeno":            student.SkolniJmeno,
+		"daystreak":        daystreak,
+		"uspesnost":        presnost,
+		"prumerRychlosti":  utils.Prumer(cpm),
+		"dokonceno":        dokonceno,
+		"nejcastejsiChyby": chybyPismenka,
+		"klavesnice":       student.Klavesnice,
+	})
+}
+
+func studentPrejmenovat(c *fiber.Ctx) error {
+	id, err := utils.Autentizace(c, true)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	}
+	uziv, err := databaze.GetUzivByID(id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	if uziv.Role != 2 {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Tohle muze pouze ucitel"))
+	}
+
+	var body bodyZmenaJmenaStudenta
+	if err := c.BodyParser(&body); err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Spatny body"))
+	}
+	if err := utils.ValidateStruct(&body); err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Spatny body"))
+	}
+
+	err = databaze.PrejmenovatStudenta(body.ID, body.Jmeno)
+	if err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 
 	return c.SendStatus(fiber.StatusOK)

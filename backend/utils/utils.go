@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/mail"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -154,4 +155,20 @@ func GetRole(uzivRole int, trida bool) string {
 		}
 	}
 	return role
+}
+
+func Median(data []float64) float64 {
+	sort.Float64s(data)
+
+	var median float64
+	l := len(data)
+	if l == 0 {
+		return 0
+	} else if l%2 == 0 {
+		median = (data[l/2-1] + data[l/2]) / 2
+	} else {
+		median = data[l/2]
+	}
+
+	return median
 }

@@ -133,7 +133,7 @@ function zmenaJmena(e: Event) {
         <img src="../assets//pavoucekBezPozadi.svg" alt="uzivatel">
         <div id="nadpisy">
             <h1 v-if="!uprava" id="jmeno">{{ info.jmeno }}
-                <img v-if="!uprava" @click="uprava = true" id="upravit" src="../assets/icony/upravit.svg" alt="Upravit">
+                <img @click="uprava = true" id="upravit" src="../assets/icony/upravit.svg" alt="Upravit">
             </h1>
             <h2 v-if="!uprava" id="email">{{ info.email }}</h2>
             <form v-if="uprava">
@@ -434,7 +434,6 @@ function zmenaJmena(e: Event) {
     background-color: var(--fialova);
     border: 0;
     border-radius: 5px;
-    transition: all 0.15s cubic-bezier(0.5, 0, 0.5, 1) 0s;
     color: var(--bila);
     padding: 10px;
     font-weight: normal;
@@ -443,7 +442,6 @@ function zmenaJmena(e: Event) {
 
 #ucet input:focus {
     outline: none !important;
-    transition: all 0.15s cubic-bezier(0.5, 0, 0.5, 1) 0s;
 }
 
 #bloky div img {
