@@ -13,7 +13,7 @@ useHead({
 
 const router = useRouter()
 
-const info = ref({ jmeno: "...", email: "...@...", dokonceno: 0, daystreak: 0, prumerRychlosti: -1, uspesnost: -1, klavesnice: "QWERTZ", celkovyCas: 0, nejcastejsiChyby: new Map })
+const info = ref({ jmeno: "...", email: "...@...", dokonceno: 0, daystreak: 0, medianRychlosti: -1, uspesnost: -1, klavesnice: "QWERTZ", celkovyCas: 0, nejcastejsiChyby: new Map })
 const uprava = ref(false)
 
 const klavesniceUprava = ref("")
@@ -149,14 +149,14 @@ function zmenaJmena(e: Event) {
                 <div id="nacitani" :style="{ width: info.dokonceno + '%' }"></div>
             </div>
             <span class="popis" style="width: 100%;">Dokončeno: <span class="cislo">{{ zaokrouhlit(info.dokonceno)
-                    }}%</span></span>
+                    }}</span> %</span>
         </div>
         <div class="blok">
             <img src="../assets/icony/rychlost.svg" alt="Rychlost" width="75">
             <Tooltip zprava="Za neopravené chyby je adekvátní penalizace.">
-                <span v-if="info.prumerRychlosti == -1" class="popis">Rychlost:<br>Zatím nic</span>
+                <span v-if="info.medianRychlosti == -1" class="popis">Rychlost:<br>Zatím nic</span>
                 <span v-else class="popis">Rychlost:<br>
-                    <span class="cislo">{{ zaokrouhlit(info.prumerRychlosti) }}</span>CPM
+                    <span class="cislo">{{ zaokrouhlit(info.medianRychlosti) }}</span> CPM
                 </span>
             </Tooltip>
         </div>

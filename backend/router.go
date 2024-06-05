@@ -818,7 +818,7 @@ func prehled(c *fiber.Ctx) error {
 		"jmeno":            uziv.Jmeno,
 		"daystreak":        daystreak,
 		"uspesnost":        presnost,
-		"prumerRychlosti":  utils.Prumer(cpm),
+		"medianRychlosti":  utils.Median(cpm),
 		"celkovyCas":       cas,
 		"dokonceno":        dokonceno,
 		"nejcastejsiChyby": chybyPismenka,

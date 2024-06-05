@@ -5,6 +5,7 @@ import (
 	"backend/utils"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -22,6 +23,10 @@ type (
 		ID    uint   `json:"id" validate:"required"`
 		Jmeno string `json:"jmeno" validate:"required,min=1,max=30"`
 	}
+	bodyZapis struct {
+		Kod   string `json:"kod" validate:"required"`
+		Jmeno string `json:"jmeno" validate:"required,min=1,max=30"`
+	}
 )
 
 // typy uživatelů
@@ -33,9 +38,12 @@ func setupSkolniRouter(api *fiber.Router) {
 	skolaApi.Post("/create-trida", createTrida)
 	skolaApi.Get("/tridy", tridy)
 	skolaApi.Get("/trida/:id", trida)
+	skolaApi.Get("/test-tridy/:kod", testTridy)
 	skolaApi.Post("/zmena-tridy", zmenaTridy)
+
 	skolaApi.Get("/student/:id", student)
 	skolaApi.Post("/student", studentPrejmenovat)
+	skolaApi.Post("/zapis", zapis)
 }
 
 func createTrida(c *fiber.Ctx) error {
@@ -61,7 +69,13 @@ func createTrida(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 
-	databaze.CreateTrida(body.Jmeno, id, utils.GenTridaKod())
+	err = databaze.CreateTrida(body.Jmeno, id, utils.GenTridaKod())
+	if err != nil { // kod asi neni unikatni
+		err = databaze.CreateTrida(body.Jmeno, id, utils.GenTridaKod())
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+		}
+	}
 
 	return c.SendStatus(fiber.StatusOK)
 }
@@ -118,6 +132,9 @@ func trida(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 	}
+	if trida.UcitelID != uziv.ID {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("To neni tvoje trida"))
+	}
 	studenti, err := databaze.GetStudentyZeTridy(trida.ID)
 	if err != nil {
 		log.Println(err)
@@ -125,6 +142,24 @@ func trida(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"trida": trida, "studenti": studenti})
+}
+
+func testTridy(c *fiber.Ctx) error {
+	id, err := utils.Autentizace(c, true)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	}
+	_, err = databaze.GetUzivByID(id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+
+	_, err = databaze.GetTridaByKod(strings.ToUpper(c.Params("kod")))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Takova trida neexistuje"))
+	}
+
+	return c.SendStatus(fiber.StatusOK)
 }
 
 func zmenaTridy(c *fiber.Ctx) error {
@@ -165,6 +200,11 @@ func zmenaTridy(c *fiber.Ctx) error {
 		} else {
 			c.Status(fiber.StatusBadRequest).JSON(chyba("Potrebuju hodnotu"))
 		}
+	case "smazat":
+		err := databaze.SmazatTridu(body.TridaID)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
+		}
 	}
 
 	return c.SendStatus(fiber.StatusOK)
@@ -183,7 +223,7 @@ func student(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Tohle muze pouze ucitel"))
 	}
 
-	studentID, err := strconv.ParseInt(c.Params("id"), 10, 8)
+	studentID, err := strconv.ParseInt(c.Params("id"), 10, 64)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 	}
@@ -207,7 +247,7 @@ func student(c *fiber.Ctx) error {
 		"jmeno":            student.SkolniJmeno,
 		"daystreak":        daystreak,
 		"uspesnost":        presnost,
-		"prumerRychlosti":  utils.Prumer(cpm),
+		"medianRychlosti":  utils.Median(cpm),
 		"dokonceno":        dokonceno,
 		"nejcastejsiChyby": chybyPismenka,
 		"klavesnice":       student.Klavesnice,
@@ -240,6 +280,33 @@ func studentPrejmenovat(c *fiber.Ctx) error {
 	err = databaze.PrejmenovatStudenta(body.ID, body.Jmeno)
 	if err != nil {
 		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+
+	return c.SendStatus(fiber.StatusOK)
+}
+
+func zapis(c *fiber.Ctx) error {
+	id, err := utils.Autentizace(c, true)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	}
+	var body bodyZapis
+	if err := c.BodyParser(&body); err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Spatny body"))
+	}
+	if err := utils.ValidateStruct(&body); err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Spatny body"))
+	}
+
+	err = databaze.ZapsatStudenta(body.Kod, id, body.Jmeno)
+	if err != nil {
+		log.Println(err)
+		if err.Error() == "uz je ve tride" {
+			return c.Status(fiber.StatusBadRequest).JSON(chyba("Uz jsi ve tride"))
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 
