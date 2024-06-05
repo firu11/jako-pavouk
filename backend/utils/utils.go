@@ -121,8 +121,8 @@ func DelkaTextuArray(a []string) int {
 }
 
 // vzorec pro výpočet ryhclosti (založen na pravidlech státní zkoušky)
-func CPM(delkaTextu int, cas float32, preklepy int) float32 {
-	var cpm float32 = (float32(delkaTextu-10*preklepy) / cas) * 60
+func CPM(delkaTextu int, cas float64, preklepy int) float64 {
+	var cpm float64 = (float64(delkaTextu-10*preklepy) / cas) * 60
 	if cpm < 0 {
 		return 0
 	}

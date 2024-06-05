@@ -45,6 +45,14 @@ const router = createRouter({
             component: () => import('./views/student/Trida.vue'),
         },
         {
+            path: '/zapis/:kod',
+            component: () => import('./views/student/Zapis.vue'),
+        },
+        {
+            path: '/zapis/',
+            component: () => import('./views/student/Zapis.vue'),
+        },
+        {
             path: '/prihlaseni',
             component: () => import('./views/Prihlaseni.vue')
         },
