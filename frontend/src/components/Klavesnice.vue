@@ -188,18 +188,18 @@ function potrebujeShift(pismeno: string) {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background-color 0.2s;
+    transition: 0.1s;
+    filter: brightness(0.9);
 }
 
 .oznacenaKlavesa {
     border: #fff solid 3px;
     transition: 0.1s;
-    filter: brightness(1.5) saturate(2.5);
+    filter: brightness(1.6) saturate(2);
 }
 
 .oznacenaKlavesa div {
     font-weight: 800 !important;
-    transition: 0.1s;
 }
 
 .klavesa div {
@@ -217,7 +217,7 @@ function potrebujeShift(pismeno: string) {
     font-size: 0.8em;
     line-height: 1.3em;
     width: 675px;
-    margin-top: 40px;
+    margin-top: 25px;
     user-select: none;
     transition: filter 0.2s;
 }
@@ -232,6 +232,7 @@ function potrebujeShift(pismeno: string) {
     flex-direction: column;
     gap: 4px;
     background-color: var(--tmave-fialova);
+    filter: brightness(1.1);
 }
 
 .fjPodtrzeni div {
