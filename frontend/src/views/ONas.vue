@@ -40,13 +40,12 @@ function copyEmail() {
     <h1>O nás</h1>
 
     <p>
-        Jako Pavouk je studentský projekt na výuku psaní všemi deseti.
+        Jako Pavouk je studentský projekt zaměřený na výuku psaní všemi deseti.
         <br>
-        Nápad a motivace pro vývoj této webové aplikace byl fakt,
-        že já sám jsem neuměl psát všemi deseti, a když jsem se to rozhodl naučit,
+        Nápad a motivace pro vývoj této online aplikace vzešly z mé osobní zkušenosti,
+        kdy jsem sám psát všemi deseti neuměl a rozhodl jsem se to naučit.
         <br>
-        se zděšením jsem zjistil, že co se týče české klávesnice, není moc možností, přičemž nějaké z nich vás budou
-        stát skoro 1000 Kč.
+        Když jsem ale začal hledat vhodné programy, zjistil jsem, že jich není mnoho a některé z nich stojí téměř 1000 Kč.
     </p>
     <p>
         Jelikož je Jako Pavouk kompletně zdarma, je tu možnost tento projekt podpořit přes platformu Ko-fi níže. Moc si
@@ -55,7 +54,7 @@ function copyEmail() {
                 src="../assets/kofi_button.webp" alt="Podpořit" width="231" height="36"></a>
     </p>
     <p>
-        Objevil/a jsi nějakou chybu/bug?<br> Máš nějaký zajímavý nápad jak vylepšit tuto aplikaci nebo chceš jen dát
+        Objevil/a jsi nějakou chybu/bug?<br> Máš nějaký zajímavý nápad jak vylepšit tuto aplikaci nebo nám jen chceš dát
         zpětnou vazbu?
         Neboj se mi napsat na e-mail:
         <span id="btn" @click="copyEmail">

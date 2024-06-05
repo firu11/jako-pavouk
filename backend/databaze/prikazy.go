@@ -856,7 +856,7 @@ func PrejmenovatStudenta(id uint, skolniJmeno string) error {
 
 func GetTridaByKod(kod string) (Trida, error) {
 	var trida Trida
-	err := DB.QueryRowx(`SELECT * FROM trida WHERE kod = $1 WHERE NOT smazana;`, kod).StructScan(&trida)
+	err := DB.QueryRowx(`SELECT * FROM trida WHERE kod = $1 AND NOT smazana;`, kod).StructScan(&trida)
 	return trida, err
 }
 
@@ -876,7 +876,7 @@ func ZapsatStudenta(kod string, studentID uint, jmeno string) error {
 		return errors.New("trida je smazana")
 	}
 
-	_, err = DB.Exec(`INSERT INTO student_a_trida (student_id, trida_id) VALUES ($1, (SELECT id FROM trida WHERE kod = $2)) ON CONFLICT DO NOTHING;`, studentID, kod)
+	_, err = DB.Exec(`INSERT INTO student_a_trida (student_id, trida_id) VALUES ($1, (SELECT id FROM trida WHERE kod = $2 AND NOT zamknuta)) ON CONFLICT DO NOTHING;`, studentID, kod)
 	if err != nil {
 		return err
 	}

@@ -154,9 +154,13 @@ func testTridy(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 
-	_, err = databaze.GetTridaByKod(strings.ToUpper(c.Params("kod")))
+	trida, err := databaze.GetTridaByKod(strings.ToUpper(c.Params("kod")))
 	if err != nil {
+		log.Println(err)
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Takova trida neexistuje"))
+	}
+	if trida.Zamknuta {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Trida je zamcena"))
 	}
 
 	return c.SendStatus(fiber.StatusOK)
