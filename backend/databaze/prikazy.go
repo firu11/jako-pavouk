@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	mathRand "math/rand"
 	"net/http"
 	"os"
@@ -517,6 +516,8 @@ func DokonceneProcento(uzivID uint) (float32, error) {
 }
 
 func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
+	email = strings.ToLower(email)
+
 	var uzivID uint
 	err := DB.QueryRowx(`INSERT INTO uzivatel (email, jmeno, heslo) VALUES ($1, $2, $3) RETURNING id;`, email, jmeno, hesloHash).Scan(&uzivID)
 	if err != nil {
@@ -793,13 +794,15 @@ type Student struct {
 	ID    uint    `json:"id" db:"id"`
 	Jmeno string  `json:"jmeno" db:"skolni_jmeno"`
 	Email string  `json:"email" db:"email"`
-	CPM   float64 `json:"cpm" db:"cpm"`
+	CPM   float64 `json:"cpm" db:"median_cpm"`
 }
 
 func GetStudentyZeTridy(tridaID uint) ([]Student, error) {
 	var zaci []Student = []Student{}
 
-	rows, err := DB.Queryx(`SELECT u.id, skolni_jmeno, email FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id INNER JOIN trida t ON t.id = s.trida_id WHERE s.trida_id = $1 AND t.smazana = FALSE;`, tridaID)
+	// super ultra šílený query by LLM
+	// předtím jsem pro každého studenta posílal query samostatně (30 žáků | 900ms -> 80ms)
+	rows, err := DB.Queryx(`WITH cpm_data AS (SELECT datum, (((delka_textu - 10 * neopravene) / cas) * 60) AS cpm, uziv_id FROM dokoncene UNION ALL SELECT datum, (((delka_textu - 10 * neopravene) / cas) * 60) AS cpm, uziv_id FROM dokoncene_procvic), cpm_filtered AS (SELECT uziv_id, datum, CASE WHEN cpm < 0 THEN 0 ELSE cpm END AS cpm, ROW_NUMBER() OVER (PARTITION BY uziv_id ORDER BY datum DESC) AS rn FROM cpm_data), latest_15_cpm AS (SELECT uziv_id, datum, cpm FROM cpm_filtered WHERE rn <= 15), median_cpm AS (SELECT uziv_id, percentile_cont(0.5) WITHIN GROUP (ORDER BY cpm) AS median_cpm FROM latest_15_cpm GROUP BY uziv_id) SELECT u.id, u.skolni_jmeno, u.email, COALESCE(mc.median_cpm, 0) as median_cpm FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id INNER JOIN trida t ON t.id = s.trida_id FULL OUTER JOIN latest_15_cpm l15 ON l15.uziv_id = u.id FULL OUTER JOIN median_cpm mc ON mc.uziv_id = u.id WHERE s.trida_id = $1 AND t.smazana = FALSE GROUP BY u.id, u.skolni_jmeno, u.email, mc.median_cpm;`, tridaID)
 	if err != nil {
 		return zaci, err
 	}
@@ -812,23 +815,6 @@ func GetStudentyZeTridy(tridaID uint) ([]Student, error) {
 			return zaci, err
 		}
 
-		// vypočítám cpm z posledních ~15 cviceni
-		cpms, err := DB.Queryx(`WITH cpm_data AS (SELECT datum, (((delka_textu - 10 * neopravene) / cas) * 60) AS cpm FROM dokoncene WHERE uziv_id = $1	UNION ALL SELECT datum, (((delka_textu - 10 * neopravene) / cas) * 60) AS cpm FROM dokoncene_procvic WHERE uziv_id = $1) SELECT cpm FROM cpm_data ORDER BY datum DESC LIMIT $2;`, zak.ID, poslednich)
-		if err != nil {
-			return zaci, err
-		}
-		defer cpms.Close()
-		var cpmka []float64
-		for cpms.Next() {
-			var cpm float64
-			err := cpms.Scan(&cpm)
-			if err != nil {
-				log.Println("sus")
-				return zaci, err
-			}
-			cpmka = append(cpmka, cpm)
-		}
-		zak.CPM = utils.Median(cpmka)
 		zaci = append(zaci, zak)
 	}
 	return zaci, nil

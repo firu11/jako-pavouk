@@ -401,7 +401,7 @@ defineExpose({ restart })
 }
 
 #zvukBtn {
-    position: absolute;
+    position: fixed;
     right: 30px;
     bottom: 25px;
     background-color: var(--tmave-fialova);

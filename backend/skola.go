@@ -99,7 +99,7 @@ func tridy(c *fiber.Ctx) error {
 	}
 	output := make(map[string][]databaze.TridaInfo)
 	for _, trida := range tridy {
-		cislo := string([]rune(trida.Jmeno)[0])
+		cislo := strings.Split(strings.Split(trida.Jmeno, " ")[0], ".")[0]
 		if output[cislo] == nil {
 			output[cislo] = []databaze.TridaInfo{trida}
 		} else {
@@ -202,7 +202,7 @@ func zmenaTridy(c *fiber.Ctx) error {
 				return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 			}
 		} else {
-			c.Status(fiber.StatusBadRequest).JSON(chyba("Potrebuju hodnotu"))
+			return c.Status(fiber.StatusBadRequest).JSON(chyba("Potrebuju hodnotu"))
 		}
 	case "smazat":
 		err := databaze.SmazatTridu(body.TridaID)
