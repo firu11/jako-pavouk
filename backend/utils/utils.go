@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"net/mail"
 	"net/url"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -61,15 +60,15 @@ func Autentizace(c *fiber.Ctx, povinna bool) (uint, error) {
 }
 
 // vrací průměr floatů z pole
-func Prumer(arr []float32) float32 {
-	var soucet float32 = 0
+func Prumer(arr []float64) float64 {
+	var soucet float64 = 0
 	for _, v := range arr {
 		soucet += v
 	}
 	if len(arr) == 0 {
 		return 0
 	}
-	return soucet / float32(len(arr))
+	return soucet / float64(len(arr))
 }
 
 // ošetřuje escape charaktery v url (%C5%A1 -> š)
@@ -155,20 +154,4 @@ func GetRole(uzivRole int, trida bool) string {
 		}
 	}
 	return role
-}
-
-func Median(data []float64) float64 {
-	sort.Float64s(data)
-
-	var median float64
-	l := len(data)
-	if l == 0 {
-		return 0
-	} else if l%2 == 0 {
-		median = (data[l/2-1] + data[l/2]) / 2
-	} else {
-		median = data[l/2]
-	}
-
-	return median
 }

@@ -75,7 +75,8 @@ onMounted(() => {
     <div id="alerty">
         <TransitionGroup name="list">
             <div v-for="(o, i) in oznameni" class="alert" :key="i">
-                <img src="./assets/icony/alert.svg" alt="Vykřičník">
+                <img v-if="o.typ == 'vykricnik'" src="./assets/icony/alert.svg" alt="Vykřičník">
+                <img v-else-if="o.typ == 'copy'" src="./assets/icony/copy.svg" alt="Zkopírováno">
                 <span v-html="o.text"></span>
             </div>
         </TransitionGroup>
@@ -90,7 +91,7 @@ onMounted(() => {
 
 .list-enter-active,
 .list-leave-active {
-    transition: all 0.3s ease;
+    transition: all 0.1s ease;
 }
 
 .list-enter-from,
@@ -112,7 +113,6 @@ onMounted(() => {
     align-items: flex-end;
     justify-content: end;
     gap: 10px;
-    overflow: hidden;
     padding: 20px;
     min-height: 100px;
     pointer-events: none;
@@ -129,8 +129,12 @@ onMounted(() => {
     justify-content: center;
     border-radius: 5px;
     padding: 10px 20px 10px 20px;
-    gap: 20px;
+    gap: 15px;
     box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.75);
+}
+
+.alert img {
+    width: 24px;
 }
 
 nav {

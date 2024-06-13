@@ -38,10 +38,10 @@ export function getCisloProcvic(id: string) {
     return cislo
 }
 
-export const oznameni = ref([] as { text: String }[])
+export const oznameni = ref([] as { text: string, typ: string }[])
 
-export function pridatOznameni(text: string = "Něco se pokazilo", cas: number = 4000) {
-    let obj = { text: text }
+export function pridatOznameni(text: string = "Něco se pokazilo", cas: number = 4000, typ: string = "vykricnik") {
+    let obj = { text: text, typ: typ }
     oznameni.value.push(obj)
     setTimeout(() => {
         oznameni.value.splice(oznameni.value.indexOf(obj), 1);

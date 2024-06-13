@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useHead } from 'unhead'
 import { ref } from 'vue';
+import { pridatOznameni } from '../utils';
 
 useHead({
     title: "O nás",
@@ -31,21 +32,22 @@ function copyEmail() {
         }, 110)
     }, function (err) {
         console.error('Async: Could not copy text: ', err);
-    });
+    })
+    pridatOznameni("Zkopírováno!", undefined, "copy")
 }
 
 </script>
 
 <template>
     <h1>O nás</h1>
-
     <p>
         Jako Pavouk je studentský projekt zaměřený na výuku psaní všemi deseti.
         <br>
         Nápad a motivace pro vývoj této online aplikace vzešly z mé osobní zkušenosti,
         kdy jsem sám psát všemi deseti neuměl a rozhodl jsem se to naučit.
         <br>
-        Když jsem ale začal hledat vhodné programy, zjistil jsem, že jich není mnoho a některé z nich stojí téměř 1000 Kč.
+        Když jsem ale začal hledat vhodné programy, zjistil jsem, že jich není mnoho a některé z nich stojí téměř 1000
+        Kč.
     </p>
     <p>
         Jelikož je Jako Pavouk kompletně zdarma, je tu možnost tento projekt podpořit přes platformu Ko-fi níže. Moc si
@@ -58,15 +60,19 @@ function copyEmail() {
         zpětnou vazbu?
         Neboj se mi napsat na e-mail:
         <span id="btn" @click="copyEmail">
-            <span>firu</span>
-            <span style="display:none;">nebudete mi websrapovat email vy smradlavý smrdi</span>
-            <span>@</span>
-            <span style="display:none;">nebudete mi websrapovat email vy smradlavý smrdi</span>
-            <span>jakopavouk.cz</span>
-            <button @click="copyEmail" ref="copy"><img src="../assets/icony/copy.svg" alt="Kopírovat"></button>
+            <span style="unicode-bidi:bidi-override; direction: rtl;">zc</span>
+            <span style="display: none;">nechci dostavat spam</span>
+            <span>&#46;</span>
+            <span style="display: none;">proste to nedelej</span>
+            <span style="unicode-bidi:bidi-override; direction: rtl;">kuovapokaj</span>
+            <span style="display: none;">nebudete mi websrapovat email vy smradlavý smrdi</span>
+            <span>&#64;</span>
+            <span style="display: none;">ani to nezkoušej</span>
+            <span style="unicode-bidi:bidi-override; direction: rtl;">urif</span>
+
+            <button ref="copy"><img src="../assets/icony/copy.svg" alt="Kopírovat"></button>
         </span>
     </p>
-
     <p>
         Pro zvědavé tu mám i link na GitHub, kde je celý projekt volně k prohlédnutí.<br>
         Budu moc rád za hvězdičku!
@@ -81,7 +87,7 @@ function copyEmail() {
     background-color: var(--fialova);
     padding: 10px 14px 6px 14px;
     border-radius: 5px;
-    cursor: pointer;
+    cursor: grab;
     transition: 0.2s;
 }
 
@@ -93,7 +99,7 @@ button {
     background-color: transparent;
     border: 0px;
     transition: 0.1s ease-in-out;
-    cursor: pointer;
+    cursor: grab;
 }
 
 button img {
@@ -119,16 +125,11 @@ p {
     gap: 20px;
 }
 
-#discord {
-    width: 10em !important;
-}
-
 #github {
     width: 9em !important;
 }
 
 #kofi,
-#discord,
 #github {
     width: 12em;
     height: auto;
@@ -139,7 +140,6 @@ p {
 }
 
 #kofi:hover,
-#discord:hover,
 #github:hover {
     transform: scale(1.05);
     transition: 0.2s;

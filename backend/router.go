@@ -603,6 +603,8 @@ func registrace(c *fiber.Ctx) error {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
+
+	body.Email = strings.ToLower(body.Email)
 	// validace emailu
 	if !utils.ValidFormat(body.Email) {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Invalidni email"))
@@ -818,7 +820,7 @@ func prehled(c *fiber.Ctx) error {
 		"jmeno":            uziv.Jmeno,
 		"daystreak":        daystreak,
 		"uspesnost":        presnost,
-		"medianRychlosti":  utils.Median(cpm),
+		"medianRychlosti":  utils.Prumer(cpm),
 		"celkovyCas":       cas,
 		"dokonceno":        dokonceno,
 		"nejcastejsiChyby": chybyPismenka,
