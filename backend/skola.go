@@ -227,7 +227,7 @@ func student(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Tohle muze pouze ucitel"))
 	}
 
-	studentID, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	studentID, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 	}
