@@ -13,7 +13,6 @@ import (
 	"net/http"
 	"os"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -539,7 +538,7 @@ func PridatDokonceneProcvic(procvicID, uzivID uint, neopravene int, cas float32,
 	chybyPismenkaJSON, err := json.Marshal(chybyPismenka)
 
 	// pokud je procvic 0 neboli je to test psaní, vložim NULL
-	var procvicCislo = sql.NullString{String: strconv.Itoa(int(procvicID)), Valid: true}
+	var procvicCislo = sql.NullString{String: fmt.Sprintf("%d", procvicID), Valid: true}
 	if procvicID == 0 {
 		procvicCislo = sql.NullString{}
 	}

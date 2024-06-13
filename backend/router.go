@@ -469,7 +469,7 @@ func dokoncitProcvic(c *fiber.Ctx) error {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
-	if int(cislo) > len(vsechnyProcvic) { // error index out of range nebude
+	if cislo > uint64(len(vsechnyProcvic)) { // error index out of range nebude
 		log.Print("Takovy procvicovani neni")
 		return fiber.ErrBadRequest
 	}
