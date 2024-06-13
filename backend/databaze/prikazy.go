@@ -794,7 +794,7 @@ type Student struct {
 	ID    uint    `json:"id" db:"id"`
 	Jmeno string  `json:"jmeno" db:"skolni_jmeno"`
 	Email string  `json:"email" db:"email"`
-	CPM   float64 `json:"cpm" db:"median_cpm"`
+	CPM   float64 `json:"cpm" db:"cpm"`
 }
 
 func GetStudentyZeTridy(tridaID uint) ([]Student, error) {
@@ -802,7 +802,7 @@ func GetStudentyZeTridy(tridaID uint) ([]Student, error) {
 
 	// super ultra šílený query by LLM
 	// předtím jsem pro každého studenta posílal query samostatně (30 žáků | 900ms -> 80ms)
-	rows, err := DB.Queryx(`WITH cpm_data AS (SELECT datum, (((delka_textu - 10 * neopravene) / cas) * 60) AS cpm, uziv_id FROM dokoncene UNION ALL SELECT datum, (((delka_textu - 10 * neopravene) / cas) * 60) AS cpm, uziv_id FROM dokoncene_procvic), cpm_filtered AS (SELECT uziv_id, datum, CASE WHEN cpm < 0 THEN 0 ELSE cpm END AS cpm, ROW_NUMBER() OVER (PARTITION BY uziv_id ORDER BY datum DESC) AS rn FROM cpm_data), latest_15_cpm AS (SELECT uziv_id, datum, cpm FROM cpm_filtered WHERE rn <= 15), median_cpm AS (SELECT uziv_id, percentile_cont(0.5) WITHIN GROUP (ORDER BY cpm) AS median_cpm FROM latest_15_cpm GROUP BY uziv_id) SELECT u.id, u.skolni_jmeno, u.email, COALESCE(mc.median_cpm, 0) as median_cpm FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id INNER JOIN trida t ON t.id = s.trida_id FULL OUTER JOIN latest_15_cpm l15 ON l15.uziv_id = u.id FULL OUTER JOIN median_cpm mc ON mc.uziv_id = u.id WHERE s.trida_id = $1 AND t.smazana = FALSE GROUP BY u.id, u.skolni_jmeno, u.email, mc.median_cpm;`, tridaID)
+	rows, err := DB.Queryx(`WITH cpm_data AS (SELECT datum, (((delka_textu - 10 * neopravene) / cas) * 60) AS cpm, uziv_id FROM dokoncene UNION ALL SELECT datum, (((delka_textu - 10 * neopravene) / cas) * 60) AS cpm, uziv_id FROM dokoncene_procvic), cpm_filtered AS (SELECT uziv_id, datum, CASE WHEN cpm < 0 THEN 0 ELSE cpm END AS cpm, ROW_NUMBER() OVER (PARTITION BY uziv_id ORDER BY datum DESC) AS rn FROM cpm_data), latest_15_cpm AS (SELECT uziv_id, datum, cpm FROM cpm_filtered WHERE rn <= 15), cpm AS (SELECT uziv_id, AVG(cpm) AS cpm FROM latest_15_cpm GROUP BY uziv_id) SELECT u.id, u.skolni_jmeno, u.email, COALESCE(mc.cpm, 0) as cpm FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id INNER JOIN trida t ON t.id = s.trida_id FULL OUTER JOIN latest_15_cpm l15 ON l15.uziv_id = u.id FULL OUTER JOIN cpm mc ON mc.uziv_id = u.id WHERE s.trida_id = $1 AND t.smazana = FALSE GROUP BY u.id, u.skolni_jmeno, u.email, mc.cpm;`, tridaID)
 	if err != nil {
 		return zaci, err
 	}

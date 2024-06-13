@@ -251,7 +251,7 @@ func student(c *fiber.Ctx) error {
 		"jmeno":            student.SkolniJmeno,
 		"daystreak":        daystreak,
 		"uspesnost":        presnost,
-		"medianRychlosti":  utils.Median(cpm),
+		"medianRychlosti":  utils.Prumer(cpm),
 		"dokonceno":        dokonceno,
 		"nejcastejsiChyby": chybyPismenka,
 		"klavesnice":       student.Klavesnice,

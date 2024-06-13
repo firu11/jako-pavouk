@@ -127,6 +127,12 @@ hr {
     transition: 0.2s;
 }
 
+.tlacitko:disabled {
+    background-color: var(--fialova);
+    filter: brightness(0.7);
+    cursor: not-allowed;
+}
+
 .nadpisSeSipkou {
     display: inline-flex;
     position: relative;
