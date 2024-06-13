@@ -217,6 +217,10 @@ b {
     filter: invert(1);
 }
 
+textarea:focus, input:focus, select:focus {
+    outline: none;
+}
+
 @media screen and (max-width: 1100px) {
     .bloky {
         margin-top: 25px;

@@ -437,11 +437,7 @@ defineExpose({ restart })
     transition-timing-function: ease-out;
 }
 
-#resetBtn:hover {
-    background-color: var(--fialova);
-}
-
-#zvukBtn:hover {
+#resetBtn:hover, #zvukBtn:hover {
     background-color: var(--fialova);
 }
 
