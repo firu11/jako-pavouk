@@ -103,6 +103,11 @@ function oznacene(tlacitko: string) {
         if (pismeno === "<" && tlacitko === "?,") return true
         if (pismeno === ">" && tlacitko === ":.") return true
     } else {
+        if (pismeno === "@") {
+            if (tlacitko === "Ctrl" || tlacitko === "Alt") return true
+            if (props.typ === "qwertz" && tlacitko === "V") return true
+            if (props.typ === "qwerty" && tlacitko === "2ě") return true
+        }
         return false
     }
 }
@@ -150,6 +155,8 @@ function potrebujeShift(pismeno: string) {
     } else if (/^\d$/.test(pismeno)) { // jestli to je cislo
         return true
     }
+
+    if (pismeno === "@") return false
 
     if (props.typ === "qwertz" && "[]{}<>*".includes(pismeno)) return false
     else if (props.typ === "qwerty" && "<>[]*".includes(pismeno)) return false
