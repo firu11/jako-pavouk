@@ -151,3 +151,13 @@ export function getCisloPochvaly(rychlost: number, presnost: number) {
     }
     return 0 // nestane se
 }
+
+export function clone(obj: any) { // kvůli starším prohlížečům (koukám na tebe safari <14.0)
+    let x: any
+    try {
+        x = structuredClone(obj)
+    } catch {
+        x = JSON.parse(JSON.stringify(obj))
+    }
+    return x
+}

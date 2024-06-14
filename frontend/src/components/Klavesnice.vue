@@ -200,7 +200,7 @@ function potrebujeShift(pismeno: string) {
 }
 
 .oznacenaKlavesa {
-    border: #fff solid 3px;
+    border: #fff solid 3.5px;
     transition: 0.1s;
     filter: brightness(1.6) saturate(2);
 }

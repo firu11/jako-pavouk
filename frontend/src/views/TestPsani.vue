@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { checkTeapot, getToken, MojeMapa, pridatOznameni } from "../utils";
+import { checkTeapot, clone, getToken, MojeMapa, pridatOznameni } from "../utils";
 import { computed, onMounted, ref, toRaw } from "vue";
 import axios from "axios";
 import Vysledek from "../components/Vysledek.vue";
@@ -185,16 +185,6 @@ async function loadAlternativy() {
         })
     })
 }
-
-function clone(obj: any) { // kvůli starším prohlížečům (koukám na tebe safari <14.0)
-    let x: any
-    try {
-        x = structuredClone(obj)
-    } catch {
-        x = JSON.parse(JSON.stringify(obj))
-    }
-    return x
-}
 </script>
 
 <template>
@@ -320,141 +310,10 @@ label.kontejner:hover {
     background-color: var(--fialova);
 }
 
-.radio {
-    appearance: none;
-    -webkit-appearance: none;
-    border: 0.15rem solid var(--fialova);
-    border-radius: 10rem;
-    transition: filter 0.1s;
-    width: 26px;
-    height: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.radio::before {
-    content: "";
-    width: 14px;
-    height: 14px;
-    transform: scale(0);
-    background-color: var(--fialova);
-    border-radius: 10rem;
-    transition: 0.1s;
-    display: block;
-}
-
-.radio:checked:before {
-    transform: scale(1);
-}
-
-.aktivni {
-    color: var(--svetle-fialova) !important;
-}
-
 #delka {
     display: flex;
     gap: 6px;
     justify-content: center;
     width: 120px;
-}
-
-#psani-menu {
-    background-color: var(--tmave-fialova);
-    padding: 10px;
-    border-radius: 8px;
-    min-height: 50px;
-    margin-bottom: 186px;
-    margin-top: 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 0 10px;
-    position: absolute;
-    top: 400px;
-    max-width: 420px;
-    flex-wrap: wrap;
-    align-items: center;
-    box-shadow: 0 0 50px 0 rgba(0, 0, 0, 10);
-}
-
-#psani-menu button {
-    background-color: transparent;
-    border: none;
-    color: var(--bila);
-    transition: 0.1s;
-    font-size: 1em;
-    border-radius: 5px;
-    padding: 0 2px;
-}
-
-#psani-menu button:hover {
-    color: var(--svetle-fialova);
-    font-weight: 500;
-    color: white;
-    cursor: pointer;
-}
-
-.toggleCheckbox {
-    display: none;
-}
-
-.toggleContainer {
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    width: fit-content;
-    font-weight: bold;
-    color: var(--tmave-fialova);
-    cursor: pointer;
-    background: transparent;
-    font-size: 1em;
-    border-radius: 8px;
-    border: 1px var(--fialova) solid;
-    justify-self: start;
-    height: 30px;
-}
-
-.toggleContainer::before {
-    content: '';
-    position: absolute;
-    width: 50%;
-    height: 100%;
-    left: 0%;
-    border-radius: 6px;
-    background: var(--fialova);
-    transition: all 0.3s;
-}
-
-.toggleCheckbox:checked+.toggleContainer::before {
-    left: 50%;
-}
-
-.toggleContainer div {
-    padding: 6px;
-    text-align: center;
-    z-index: 1;
-    user-select: none;
-    position: relative;
-    top: -1px;
-}
-
-.toggleCheckbox:checked+.toggleContainer div:first-child {
-    color: transparent;
-    transition: color 0.3s;
-}
-
-.toggleCheckbox:checked+.toggleContainer div:last-child {
-    color: white;
-    transition: color 0.3s;
-}
-
-.toggleCheckbox+.toggleContainer div:first-child {
-    color: white;
-    transition: color 0.3s;
-}
-
-.toggleCheckbox+.toggleContainer div:last-child {
-    color: transparent;
-    transition: color 0.3s;
 }
 </style>
