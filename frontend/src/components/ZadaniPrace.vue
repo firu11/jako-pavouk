@@ -1,15 +1,26 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import TextZadani from '../components/TextZadani.vue';
+import axios from 'axios';
+import { checkTeapot, getToken, pridatOznameni } from '../utils';
 
 const textovePole = ref<InstanceType<typeof TextZadani> | null>(null)
 
 const delka = ref(1)
-const velkaPismena = ref(true)
-const diakritika = ref(true)
+const typTextu = ref("")
 
 function getText() {
-    textovePole.value!.text = "ssdkfsjdnkfjnk"
+    axios.post("/skola/text", { "typ": typTextu.value }, {
+        headers: {
+            Authorization: `Bearer ${getToken()}`
+        }
+    }).then(response => {
+        console.log(response)
+    }).catch(e => {
+        if (checkTeapot(e)) return
+        console.log(e)
+        pridatOznameni("Chyba serveru")
+    })
 
     puvodniText.value = textovePole.value!.text
 }
@@ -19,28 +30,21 @@ function d(x: number) {
 }
 
 const puvodniText = ref("")
-function toggleDiakritikaAVelkaPismena() {
-    puvodniText.value = textovePole.value!.text
-    let arr = Array.from(textovePole.value!.text)
 
-    if (!diakritika.value && !velkaPismena.value) {
-        for (let i = 0; i < arr.length; i++) {
-            arr[i] = arr[i].normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase()
-        }
-    } else if (!diakritika.value) {
-        for (let i = 0; i < arr.length; i++) {
-            arr[i] = arr[i].normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        }
-    } else if (!velkaPismena.value) {
-        for (let i = 0; i < arr.length; i++) {
-            arr[i] = arr[i].toLocaleLowerCase()
-        }
-    } else {
-        textovePole.value!.text = puvodniText.value
-        return
-    }
+function smazatDiakritiku() {
+    textovePole.value!.text = textovePole.value!.text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+}
 
-    textovePole.value!.text = arr.join()
+function smazatVelkaPismena() {
+    textovePole.value!.text = textovePole.value!.text.toLocaleLowerCase()
+}
+
+function smazatEnterAMezery() {
+    textovePole.value!.text = textovePole.value!.text.replace(/\n/g, " ").replace(/ {2,}/g, " ")
+}
+
+function resetSmazanych() {
+    textovePole.value!.text = puvodniText.value
 }
 
 </script>
@@ -50,8 +54,9 @@ function toggleDiakritikaAVelkaPismena() {
             <h2>Nastavení</h2>
 
             <div id="moznosti">
-
                 <div id="delka">
+                    <h3>Čas</h3>
+                    <hr id="predel2">
                     <button :class="{ aktivni: 1 == delka }" @click="d(1)">1min</button>
                     <button :class="{ aktivni: 2 == delka }" @click="d(2)">2min</button>
                     <button :class="{ aktivni: 3 == delka }" @click="d(3)">3min</button>
@@ -65,9 +70,16 @@ function toggleDiakritikaAVelkaPismena() {
 
                 <hr id="predel">
 
-                <div class="kontejner">
-                    <button>Velká písmena</button>
-                    <button>Diakritika</button>
+                <div class="vertKontejner">
+                    <div class="kontejner">
+                        <button @click="smazatVelkaPismena" class="tlacitko">Smazat velká písmena</button>
+                        <button @click="smazatDiakritiku" class="tlacitko">Smazat diakritiku</button>
+                        <button @click="smazatEnterAMezery" class="tlacitko">Smazat mezery</button>
+                    </div>
+
+                    <div class="kontejner">
+                        suuus
+                    </div>
                 </div>
             </div>
         </div>
@@ -75,7 +87,12 @@ function toggleDiakritikaAVelkaPismena() {
         <div id="text">
             <div>
                 <div>{{ textovePole?.text.length }} znaků</div>
-                <button class="tlacitko" id="genBtn" @click="getText()">Generovat</button>
+                <select v-model="typTextu" placeholder="Druh textu..." @select="getText">
+                    <option value="" selected>Vlastní text</option>
+                    <option value="Věty z pohádek">Věty z pohádek</option>
+                    <option value="Zeměpis">Zeměpis</option>
+                    <option value="Dějepis">Dějepis</option>
+                </select>
             </div>
 
             <TextZadani ref="textovePole" />
@@ -83,9 +100,44 @@ function toggleDiakritikaAVelkaPismena() {
     </div>
 </template>
 <style scoped>
+.tlacitko {
+    width: 250px;
+}
+
+.vertKontejner {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+select {
+    height: 40px;
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 1rem;
+    color: white;
+    background-color: var(--tmave-fialova);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+select:hover {
+    background-color: var(--fialova) !important;
+}
+
+select option {
+    background-color: var(--tmave-fialova) !important;
+}
+
+select option:disabled {
+    color: white !important;
+    opacity: 1;
+}
+
 #genBtn {
     margin-top: 0;
-    width: 120px;
+    width: 105px;
     background-color: var(--tmave-fialova);
 }
 
@@ -141,12 +193,21 @@ function toggleDiakritikaAVelkaPismena() {
 
 .kontejner {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 10px;
-    margin: 0 10px;
     cursor: pointer;
     transition: filter 0.2s;
+}
+
+.kontejner>div {
+    display: flex;
+    gap: 15px;
+}
+
+.kontejner>div>button {
+    width: auto;
+    padding: 0 12px;
 }
 
 #delka {
@@ -155,13 +216,28 @@ function toggleDiakritikaAVelkaPismena() {
     flex-direction: column;
     justify-content: center;
     flex-wrap: wrap;
-    padding: 5px;
-    margin-right: 15px;
-    width: 94px;
+    margin-right: 14px;
+}
+
+#delka>button {
+    width: 90px;
+}
+
+#delka h3 {
+    position: relative;
+    bottom: 15px;
 }
 
 #predel {
-    margin: 12px 0 12px 0;
+    margin: 12px 20px 12px 0;
     border: 1px solid var(--fialova);
+}
+
+#predel2 {
+    margin-top: -22px;
+    margin-bottom: 8px;
+    width: 70%;
+    border: 1px solid rgb(206, 206, 206);
+    align-self: center;
 }
 </style>

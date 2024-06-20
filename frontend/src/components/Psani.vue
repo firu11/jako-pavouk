@@ -479,6 +479,7 @@ defineExpose({ restart })
     background-color: var(--tmave-fialova);
     width: var(--sirka-textoveho-pole);
     overflow: hidden;
+    user-select: none;
 }
 
 #text {

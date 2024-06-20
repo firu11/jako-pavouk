@@ -10,6 +10,6 @@ export const levelyPresnosti = [92.5, 97.5] // jen pro message uzivateli, ne pro
 export const maxPismenNaRadek = 629 / 17 // sirka ramecku / sirka pismene
 
 export const moznostiRocnik = ["1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.", "9.", "Prima ", "Sekunda ", "Tercie ", "Kvarta ", "Kvinta ", "Sexta ", "Septima ", "Oktáva "]
-export const moznostiTrida = ["A", "B", "C", "D", "E", "F", "G"]
+export const moznostiTrida = ["A", "B", "C", "D", "E", "F", "G", "H"]
 
 export const mobil = ref(document.body.clientWidth <= 900)

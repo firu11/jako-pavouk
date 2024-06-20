@@ -76,14 +76,14 @@ function random(list: Array<string>) {
 onMounted(() => {
     hodnoceni.value = random(pochavly) + " " + random(vsechnyHodnoceni[getCisloPochvaly(rychlost, presnost)])
 
+    document.addEventListener("keydown", e1)
+
     if (props.cislo == "prvni-psani") {
         hodnoceni.value = "Píšeš krásně, ale tohle byl jen začátek..."
         return
     }
     
     nejcastejsiChybyTop3.value = props.nejcastejsiChyby.top(3)
-
-    document.addEventListener("keydown", e1)
 
     if (props.pismena == "") { // je to procvicovani / test takze posilame jinam
         let cislo = props.cislo
@@ -235,12 +235,9 @@ li:first-child {
     opacity: 100%;
 }
 
-ol li:first-child span {
-    font-weight: 700;
-}
-
 ol li span {
     font-weight: 500;
+    font-family: 'Red Hat Mono', monospace;
 }
 
 ol,
