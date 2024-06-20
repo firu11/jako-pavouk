@@ -2,7 +2,6 @@
 import { computed, onMounted, ref } from "vue";
 import { useHead } from "@unhead/vue";
 import Psani from "../components/Psani.vue";
-import { useRouter } from "vue-router";
 import { pridatOznameni } from "../utils";
 import Vysledek from "../components/Vysledek.vue";
 import { mobil } from "../stores"
@@ -17,8 +16,9 @@ const preklepy = ref(0)
 const opravenePocet = ref(0)
 const cas = ref(0)
 
+const psaniRef = ref()
+
 const konec = ref(false)
-const router = useRouter()
 
 const casFormat = computed(() => {
     return cas.value < 60 ? Math.floor(cas.value).toString() : `${Math.floor(cas.value / 60)}:${cas.value % 60 < 10 ? "0" + Math.floor(cas.value % 60).toString() : Math.floor(cas.value % 60)}`
@@ -31,13 +31,13 @@ function konecTextu(c: number, o: number, p: number) {
     konec.value = true
 }
 
-onMounted(() => {
+function setup() {
     if (mobil.value) {
-        router.push("/registrace")
-        pridatOznameni("Psaní na telefonech zatím neučíme. Registrovat se ale můžeš.")
+        pridatOznameni("Psaní na telefonech zatím neučíme...")
         return
     }
 
+    text.value = [[]] as { id: number, znak: string, spatne: number, }[][]
     let textRaw = "ffff jjjj ffjj jjff fjfj jfjf fjjj jfff jfjj fjff jjfj ffjf fjjf jffj"
     let slovoCounter = -1
     for (let i = 0; i < textRaw.length; i++) {
@@ -48,7 +48,18 @@ onMounted(() => {
         text.value[slovoCounter].push({ id: delkaTextu.value, znak: textRaw[i], spatne: 0 })
         delkaTextu.value++
     }
+}
+
+onMounted(() => {
+    setup()
 })
+
+function restart() {
+    konec.value = false
+    delkaTextu.value = 0
+
+    setup()
+}
 
 const ok = ref(false)
 
@@ -57,19 +68,18 @@ const ok = ref(false)
 <template>
     <h1 style="margin: 0">První krůčky</h1>
 
-    <Psani v-if="!konec" @konec="konecTextu" @pise="ok = true" :text="text" :delkaTextu="delkaTextu" :klavesnice="'qwertz'"
-        :hideKlavesnice="!ok" :nacitam-novej="false" />
+    <Psani v-if="!konec" @konec="konecTextu" @pise="ok = true" :text="text" :delkaTextu="delkaTextu" :klavesnice="'qwertz'" :hideKlavesnice="!ok"
+        :nacitam-novej="false" ref="psaniRef" />
 
-    <Vysledek v-else :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu" :casF="casFormat"
-        :cas="cas" :cislo="'prvni-psani'" :posledni="true" />
-
+    <Vysledek v-else :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas" :cislo="'prvni-psani'"
+        :posledni="true" @restart="restart" />
     <Transition>
         <div id="napoveda" v-if="!ok">
             <h3>Nápověda</h3>
             <ul>
                 <li>Podtržení ukazuje na písmeno, které máš napsat.</li>
-                <li>Pokud uděláš chybu, můžeš se vrátit zpět pomocí klávesy <span class="klavesaVTextu">Backspace</span> a překlep opravit.
-                </li>
+                <li>Pokud uděláš chybu, můžeš se vrátit zpět pomocí klávesy <span class="klavesaVTextu">Backspace</span> a překlep opravit.</li>
+                <li>Kdyby jsi chtěl začít odznova, zmáčkni klávesu <span class="klavesaVTextu">Enter</span>.</li>
             </ul>
             <button class="tlacitko" @click="ok = true">Jdu na to!</button>
         </div>
@@ -82,12 +92,13 @@ const ok = ref(false)
     padding: 20px;
     border-radius: 10px;
     position: relative;
-    top: -280px;
-    max-width: 450px;
+    top: -295px;
+    max-width: 470px;
     display: flex;
     gap: 10px;
     align-items: center;
     flex-direction: column;
+    box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.75);
 }
 
 #napoveda h3 {

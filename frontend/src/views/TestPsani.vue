@@ -190,12 +190,11 @@ async function loadAlternativy() {
 <template>
     <h1 style="margin: 0">Test psaní</h1>
 
-    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="hideKlavecnice = false" :text="text"
-        :delkaTextu="delkaTextu" :klavesnice="klavesnice" :hide-klavesnice="hideKlavecnice"
-        :nacitam-novej="nacitamNovej" ref="psaniRef" />
+    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="hideKlavecnice = false" :text="text" :delkaTextu="delkaTextu"
+        :klavesnice="klavesnice" :hide-klavesnice="hideKlavecnice" :nacitam-novej="nacitamNovej" ref="psaniRef" />
 
-    <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu"
-        :casF="casFormat" :cas="cas" :cislo="'test-psani'" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
+    <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas"
+        :cislo="'test-psani'" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
 
     <Transition>
         <div v-if="!konec && hideKlavecnice" id="psani-menu">
@@ -220,8 +219,7 @@ async function loadAlternativy() {
                     <button @keyup="disabledBtn" :class="{ aktivni: 100 == delka }" @click="d(100)">100</button>
                 </div>
 
-                <input v-if="!prihlasen" @change="switchKlavesnice" v-model="klavModel" type="checkbox" id="toggle1"
-                    class="toggleCheckbox" />
+                <input v-if="!prihlasen" @change="switchKlavesnice" v-model="klavModel" type="checkbox" id="toggle1" class="toggleCheckbox" />
                 <label v-if="!prihlasen" for="toggle1" class="toggleContainer">
                     <div>Qwertz</div>
                     <div>Qwerty</div>
@@ -232,14 +230,12 @@ async function loadAlternativy() {
 
             <div class="kontejner">
                 <label for="toggle2" class="kontejner">
-                    <input v-model="velkaPismena" @change="toggleDiakritikaAVelkaPismena" type="checkbox" id="toggle2"
-                        class="radio" />
+                    <input v-model="velkaPismena" @change="toggleDiakritikaAVelkaPismena" type="checkbox" id="toggle2" class="radio" />
                     Velká písmena
                 </label>
 
                 <label for="toggle3" class="kontejner">
-                    <input v-model="diakritika" @change="toggleDiakritikaAVelkaPismena" type="checkbox" id="toggle3"
-                        class="radio" />
+                    <input v-model="diakritika" @change="toggleDiakritikaAVelkaPismena" type="checkbox" id="toggle3" class="radio" />
                     Diakritika
                 </label>
             </div>

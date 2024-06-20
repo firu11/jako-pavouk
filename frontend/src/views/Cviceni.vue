@@ -88,7 +88,7 @@ function konecTextu(c: number, o: number, p: number, n: MojeMapa) {
         <SipkaZpet />
         Lekce: {{ format(pismena) }}
     </h1>
-    <h2>Cviceni: {{ cislo }}</h2>
+    <h2>Cvičení: {{ cislo }}</h2>
 
     <Psani v-if="!konec" @konec="konecTextu" @restart="restart" :text="text" :delkaTextu="delkaTextu"
         :klavesnice="klavesnice" :hide-klavesnice="false" :nacitam-novej="nacitamNovej" />

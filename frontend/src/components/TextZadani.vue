@@ -13,7 +13,8 @@ function scrollDiv() {
 watch(text, () => {
     let t = text.value
         .replace(/\n$/g, '\n\n')
-        .replace(/([^A-Za-z0-9ěščřžýáíéůúťďňó ,.!?;:_=+\-*/%()[\]{}<>]|.(\r\n|\r|\n))/g, "<m style='background-color: rgba(255, 0, 0, 0.4); border-radius: 2px;'>$&</m>")
+        .replace(/(\r\n|\r|\n)/g, "↵\n")
+        .replace(/( {2,})|(↵\n)|!(.(\r\n|\r|\n))|([^A-Za-z0-9ěščřžýáíéůúťďňó ,.!?;:_=+\-*/%()[\]{}<>])/g, `<m style='background-color: rgba(255, 0, 0, 0.4); font-family: "Red Hat Mono", monospace; border-radius: 3px'>$&</m>`)
     // krejzy https://codersblock.com/blog/highlight-text-inside-a-textarea/
     div.value!.innerHTML = t
 })
@@ -23,7 +24,7 @@ defineExpose({ text })
 </script>
 <template>
     <div ref="div"></div>
-    <textarea ref="textarea" placeholder="Text který budou žáci psát..." v-model="text" @scroll="scrollDiv" />
+    <textarea ref="textarea" placeholder="Text který budou žáci psát..." v-model="text" @scroll="scrollDiv"/>
 </template>
 <style scoped>
 div {
@@ -37,13 +38,16 @@ div {
     z-index: 1;
     background-color: var(--tmave-fialova);
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 1rem !important;
     overflow-y: auto;
+    text-decoration: none;
 
-    color: green;
+    color: transparent;
+    font-family: "Red Hat Mono", monospace;
 
     white-space: pre-wrap;
     word-wrap: break-word;
+    line-height: 1.2rem;
 }
 
 textarea {
@@ -52,11 +56,14 @@ textarea {
     border: 0;
     height: 100%;
     width: 100%;
-    font-size: 1rem;
+    font-size: 1rem !important;
+    text-decoration: none;
     color: var(--bila);
     padding: 10px;
     resize: none;
     z-index: 2;
+    line-height: 1.2rem;
+    font-family: "Red Hat Mono", monospace;
 }
 
 ::placeholder {

@@ -165,9 +165,14 @@ function zmenaJmena(e: Event) {
             <span class="popis">Počet dní v řadě:<br><span class="cislo">{{ zaokrouhlit(info.daystreak) }}</span></span>
         </div>
         <div class="blok">
-            <img src="../assets/icony/iconaKlavesnice.svg" alt="Rychlost" width="75">
-            <span class="popis">Klávesnice:<br>
-                <button id="tlacitko" @click="postKlavesnice">{{ klavesniceUprava }}</button>
+            <img src="../assets/icony/iconaKlavesnice.svg" alt="Klavesnice" width="75">
+            <span class="popis">
+                Klávesnice:
+                <input @change="postKlavesnice" type="checkbox" id="toggle1" class="toggleCheckbox" />
+                <label for="toggle1" class="toggleContainer">
+                    <div>Qwertz</div>
+                    <div>Qwerty</div>
+                </label>
             </span>
         </div>
         <div class="blok" id="chyby">
@@ -187,17 +192,18 @@ function zmenaJmena(e: Event) {
             <div style="width: 100%;">
                 <div v-if="pismenaChyby.length !== 0" id="pismena">
                     <div id="prvni">
-                        <span v-for="znak, i in pismenaChyby.slice(0, 2)"><span class="cisla">{{ i + 1 }}.</span> <b
-                                :style="{ fontSize: znak[0] == ' ' ? '12px' : 'auto' }">{{
-                                    znak[0] == " " ? "┗━┛" :
-                                        znak[0]
-                                }}</b></span>
+                        <span v-for="znak, i in pismenaChyby.slice(0, 2)"><span class="cisla">{{ i + 1 }}.</span>
+                            <b :style="{ fontSize: znak[0] == ' ' ? '12px' : 'auto', fontWeight: znak[0] == ' ' ? '700' : '500' }">
+                                {{ znak[0] == " " ? "┗━┛" : znak[0] }}
+                            </b>
+                        </span>
                     </div>
                     <div id="druhy">
-                        <span v-for="znak, i in pismenaChyby.slice(2)"><span class="cisla">{{ i + 3 }}.</span> <b
-                                :style="{ fontSize: znak[0] == ' ' ? '12px' : 'auto' }">{{
-                                    znak[0] == " " ? "┗━┛" : znak[0]
-                                }}</b></span>
+                        <span v-for="znak, i in pismenaChyby.slice(2)"><span class="cisla">{{ i + 3 }}.</span>
+                            <b :style="{ fontSize: znak[0] == ' ' ? '12px' : 'auto', fontWeight: znak[0] == ' ' ? '700' : '500' }">
+                                {{ znak[0] == " " ? "┗━┛" : znak[0] }}
+                            </b>
+                        </span>
                     </div>
                 </div>
                 <div v-else style="margin: 30px 0;">
@@ -215,6 +221,12 @@ function zmenaJmena(e: Event) {
 </template>
 
 <style scoped>
+.toggleContainer {
+    font-size: 16px;
+    width: calc(100% - 20px);
+    margin: 10px 10px 0 10px;
+}
+
 #pismena {
     display: flex;
     flex-direction: column;
@@ -248,7 +260,7 @@ function zmenaJmena(e: Event) {
 
 #prvni b,
 #druhy b {
-    font-weight: 700;
+    font-family: 'Red Hat Mono', monospace;
 }
 
 #chyby {
