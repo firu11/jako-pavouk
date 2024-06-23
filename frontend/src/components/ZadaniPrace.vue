@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import TextZadani from '../components/TextZadani.vue';
 import axios from 'axios';
 import { checkTeapot, getToken, pridatOznameni } from '../utils';
+import Tooltip from "../components/Tooltip.vue";
 
 const textovePole = ref<InstanceType<typeof TextZadani> | null>(null)
 
@@ -55,7 +56,9 @@ function resetSmazanych() {
 
             <div id="moznosti">
                 <div id="delka">
-                    <h3>Čas</h3>
+                    <Tooltip zprava="Pokud student dopíše text před vypršením časového limitu, bude ho psát znovu." :sirka="210" :vzdalenost="0">
+                        <h3>Čas</h3>
+                    </Tooltip>
                     <hr id="predel2">
                     <button :class="{ aktivni: 1 == delka }" @click="d(1)">1min</button>
                     <button :class="{ aktivni: 2 == delka }" @click="d(2)">2min</button>
@@ -78,7 +81,7 @@ function resetSmazanych() {
                     </div>
 
                     <div class="kontejner">
-                        suuus
+                        <button @click="resetSmazanych">Reset</button>
                     </div>
                 </div>
             </div>
@@ -196,7 +199,6 @@ select option:disabled {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    cursor: pointer;
     transition: filter 0.2s;
 }
 

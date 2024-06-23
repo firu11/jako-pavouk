@@ -177,7 +177,7 @@ const handleLoginSuccess = (response: any) => {
     </div>
     <div v-else>
         <form id="overeni">
-            <h3 style="margin-bottom: 20px;">Na email: "<i>{{ email }}</i>" ti byl zaslán ověřovací kód</h3>
+            <h3 style="margin-bottom: 20px;">Na e-mail: "<i>{{ email }}</i>" ti byl zaslán ověřovací kód.</h3>
             <h3 class="nadpis">Zadej kód z emailu:</h3>
             <input :class="{ spatnej_input: spatnyKod }" @:input="chekujUdaje('kod')" type="text" inputmode="numeric"
                 v-model.trim="kod" placeholder="Např: 12345">
