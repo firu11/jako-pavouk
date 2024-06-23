@@ -153,7 +153,7 @@ function zmenaJmena(e: Event) {
         </div>
         <div class="blok">
             <img src="../assets/icony/rychlost.svg" alt="Rychlost" width="75">
-            <Tooltip zprava="Za neopravené chyby je adekvátní penalizace.">
+            <Tooltip zprava="Za neopravené chyby je adekvátní penalizace. (CPM = úhozů za minutu)" :sirka="200">
                 <span v-if="info.medianRychlosti == -1" class="popis">Rychlost:<br>Zatím nic</span>
                 <span v-else class="popis">Rychlost:<br>
                     <span class="cislo">{{ zaokrouhlit(info.medianRychlosti) }}</span> CPM

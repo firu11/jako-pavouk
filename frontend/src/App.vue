@@ -117,6 +117,7 @@ onMounted(() => {
     min-height: 100px;
     pointer-events: none;
     width: 100vw;
+    z-index: 1000;
 }
 
 .alert {

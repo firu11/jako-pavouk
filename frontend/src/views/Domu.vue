@@ -71,9 +71,9 @@ function zacit() {
         <div class="text">
             <h2>Systém pro školy</h2>
             <p>
-                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Exercitationem assumenda ratione dolore voluptate in hic.
+                Tato funkce je právě v raném vývoji. Pokud už teď máte zájem o podobnou službu, neváhejte mě kontaktovat na e-mail v záložce "O nás".
             </p>
-            <button class="tlacitko" @click="router.push('/info-skola')">Číst dál</button>
+            <button class="tlacitko" @click="" style="cursor: no-drop;"><del>Číst dál</del></button> <!-- router.push('/info-skola') -->
         </div>
     </div>
 </template>
