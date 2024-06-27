@@ -16,7 +16,7 @@ const router = useRouter()
 const info = ref({ jmeno: "...", email: "...@...", dokonceno: 0, daystreak: 0, medianRychlosti: -1, uspesnost: -1, klavesnice: "QWERTZ", celkovyCas: 0, nejcastejsiChyby: new Map })
 const uprava = ref(false)
 
-const klavesniceUprava = ref("")
+const klavesniceUprava = ref(false)
 const jmenoUprava = ref("")
 
 const pismenaChyby = ref([] as any[][])
@@ -53,8 +53,7 @@ async function getInfo() {
         pismenaChyby.value = Array.from(info.value.nejcastejsiChyby, ([name, value]) => ([name, value]))
         pismenaChyby.value.sort((a, b) => b[1] - a[1])
         jmenoUprava.value = resp.data.jmeno
-        klavesniceUprava.value = resp.data.klavesnice
-        klavesniceUprava.value = klavesniceUprava.value.toUpperCase()
+        klavesniceUprava.value = resp.data.klavesnice == "QWERTY"
         role.value = resp.data.role
     }
     catch (e: any) {
@@ -102,8 +101,8 @@ function postJmeno() {
 }
 
 function postKlavesnice() {
-    klavesniceUprava.value = klavesniceUprava.value == "QWERTZ" ? "QWERTY" : "QWERTZ" // otocim
-    axios.post("/ucet-zmena", { "zmena": "klavesnice", "hodnota": klavesniceUprava.value.toLowerCase() }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
+    let klavesnice = klavesniceUprava.value ? "QWERTY" : "QWERTZ"
+    axios.post("/ucet-zmena", { "zmena": "klavesnice", "hodnota": klavesnice }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
         getInfo()
     }).catch(e => {
         checkTeapot(e)
@@ -168,7 +167,7 @@ function zmenaJmena(e: Event) {
             <img src="../assets/icony/iconaKlavesnice.svg" alt="Klavesnice" width="75">
             <span class="popis">
                 Klávesnice:
-                <input @change="postKlavesnice" type="checkbox" id="toggle1" class="toggleCheckbox" />
+                <input type="checkbox" id="toggle1" class="toggleCheckbox" v-model="klavesniceUprava" @change="postKlavesnice" />
                 <label for="toggle1" class="toggleContainer">
                     <div>Qwertz</div>
                     <div>Qwerty</div>
