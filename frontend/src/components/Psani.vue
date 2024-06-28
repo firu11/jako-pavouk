@@ -10,14 +10,15 @@ import miss from "../assets/zvuky/miss.ogg";
 import { MojeMapa } from "../utils";
 import { useRoute } from "vue-router";
 
-const emit = defineEmits(["konec", "pise", "restart"])
+const emit = defineEmits(["konec", "pise", "restart", "prodlouzit"])
 
 const props = defineProps<{
     text: { id: number, znak: string, spatne: number }[][]
-    delkaTextu: number,
+    cas: number, // vteřiny
     klavesnice: string,
     hideKlavesnice: boolean,
-    nacitamNovej: boolean
+    nacitamNovej: boolean,
+    delkaTextu: number,
 }>()
 
 const route = useRoute()
@@ -44,15 +45,12 @@ let interval: number
 const celyPsani = ref()
 
 const casFormat = computed(() => {
-    return cas.value < 60 ? Math.floor(cas.value).toString() + "s" : `${Math.floor(cas.value / 60)}:${cas.value % 60 < 10 ? "0" + Math.floor(cas.value % 60).toString() : Math.floor(cas.value % 60)}`
-})
-
-const progress = computed(() => {
-    return props.delkaTextu !== 0 ? ((aktivniPismeno.value.id) / props.delkaTextu) * 100 : 0
+    let zobrazeny = props.cas - cas.value
+    return zobrazeny < 60 ? Math.floor(zobrazeny).toString() + "s" : `${Math.floor(zobrazeny / 60)}:${zobrazeny % 60 < 10 ? "0" + Math.floor(zobrazeny % 60).toString() : Math.floor(zobrazeny % 60)}`
 })
 
 const aktivniPismeno = computed(() => {
-    if (counterSlov.value < props.text.length - 1) return props.text[counterSlov.value][counter.value]
+    if (counterSlov.value < props.text.length) return props.text[counterSlov.value][counter.value]
     return { id: -1, znak: "", spatne: 0 }
 })
 
@@ -138,10 +136,6 @@ function klik(this: any, e: KeyboardEvent) {
     e.preventDefault() // ať to nescrolluje a nehazí nějaký stupid zkratky
     startTimer()
 
-    if (props.delkaTextu == 0) {
-        return
-    }
-
     let hacek = jeSHackem(e.key)
     if (hacek) predchoziZnak = ""
 
@@ -161,6 +155,8 @@ function klik(this: any, e: KeyboardEvent) {
     posunoutRadek()
 
     if (aktivniPismeno.value.id === -1) { // konec
+        console.log("skončeno předčasně")
+
         clearInterval(interval)
         calcCas() // naposledy
         document.removeEventListener("keypress", klik)
@@ -169,9 +165,10 @@ function klik(this: any, e: KeyboardEvent) {
         restart()
     }
 
-    if (predchoziZnak != "") predchoziZnak = ""
-
+    predchoziZnak = ""
     celyPsani.value.classList.add("bezKurzoru")
+
+    if (textViditelny.value[textViditelny.value.length - 1] == props.text[props.text.length - 1]) emit("prodlouzit")
 }
 
 function posunoutRadek() {
@@ -254,12 +251,21 @@ function specialniKlik(e: KeyboardEvent) {
 function startTimer() {
     if (timerZacatek.value === 0) {
         timerZacatek.value = Date.now()
-        interval = setInterval(calcCas, 100)
+        calcCas()
+        interval = setInterval(calcCas, 200)
     }
 }
 
 function calcCas() {
     cas.value = (Date.now() - timerZacatek.value) / 1000
+
+    if (props.cas - cas.value <= 0) {
+        clearInterval(interval)
+        document.removeEventListener("keypress", klik)
+        document.removeEventListener("keydown", specialniKlik)
+        emit("konec", cas.value, opravene.value, preklepy.value, chybyPismenka, aktivniPismeno.value.id)
+        restart()
+    }
 }
 
 function toggleZvuk() {
@@ -309,7 +315,7 @@ function loadZvuk() {
 }
 
 const textViditelny = computed(() => {
-    return props.text.slice(mistaPosunuti.value[mistaPosunuti.value.length - 3], mistaPosunuti.value[mistaPosunuti.value.length - 2] + 40)
+    return props.text.slice(mistaPosunuti.value[mistaPosunuti.value.length - 3], mistaPosunuti.value[mistaPosunuti.value.length - 2] + 42)
 })
 
 const rotaceStupne = ref(0)
@@ -345,33 +351,24 @@ defineExpose({ restart })
                     <div class="slovo" v-for="s in textViditelny">
                         <div v-for="p in s" class="pismeno" :id="'p' + p.id"
                             :class="{ podtrzeni: p.id === aktivniPismeno.id, spatnePismeno: p.spatne === 1 && aktivniPismeno.id > p.id, opravenePismeno: p.spatne === 2 && aktivniPismeno.id > p.id, spravnePismeno: !p.spatne && aktivniPismeno.id > p.id }">
-                            {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp") }}
-                                </div>
+                            {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp") }} </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div id="bar">
-                <div :style="'width: ' + progress + '%'" id="progress">&nbsp{{ Math.floor(progress) }}%&nbsp
-                </div>
-            </div>
-
             <Transition>
-                <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak"
-                    :class="{ rozmazany: hideKlavesnice }" />
+                <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :class="{ rozmazany: hideKlavesnice }" />
             </Transition>
             <Transition>
-                <div v-if="klavesnice != ''" id="resetBtn" @click="resetTlacitko(); animace()" :class="{schovat: route.fullPath == '/prvni-psani'}">
+                <div v-if="klavesnice != ''" id="resetBtn" @click="resetTlacitko(); animace()" :class="{ schovat: route.fullPath == '/prvni-psani' }">
                     <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Nastavení">
                 </div>
             </Transition>
 
             <div id="zvukBtn" @click="toggleZvuk">
-                <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvukIcon" src="../assets/icony/zvukOn.svg"
-                    alt="Zvuky jsou zapnuté">
-                <img v-else style="margin-left: 1px;" class="zvukIcon" src="../assets/icony/zvukOff.svg"
-                    alt="Zvuky jsou vypnuté">
+                <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvukIcon" src="../assets/icony/zvukOn.svg" alt="Zvuky jsou zapnuté">
+                <img v-else style="margin-left: 1px;" class="zvukIcon" src="../assets/icony/zvukOff.svg" alt="Zvuky jsou vypnuté">
             </div>
         </div>
 </template>
@@ -437,7 +434,8 @@ defineExpose({ restart })
     transition-timing-function: ease-out;
 }
 
-#resetBtn:hover, #zvukBtn:hover {
+#resetBtn:hover,
+#zvukBtn:hover {
     background-color: var(--fialova);
 }
 
@@ -474,8 +472,8 @@ defineExpose({ restart })
 
 #ramecek {
     padding: 10px;
-    height: 200px;
-    border-radius: 10px 10px 0 0;
+    height: 190px;
+    border-radius: 10px;
     background-color: var(--tmave-fialova);
     width: var(--sirka-textoveho-pole);
     overflow: hidden;
@@ -496,7 +494,7 @@ defineExpose({ restart })
 #fade {
     mask-image: linear-gradient(180deg, var(--tmave-fialova) 75%, transparent 97%);
     -webkit-mask-image: linear-gradient(180deg, var(--tmave-fialova) 75%, transparent 97%);
-    height: 190px;
+    height: 107%;
 }
 
 .slovo {
@@ -518,24 +516,6 @@ defineExpose({ restart })
     border-bottom: 3px solid rgba(255, 255, 255, 0);
     /* aby se nedojebala vyska lajny když jdu na dalsi radek*/
     color: var(--bila);
-}
-
-#progress {
-    height: 20px;
-    background-color: var(--fialova);
-    width: 0;
-    border-bottom-left-radius: 10px;
-    transition: ease 0.22s;
-    text-align: right;
-    font-size: 0.9em;
-    padding: 0.1em 0;
-}
-
-#bar {
-    background-color: var(--tmave-fialova);
-    width: var(--sirka-textoveho-pole);
-    border-radius: 0 0 10px 10px;
-    overflow: hidden;
 }
 
 #nabidka h2 {
@@ -561,6 +541,7 @@ defineExpose({ restart })
 }
 
 .rozmazany {
-    filter: blur(2px) brightness(20%) contrast(110%); /* blur je trochu heavy */
+    filter: blur(2px) brightness(20%) contrast(110%);
+    /* blur je trochu heavy */
 }
 </style>

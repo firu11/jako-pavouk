@@ -63,8 +63,7 @@ type (
 	}
 
 	bodyTestPsani struct {
-		Typ   string `json:"typ" validate:"required"`
-		Delka int    `json:"delka" validate:"min=1,max=200"`
+		Typ string `json:"typ" validate:"required"`
 	}
 )
 
@@ -127,26 +126,22 @@ func testPsani(c *fiber.Ctx) error {
 	var text []string
 	switch body.Typ {
 	case "slova":
-		text, err = databaze.GetVsechnySlova(body.Delka)
+		text, err = databaze.GetVsechnySlova(int(pocetZnaku / 7.5)) // cca 8.5 znaku na slovo
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 		}
 
-		for i := 0; i < len(text)-1; i++ {
-			text[i] += " "
-		}
-
 		for i := 0; i < len(text); i++ {
+			text[i] += " "
+
 			r := []rune(text[i])
 			if i%5 == 0 { //kazdy paty velkym
 				text[i] = fmt.Sprintf("%c%s", unicode.ToUpper(r[0]), string(r[1:]))
-			} else {
-				text[i] = fmt.Sprintf("%c%s", r[0], string(r[1:]))
 			}
 		}
 
 	case "vety":
-		vety, err := databaze.GetVsechnyVety(body.Delka)
+		vety, err := databaze.GetVsechnyVety(int(pocetZnaku / 70)) // cca 70 znaku na vetu
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 		}
@@ -156,9 +151,6 @@ func testPsani(c *fiber.Ctx) error {
 				text = append(text, v+" ")
 			}
 		}
-		text[len(text)-1] = text[len(text)-1][:len(text[len(text)-1])-1] // smazat mezeru na konci
-
-	case "nacas":
 
 	default:
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Spatny typ testu psani"))
@@ -252,7 +244,7 @@ func getCviceni(c *fiber.Ctx) error {
 		var pismenaRuny []rune = []rune(pismena)
 
 		var slovo strings.Builder
-		for i := 0; i < pocetSlov; i++ {
+		for i := 0; i < int(pocetZnaku/float32(pocetPismenVeSlovu)); i++ {
 			for j := 0; j < pocetPismenVeSlovu; j++ {
 				r := rand.Intn(len(pismenaRuny)) // utf-8 jsou sus
 				slovo.WriteRune(pismenaRuny[r])
@@ -278,7 +270,7 @@ func getCviceni(c *fiber.Ctx) error {
 		}
 
 		var slovo strings.Builder
-		for i := 0; i < pocetSlov*2/3; i++ { // kratší ať to není taková bolest
+		for i := 0; i < int(pocetZnaku/float32(pocetPismenVeSlovu)); i++ {
 			for j := 0; j < pocetPismenVeSlovu; j++ {
 				r := rand.Intn(utf8.RuneCountInString(naucenaPismena)) // utf-8 jsou sus
 				slovo.WriteRune([]rune(naucenaPismena)[r])
@@ -289,7 +281,7 @@ func getCviceni(c *fiber.Ctx) error {
 		}
 	case "slova":
 		var slova []string
-		slova, err = databaze.GetSlovaProLekci(id, pismena, pocetSlov)
+		slova, err = databaze.GetSlovaProLekci(id, pismena, int(pocetZnaku/7.5+50))
 		if err != nil {
 			log.Println(err)
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
@@ -298,7 +290,7 @@ func getCviceni(c *fiber.Ctx) error {
 		var pocetSlovKMani int = len(slova)
 		var i int = 0
 		for {
-			if utils.DelkaTextuArray(text) >= delkaTextu-3 { // priblizne idk
+			if utils.DelkaTextuArray(text) >= int(pocetZnaku/7.5) {
 				break
 			}
 			text = append(text, slova[i]+" ")
@@ -343,7 +335,7 @@ func getCviceni(c *fiber.Ctx) error {
 			var zi int = 0
 			rand.Shuffle(zavorkyLen, func(i, j int) { zavorky[i], zavorky[j] = zavorky[j], zavorky[i] })
 			for {
-				if utils.DelkaTextuArray(text) >= delkaTextu-3 { // priblizne idk
+				if utils.DelkaTextuArray(text) >= int(pocetZnaku/7.5) {
 					break
 				}
 				text = append(text, fmt.Sprintf("%s%v%s ", string([]rune(zavorky[zi])[0]), slova[i], string([]rune(zavorky[zi])[1])))
@@ -365,7 +357,7 @@ func getCviceni(c *fiber.Ctx) error {
 			rand.Shuffle(operLen, func(i, j int) { oper[i], oper[j] = oper[j], oper[i] })
 			text = append(text, slova[pocetSlovKMani-1]+" ")
 			for {
-				if utils.DelkaTextuArray(text) >= delkaTextu-3 { // priblizne idk
+				if utils.DelkaTextuArray(text) >= int(pocetZnaku/7.5) {
 					break
 				}
 				text = append(text, fmt.Sprintf("%s %v ", string([]rune(oper[zi])), slova[i]))
@@ -385,15 +377,11 @@ func getCviceni(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 
-	var posledni bool = int(cislo-1) == len(vsechnyCviceni)-1
-
-	text[len(text)-1] = text[len(text)-1][:len(text[len(text)-1])-1] // smazat mezeru na konci
-
 	u, err := databaze.GetUzivByID(id)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "klavesnice": u.Klavesnice, "posledni": posledni})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "klavesnice": u.Klavesnice, "typ": vsechnyCviceni[cislo-1].Typ, "posledni": int(cislo-1) == len(vsechnyCviceni)-1})
 }
 
 // přidá do databáze záznam o tom jak uživatel cvičení napsal
@@ -880,7 +868,7 @@ func upravaUctu(c *fiber.Ctx) error {
 			return err
 		}
 	} else if body.Zmena == "klavesnice" {
-		databaze.ZmenitKlavesnici(id, body.Hodnota)
+		databaze.ZmenitKlavesnici(id, strings.ToLower(body.Hodnota))
 	} else if body.Zmena == "jmeno" {
 		if !regexJmeno.MatchString(body.Hodnota) {
 			return c.Status(fiber.StatusBadRequest).JSON(chyba("Jmeno obsahuje nepovolene znaky nebo ma spatnou delku"))

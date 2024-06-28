@@ -5,9 +5,7 @@ import (
 	"backend/utils"
 	"log"
 	"math"
-	"os"
 	"regexp"
-	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -16,9 +14,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var pocetSlov int
-var pocetPismenVeSlovu int
-var delkaTextu int
+var pocetZnaku float32 = 1500
+var pocetPismenVeSlovu int = 4
 
 const tokenTimeDuration time.Duration = time.Hour * 24 * 15 // v nanosekundach, 14 + 1 dni asi good (den predem uz odhlasime aby se nestalo ze neco dela a neulozi se to)
 var regexJmeno *regexp.Regexp = regexp.MustCompile(`^[a-zA-Z0-9ěščřžýáíéůúťňďóĚŠČŘŽÝÁÍÉŮÚŤŇĎÓ_\-+*! ]{3,12}$`)
@@ -37,9 +34,6 @@ func main() {
 	if err != nil {
 		log.Fatal("Nenašel jsem soubor .env v /backend.")
 	}
-
-	pocetSlov, pocetPismenVeSlovu = getEnvDelky()
-	delkaTextu = (pocetPismenVeSlovu+1)*pocetSlov - 1
 
 	databaze.DBConnect()
 	inject()
@@ -75,17 +69,4 @@ func inject() {
 	utils.TokenTimeDuration = tokenTimeDuration
 	databaze.RegexJmeno = regexJmeno
 	databaze.MaxCisloZaJmeno = MaxCisloZaJmeno
-}
-
-// abych pro testing měl kratší texty tak to mám v .env
-func getEnvDelky() (int, int) {
-	x, err := strconv.Atoi(os.Getenv("POCET_SLOV"))
-	if err != nil {
-		log.Fatalln("ENV se pokazilo - asi spatna hodnota", err)
-	}
-	y, err := strconv.Atoi(os.Getenv("POCET_PISMEN"))
-	if err != nil {
-		log.Fatalln("ENV se pokazilo - asi spatna hodnota", err)
-	}
-	return x, y
 }

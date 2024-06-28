@@ -79,22 +79,20 @@ useHead({
                 <li>
                     <ul style="margin: 0 0 1.1rem 0.5rem; list-style: none;">
                         <li><span class="klavesaVTextu">Enter</span> podržet - vybere to, kde jsem skončil</li>
-                        <li><span class="klavesaVTextu" style="margin-right: 5px;"><img src="../assets/icony/sipkaL.svg"
-                                    alt="Šipka" class="klavSipka"></span>
-                            <span class="klavesaVTextu"><img src="../assets/icony/sipkaL.svg" alt="Šipka"
-                                    class="klavSipka" style="transform: scaleX(-1);"></span> - přesný výběr,
+                        <li><span class="klavesaVTextu" style="margin-right: 5px;"><img src="../assets/icony/sipkaL.svg" alt="Šipka"
+                                    class="klavSipka"></span>
+                            <span class="klavesaVTextu"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klavSipka"
+                                    style="transform: scaleX(-1);"></span> - přesný výběr,
                             <span class="klavesaVTextu" style="margin-left: 5px;">Enter</span>
                             - potvrzení
                         </li>
                     </ul>
                 </li>
 
-                <li><span class="klavesaVTextu">SPACE</span> - opakuje cvičení po dokončení</li>
                 <li><span class="klavesaVTextu"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klavSipka"
-                            style="transform: scaleX(-1);"></span> /
-                    <span class="klavesaVTextu">Enter</span> - pokračuje na další cvičení
+                            style="transform: scaleX(-1);"></span> - pokračuje na další cvičení
                 </li>
-                <li><span class="klavesaVTextu">Enter</span> - restart psaní před dokončením</li>
+                <li><span class="klavesaVTextu">Enter</span> - opakuje cvičení</li>
                 <li><span class="klavesaVTextu">Esc</span> - zpět</li>
             </ul>
         </div>

@@ -83,6 +83,49 @@ function konecTextu(c: number, o: number, p: number, n: any[]) {
     konec.value = true
 }
 
+async function prodlouzit() {
+    axios.post("/test-psani",
+        {
+            typ: typ.value ? "vety" : "slova",
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${getToken()}`
+            }
+        }
+    ).then(response => {
+        if (!diakritika.value && !velkaPismena.value) {
+            for (let i = 0; i < response.data.text.length; i++) {
+                response.data.text[i] = response.data.text[i].normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase()
+            }
+        } else if (!diakritika.value && velkaPismena.value) {
+            for (let i = 0; i < response.data.text.length; i++) {
+                response.data.text[i] = response.data.text[i].normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            }
+        } else if (diakritika.value && !velkaPismena.value) {
+            for (let i = 0; i < response.data.text.length; i++) {
+                response.data.text[i] = response.data.text[i].toLocaleLowerCase()
+            }
+        }
+
+        let pocetSlov = text.value.length
+        response.data.text.forEach((slovo: string, i: number) => {
+            text.value.push([])
+            const slovoArr = [...slovo]
+            slovoArr.forEach(pismeno => {
+                text.value[pocetSlov - 1 + i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0 })
+                delkaTextu.value++
+            })
+        })
+
+    }).catch(e => {
+        if (!checkTeapot(e)) {
+            console.log(e)
+            pridatOznameni()
+        }
+    })
+}
+
 </script>
 
 <template>
@@ -91,7 +134,7 @@ function konecTextu(c: number, o: number, p: number, n: any[]) {
         {{ jmeno }}
     </h1>
 
-    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" :text="text" :delkaTextu="delkaTextu" :klavesnice="klavesnice" :hide-klavesnice="false" :nacitam-novej="nacitamNovej"/>
+    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @prodlouzit="prodlouzit" :text="text" :delkaTextu="delkaTextu" :klavesnice="klavesnice" :hide-klavesnice="false" :nacitam-novej="nacitamNovej"/>
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu"
         :casF="casFormat" :cas="cas" :cislo="id" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />

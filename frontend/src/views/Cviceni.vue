@@ -7,6 +7,7 @@ import axios from 'axios';
 import Vysledek from '../components/Vysledek.vue';
 import { useHead } from '@unhead/vue';
 import Psani from '../components/Psani.vue';
+import { getCas } from '../stores.ts'
 
 const router = useRouter()
 const route = useRoute()
@@ -17,7 +18,7 @@ useHead({
     title: "Cvičení " + pismena
 })
 
-const text = ref([[]] as { id: number, znak: string, spatne: number, }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
+const text = ref([] as { id: number, znak: string, spatne: number, }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
 const delkaTextu = ref(0)
 const preklepy = ref(0)
 const opravenePocet = ref(0)
@@ -26,8 +27,10 @@ const nejcastejsiChyby = ref()
 
 const posledni = ref(false)
 const klavesnice = ref("")
+const typTextu = ref("")
 
 const konec = ref(false)
+const delkaNapsanehoTextu = ref(0)
 const nacitamNovej = ref(false)
 
 const casFormat = computed(() => {
@@ -49,15 +52,16 @@ function get() {
                 delkaTextu.value++
             })
         })
+
         posledni.value = response.data.posledni
         klavesnice.value = response.data.klavesnice
+        typTextu.value = response.data.typ
         nacitamNovej.value = false
     }).catch(e => {
         if (!checkTeapot(e)) {
             pridatOznameni()
             router.back()
         }
-
     })
 }
 
@@ -66,19 +70,44 @@ onMounted(() => {
 })
 
 function restart() {
-    text.value = [[]] as { id: number, znak: string, spatne: number, }[][]
+    text.value = [] as { id: number, znak: string, spatne: number, }[][]
     delkaTextu.value = 0
 
     get()
     konec.value = false
 }
 
-function konecTextu(c: number, o: number, p: number, n: MojeMapa) {
+function konecTextu(c: number, o: number, p: number, n: MojeMapa, d: number) {
     cas.value = Math.round(c * 100) / 100
     opravenePocet.value = o
     preklepy.value = p
     nejcastejsiChyby.value = new MojeMapa(n)
     konec.value = true
+    delkaNapsanehoTextu.value = d
+}
+
+async function prodlouzit() {
+    axios.get("/cvic/" + encodeURIComponent(pismena) + "/" + cislo, {
+        headers: {
+            Authorization: `Bearer ${getToken()}`
+        }
+    }).then(response => {
+        let pocetSlov = text.value.length
+        response.data.text.forEach((slovo: string, i: number) => {
+            text.value.push([])
+            const slovoArr = [...slovo]
+            slovoArr.forEach(pismeno => {
+                text.value[pocetSlov - 1 + i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0 })
+                delkaTextu.value++
+            })
+        })
+
+    }).catch(e => {
+        if (!checkTeapot(e)) {
+            console.log(e)
+            pridatOznameni()
+        }
+    })
 }
 
 </script>
@@ -90,12 +119,11 @@ function konecTextu(c: number, o: number, p: number, n: MojeMapa) {
     </h1>
     <h2>Cvičení: {{ cislo }}</h2>
 
-    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" :text="text" :delkaTextu="delkaTextu"
-        :klavesnice="klavesnice" :hide-klavesnice="false" :nacitam-novej="nacitamNovej" />
+    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @prodlouzit="prodlouzit" :text :klavesnice :hide-klavesnice="false" :nacitamNovej
+        :cas="getCas(typTextu)" :delkaTextu />
 
-    <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu"
-        :casF="casFormat" :cas="cas" :cislo="cislo" :posledni="posledni" :pismena="pismena"
-        :nejcastejsiChyby="nejcastejsiChyby" />
+    <Vysledek v-else @restart="restart" :preklepy :opravenych="opravenePocet" :delkaTextu="delkaNapsanehoTextu" :casF="casFormat" :cas :cislo
+        :posledni :pismena :nejcastejsiChyby />
 </template>
 
 <style scoped>

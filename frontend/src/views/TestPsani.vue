@@ -26,7 +26,7 @@ useHead({
 
 const router = useRouter()
 
-const text = ref([[]] as { id: number, znak: string, spatne: number, }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
+const text = ref([] as { id: number, znak: string, spatne: number, }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
 const delkaTextu = ref(0)
 const preklepy = ref(0)
 const opravenePocet = ref(0)
@@ -34,7 +34,7 @@ const cas = ref(0)
 const nejcastejsiChyby = ref()
 
 const typ = ref(true) // false = slova, true = vety
-const delka = ref(1)
+const delka = ref(60)
 
 const klavesnice = ref("")
 const diakritika = ref(true)
@@ -43,6 +43,7 @@ const velkaPismena = ref(false)
 const psaniRef = ref()
 
 const konec = ref(false)
+const delkaNapsanehoTextu = ref(0)
 const nacitamNovej = ref(false)
 
 const hideKlavecnice = ref(false)
@@ -56,7 +57,7 @@ function get() {
     axios.post("/test-psani",
         {
             typ: typ.value ? "vety" : "slova",
-            delka: delka.value,
+            cas: 1,
         },
         {
             headers: {
@@ -72,6 +73,7 @@ function get() {
                 delkaTextu.value++
             })
         })
+
         loadAlternativy()
         toggleDiakritikaAVelkaPismena()
         klavesnice.value = response.data.klavesnice
@@ -97,27 +99,26 @@ onMounted(() => {
         diakritika.value = obj.diakritika
         velkaPismena.value = obj.velkaPismena
         typ.value = obj.typ
-        if (!typ.value) {
-            delka.value = 10
-        }
+        delka.value = obj.delka
     }
     get()
 })
 
 function restart() {
     delkaTextu.value = 0
-    text.value = [[]]
+    text.value = [] as { id: number, znak: string, spatne: number, }[][]
 
     get()
     konec.value = false
 }
 
-function konecTextu(c: number, o: number, p: number, n: any[]) {
-    cas.value = c
+function konecTextu(c: number, o: number, p: number, n: MojeMapa, d: number) {
+    cas.value = Math.round(c * 100) / 100
     opravenePocet.value = o
     preklepy.value = p
     nejcastejsiChyby.value = new MojeMapa(n)
     konec.value = true
+    delkaNapsanehoTextu.value = d
 }
 
 function d(x: number) {
@@ -128,6 +129,7 @@ function d(x: number) {
 
 function disabledBtn(e: KeyboardEvent) {
     e.preventDefault()
+    saveNastaveni()
 }
 
 const rotacePocet = ref(0)
@@ -161,7 +163,7 @@ function toggleDiakritikaAVelkaPismena() {
         text.value = clone(puvodniText)
     }
     psaniRef.value?.restart()
-    localStorage.setItem(nastaveniJmeno, JSON.stringify({ "diakritika": diakritika.value, "velkaPismena": velkaPismena.value, "typ": typ.value }))
+    saveNastaveni()
 }
 
 async function loadAlternativy() {
@@ -185,45 +187,90 @@ async function loadAlternativy() {
         })
     })
 }
+
+async function prodlouzit() {
+    axios.post("/test-psani",
+        {
+            typ: typ.value ? "vety" : "slova",
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${getToken()}`
+            }
+        }
+    ).then(response => {
+        if (!diakritika.value && !velkaPismena.value) {
+            for (let i = 0; i < response.data.text.length; i++) {
+                response.data.text[i] = response.data.text[i].normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase()
+            }
+        } else if (!diakritika.value && velkaPismena.value) {
+            for (let i = 0; i < response.data.text.length; i++) {
+                response.data.text[i] = response.data.text[i].normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            }
+        } else if (diakritika.value && !velkaPismena.value) {
+            for (let i = 0; i < response.data.text.length; i++) {
+                response.data.text[i] = response.data.text[i].toLocaleLowerCase()
+            }
+        }
+
+        let pocetSlov = text.value.length
+        response.data.text.forEach((slovo: string, i: number) => {
+            text.value.push([])
+            const slovoArr = [...slovo]
+            slovoArr.forEach(pismeno => {
+                text.value[pocetSlov - 1 + i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0 })
+                delkaTextu.value++
+            })
+        })
+
+    }).catch(e => {
+        if (!checkTeapot(e)) {
+            console.log(e)
+            pridatOznameni()
+        }
+    })
+}
+
+function saveNastaveni() {
+    localStorage.setItem(nastaveniJmeno, JSON.stringify({ "diakritika": diakritika.value, "velkaPismena": velkaPismena.value, "typ": typ.value, "delka": delka.value }))
+}
 </script>
 
 <template>
     <h1 style="margin: 0">Test psaní</h1>
 
-    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="hideKlavecnice = false" :text="text" :delkaTextu="delkaTextu"
-        :klavesnice="klavesnice" :hide-klavesnice="hideKlavecnice" :nacitam-novej="nacitamNovej" ref="psaniRef" />
+    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="hideKlavecnice = false" @prodlouzit="prodlouzit" :text="text"
+        :klavesnice="klavesnice" :delkaTextu="delkaTextu" :hide-klavesnice="hideKlavecnice" :nacitam-novej="nacitamNovej" :cas="delka"
+        ref="psaniRef" />
 
-    <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu" :casF="casFormat" :cas="cas"
-        :cislo="'test-psani'" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
+    <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaNapsanehoTextu" :casF="casFormat"
+        :cas="cas" :cislo="'test-psani'" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
 
     <Transition>
         <div v-if="!konec && hideKlavecnice" id="psani-menu">
 
-            <div class="kontejner">
-                <input v-model="typ" v-on:change="d(typ ? 1 : 10)" type="checkbox" id="toggle" class="toggleCheckbox" />
+            <div class="kontejner" style="gap: 20px;">
+                <input v-model="typ" type="checkbox" id="toggle" class="toggleCheckbox" @change="saveNastaveni"/>
                 <label for="toggle" class="toggleContainer">
                     <div>Slova</div>
                     <div>Věty</div>
                 </label>
-
-                <div v-if="typ" id="delka" :class="{ odsunout: prihlasen }">
-                    <button @keyup="disabledBtn" :class="{ aktivni: 1 == delka }" @click="d(1)">1</button>
-                    <button @keyup="disabledBtn" :class="{ aktivni: 3 == delka }" @click="d(3)">3</button>
-                    <button @keyup="disabledBtn" :class="{ aktivni: 5 == delka }" @click="d(5)">5</button>
-                    <button @keyup="disabledBtn" :class="{ aktivni: 10 == delka }" @click="d(10)">10</button>
-                </div>
-                <div v-else id="delka" :class="{ odsunout: prihlasen }">
-                    <button @keyup="disabledBtn" :class="{ aktivni: 10 == delka }" @click="d(10)">10</button>
-                    <button @keyup="disabledBtn" :class="{ aktivni: 25 == delka }" @click="d(25)">25</button>
-                    <button @keyup="disabledBtn" :class="{ aktivni: 50 == delka }" @click="d(50)">50</button>
-                    <button @keyup="disabledBtn" :class="{ aktivni: 100 == delka }" @click="d(100)">100</button>
-                </div>
-
                 <input v-if="!prihlasen" @change="switchKlavesnice" v-model="klavModel" type="checkbox" id="toggle1" class="toggleCheckbox" />
                 <label v-if="!prihlasen" for="toggle1" class="toggleContainer">
                     <div>Qwertz</div>
                     <div>Qwerty</div>
                 </label>
+            </div>
+
+            <div class="kontejner">
+                <div id="delka" :class="{ odsunout: prihlasen }">
+                    <button @keyup="disabledBtn" :class="{ aktivni: 15 == delka }" @click="d(15)">15s</button>
+                    <button @keyup="disabledBtn" :class="{ aktivni: 30 == delka }" @click="d(30)">30s</button>
+                    <button @keyup="disabledBtn" :class="{ aktivni: 60 == delka }" @click="d(60)">1min</button>
+                    <button @keyup="disabledBtn" :class="{ aktivni: 120 == delka }" @click="d(120)">2min</button>
+                    <button @keyup="disabledBtn" :class="{ aktivni: 300 == delka }" @click="d(300)">5min</button>
+                    <button @keyup="disabledBtn" :class="{ aktivni: 600 == delka }" @click="d(600)">10min</button>
+                </div>
             </div>
 
             <hr id="predel">
@@ -259,7 +306,7 @@ async function loadAlternativy() {
 }
 
 #predel {
-    margin: 12px 0 15px 0;
+    margin: 4px 0;
     width: 92%;
     border: 1px solid var(--fialova);
 }
@@ -310,6 +357,5 @@ label.kontejner:hover {
     display: flex;
     gap: 6px;
     justify-content: center;
-    width: 120px;
 }
 </style>
