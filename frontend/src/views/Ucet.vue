@@ -53,7 +53,7 @@ async function getInfo() {
         pismenaChyby.value = Array.from(info.value.nejcastejsiChyby, ([name, value]) => ([name, value]))
         pismenaChyby.value.sort((a, b) => b[1] - a[1])
         jmenoUprava.value = resp.data.jmeno
-        klavesniceUprava.value = resp.data.klavesnice == "QWERTY"
+        klavesniceUprava.value = resp.data.klavesnice.toLocaleLowerCase() == "qwerty"
         role.value = resp.data.role
     }
     catch (e: any) {
@@ -101,7 +101,7 @@ function postJmeno() {
 }
 
 function postKlavesnice() {
-    let klavesnice = klavesniceUprava.value ? "QWERTY" : "QWERTZ"
+    let klavesnice = klavesniceUprava.value ? "qwerty" : "qwertz"
     axios.post("/ucet-zmena", { "zmena": "klavesnice", "hodnota": klavesnice }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
         getInfo()
     }).catch(e => {

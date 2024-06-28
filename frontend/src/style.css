@@ -265,10 +265,9 @@ textarea:focus, input:focus, select:focus {
     margin-top: 40px;
     display: flex;
     flex-direction: column;
-    gap: 0 10px;
+    gap: 12px;
     position: absolute;
-    top: 400px;
-    max-width: 420px;
+    top: 340px;
     flex-wrap: wrap;
     align-items: center;
     box-shadow: 0 0 50px 0 rgba(0, 0, 0, 10);
