@@ -47,7 +47,10 @@ function copyEmail() {
         kdy jsem sám psát všemi deseti neuměl a rozhodl jsem se to naučit.
         <br>
         Když jsem ale začal hledat vhodné programy, zjistil jsem, že jich není mnoho a některé z nich stojí téměř 1000
-        Kč.
+        Kč. A tak jsem se rozhodl vytvořit si vlastní.
+        <span style="margin: -14px;" /> <!-- trochu menší mezera než 2x <br> -->
+        A ano, čteš správně! 
+        Text je psán v první osobě. Možná by se tato stránka měla jmenovat spíše "O mně", jelikož tuto stránku spravuje pouze jeden člověk.
     </p>
     <p>
         Jelikož je Jako Pavouk kompletně zdarma, je tu možnost tento projekt podpořit přes platformu Ko-fi níže. Moc si
@@ -56,7 +59,7 @@ function copyEmail() {
                 src="../assets/kofi_button.webp" alt="Podpořit" width="231" height="36"></a>
     </p>
     <p>
-        Objevil/a jsi nějakou chybu/bug?<br> Máš nějaký zajímavý nápad jak vylepšit tuto aplikaci nebo nám jen chceš dát
+        Objevil/a jsi nějakou chybu/bug?<br> Máš nějaký zajímavý nápad jak vylepšit tuto aplikaci nebo jen chceš dát
         zpětnou vazbu?
         Neboj se mi napsat na e-mail:
         <span id="btn" @click="copyEmail">
@@ -123,6 +126,7 @@ p {
     align-items: center;
     padding: 30px 24px;
     gap: 20px;
+    line-height: 1.5rem;
 }
 
 #github {
