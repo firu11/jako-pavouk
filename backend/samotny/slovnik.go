@@ -145,8 +145,10 @@ func PushSlovnik() {
         		id SERIAL PRIMARY KEY,
         		slovo VARCHAR(50),
         		lekceQWERTZ_id INT,
-        		lekceQWERTY_id INT
+        		lekceQWERTY_id INT,
+				nahodnost NUMERIC(18, 17) NOT NULL DEFAULT RANDOM()
     	);
+		CREATE INDEX idx_random ON slovnik (nahodnost);
 	`)
 	if err != nil {
 		log.Panic(err)
