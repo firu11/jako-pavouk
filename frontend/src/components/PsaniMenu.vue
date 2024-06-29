@@ -32,7 +32,6 @@ onMounted(() => {
         diakritika.value = obj.diakritika
         velkaPismena.value = obj.velkaPismena
         typ.value = obj.typ
-        console.log(obj.delka)
         delka.value = obj.delka ? obj.delka : 60
         klavModel.value = obj.klavesnice
     }
