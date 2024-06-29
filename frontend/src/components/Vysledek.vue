@@ -25,7 +25,6 @@ const props = defineProps({
         type: Number,
         default: 1
     },
-    casF: String,
     pismena: {
         type: String,
         default: ""
@@ -82,7 +81,7 @@ onMounted(() => {
         hodnoceni.value = "Píšeš krásně, ale tohle byl jen začátek..."
         return
     }
-    
+
     nejcastejsiChybyTop3.value = props.nejcastejsiChyby.top(3)
 
     if (props.pismena == "") { // je to procvicovani / test takze posilame jinam
@@ -140,16 +139,14 @@ function e1(e: KeyboardEvent) {
 <template>
     <div id="bloky" style="margin-top: 25px;">
         <div id="hodnoceni" class="blok" :style="{ width: cislo == 'prvni-psani' ? '400px' : '' }">
-            <Tooltip :zprava="`Pro získání 3 hvězd je potřeba dosánout rychlosti min ${levelyRychlosti[2]} CPM. Hodně štěstí!` " :vzdalenost="10" :sirka="250">
+            <Tooltip :zprava="`Pro získání 3 hvězd je potřeba dosánout rychlosti min ${levelyRychlosti[2]} CPM. Hodně štěstí!`" :vzdalenost="10"
+                :sirka="250">
                 <div id="hvezdy">
-                    <img v-if="rychlost >= levelyRychlosti[0]" src="../assets/icony/hvezda.svg" alt="Hvezda"
-                        class="hvezda">
+                    <img v-if="rychlost >= levelyRychlosti[0]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
                     <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-                    <img v-if="rychlost >= levelyRychlosti[1]" src="../assets/icony/hvezda.svg" alt="Hvezda"
-                        class="hvezda">
+                    <img v-if="rychlost >= levelyRychlosti[1]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
                     <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-                    <img v-if="rychlost >= levelyRychlosti[2]" src="../assets/icony/hvezda.svg" alt="Hvezda"
-                        class="hvezda">
+                    <img v-if="rychlost >= levelyRychlosti[2]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
                     <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
                 </div>
             </Tooltip>
@@ -162,16 +159,15 @@ function e1(e: KeyboardEvent) {
             <hr>
             <div v-if="nejcastejsiChyby.size !== 0">
                 <ol>
-                    <li v-for="znak in nejcastejsiChybyTop3"><span
-                            :style="{ fontSize: znak[0] == ' ' ? '10px' : 'auto' }">{{ znak[0] == " " ? "┗━┛" : znak[0]
+                    <li v-for="znak in nejcastejsiChybyTop3"><span :style="{ fontSize: znak[0] == ' ' ? '10px' : 'auto' }">{{ znak[0] == " " ? "┗━┛" :
+                        znak[0]
                             }}</span></li>
                 </ol>
                 <ul>
                     <li v-for="znak in nejcastejsiChybyTop3"><span v-if="znak[1] > 0">{{ znak[1] }}</span></li>
                 </ul>
             </div>
-            <h3 v-else
-                style="height: 100%; display: flex; justify-content: center; align-items: center; margin-top: 0;">
+            <h3 v-else style="height: 100%; display: flex; justify-content: center; align-items: center; margin-top: 0;">
                 <span>Žádné!</span>
             </h3>
         </div>
@@ -201,10 +197,9 @@ function e1(e: KeyboardEvent) {
             <h3>Přesnost</h3>
         </div>
         <div class="blok">
-            <h2>{{ cas < 60 ? Math.round(cas * 10) / 10 : `${Math.floor(cas / 60)}:${Math.floor(cas % 60 * 10) / 10 < 10
-                ? "0" + Math.floor(cas % 60 * 10) / 10 : Math.floor(cas % 60 * 10) / 10}` }}</h2>
+            <h2>{{ cas < 60 ? Math.round(cas * 10) / 10 : Math.round(cas / 60) }}</h2>
                     <hr>
-                    <p class="jednotka">{{ cas < 60 ? "Vteřin" : "MM:SS" }}</p>
+                    <p class="jednotka">{{ cas < 60 ? "Sekund" : (cas == 60) ? "Minuta" : (cas <= 240) ? "Minuty" : "Minut" }}</p>
                             <p class="jednotka">&zwnj;</p>
                             <h3>Čas</h3>
         </div>
