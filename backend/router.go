@@ -141,7 +141,7 @@ func testPsani(c *fiber.Ctx) error {
 		}
 
 	case "vety":
-		vety, err := databaze.GetVsechnyVety(int(pocetZnaku / 70)) // cca 70 znaku na vetu
+		vety, err := databaze.GetVsechnyVety(int(pocetZnaku / 85)) // cca 85 znaku na vetu
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 		}
@@ -158,7 +158,7 @@ func testPsani(c *fiber.Ctx) error {
 
 	u, err := databaze.GetUzivByID(id)
 	if err != nil {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "klavesnice": "qwertz"})
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "klavesnice": u.Klavesnice})
 }

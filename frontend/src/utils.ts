@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { cislaProcvicJmeno, levelyPresnosti, levelyRychlosti, tokenJmeno } from "./stores";
+import { cislaProcvicJmeno, levelyPresnosti, levelyRychlosti, nastaveniJmeno, tokenJmeno } from "./stores";
 
 export function formatovanyPismena(pismena: string | string[] | undefined) {
     if (pismena === "..." || pismena === undefined) return pismena
@@ -160,4 +160,8 @@ export function clone(obj: any) { // kvůli starším prohlížečům (koukám n
         x = JSON.parse(JSON.stringify(obj))
     }
     return x
+}
+
+export function saveNastaveni(diakritika: boolean, velkaPismena: boolean, vetySlova: boolean, delka: number, klavesnice: boolean) {
+    localStorage.setItem(nastaveniJmeno, JSON.stringify({ "diakritika": diakritika, "velkaPismena": velkaPismena, "vetySlova": vetySlova, "delka": delka, "klavesnice": klavesnice }))
 }

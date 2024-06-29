@@ -260,17 +260,17 @@ textarea:focus, input:focus, select:focus {
     background-color: var(--tmave-fialova);
     padding: 10px;
     border-radius: 8px;
-    min-height: 50px;
     margin-bottom: 186px;
     margin-top: 40px;
     display: flex;
     flex-direction: column;
     gap: 12px;
     position: absolute;
-    top: 340px;
+    top: calc(340px);
     flex-wrap: wrap;
     align-items: center;
     box-shadow: 0 0 50px 0 rgba(0, 0, 0, 10);
+    transition: opacity 0.2s;
 }
 
 #psani-menu button, #delka button {
