@@ -562,7 +562,7 @@ func GetVsechnySlova(pocet int) ([]string, error) {
 	var vysledek []string
 	var err error
 
-	rows, err := DB.Queryx(`SELECT slovo FROM slovnik WHERE nahodnost < $1 ORDER BY nahodnost DESC LIMIT $2;`, mathRand.Float64()+0.0035, pocet) // +0.0035 proto aby tam byl dostatek slov když random hodí 0.0
+	rows, err := DB.Queryx(`WITH prvni AS (SELECT slovo FROM slovnik WHERE nahodnost < $1 ORDER BY nahodnost DESC LIMIT $4), druhy AS (SELECT slovo FROM slovnik WHERE nahodnost < $2 ORDER BY nahodnost DESC LIMIT $4), treti AS (SELECT slovo FROM slovnik WHERE nahodnost < $3 ORDER BY nahodnost DESC LIMIT $4) SELECT slovo FROM prvni UNION ALL SELECT slovo FROM druhy UNION ALL SELECT slovo FROM treti;`, mathRand.Float64()+0.0035, mathRand.Float64()+0.0035, mathRand.Float64()+0.0035, (pocet+3)/3) // +0.0035 proto aby tam byl dostatek slov když random hodí 0.0 (když jo, máme 100 slov)
 	if err != nil {
 		return vysledek, err
 	}
@@ -570,6 +570,9 @@ func GetVsechnySlova(pocet int) ([]string, error) {
 
 	var slovo string
 	for rows.Next() {
+		if len(vysledek) == pocet {
+			break
+		}
 		slovo = ""
 		err := rows.Scan(&slovo)
 		if err != nil {

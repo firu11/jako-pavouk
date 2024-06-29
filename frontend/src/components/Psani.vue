@@ -298,18 +298,22 @@ function loadZvuk() {
     zvuky.push(
         new Howl({
             src: [klik1],
-            pool: 5,
+            pool: 10,
+            preload: true,
         }), new Howl({
             src: [klik2],
-            pool: 5,
+            pool: 10,
+            preload: true,
         }),
         new Howl({
             src: [klik3],
-            pool: 5,
+            pool: 10,
+            preload: true,
         }),
         new Howl({
             src: [miss],
-            pool: 5,
+            pool: 10,
+            preload: true,
         })
     )
 }
@@ -358,7 +362,7 @@ defineExpose({ restart })
             </div>
 
             <Transition>
-                <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :class="{ rozmazany: hideKlavesnice }" />
+                <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice" />
             </Transition>
             <Transition>
                 <div v-if="klavesnice != ''" id="resetBtn" @click="resetTlacitko(); animace()" :class="{ schovat: route.fullPath == '/prvni-psani' }">
@@ -410,6 +414,7 @@ defineExpose({ restart })
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.1s;
+    user-select: none;
 }
 
 #resetBtn {
@@ -422,9 +427,10 @@ defineExpose({ restart })
     align-items: center;
     justify-content: center;
     left: 385px;
-    bottom: 236px;
+    top: -233px;
     cursor: pointer;
     transition: background-color 0.1s;
+    user-select: none;
 }
 
 #resetBtn img {
@@ -538,10 +544,5 @@ defineExpose({ restart })
 
 .opravenePismeno {
     color: #b1529c;
-}
-
-.rozmazany {
-    filter: blur(2px) brightness(20%) contrast(110%);
-    /* blur je trochu heavy */
 }
 </style>
