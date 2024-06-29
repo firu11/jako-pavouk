@@ -191,14 +191,14 @@ function zmenaJmena(e: Event) {
             <div style="width: 100%;">
                 <div v-if="pismenaChyby.length !== 0" id="pismena">
                     <div id="prvni">
-                        <span v-for="znak, i in pismenaChyby.slice(0, 2)"><span class="cisla">{{ i + 1 }}.</span>
+                        <span v-for="znak, i in pismenaChyby.slice(0, 2)"><span class="cisla">{{ i + 1 }}. </span>
                             <b :style="{ fontSize: znak[0] == ' ' ? '12px' : 'auto', fontWeight: znak[0] == ' ' ? '700' : '500' }">
                                 {{ znak[0] == " " ? "┗━┛" : znak[0] }}
                             </b>
                         </span>
                     </div>
                     <div id="druhy">
-                        <span v-for="znak, i in pismenaChyby.slice(2)"><span class="cisla">{{ i + 3 }}.</span>
+                        <span v-for="znak, i in pismenaChyby.slice(2)"><span class="cisla">{{ i + 3 }}. </span>
                             <b :style="{ fontSize: znak[0] == ' ' ? '12px' : 'auto', fontWeight: znak[0] == ' ' ? '700' : '500' }">
                                 {{ znak[0] == " " ? "┗━┛" : znak[0] }}
                             </b>
@@ -483,6 +483,12 @@ function zmenaJmena(e: Event) {
 }
 
 @media screen and (max-width: 1100px) {
+    .toggleContainer {
+        font-size: 16px;
+        width: 100%;
+        margin: 10px 0 0 0;
+    }
+
     #chyby {
         order: -1;
     }
