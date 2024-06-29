@@ -54,9 +54,6 @@ html {
 body {
     color: var(--bila);
     background-color: var(--cerna);
-    background-size: 500%;
-    background-position-x: -500px;
-    background-repeat: repeat;
     display: flex;
     flex-wrap: nowrap;
     width: 100%;
