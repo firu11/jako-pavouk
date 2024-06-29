@@ -5,7 +5,7 @@ import axios from "axios";
 import Vysledek from "../components/Vysledek.vue";
 import { useHead } from "@unhead/vue";
 import Psani from "../components/Psani.vue";
-import { nastaveniJmeno, mobil } from "../stores";
+import { mobil } from "../stores";
 import { useRouter } from "vue-router";
 import NastaveniBtn from "../components/NastaveniBtn.vue";
 import PsaniMenu from "../components/PsaniMenu.vue";
@@ -83,15 +83,6 @@ onMounted(() => {
         router.back()
         pridatOznameni("Psaní na telefonech zatím neučíme...")
         return
-    }
-    let nastaveni = localStorage.getItem(nastaveniJmeno)
-    if (nastaveni !== null) {
-        let obj = JSON.parse(nastaveni)
-        menuRef.value.diakritika = obj.diakritika
-        menuRef.value.velkaPismena = obj.velkaPismena
-        menuRef.value.typ = obj.typ
-        menuRef.value.delka = obj.delka
-        menuRef.value.klavModel = obj.klavesnice
     }
     get()
 })

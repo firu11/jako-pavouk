@@ -9,7 +9,7 @@ import { useHead } from '@unhead/vue';
 import Psani from '../components/Psani.vue';
 import NastaveniBtn from "../components/NastaveniBtn.vue";
 import PsaniMenu from "../components/PsaniMenu.vue";
-import { mobil, nastaveniJmeno } from '../stores';
+import { mobil } from '../stores';
 
 const router = useRouter()
 const route = useRoute()
@@ -77,15 +77,6 @@ onMounted(() => {
         router.back()
         pridatOznameni("Psaní na telefonech zatím neučíme...")
         return
-    }
-    let nastaveni = localStorage.getItem(nastaveniJmeno)
-    if (nastaveni !== null) {
-        let obj = JSON.parse(nastaveni)
-        menuRef.value.diakritika = obj.diakritika
-        menuRef.value.velkaPismena = obj.velkaPismena
-        menuRef.value.typ = obj.typ
-        menuRef.value.delka = obj.delka
-        menuRef.value.klavModel = obj.klavesnice
     }
     get()
 })

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { prihlasen } from "../stores";
+import { onMounted, ref } from "vue";
+import { nastaveniJmeno, prihlasen } from "../stores";
 import { saveNastaveni } from "../utils";
 
 const emit = defineEmits(["restart", "toggle"])
@@ -17,6 +17,25 @@ const delka = ref(60)
 const diakritika = ref(true)
 const velkaPismena = ref(false)
 const klavModel = ref(false)
+
+onMounted(() => {
+    let nastaveni = localStorage.getItem(nastaveniJmeno)
+    if (nastaveni !== null) {
+        let obj: any
+        try {
+            obj = JSON.parse(nastaveni)
+        } catch {
+            saveNastaveni(diakritika.value, velkaPismena.value, typ.value, delka.value, klavModel.value)
+            return
+        }
+        
+        diakritika.value = obj.diakritika
+        velkaPismena.value = obj.velkaPismena
+        typ.value = obj.typ
+        delka.value = isNaN(obj.delka) ? undefined : obj.delka
+        klavModel.value = obj.klavesnice
+    }
+})
 
 function disabledBtn(e: KeyboardEvent) {
     e.preventDefault()
