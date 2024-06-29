@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router';
 
 const props = defineProps({
@@ -11,6 +11,9 @@ const props = defineProps({
         type: String,
         reqired: true
     },
+    rozmazat: {
+        type: Boolean
+    }
 })
 
 const cesta = useRoute().path.split("/")[2]
@@ -36,6 +39,15 @@ const prstoklad: { [id: string]: string[] } = {
     "Palce": ["#bc73ff", "______", "Alt"]
 }
 const shiftSviti = ref(false)
+
+const oznacenyPrst = computed(() => {
+    for (const id in prstoklad) {
+        for (let i = 1; i < prstoklad[id].length; i++) {
+            if (oznacene(prstoklad[id][i])) return id
+        }
+    }
+    return ""
+})
 
 watch(() => props.typ, (ted) => {
     if (ted == "qwerty") {
@@ -166,27 +178,73 @@ function potrebujeShift(pismeno: string) {
 </script>
 
 <template>
-    <div id="klavesnice">
-        <div class="radek" v-for="radek in schema">
-            <div v-for="tlacitko in radek" class="klavesa"
-                :class="{ oznacenaKlavesa: oznacene(tlacitko) || (tlacitko === 'Shift' && shiftSviti), fjPodtrzeni: tlacitko === 'F' || tlacitko === 'J' }"
-                :style="{ backgroundColor: barva(tlacitko), flexGrow: delkaTlacitka(tlacitko) }">
+    <div>
+        <div id="klavesnice" :class="{ rozmazany: props.rozmazat }">
+            <div class="radek" v-for="radek in schema">
+                <div v-for="tlacitko in radek" class="klavesa"
+                    :class="{ oznacenaKlavesa: oznacene(tlacitko) || (tlacitko === 'Shift' && shiftSviti), fjPodtrzeni: tlacitko === 'F' || tlacitko === 'J' }"
+                    :style="{ backgroundColor: barva(tlacitko), flexGrow: delkaTlacitka(tlacitko) }">
 
-                <div v-if="tlacitko !== '∧∨'" :style="{ color: '#000' }">
-                    {{ tlacPismeno(0, tlacitko) }} <br>
-                    {{ tlacPismeno(1, tlacitko) }}
-                </div>
-                <div v-else id="sipky">
-                    <div class="klavesa" style="height: 18px"></div>
-                    <div class="klavesa" style="height: 18px"></div>
+                    <div v-if="tlacitko !== '∧∨'" :style="{ color: '#000' }">
+                        {{ tlacPismeno(0, tlacitko) }} <br>
+                        {{ tlacPismeno(1, tlacitko) }}
+                    </div>
+                    <div v-else id="sipky">
+                        <div class="klavesa" style="height: 18px"></div>
+                        <div class="klavesa" style="height: 18px"></div>
+                    </div>
                 </div>
             </div>
+        </div>
 
+        <div id="nohy" :class="{ rozmazany: props.rozmazat }">
+            <div class="kolecko" style="left: 101.5px; top: 7px;" :style="{ backgroundColor: prstoklad.L_Mali[0] }"
+                :class="{ koleckoAktivni: oznacenyPrst == 'L_Mali' }" />
+            <div class="kolecko" style="left: 140.5px; top: -2px;" :style="{ backgroundColor: prstoklad.L_Prs[0] }"
+                :class="{ koleckoAktivni: oznacenyPrst == 'L_Prs' }" />
+            <div class="kolecko" style="left: 182.5px; top: -9px;" :style="{ backgroundColor: prstoklad.L_Pros[0] }"
+                :class="{ koleckoAktivni: oznacenyPrst == 'L_Pros' }" />
+            <div class="kolecko" style="left: 227px; top: -12px;" :style="{ backgroundColor: prstoklad.L_Ukaz[0] }"
+                :class="{ koleckoAktivni: oznacenyPrst == 'L_Ukaz' }" />
+            <div class="kolecko" style="right: 149px; top: 7px;" :style="{ backgroundColor: prstoklad.P_Mali[0] }"
+                :class="{ koleckoAktivni: oznacenyPrst == 'P_Mali' }" />
+            <div class="kolecko" style="right: 188px; top: -2px;" :style="{ backgroundColor: prstoklad.P_Prs[0] }"
+                :class="{ koleckoAktivni: oznacenyPrst == 'P_Prs' }" />
+            <div class="kolecko" style="right: 229.5px; top: -9px;" :style="{ backgroundColor: prstoklad.P_Pros[0] }"
+                :class="{ koleckoAktivni: oznacenyPrst == 'P_Pros' }" />
+            <div class="kolecko" style="right: 272px; top: -12px;" :style="{ backgroundColor: prstoklad.P_Ukaz[0] }"
+                :class="{ koleckoAktivni: oznacenyPrst == 'P_Ukaz' }" />
+            <img src="../assets/nohy.svg" alt="Nohy pavouka">
         </div>
     </div>
 </template>
 
 <style scoped>
+#nohy {
+    margin-top: 25px;
+    margin-bottom: -120px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    user-select: none;
+    transition: filter 0.2s;
+}
+
+#nohy img {
+    width: 61%;
+    margin-right: 4%;
+    margin-left: -2%;
+}
+
+.kolecko {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    border-radius: 100%;
+    z-index: -1;
+}
+
 .klavesa {
     width: 40px;
     height: 40px;
@@ -199,7 +257,7 @@ function potrebujeShift(pismeno: string) {
     filter: brightness(0.9);
 }
 
-.oznacenaKlavesa {
+.oznacenaKlavesa, .koleckoAktivni {
     border: #fff solid 3.5px;
     transition: 0.1s;
     filter: brightness(1.6) saturate(2);
@@ -246,5 +304,10 @@ function potrebujeShift(pismeno: string) {
     border-bottom: 1px solid black !important;
     width: 10px;
     padding-top: 2px;
+}
+
+.rozmazany {
+    filter: blur(2px) brightness(20%) contrast(110%);
+    /* blur je trochu heavy */
 }
 </style>
