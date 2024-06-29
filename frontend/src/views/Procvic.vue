@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { checkTeapot, getCisloProcvic, getToken, MojeMapa, pridatOznameni } from '../utils';
+import { checkTeapot, clone, getCisloProcvic, getToken, MojeMapa, pridatOznameni, saveNastaveni } from '../utils';
 import SipkaZpet from '../components/SipkaZpet.vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, toRaw } from 'vue';
 import axios from 'axios';
 import Vysledek from '../components/Vysledek.vue';
 import { useHead } from '@unhead/vue';
 import Psani from '../components/Psani.vue';
+import NastaveniBtn from "../components/NastaveniBtn.vue";
+import PsaniMenu from "../components/PsaniMenu.vue";
+import { mobil, nastaveniJmeno } from '../stores';
 
 const router = useRouter()
 const route = useRoute()
@@ -16,18 +19,23 @@ useHead({
     title: "Procvičování" // po fetchi změnim
 })
 
-const text = ref([[]] as { id: number, znak: string, spatne: number, }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
+const text = ref([] as { id: number, znak: string, spatne: number, }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
 const delkaTextu = ref(0)
 const preklepy = ref(0)
 const opravenePocet = ref(0)
 const cas = ref(0)
 const nejcastejsiChyby = ref()
 
-const klavesnice = ref("")
 const jmeno = ref(". . .")
 
+const psaniRef = ref()
+const menuRef = ref()
+
 const konec = ref(false)
+const delkaNapsanehoTextu = ref(0)
 const nacitamNovej = ref(false)
+
+const hideKlavecnice = ref(false)
 
 const casFormat = computed(() => {
     return cas.value < 60 ? Math.floor(cas.value).toString() : `${Math.floor(cas.value / 60)}:${cas.value % 60 < 10 ? "0" + Math.floor(cas.value % 60).toString() : Math.floor(cas.value % 60)}`
@@ -49,8 +57,12 @@ function get() {
             })
         })
         jmeno.value = response.data.jmeno
-        klavesnice.value = response.data.klavesnice
-        nacitamNovej.value = false
+
+        loadAlternativy()
+        toggleDiakritikaAVelkaPismena()
+
+        if (response.data.klavesnice != undefined) menuRef.value.klavModel = response.data.klavesnice == "qwerty"
+
         useHead({
             title: jmeno.value
         })
@@ -59,70 +71,139 @@ function get() {
             pridatOznameni()
             router.back()
         }
+
+    }).finally(() => {
         nacitamNovej.value = false
     })
 }
 
 onMounted(() => {
+    if (mobil.value) {
+        router.back()
+        pridatOznameni("Psaní na telefonech zatím neučíme...")
+        return
+    }
+    let nastaveni = localStorage.getItem(nastaveniJmeno)
+    if (nastaveni !== null) {
+        let obj = JSON.parse(nastaveni)
+        menuRef.value.diakritika = obj.diakritika
+        menuRef.value.velkaPismena = obj.velkaPismena
+        menuRef.value.typ = obj.typ
+        menuRef.value.delka = obj.delka
+        menuRef.value.klavModel = obj.klavesnice
+    }
     get()
 })
 
 function restart() {
-    text.value = [[]] as { id: number, znak: string, spatne: number, }[][]
+    text.value = [] as { id: number, znak: string, spatne: number, }[][]
     delkaTextu.value = 0
 
     get()
     konec.value = false
 }
 
-function konecTextu(c: number, o: number, p: number, n: any[]) {
-    cas.value = c
+function konecTextu(c: number, o: number, p: number, n: MojeMapa, d: number) {
+    cas.value = Math.round(c * 100) / 100
     opravenePocet.value = o
     preklepy.value = p
     nejcastejsiChyby.value = new MojeMapa(n)
     konec.value = true
+    delkaNapsanehoTextu.value = d
+}
+
+const klavesnice = computed(() => {
+    if (menuRef.value == undefined) return ""
+    return menuRef.value.klavModel ? "qwerty" : "qwerty"
+})
+
+let puvodniText = [] as { id: number, znak: string, spatne: number }[][]
+let textBezDiakritiky = [] as { id: number, znak: string, spatne: number }[][]
+let textMalym = [] as { id: number, znak: string, spatne: number }[][]
+let textOboje = [] as { id: number, znak: string, spatne: number }[][]
+
+function toggleDiakritikaAVelkaPismena() {
+    if (!menuRef.value.diakritika && !menuRef.value.velkaPismena) {
+        text.value = clone(textOboje)
+    } else if (!menuRef.value.diakritika) {
+        text.value = clone(textBezDiakritiky)
+    } else if (!menuRef.value.velkaPismena) {
+        text.value = clone(textMalym)
+    } else {
+        text.value = clone(puvodniText)
+    }
+    psaniRef.value?.restart()
+    saveNastaveni(menuRef.value.diakritika, menuRef.value.velkaPismena, menuRef.value.typ, menuRef.value.delka, menuRef.value.klavModel)
+}
+
+async function loadAlternativy() {
+    puvodniText = clone(toRaw(text.value))
+    textBezDiakritiky = clone(toRaw(text.value))
+    textBezDiakritiky.forEach(slovo => {
+        slovo.forEach(pismeno => {
+            pismeno.znak = pismeno.znak.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        })
+    })
+    textMalym = clone(toRaw(text.value))
+    textMalym.forEach(slovo => {
+        slovo.forEach(pismeno => {
+            pismeno.znak = pismeno.znak.toLocaleLowerCase()
+        })
+    })
+    textOboje = clone(toRaw(text.value))
+    textOboje.forEach(slovo => {
+        slovo.forEach(pismeno => {
+            pismeno.znak = pismeno.znak.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase()
+        })
+    })
 }
 
 async function prodlouzit() {
-    axios.post("/test-psani",
-        {
-            typ: typ.value ? "vety" : "slova",
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${getToken()}`
-            }
+    nacitamNovej.value = true
+
+    axios.get("/procvic/" + id + "/" + getCisloProcvic(id), {
+        headers: {
+            Authorization: `Bearer ${getToken()}`
         }
-    ).then(response => {
-        if (!diakritika.value && !velkaPismena.value) {
+    }).then(response => {
+        if (!menuRef.value.diakritika && !menuRef.value.velkaPismena) {
             for (let i = 0; i < response.data.text.length; i++) {
                 response.data.text[i] = response.data.text[i].normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase()
             }
-        } else if (!diakritika.value && velkaPismena.value) {
+        } else if (!menuRef.value.diakritika && menuRef.value.velkaPismena) {
             for (let i = 0; i < response.data.text.length; i++) {
                 response.data.text[i] = response.data.text[i].normalize("NFD").replace(/[\u0300-\u036f]/g, "")
             }
-        } else if (diakritika.value && !velkaPismena.value) {
+        } else if (menuRef.value.diakritika && !menuRef.value.velkaPismena) {
             for (let i = 0; i < response.data.text.length; i++) {
                 response.data.text[i] = response.data.text[i].toLocaleLowerCase()
             }
         }
 
         let pocetSlov = text.value.length
+
+        let lastSlovo = text.value[pocetSlov - 1]
+        let lastPismeno = lastSlovo[lastSlovo.length - 1]
+        if (lastPismeno.znak != " ") {
+            delkaTextu.value++
+            text.value[pocetSlov - 1].push({ id: delkaTextu.value, znak: " ", spatne: 0 })
+        }
+
         response.data.text.forEach((slovo: string, i: number) => {
             text.value.push([])
             const slovoArr = [...slovo]
             slovoArr.forEach(pismeno => {
-                text.value[pocetSlov - 1 + i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0 })
+                text.value[pocetSlov + i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0 })
                 delkaTextu.value++
             })
         })
-
     }).catch(e => {
         if (!checkTeapot(e)) {
             console.log(e)
             pridatOznameni()
         }
+    }).finally(() => {
+        nacitamNovej.value = false
     })
 }
 
@@ -134,143 +215,23 @@ async function prodlouzit() {
         {{ jmeno }}
     </h1>
 
-    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @prodlouzit="prodlouzit" :text="text" :delkaTextu="delkaTextu" :klavesnice="klavesnice" :hide-klavesnice="false" :nacitam-novej="nacitamNovej"/>
+    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="hideKlavecnice = false" @prodlouzit="prodlouzit" :text="text"
+        :klavesnice="klavesnice" :delkaTextu="delkaTextu" :hide-klavesnice="hideKlavecnice" :nacitam-novej="nacitamNovej"
+        :cas="menuRef == undefined ? 15 : menuRef.delka" ref="psaniRef" />
 
-    <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaTextu"
-        :casF="casFormat" :cas="cas" :cislo="id" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
+    <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaNapsanehoTextu" :casF="casFormat" :cas="cas"
+        :cislo="id" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
+
+    <PsaniMenu :class="{ hide: konec || !hideKlavecnice }" @restart="restart(); psaniRef.restart()" @toggle="toggleDiakritikaAVelkaPismena"
+        :vyberTextu="false" ref="menuRef" />
+
+    <NastaveniBtn v-if="!konec" @klik="hideKlavecnice = !hideKlavecnice" />
 </template>
 
 <style scoped>
-.zvukIcon {
-    width: 45px;
-    height: 35px;
-    margin-top: 1px;
-}
-
-#zvukBtn {
-    position: absolute;
-    right: 30px;
-    bottom: 20px;
-    background-color: var(--tmave-fialova);
-    border-radius: 100px;
-    width: 55px;
-    height: 55px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-
-#zvukBtn:hover {
-    background-color: var(--fialova);
-}
-
-#flex {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-#nabidka {
-    margin: 20px 0 6px 0;
-    width: var(--sirka-textoveho-pole);
-}
-
-#cas {
-    float: left;
-    width: 150px;
-    display: block;
-    text-align: left;
-}
-
-#preklepy {
-    float: right;
-    display: block;
-    width: 150px;
-    text-align: right;
-}
-
-#capslock {
-    display: inline-block;
-    color: red;
-    font-weight: bold;
-}
-
-#ramecek {
-    padding: 10px;
-    height: 200px;
-    border-radius: 10px 10px 0 0;
-    background-color: var(--tmave-fialova);
-    width: var(--sirka-textoveho-pole);
-    overflow: hidden;
-}
-
-#text {
-    display: flex;
-    flex-wrap: wrap;
-    position: relative;
-    transition: ease 0.2s;
-    top: 0em;
-}
-
-#fade {
-    mask-image: linear-gradient(180deg, var(--tmave-fialova) 75%, transparent 97%);
-    -webkit-mask-image: linear-gradient(180deg, var(--tmave-fialova) 75%, transparent 97%);
-    height: 190px;
-}
-
-.slovo {
-    display: flex;
-    flex-wrap: nowrap;
-}
-
-.pismeno {
-    border-radius: 3px;
-    display: inline-flex;
-    font-family: 'Red Hat Mono', monospace;
-    font-weight: 400;
-    font-size: 1.56rem;
-    line-height: 2.2rem;
-    text-decoration: none;
-    padding: 0 1px;
-    margin-right: 1px;
-    border-bottom: 3px solid rgba(255, 255, 255, 0);
-    /* aby se nedojebala vyska lajny když jdu na dalsi radek*/
-    color: var(--bila);
-    transition: 60ms;
-}
-
-#progress {
-    height: 20px;
-    background-color: var(--fialova);
-    width: 0;
-    border-bottom-left-radius: 10px;
-    transition: ease 0.22s;
-    text-align: right;
-}
-
-#bar {
-    background-color: var(--tmave-fialova);
-    width: var(--sirka-textoveho-pole);
-    border-radius: 0 0 10px 10px;
-    overflow: hidden;
-}
-
-.spravnePismeno {
-    color: #9c9c9c;
-}
-
-.podtrzeni {
-    border-bottom: 3px solid var(--bila);
-    border-radius: 0;
-    transition: 60ms;
-}
-
-.spatnePismeno {
-    color: #ff0000;
-}
-
-.opravenePismeno {
-    color: #b1529c;
+.hide {
+    opacity: 0;
+    z-index: -1000;
+    user-select: none;
 }
 </style>

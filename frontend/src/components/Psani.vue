@@ -168,7 +168,7 @@ function klik(this: any, e: KeyboardEvent) {
     predchoziZnak = ""
     celyPsani.value.classList.add("bezKurzoru")
 
-    if (textViditelny.value[textViditelny.value.length - 1] == props.text[props.text.length - 1]) emit("prodlouzit")
+    if (textViditelny.value[textViditelny.value.length - 1] == props.text[props.text.length - 1] && !props.nacitamNovej) emit("prodlouzit")
 }
 
 function posunoutRadek() {

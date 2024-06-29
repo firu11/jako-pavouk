@@ -41,7 +41,7 @@ function smazatVelkaPismena() {
 }
 
 function smazatEnterAMezery() {
-    textovePole.value!.text = textovePole.value!.text.replace(/\n/g, " ").replace(/ {2,}/g, " ")
+    textovePole.value!.text = textovePole.value!.text.replace(/\n/g, " ").replace(/ {2,}/g, " ").trimEnd()
 }
 
 function resetSmazanych() {
