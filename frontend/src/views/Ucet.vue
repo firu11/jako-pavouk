@@ -475,7 +475,7 @@ function zmenaJmena(e: Event) {
     background-color: var(--bila);
     height: 20px;
     position: relative;
-    left: -1px
+    transition: 0.5s;
 }
 
 #druhKlavesnice {
