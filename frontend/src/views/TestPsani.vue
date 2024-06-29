@@ -32,7 +32,6 @@ const text = ref([] as { id: number, znak: string, spatne: number, }[][]) // spa
 const delkaTextu = ref(0)
 const preklepy = ref(0)
 const opravenePocet = ref(0)
-const cas = ref(0)
 const nejcastejsiChyby = ref()
 
 const psaniRef = ref()
@@ -43,10 +42,6 @@ const delkaNapsanehoTextu = ref(0)
 const nacitamNovej = ref(false)
 
 const hideKlavecnice = ref(false)
-
-const casFormat = computed(() => {
-    return cas.value < 60 ? Math.floor(cas.value).toString() : `${Math.floor(cas.value / 60)}:${cas.value % 60 < 10 ? "0" + Math.floor(cas.value % 60).toString() : Math.floor(cas.value % 60)}`
-})
 
 function get() {
     nacitamNovej.value = true
@@ -109,8 +104,7 @@ function restart() {
     konec.value = false
 }
 
-function konecTextu(c: number, o: number, p: number, n: MojeMapa, d: number) {
-    cas.value = Math.round(c * 100) / 100
+function konecTextu(o: number, p: number, n: MojeMapa, d: number) {
     opravenePocet.value = o
     preklepy.value = p
     nejcastejsiChyby.value = new MojeMapa(n)
@@ -215,8 +209,8 @@ async function prodlouzit() {
         :klavesnice="klavesnice" :delkaTextu="delkaTextu" :hide-klavesnice="hideKlavecnice" :nacitam-novej="nacitamNovej"
         :cas="menuRef == undefined ? 15 : menuRef.delka" ref="psaniRef" />
 
-    <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaNapsanehoTextu" :casF="casFormat"
-        :cas="cas" :cislo="'test-psani'" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
+    <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaNapsanehoTextu"
+        :cas="menuRef == undefined ? 15 : menuRef.delka" :cislo="'test-psani'" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
 
     <PsaniMenu :class="{ hide: konec || !hideKlavecnice }" @restart="restart(); psaniRef.restart()" @toggle="toggleDiakritikaAVelkaPismena"
         ref="menuRef" />

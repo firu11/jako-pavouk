@@ -155,13 +155,13 @@ function klik(this: any, e: KeyboardEvent) {
     posunoutRadek()
 
     if (aktivniPismeno.value.id === -1) { // konec
-        console.log("skončeno předčasně")
+        console.log("skončeno předčasně velký špatný")
 
         clearInterval(interval)
         calcCas() // naposledy
         document.removeEventListener("keypress", klik)
         document.removeEventListener("keydown", specialniKlik)
-        emit("konec", cas.value, opravene.value, preklepy.value, chybyPismenka)
+        emit("konec", opravene.value, preklepy.value, chybyPismenka)
         restart()
     }
 
@@ -263,7 +263,7 @@ function calcCas() {
         clearInterval(interval)
         document.removeEventListener("keypress", klik)
         document.removeEventListener("keydown", specialniKlik)
-        emit("konec", cas.value, opravene.value, preklepy.value, chybyPismenka, aktivniPismeno.value.id)
+        emit("konec", opravene.value, preklepy.value, chybyPismenka, aktivniPismeno.value.id)
         restart()
     }
 }
