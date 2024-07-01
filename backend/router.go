@@ -803,6 +803,7 @@ func prehled(c *fiber.Ctx) error {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
+	trida, _ := databaze.GetTridaByUziv(uziv.ID)
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"email":            uziv.Email,
 		"jmeno":            uziv.Jmeno,
@@ -813,7 +814,7 @@ func prehled(c *fiber.Ctx) error {
 		"dokonceno":        dokonceno,
 		"nejcastejsiChyby": chybyPismenka,
 		"klavesnice":       uziv.Klavesnice,
-		"role":             utils.GetRole(uziv.Role, uziv.TridaID.Valid),
+		"role":             utils.GetRole(uziv.Role, trida.ID),
 	})
 }
 
@@ -833,7 +834,8 @@ func testVyprseniTokenu(c *fiber.Ctx) error {
 		if err != nil && !jePotrebaVymenit {
 			jePotrebaVymenit = true
 		}
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{"jePotrebaVymenit": jePotrebaVymenit, "role": utils.GetRole(uziv.Role, uziv.TridaID.Valid)})
+		trida, _ := databaze.GetTridaByUziv(uziv.ID)
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"jePotrebaVymenit": jePotrebaVymenit, "role": utils.GetRole(uziv.Role, trida.ID)})
 	} else {
 		return c.Status(fiber.StatusUnauthorized).JSON(chyba(""))
 	}
