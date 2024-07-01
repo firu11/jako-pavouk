@@ -39,15 +39,14 @@ type (
 	}
 
 	Uzivatel struct {
-		ID          uint          `json:"id" db:"id"`
-		Email       string        `json:"email" db:"email"`
-		Jmeno       string        `json:"jmeno" db:"jmeno"`
-		Heslo       string        `json:"heslo" db:"heslo"`
-		Klavesnice  string        `json:"klavesnice" db:"klavesnice"`
-		Datum       date.Date     `json:"datum" db:"datum"`
-		Role        int           `json:"role" db:"role"`
-		TridaID     sql.NullInt16 `json:"trida" db:"trida_id"`
-		SkolniJmeno string        `json:"skolni_jmeno" db:"skolni_jmeno"`
+		ID          uint      `json:"id" db:"id"`
+		Email       string    `json:"email" db:"email"`
+		Jmeno       string    `json:"jmeno" db:"jmeno"`
+		Heslo       string    `json:"heslo" db:"heslo"`
+		Klavesnice  string    `json:"klavesnice" db:"klavesnice"`
+		Datum       date.Date `json:"datum" db:"datum"`
+		Role        int       `json:"role" db:"role"`
+		SkolniJmeno string    `json:"skolni_jmeno" db:"skolni_jmeno"`
 	}
 
 	NeoUziv struct {
@@ -845,6 +844,12 @@ func PrejmenovatStudenta(id uint, skolniJmeno string) error {
 func GetTridaByKod(kod string) (Trida, error) {
 	var trida Trida
 	err := DB.QueryRowx(`SELECT * FROM trida WHERE kod = $1 AND NOT smazana;`, kod).StructScan(&trida)
+	return trida, err
+}
+
+func GetTridaByUziv(id uint) (Trida, error) {
+	var trida Trida
+	err := DB.QueryRowx(`SELECT t.* FROM trida t INNER JOIN student_a_trida s ON t.id = s.trida_id WHERE student_id = $1 AND NOT smazana;`, id).StructScan(&trida)
 	return trida, err
 }
 

@@ -44,7 +44,6 @@ function disabledBtn(e: KeyboardEvent) {
 
 function d(x: number) {
     delka.value = x
-    emit("restart")
 }
 
 defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })

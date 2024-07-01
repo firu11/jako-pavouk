@@ -142,16 +142,18 @@ func GenTridaKod() string {
 	return kod
 }
 
-func GetRole(uzivRole int, trida bool) string {
-	var role string
+func GetRole(uzivRole int, trida_id uint) string {
+	log.Println(trida_id)
 	if uzivRole == 2 {
-		role = "ucitel"
-	} else if uzivRole == 1 {
-		if trida {
-			role = "student"
+		return "ucitel"
+	}
+	if uzivRole == 1 {
+		log.Println(trida_id)
+		if trida_id != 0 {
+			return "student"
 		} else {
-			role = "basic"
+			return "basic"
 		}
 	}
-	return role
+	return "basic"
 }
