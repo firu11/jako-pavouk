@@ -27,20 +27,23 @@ function getText() {
 }
 
 function d(x: number) {
-    delka.value = x
+    delka.value = x * 60
 }
 
 const puvodniText = ref("")
 
 function smazatDiakritiku() {
+    puvodniText.value = textovePole.value!.text
     textovePole.value!.text = textovePole.value!.text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
 }
 
 function smazatVelkaPismena() {
+    puvodniText.value = textovePole.value!.text
     textovePole.value!.text = textovePole.value!.text.toLocaleLowerCase()
 }
 
 function smazatEnterAMezery() {
+    puvodniText.value = textovePole.value!.text
     textovePole.value!.text = textovePole.value!.text.replace(/\n/g, " ").replace(/ {2,}/g, " ").trimEnd()
 }
 
@@ -68,7 +71,6 @@ function resetSmazanych() {
                     <button :class="{ aktivni: 15 == delka }" @click="d(15)">15min</button>
                     <button :class="{ aktivni: 20 == delka }" @click="d(20)">20min</button>
                     <button :class="{ aktivni: 30 == delka }" @click="d(30)">30min</button>
-                    <button :class="{ aktivni: -1 == delka }" @click="d(-1)">Do konce</button>
                 </div>
 
                 <hr id="predel">
@@ -81,7 +83,7 @@ function resetSmazanych() {
                     </div>
 
                     <div class="kontejner">
-                        <button @click="resetSmazanych">Reset</button>
+                        <button @click="resetSmazanych" class="cerveneTlacitko">Zrušit poslední úpravu</button>
                     </div>
                 </div>
             </div>
@@ -103,7 +105,7 @@ function resetSmazanych() {
     </div>
 </template>
 <style scoped>
-.tlacitko {
+.tlacitko, .cerveneTlacitko {
     width: 250px;
 }
 
@@ -159,7 +161,7 @@ select option:disabled {
     width: 410px;
     display: flex;
     flex-direction: column;
-    height: 400px;
+    height: calc(100vh - 90px - 60px - 40px - 25px - 30px - 5px); /* celá obrazovka - všechno co je nad tím */
     border-radius: 10px;
     gap: 15px;
 }
@@ -183,7 +185,7 @@ select option:disabled {
     display: flex;
     gap: 10px;
     flex-direction: column;
-    height: 400px;
+    height: 380px;
     background-color: var(--tmave-fialova);
     padding: 10px 15px;
     border-radius: 10px;

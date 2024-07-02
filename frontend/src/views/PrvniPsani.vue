@@ -87,10 +87,10 @@ const ok = ref(false)
     padding: 20px;
     border-radius: 10px;
     position: relative;
-    top: -260px;
+    top: -270px;
     max-width: 470px;
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: center;
     flex-direction: column;
     box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.75);
@@ -106,8 +106,8 @@ const ok = ref(false)
     list-style-type: none;
     display: flex;
     flex-direction: column;
-    gap: 7px;
-    line-height: 1.4rem;
+    gap: 10px;
+    line-height: 1.5rem;
 }
 
 
