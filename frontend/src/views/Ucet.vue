@@ -76,7 +76,6 @@ async function getInfo() {
             velikost -= 0.1
         }
     }, 1)
-
 }
 
 function postSmazat() {
@@ -249,12 +248,6 @@ function zmenaJmena(e: Event) {
     font-size: 1.4em;
     gap: 12%;
     opacity: 70%;
-}
-
-.cisla {
-    font-weight: 200;
-    opacity: 70%;
-    font-size: 0.8em;
 }
 
 #prvni b,

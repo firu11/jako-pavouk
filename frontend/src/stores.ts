@@ -13,10 +13,10 @@ export const moznostiRocnik = ["1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.", "
 export const moznostiTrida = ["A", "B", "C", "D", "E", "F", "G", "H"]
 
 export const delkyCviceni = new Map<string, number>([
-    ["nova", 60],
-    ["naucena", 30],
-    ["slova", 120],
-    ["programator", 60],
+    ["nova", 3*60],
+    ["naucena", 1.5*60],
+    ["slova", 5*60],
+    ["programator", 2*60],
 ])
 
 export function getCas(key: string) {

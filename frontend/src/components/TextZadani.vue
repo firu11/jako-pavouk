@@ -31,9 +31,9 @@ div {
     position: absolute;
     padding: 10px;
     width: 410px;
-    height: 345px;
+    height: calc(100vh - 90px - 60px - 40px - 25px - 30px - 5px - 40px - 15px); /* celá obrazovka - všechno co je nad tím */
     text-align: start;
-    top: 300px;
+    top: 275px;
     word-wrap: break-word;
     z-index: 1;
     background-color: var(--tmave-fialova);
