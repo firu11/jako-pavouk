@@ -252,6 +252,7 @@ ul {
     font-size: 1.6em;
     margin-bottom: 8px;
     font-size: 1.2em;
+    font-family: 'Montserrat';
 }
 
 #chyby div {
@@ -298,7 +299,9 @@ ul {
 }
 
 .procento {
-    font-size: 0.7em;
+    font-size: 0.6em;
+    position: relative;
+    left: 4px;
 }
 
 .blok {
@@ -316,6 +319,7 @@ ul {
 .blok h2 {
     font-size: 40px;
     font-weight: 500;
+    font-family: 'Red Hat Mono';
 }
 
 .jednotka {

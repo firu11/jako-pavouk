@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 const props = defineProps({
     cislo: {
@@ -12,14 +12,19 @@ const props = defineProps({
     }
 })
 
-const zobrazeneCislo = ref(0)
+const zobrazeneCislo = ref("")
 const jedenFrame = 1000 / 60
-const dobaTrvani = 800
+const dobaTrvani = 1400
 
 const celkemFramu = Math.ceil(dobaTrvani / jedenFrame)
 
 onMounted(() => {
     animace()
+    setTimeout(() => {
+        watch(props, () => {
+            animace()
+        })
+    }, 300)
 })
 
 function animace() {
@@ -28,7 +33,8 @@ function animace() {
     const counter = setInterval(() => {
         frame++
 
-        zobrazeneCislo.value = Math.round(props.cislo * ((frame / celkemFramu) === 1 ? 1 : 1 - Math.pow(2, -10 * (frame / celkemFramu))) * 10 ** props.desetineMista) / 10 ** props.desetineMista
+        let t = frame / celkemFramu
+        zobrazeneCislo.value = ((1 + (--t) * t * t * t * t) * props.cislo).toFixed(props.desetineMista)
 
         if (frame === celkemFramu) {
             clearInterval(counter)

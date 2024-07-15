@@ -23,7 +23,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div style="display: flex; flex-direction: column; align-items: center;">
+    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
         <div id="obsah" ref="obsah">
             <slot />
         </div>

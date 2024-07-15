@@ -148,8 +148,8 @@ function zmenaJmena(e: Event) {
                 <div id="nacitani" :style="{ width: info.dokonceno + '%' }"></div>
             </div>
             <span class="popis" style="width: 100%;">
-                <span>Dokončeno: </span>
-                <AnimaceCisla class="cislo" style="display: inline-block; width: 80px; text-align: end;" :cislo="zaokrouhlit(info.dokonceno)" /> %
+                <span style="margin-right: 4px;">Dokončeno: </span>
+                <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.dokonceno)" /> %
             </span>
 
         </div>
@@ -184,7 +184,7 @@ function zmenaJmena(e: Event) {
         <div class="blok" id="chyby">
             <div id="presnost">
                 <img src="../assets/icony/terc.svg" alt="Přesnost">
-                <Tooltip zprava="Přesnost zahrunuje chyby opravené i neopravené." :sirka="210" :vzdalenost="30" style="width: 60%;">
+                <Tooltip zprava="Přesnost zahrunuje chyby opravené i neopravené." :sirka="210" :vzdalenost="30">
                     <span v-if="info.uspesnost == -1">Zatím nic</span>
                     <span v-else class="popis">
                         Přesnost:<br>
@@ -283,10 +283,6 @@ function zmenaJmena(e: Event) {
 }
 
 #chyby>div:first-child {
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-    gap: 50px;
     height: 65%;
 }
 
@@ -337,7 +333,8 @@ function zmenaJmena(e: Event) {
 
 .cislo {
     font-size: 28pt;
-    font-weight: 500;
+    font-weight: 480;
+    font-family: 'Red Hat Mono';
 }
 
 #bloky {
@@ -477,7 +474,7 @@ function zmenaJmena(e: Event) {
     background-color: var(--bila);
     height: 20px;
     position: relative;
-    transition: 0.75s;
+    transition: 1000ms;
 }
 
 #druhKlavesnice {
