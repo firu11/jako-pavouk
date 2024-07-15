@@ -28,7 +28,7 @@ onMounted(() => {
             saveNastaveni(diakritika.value, velkaPismena.value, typ.value, delka.value, klavModel.value)
             return
         }
-        
+
         diakritika.value = obj.diakritika
         velkaPismena.value = obj.velkaPismena
         typ.value = obj.typ
@@ -39,11 +39,11 @@ onMounted(() => {
 
 function disabledBtn(e: KeyboardEvent) {
     e.preventDefault()
-    saveNastaveni(diakritika.value, velkaPismena.value, typ.value, delka.value, klavModel.value)
 }
 
 function d(x: number) {
     delka.value = x
+    saveNastaveni(diakritika.value, velkaPismena.value, typ.value, delka.value, klavModel.value)
 }
 
 defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
