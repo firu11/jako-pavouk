@@ -162,6 +162,7 @@ export function clone(obj: any) { // kvůli starším prohlížečům (koukám n
     return x
 }
 
-export function saveNastaveni(diakritika: boolean, velkaPismena: boolean, vetySlova: boolean, delka: number, klavesnice: boolean) {
+export async function saveNastaveni(diakritika: boolean, velkaPismena: boolean, vetySlova: boolean, delka: number, klavesnice: boolean) {
+    console.log("ukladam")
     localStorage.setItem(nastaveniJmeno, JSON.stringify({ "diakritika": diakritika, "velkaPismena": velkaPismena, "vetySlova": vetySlova, "delka": delka, "klavesnice": klavesnice }))
 }
