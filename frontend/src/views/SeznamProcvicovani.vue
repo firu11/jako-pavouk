@@ -169,9 +169,12 @@ h2 {
     justify-content: end;
     height: 34px;
     align-self: center;
+    position: relative;
+    top: -2px;
 }
 
 .blok span b {
+    font-family: 'Red Hat Mono';
     font-size: 1.8rem;
 }
 
