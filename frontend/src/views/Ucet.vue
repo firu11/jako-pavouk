@@ -6,6 +6,7 @@ import { onMounted, ref } from "vue";
 import { checkTeapot, getToken, MojeMapa, pridatOznameni } from "../utils";
 import { useHead } from "unhead"
 import Tooltip from "../components/Tooltip.vue";
+import AnimaceCisla from "../components/AnimaceCisla.vue";
 
 useHead({
     title: "Účet"
@@ -32,7 +33,7 @@ function odhlasit() {
 
 function zaokrouhlit(cislo: number | null) {
     if (cislo == null) {
-        return "-"
+        return -1
     }
     return Math.round(cislo * 10) / 10
 }
@@ -146,21 +147,28 @@ function zmenaJmena(e: Event) {
             <div id="nacitani-pozadi">
                 <div id="nacitani" :style="{ width: info.dokonceno + '%' }"></div>
             </div>
-            <span class="popis" style="width: 100%;">Dokončeno: <span class="cislo">{{ zaokrouhlit(info.dokonceno)
-                    }}</span> %</span>
+            <span class="popis" style="width: 100%;">
+                <span>Dokončeno: </span>
+                <AnimaceCisla class="cislo" style="display: inline-block; width: 80px; text-align: end;" :cislo="zaokrouhlit(info.dokonceno)" /> %
+            </span>
+
         </div>
         <div class="blok">
             <img src="../assets/icony/rychlost.svg" alt="Rychlost" width="75">
-            <Tooltip zprava="Za neopravené chyby je adekvátní penalizace. (CPM = úhozů za minutu)" :sirka="200">
+            <Tooltip zprava="Za neopravené chyby je adekvátní penalizace. (CPM = úhozů za minutu)" :sirka="200" style="width: 60%;">
                 <span v-if="info.medianRychlosti == -1" class="popis">Rychlost:<br>Zatím nic</span>
-                <span v-else class="popis">Rychlost:<br>
-                    <span class="cislo">{{ zaokrouhlit(info.medianRychlosti) }}</span> CPM
+                <span v-else class="popis">
+                    Rychlost:<br>
+                    <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.medianRychlosti)" /> CPM
                 </span>
             </Tooltip>
         </div>
         <div class="blok">
             <img src="../assets/icony/kalendar.svg" alt="Kalendář">
-            <span class="popis">Počet dní v řadě:<br><span class="cislo">{{ zaokrouhlit(info.daystreak) }}</span></span>
+            <span class="popis" style="width: 60%;">
+                Počet dní v řadě:<br>
+                <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.daystreak)" :desetine-mista="0" />
+            </span>
         </div>
         <div class="blok">
             <img src="../assets/icony/iconaKlavesnice.svg" alt="Klavesnice" width="75">
@@ -176,10 +184,12 @@ function zmenaJmena(e: Event) {
         <div class="blok" id="chyby">
             <div id="presnost">
                 <img src="../assets/icony/terc.svg" alt="Přesnost">
-                <Tooltip zprava="Přesnost zahrunuje chyby opravené i neopravené." :sirka="210" :vzdalenost="30">
+                <Tooltip zprava="Přesnost zahrunuje chyby opravené i neopravené." :sirka="210" :vzdalenost="30" style="width: 60%;">
                     <span v-if="info.uspesnost == -1">Zatím nic</span>
-                    <span v-else class="popis">Přesnost:<br><span class="cislo">{{ zaokrouhlit(info.uspesnost) }}</span>
-                        %</span>
+                    <span v-else class="popis">
+                        Přesnost:<br>
+                        <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.uspesnost)" /> %
+                    </span>
                 </Tooltip>
             </div>
 
@@ -323,7 +333,6 @@ function zmenaJmena(e: Event) {
 
 .popis {
     font-size: 15pt;
-    width: 60%;
 }
 
 .cislo {
@@ -468,7 +477,7 @@ function zmenaJmena(e: Event) {
     background-color: var(--bila);
     height: 20px;
     position: relative;
-    transition: 0.5s;
+    transition: 0.75s;
 }
 
 #druhKlavesnice {
