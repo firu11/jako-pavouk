@@ -421,18 +421,17 @@ func PrejmenovatUziv(id uint, noveJmeno string) error {
 	return err // buď nil nebo error
 }
 
-/*                          presnost,   cpm, daystreak, cas,   chybyPismenka */
-func GetUdaje(uzivID uint) (float32, []float64, int, float32, map[string]int, error) {
+/*                          presnost,  cpm, daystreak, chybyPismenka */
+func GetUdaje(uzivID uint) (float32, []float64, int, map[string]int, error) {
 	var presnost float32
 	var delkaVsechTextu int = 0
 	var cpm []float64
 	var daystreak int = 0
-	var celkovyCas float32 = 0
 	var chybyPismenka map[string]int = make(map[string]int)
 
 	rows, err := DB.Queryx(`SELECT neopravene, delka_textu, cas, chyby_pismenka, datum FROM dokoncene WHERE uziv_id = $1 UNION SELECT neopravene, delka_textu, cas, chyby_pismenka, datum FROM dokoncene_procvic WHERE uziv_id = $1 ORDER BY datum DESC LIMIT $2;`, uzivID, poslednich)
 	if err != nil {
-		return presnost, cpm, daystreak, celkovyCas, chybyPismenka, err
+		return presnost, cpm, daystreak, chybyPismenka, err
 	}
 	defer rows.Close()
 
@@ -443,7 +442,7 @@ func GetUdaje(uzivID uint) (float32, []float64, int, float32, map[string]int, er
 		var datumNezajima date.Date
 		err := rows.Scan(&neopravene, &delka, &cas, &chybyPismenkaRowByte, &datumNezajima)
 		if err != nil {
-			return presnost, cpm, daystreak, celkovyCas, chybyPismenka, err
+			return presnost, cpm, daystreak, chybyPismenka, err
 		}
 
 		var chybyPismenkaRow map[string]int
@@ -471,36 +470,31 @@ func GetUdaje(uzivID uint) (float32, []float64, int, float32, map[string]int, er
 	// daystreak
 	rows, err = DB.Queryx(`SELECT datum, cas FROM dokoncene WHERE uziv_id = $1 UNION SELECT datum, cas FROM dokoncene_procvic WHERE uziv_id = $1 ORDER BY datum DESC;`, uzivID)
 	if err != nil {
-		return presnost, cpm, daystreak, celkovyCas, chybyPismenka, err
+		return presnost, cpm, daystreak, chybyPismenka, err
 	}
 	defer rows.Close()
 
-	var dny []date.Date
+	var posledniHledanyDen date.Date = date.Today().AddDate(0, 0, -1) // vcera
 	for rows.Next() {
 		var c float32
 		var d date.Date
 		if err := rows.Scan(&d, &c); err != nil {
-			return presnost, cpm, daystreak, celkovyCas, chybyPismenka, err
+			return presnost, cpm, daystreak, chybyPismenka, err
 		}
-		celkovyCas += c
-		dny = append(dny, d)
-	}
 
-	var hledanyDen date.Date = date.Today().Add(-1)
-	for _, d := range dny {
-		if hledanyDen.Equal(d) {
-			hledanyDen = hledanyDen.Add(-1)
+		if d == date.Today() && daystreak == 0 {
 			daystreak++
-		} else if d.Equal(date.Today()) {
-			daystreak = 1
-		} else if hledanyDen.Sub(d) != -1 { // pokud dalsi je uz víc davno nez vcera
+		} else if posledniHledanyDen == d {
+			daystreak++
+			posledniHledanyDen = posledniHledanyDen.AddDate(0, 0, -1) // dalsi den
+		} else {
 			break
 		}
 	}
 	if delkaVsechTextu == 0 {
 		delkaVsechTextu = 1
 	}
-	return presnost, cpm, daystreak, celkovyCas, chybyPismenka, nil
+	return presnost, cpm, daystreak, chybyPismenka, nil
 }
 
 func DokonceneProcento(uzivID uint) (float32, error) {
