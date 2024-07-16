@@ -793,7 +793,7 @@ func prehled(c *fiber.Ctx) error {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
-	presnost, cpm, daystreak, cas, chybyPismenka, err := databaze.GetUdaje(id)
+	presnost, cpm, daystreak, chybyPismenka, err := databaze.GetUdaje(id)
 	if err != nil {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
@@ -810,7 +810,6 @@ func prehled(c *fiber.Ctx) error {
 		"daystreak":        daystreak,
 		"uspesnost":        presnost,
 		"medianRychlosti":  utils.Prumer(cpm),
-		"celkovyCas":       cas,
 		"dokonceno":        dokonceno,
 		"nejcastejsiChyby": chybyPismenka,
 		"klavesnice":       uziv.Klavesnice,

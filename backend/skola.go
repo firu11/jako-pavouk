@@ -235,7 +235,7 @@ func student(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
-	presnost, cpm, daystreak, _, chybyPismenka, err := databaze.GetUdaje(uint(studentID))
+	presnost, cpm, daystreak, chybyPismenka, err := databaze.GetUdaje(uint(studentID))
 	if err != nil {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
