@@ -292,7 +292,7 @@ func GetDokonceneProcvic(uzivID uint) (map[int]float32, error) {
 	var rows *sqlx.Rows
 	var err error
 
-	rows, err = DB.Queryx(`SELECT procvic_id, MAX(((delka_textu - 10 * neopravene) / cas) * 60) AS cpm FROM dokoncene_procvic WHERE uziv_id = $1 GROUP BY procvic_id ORDER BY procvic_id DESC;`, uzivID)
+	rows, err = DB.Queryx(`WITH sus AS (SELECT * FROM (SELECT ROW_NUMBER() OVER (PARTITION BY procvic_id ORDER BY datum DESC) AS r, d.* FROM dokoncene_procvic d WHERE uziv_id = $1) AS idk WHERE idk.r <= $2) SELECT procvic_id, AVG(GREATEST(((delka_textu - 10 * neopravene) / cas) * 60, 0)) AS cpm FROM sus GROUP BY procvic_id;`, uzivID, poslednich)
 	if err != nil {
 		return rychlosti, err
 	}
