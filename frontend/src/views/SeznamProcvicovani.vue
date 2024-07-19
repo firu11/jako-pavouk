@@ -3,7 +3,7 @@ import { useHead } from "unhead"
 import { Oznacene, checkTeapot, getToken, napovedaKNavigaci, pridatOznameni } from "../utils";
 import axios from "axios";
 import { onMounted, onUnmounted, ref } from "vue";
-import {mobil} from "../stores"
+import { mobil } from "../stores"
 
 useHead({
     title: "Procvičování",
@@ -96,20 +96,20 @@ onUnmounted(() => {
         <div v-if="texty.length == 0" v-for="_ in 3" class="blok">
             <h2>. . .</h2>
         </div>
-        <RouterLink v-else-if="!mobil" v-for="t, i in texty" :to="`/procvic/${i + 1}`" class="blok"
-            :i="i + 1 == o.index.value" :class="{ oznacene: i + 1 == o.index.value, nohover: o.index.value != 0 }">
+        <RouterLink v-else-if="!mobil" v-for="t, i in texty" :to="`/procvic/${i + 1}`" class="blok" :i="i + 1 == o.index.value"
+            :class="{ oznacene: i + 1 == o.index.value, nohover: o.index.value != 0 }">
             <h2>{{ t }}</h2>
             <span v-if="rychlosti[i + 1] != -1"><b>{{ Math.round(rychlosti[i + 1] * 10) / 10 }}</b> CPM</span>
         </RouterLink>
         <div v-else v-for="t in texty" class="blok" @click="mobilKlik">
             <h2>{{ t }}</h2>
         </div>
+
         <h2>Na míru</h2>
         <RouterLink v-if="!mobil" :to="'/test-psani'" class="blok" :i="4 == o.index.value"
             :class="{ oznacene: 4 == o.index.value, nohover: o.index.value != 0 }">
             <h2>Test psaní</h2>
-            <span v-if="texty.length != 0 && rychlosti[0] != -1"><b>{{ Math.round(rychlosti[0] * 10) / 10 }}</b>
-                CPM</span>
+            <span v-if="texty.length != 0 && rychlosti[0] != -1"><b>{{ Math.round(rychlosti[0] * 10) / 10 }}</b> CPM</span>
         </RouterLink>
         <a v-else href="/test-psani" class="blok" :i="4 == o.index.value" style="user-select: none;" @click="mobilKlik">
             <h2>Test psaní</h2>
@@ -207,7 +207,7 @@ h2 {
 
     .blok span {
         font-size: 0.8rem;
-        top: 13px;
+        top: -0.5px;
         gap: 3px;
         height: 22px;
     }

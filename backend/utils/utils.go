@@ -66,7 +66,7 @@ func Prumer(arr []float64) float64 {
 		soucet += v
 	}
 	if len(arr) == 0 {
-		return 0
+		return -1
 	}
 	return soucet / float64(len(arr))
 }

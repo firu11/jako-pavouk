@@ -47,6 +47,7 @@ type (
 		Datum       date.Date `json:"datum" db:"datum"`
 		Role        int       `json:"role" db:"role"`
 		SkolniJmeno string    `json:"skolni_jmeno" db:"skolni_jmeno"`
+		Smazany     bool      `json:"smazany" db:"smazany"`
 	}
 
 	NeoUziv struct {
@@ -369,25 +370,25 @@ func GetCviceniVLekciByPismena(uzivID uint, pismena string) ([]Cviceni, error) {
 
 func GetUzivByID(uzivID uint) (Uzivatel, error) {
 	var uziv Uzivatel
-	err := DB.QueryRowx(`SELECT * FROM uzivatel WHERE id = $1;`, uzivID).StructScan(&uziv)
+	err := DB.QueryRowx(`SELECT * FROM uzivatel WHERE id = $1 AND NOT smazany;;`, uzivID).StructScan(&uziv)
 	return uziv, err
 }
 
 func GetUzivByEmail(email string) (Uzivatel, error) {
 	var uziv Uzivatel
-	err := DB.QueryRowx(`SELECT * FROM uzivatel WHERE email = $1;`, email).StructScan(&uziv)
+	err := DB.QueryRowx(`SELECT * FROM uzivatel WHERE email = $1 AND NOT smazany;;`, email).StructScan(&uziv)
 	return uziv, err
 }
 
 func GetUzivByJmeno(jmeno string) (Uzivatel, error) {
 	var uziv Uzivatel
-	err := DB.QueryRowx(`SELECT * FROM uzivatel WHERE jmeno = $1;`, jmeno).StructScan(&uziv)
+	err := DB.QueryRowx(`SELECT * FROM uzivatel WHERE jmeno = $1 AND NOT smazany;`, jmeno).StructScan(&uziv)
 	return uziv, err
 }
 
 func GetVsechnyJmenaUziv() ([]string, error) {
 	var uzivatele []string
-	rows, err := DB.Queryx(`SELECT jmeno FROM uzivatel;`)
+	rows, err := DB.Queryx(`SELECT jmeno FROM uzivatel WHERE NOT smazany;;`)
 	if err != nil {
 		return uzivatele, err
 	}
@@ -407,7 +408,7 @@ func GetVsechnyJmenaUziv() ([]string, error) {
 }
 
 func SmazatUzivatele(id uint) error {
-	_, err := DB.Exec(`DELETE FROM uzivatel WHERE id = $1 AND role != 2;`, id)
+	_, err := DB.Exec(`UPDATE uzivatel SET smazany = TRUE WHERE id = $1 AND role != 2;`, id)
 	return err
 }
 
@@ -423,7 +424,7 @@ func PrejmenovatUziv(id uint, noveJmeno string) error {
 
 /*                          presnost,  cpm, daystreak, chybyPismenka */
 func GetUdaje(uzivID uint) (float32, []float64, int, map[string]int, error) {
-	var presnost float32
+	var presnost float32 = -1
 	var delkaVsechTextu int = 0
 	var cpm []float64
 	var daystreak int = 0
@@ -511,7 +512,8 @@ func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
 	email = strings.ToLower(email)
 
 	var uzivID uint
-	err := DB.QueryRowx(`INSERT INTO uzivatel (email, jmeno, heslo) VALUES ($1, $2, $3) RETURNING id;`, email, jmeno, hesloHash).Scan(&uzivID)
+	// kdyby náhodou uživatel už byl dříve zaregistrovaný, smažu všechen jeho progres pomocí WITH x2 a resetnu vsechny sloupce
+	err := DB.QueryRowx(`WITH d AS (DELETE FROM dokoncene WHERE uziv_id = (SELECT id FROM uzivatel WHERE email = $1)), dp AS (DELETE FROM dokoncene_procvic WHERE uziv_id = (SELECT id FROM uzivatel WHERE email = $1)) INSERT INTO uzivatel (email, jmeno, heslo) VALUES ($1, $2, $3) ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email, jmeno = EXCLUDED.jmeno, heslo = EXCLUDED.heslo, klavesnice = DEFAULT, datum = DEFAULT, skolni_jmeno = DEFAULT, smazany = DEFAULT RETURNING id;`, email, jmeno, hesloHash).Scan(&uzivID)
 	if err != nil {
 		return 0, err
 	}

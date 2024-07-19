@@ -185,7 +185,7 @@ function e1(e: KeyboardEvent) {
         </div>
         <div class="blok">
             <Tooltip zprava="Přesnost zahrnuje chyby opravené i neopravené." :sirka="200" :vzdalenost="48">
-                <h2>{{ Math.round(presnost * 10) / 10 }}<span class="procento">%</span></h2>
+                <h2>{{ Math.round(presnost * 10) / 10 == -Infinity ? 0 : Math.round(presnost * 10) / 10 }}<span class="procento">%</span></h2>
             </Tooltip>
             <hr>
             <p v-if="preklepy == 1" class="jednotka">{{ preklepy }} neopravený</p>

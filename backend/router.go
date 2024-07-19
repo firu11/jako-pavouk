@@ -495,7 +495,6 @@ func getVsechnyProcvic(c *fiber.Ctx) error {
 		} else {
 			rych = append(rych, r)
 		}
-
 	}
 
 	return c.JSON(fiber.Map{"texty": texty, "rychlosti": rych})

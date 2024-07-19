@@ -351,7 +351,7 @@ defineExpose({ restart })
 
         <div id="ramecek">
             <div id="fade">
-                <div id="text" ref="textElem">
+                <div id="text" ref="textElem" data-nosnippet>
                     <div class="slovo" v-for="s in textViditelny">
                         <div v-for="p in s" class="pismeno" :id="'p' + p.id"
                             :class="{ podtrzeni: p.id === aktivniPismeno.id, spatnePismeno: p.spatne === 1 && aktivniPismeno.id > p.id, opravenePismeno: p.spatne === 2 && aktivniPismeno.id > p.id, spravnePismeno: !p.spatne && aktivniPismeno.id > p.id }">
