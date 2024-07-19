@@ -156,7 +156,7 @@ function zmenaJmena(e: Event) {
         <div class="blok">
             <img src="../assets/icony/rychlost.svg" alt="Rychlost" width="75">
             <Tooltip zprava="Za neopravené chyby je adekvátní penalizace. (CPM = úhozů za minutu)" :sirka="200" style="width: 60%;">
-                <span v-if="info.medianRychlosti == -1" class="popis">Rychlost:<br>Zatím nic</span>
+                <span v-if="info.medianRychlosti == -1" class="popis">Rychlost:<br><span class="nic">Zatím nic</span></span>
                 <span v-else class="popis">
                     Rychlost:<br>
                     <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.medianRychlosti)" /> CPM
@@ -185,7 +185,7 @@ function zmenaJmena(e: Event) {
             <div id="presnost">
                 <img src="../assets/icony/terc.svg" alt="Přesnost">
                 <Tooltip zprava="Přesnost zahrunuje chyby opravené i neopravené." :sirka="210" :vzdalenost="30">
-                    <span v-if="info.uspesnost == -1">Zatím nic</span>
+                    <span v-if="info.uspesnost == -1" class="popis">Přesnost:<br><span class="nic">Zatím nic</span></span>
                     <span v-else class="popis">
                         Přesnost:<br>
                         <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.uspesnost)" /> %
@@ -229,6 +229,10 @@ function zmenaJmena(e: Event) {
 </template>
 
 <style scoped>
+.nic {
+    font-weight: 600;
+}
+
 .toggleContainer {
     font-size: 16px;
     width: calc(100% - 20px);
