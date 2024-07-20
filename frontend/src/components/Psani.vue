@@ -530,7 +530,7 @@ defineExpose({ restart })
 }
 
 .spravnePismeno {
-    color: #9c9c9c;
+    color: #8c8c8c;
 }
 
 .podtrzeni {

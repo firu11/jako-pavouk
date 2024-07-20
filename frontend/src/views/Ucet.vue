@@ -236,7 +236,12 @@ function zmenaJmena(e: Event) {
 .toggleContainer {
     font-size: 16px;
     width: calc(100% - 20px);
+    height: 34px;
     margin: 10px 10px 0 10px;
+}
+
+.toggleContainer div {
+    padding: 7px;
 }
 
 #pismena {

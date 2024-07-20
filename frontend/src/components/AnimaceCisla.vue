@@ -34,13 +34,15 @@ function animace() {
         frame++
 
         let t = frame / celkemFramu
-        zobrazeneCislo.value = ((1 + (--t) * t * t * t * t) * props.cislo).toFixed(props.desetineMista)
+        zobrazeneCislo.value = (Math.sqrt(1 - Math.pow(t - 1, 4)) * props.cislo).toFixed(props.desetineMista)
+        console.log(props.cislo, zobrazeneCislo.value, t)
 
         if (frame === celkemFramu) {
             clearInterval(counter)
         }
     }, jedenFrame)
 }
+
 </script>
 <template>
     <span>{{ zobrazeneCislo }}</span>
