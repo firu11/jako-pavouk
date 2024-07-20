@@ -7,7 +7,7 @@ backend/backend
 backend/backend.exe
 backend/slovnik.csv
 backend/slovnik.txt
-backend/pohadky.txt
+backend/vety.txt
 
 frontend/public/seznam-wmt-BUnHTQ6XWvu0wBfMQUVc2QkzAKbmEEiS.txt
 frontend/dist
