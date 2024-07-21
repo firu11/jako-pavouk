@@ -184,7 +184,7 @@ function zmenaJmena(e: Event) {
         <div class="blok" id="chyby">
             <div id="presnost">
                 <img src="../assets/icony/terc.svg" alt="Přesnost">
-                <Tooltip zprava="Přesnost zahrunuje chyby opravené i neopravené." :sirka="210" :vzdalenost="30">
+                <Tooltip zprava="Přesnost zahrunuje chyby opravené i neopravené." :sirka="210">
                     <span v-if="info.uspesnost == -1" class="popis">Přesnost:<br><span class="nic">Zatím nic</span></span>
                     <span v-else class="popis">
                         Přesnost:<br>
