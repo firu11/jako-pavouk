@@ -9,6 +9,13 @@ import klik3 from "../assets/zvuky/klik3.ogg";
 import miss from "../assets/zvuky/miss.ogg";
 import { MojeMapa } from "../utils";
 import { useRoute } from "vue-router";
+import { useHead } from "unhead"
+
+useHead({
+    meta: [
+        { name: "robots", content: "noindex" }
+    ]
+})
 
 const emit = defineEmits(["konec", "pise", "restart", "prodlouzit"])
 
