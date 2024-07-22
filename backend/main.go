@@ -39,7 +39,7 @@ func main() {
 	inject()
 
 	app := fiber.New(fiber.Config{
-		AppName: "Pavouk",
+		AppName: "Jako Pavouk Backend",
 	})
 
 	app.Use(cors.New(cors.Config{

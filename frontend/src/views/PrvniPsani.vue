@@ -10,7 +10,7 @@ useHead({
     title: "První krůčky"
 })
 
-const text = ref([] as { id: number, znak: string, spatne: number, }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
+const text = ref([] as { id: number, znak: string, spatne: number, psat: boolean }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
 const delkaTextu = ref(0)
 const preklepy = ref(0)
 const opravenePocet = ref(0)
@@ -31,16 +31,16 @@ function setup() {
         return
     }
 
-    text.value = [] as { id: number, znak: string, spatne: number, }[][]
+    text.value = [] as { id: number, znak: string, spatne: number, psat: boolean }[][]
     let textRaw = "ffff jjjj ffjj jjff fjfj jfjf fjjj jfff jfjj fjff jjfj ffjf fjjf jffj "
     let slovoCounter = -1
-    for (let j = 0; j < 10; j++) {
+    for (let j = 0; j < 20; j++) {
         for (let i = 0; i < textRaw.length; i++) {
             if (i == 0 || textRaw[i - 1] == " ") {
                 text.value.push([])
                 slovoCounter++
             }
-            text.value[slovoCounter].push({ id: delkaTextu.value, znak: textRaw[i], spatne: 0 })
+            text.value[slovoCounter].push({ id: delkaTextu.value, znak: textRaw[i], spatne: 0, psat: true })
             delkaTextu.value++
         }
     }

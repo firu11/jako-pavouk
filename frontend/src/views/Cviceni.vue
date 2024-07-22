@@ -18,7 +18,7 @@ useHead({
     title: "Cvičení " + pismena
 })
 
-const text = ref([] as { id: number, znak: string, spatne: number, }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
+const text = ref([] as { id: number, znak: string, spatne: number, psat: boolean }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
 const delkaTextu = ref(0)
 const preklepy = ref(0)
 const opravenePocet = ref(0)
@@ -43,7 +43,7 @@ function get() {
             text.value.push([])
             const slovoArr = [...slovo]
             slovoArr.forEach(pismeno => {
-                text.value[i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0 })
+                text.value[i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: true })
                 delkaTextu.value++
             })
         })
@@ -65,7 +65,7 @@ onMounted(() => {
 })
 
 function restart() {
-    text.value = [] as { id: number, znak: string, spatne: number, }[][]
+    text.value = [] as { id: number, znak: string, spatne: number, psat: boolean }[][]
     delkaTextu.value = 0
 
     get()
@@ -81,6 +81,7 @@ function konecTextu(o: number, p: number, n: MojeMapa, d: number) {
 }
 
 async function prodlouzit() {
+    nacitamNovej.value = true
     axios.get("/cvic/" + encodeURIComponent(pismena) + "/" + cislo, {
         headers: {
             Authorization: `Bearer ${getToken()}`
@@ -91,19 +92,20 @@ async function prodlouzit() {
             text.value.push([])
             const slovoArr = [...slovo]
             slovoArr.forEach(pismeno => {
-                text.value[pocetSlov + i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0 })
+                text.value[pocetSlov + i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: true })
                 delkaTextu.value++
             })
         })
-
     }).catch(e => {
         if (!checkTeapot(e)) {
             console.log(e)
             pridatOznameni()
         }
+    }).finally(() => {
+        nacitamNovej.value = false
     })
-}
 
+}
 </script>
 
 <template>

@@ -35,7 +35,6 @@ function animace() {
 
         let t = frame / celkemFramu
         zobrazeneCislo.value = (Math.sqrt(1 - Math.pow(t - 1, 4)) * props.cislo).toFixed(props.desetineMista)
-        console.log(props.cislo, zobrazeneCislo.value, t)
 
         if (frame === celkemFramu) {
             clearInterval(counter)
