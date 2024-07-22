@@ -69,12 +69,12 @@ defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
 
         <div class="kontejner">
             <div id="delka">
-                <button @keyup="disabledBtn" :class="{ aktivni: 15 == delka }" @click="d(15)">15s</button>
-                <button @keyup="disabledBtn" :class="{ aktivni: 30 == delka }" @click="d(30)">30s</button>
-                <button @keyup="disabledBtn" :class="{ aktivni: 60 == delka }" @click="d(60)">1min</button>
-                <button @keyup="disabledBtn" :class="{ aktivni: 120 == delka }" @click="d(120)">2min</button>
-                <button @keyup="disabledBtn" :class="{ aktivni: 300 == delka }" @click="d(300)">5min</button>
-                <button @keyup="disabledBtn" :class="{ aktivni: 600 == delka }" @click="d(600)">10min</button>
+                <button @keyup="disabledBtn" :class="{ aktivni: 15 == delka }" @click="d(15)" in="15s">15s</button> <!-- "in" je kvuli css ::after -->
+                <button @keyup="disabledBtn" :class="{ aktivni: 30 == delka }" @click="d(30)" in="30s">30s</button>
+                <button @keyup="disabledBtn" :class="{ aktivni: 60 == delka }" @click="d(60)" in="1min">1min</button>
+                <button @keyup="disabledBtn" :class="{ aktivni: 120 == delka }" @click="d(120)" in="2min">2min</button>
+                <button @keyup="disabledBtn" :class="{ aktivni: 300 == delka }" @click="d(300)" in="5min">5min</button>
+                <button @keyup="disabledBtn" :class="{ aktivni: 600 == delka }" @click="d(600)" in="10min">10min</button>
             </div>
         </div>
 
@@ -99,6 +99,16 @@ defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
     align-items: center;
     gap: 6px;
     padding-top: 4px;
+}
+
+#delka button::after {
+    display: block;
+    content: attr(in);
+    font-weight: 500;
+    height: 1px;
+    color: transparent;
+    overflow: hidden;
+    visibility: hidden;
 }
 
 #predel {

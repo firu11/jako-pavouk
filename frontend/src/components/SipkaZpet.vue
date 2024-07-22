@@ -1,11 +1,5 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
-const router = useRouter()
-let routeArray = useRoute().path.split("/")
-routeArray.pop() // odstranime posledni
-const zpet = routeArray.join("/") //zase spojime a mame to predchozi jakoby
 
 onMounted(() => {
     document.addEventListener('keydown', e1)
@@ -17,17 +11,19 @@ onUnmounted(() => {
 
 function e1(e: KeyboardEvent) { // Escape = šipka zpět
     if (e.key == "Escape") {
-        router.push(zpet)
+        zpatky()
     }
+}
+
+function zpatky() {
+    history.back() // používám history, aby to scrollovalo tam kde jsem skoncil
 }
 
 </script>
 
 <template>
-    <div>
-        <RouterLink :to="zpet">
-            <img src="../assets/icony/sipkaL.svg" alt="Zpět">
-        </RouterLink>
+    <div @click="zpatky">
+        <img src="../assets/icony/sipkaL.svg" alt="Zpět">
     </div>
 </template>
 
