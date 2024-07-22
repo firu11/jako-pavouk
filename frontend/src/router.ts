@@ -3,10 +3,6 @@ import { prihlasen } from './stores';
 
 const router = createRouter({
     history: createWebHistory(),
-    scrollBehavior(_, __, savedPos) {
-        if (savedPos) return savedPos
-        return { top: 0, behavior: 'smooth' } // aby scroll nezustaval dole na strankach kde se nescrolluje
-    },
     routes: [
         {
             path: '/',
@@ -94,24 +90,27 @@ const router = createRouter({
             path: '/:pathMatch(.*)*',
             component: () => import('./views/404.vue')
         }
-
-    ]
+    ],
+    scrollBehavior(_, __, savedPos) {
+        if (savedPos) return savedPos
+        return { top: 0, behavior: 'smooth' } // aby scroll nezustaval dole na strankach kde se nescrolluje
+    },
 })
 
 router.beforeEach((to, _, next) => { // kdyz potrebuje auth tak => prihlaseni
     if (to.meta.requireAuth) { 
         if (!prihlasen) {
-            next("/prihlaseni");
+            next("/prihlaseni")
         } else {
             to.fullPath = to.fullPath.toLocaleLowerCase()
             to.path = to.path.toLocaleLowerCase()
-            next();
+            next()
         }
     } else {
         to.fullPath = to.fullPath.toLocaleLowerCase()
         to.path = to.path.toLocaleLowerCase()
-        next();
+        next()
     }
-});
+})
 
 export default router
