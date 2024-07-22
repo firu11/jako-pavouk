@@ -28,7 +28,7 @@ useHead({
 
 const router = useRouter()
 
-const text = ref([] as { id: number, znak: string, spatne: number, }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
+const text = ref([] as { id: number, znak: string, spatne: number, psat: boolean }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
 const delkaTextu = ref(0)
 const preklepy = ref(0)
 const opravenePocet = ref(0)
@@ -42,6 +42,8 @@ const delkaNapsanehoTextu = ref(0)
 const nacitamNovej = ref(false)
 
 const hideKlavecnice = ref(false)
+
+const interpunkce = ref(false)
 
 function get() {
     nacitamNovej.value = true
@@ -59,7 +61,7 @@ function get() {
             text.value.push([])
             const slovoArr = [...slovo]
             slovoArr.forEach(pismeno => {
-                text.value[i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0 })
+                text.value[i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !",.;!?".includes(pismeno) || interpunkce.value })
                 delkaTextu.value++
             })
         })
@@ -89,7 +91,7 @@ onMounted(() => {
 
 function restart() {
     delkaTextu.value = 0
-    text.value = [] as { id: number, znak: string, spatne: number, }[][]
+    text.value = [] as { id: number, znak: string, spatne: number, psat: boolean }[][]
 
     get()
     konec.value = false
@@ -104,14 +106,14 @@ function konecTextu(o: number, p: number, n: MojeMapa, d: number) {
 }
 
 const klavesnice = computed(() => {
-    if (menuRef.value == undefined) return ""
-    return menuRef.value.klavModel ? "qwerty" : "qwerty"
+    if (menuRef.value == undefined) return "qwertz"
+    return menuRef.value.klavModel ? "qwerty" : "qwertz"
 })
 
-let puvodniText = [] as { id: number, znak: string, spatne: number }[][]
-let textBezDiakritiky = [] as { id: number, znak: string, spatne: number }[][]
-let textMalym = [] as { id: number, znak: string, spatne: number }[][]
-let textOboje = [] as { id: number, znak: string, spatne: number }[][]
+let puvodniText = [] as { id: number, znak: string, spatne: number, psat: boolean }[][]
+let textBezDiakritiky = [] as { id: number, znak: string, spatne: number, psat: boolean }[][]
+let textMalym = [] as { id: number, znak: string, spatne: number, psat: boolean }[][]
+let textOboje = [] as { id: number, znak: string, spatne: number, psat: boolean }[][]
 
 function toggleDiakritikaAVelkaPismena() {
     if (!menuRef.value.diakritika && !menuRef.value.velkaPismena) {
@@ -150,6 +152,8 @@ async function loadAlternativy() {
 }
 
 async function prodlouzit() {
+    nacitamNovej.value = true
+
     axios.post("/test-psani",
         {
             typ: menuRef.value.typ ? "vety" : "slova",
@@ -179,7 +183,7 @@ async function prodlouzit() {
             text.value.push([])
             const slovoArr = [...slovo]
             slovoArr.forEach(pismeno => {
-                text.value[pocetSlov + i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0 })
+                text.value[pocetSlov + i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !",.;!?".includes(pismeno) || interpunkce.value })
                 delkaTextu.value++
             })
         })
@@ -189,6 +193,8 @@ async function prodlouzit() {
             console.log(e)
             pridatOznameni()
         }
+    }).finally(() => {
+        nacitamNovej.value = false
     })
 }
 </script>

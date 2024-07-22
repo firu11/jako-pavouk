@@ -20,7 +20,7 @@ useHead({
 const emit = defineEmits(["konec", "pise", "restart", "prodlouzit"])
 
 const props = defineProps<{
-    text: { id: number, znak: string, spatne: number }[][]
+    text: { id: number, znak: string, spatne: number, psat: boolean }[][]
     cas: number, // vteřiny
     klavesnice: string,
     hideKlavesnice: boolean,
@@ -40,6 +40,7 @@ const textElem = ref<HTMLInputElement>()
 let indexPosunuti = -1
 const mistaPosunuti = ref([0, 0] as number[])
 const chybyPismenka = new MojeMapa()
+let preskoceneZnaky = 0
 
 let predchoziZnak = ""
 
@@ -58,7 +59,7 @@ const casFormat = computed(() => {
 
 const aktivniPismeno = computed(() => {
     if (counterSlov.value < props.text.length) return props.text[counterSlov.value][counter.value]
-    return { id: -1, znak: "", spatne: 0 }
+    return { id: -1, znak: "", spatne: 0, psat: false }
 })
 
 onMounted(() => {
@@ -83,15 +84,18 @@ function capslockCheck(e: KeyboardEvent) { // TODO chtelo by to checknout hned p
 }
 
 function nextPismeno() {
+    if (aktivniPismeno.value.spatne === 1) preklepy.value++
+
     if (props.text[counterSlov.value].length - 1 === counter.value) { // posledni pismeno ve slovu
-        if (aktivniPismeno.value.spatne === 1) {
-            preklepy.value++
-        }
         counterSlov.value++
         counter.value = 0
     } else {
-        if (aktivniPismeno.value.spatne === 1) preklepy.value++
         counter.value++
+    }
+
+    if (!aktivniPismeno.value.psat) {
+        nextPismeno()
+        preskoceneZnaky++
     }
     emit("pise")
 }
@@ -100,16 +104,18 @@ function backPismeno() {
     if (counter.value === 0) { // prvni pismeno ve slovu
         counterSlov.value--
         counter.value = props.text[counterSlov.value].length - 1
-        if (aktivniPismeno.value.spatne === 1) {
-            preklepy.value--
-            opravene.value++
-        }
     } else {
         counter.value--
-        if (aktivniPismeno.value.spatne === 1) {
-            preklepy.value--
-            opravene.value++
-        }
+    }
+
+    if (aktivniPismeno.value.spatne === 1) {
+        preklepy.value--
+        opravene.value++
+    }
+
+    if (!aktivniPismeno.value.psat) {
+        backPismeno()
+        preskoceneZnaky++
     }
     emit("pise")
 }
@@ -361,7 +367,7 @@ defineExpose({ restart })
                 <div id="text" ref="textElem" data-nosnippet>
                     <div class="slovo" v-for="s in textViditelny">
                         <div v-for="p in s" class="pismeno" :id="'p' + p.id"
-                            :class="{ podtrzeni: p.id === aktivniPismeno.id, spatnePismeno: p.spatne === 1 && aktivniPismeno.id > p.id, opravenePismeno: p.spatne === 2 && aktivniPismeno.id > p.id, spravnePismeno: !p.spatne && aktivniPismeno.id > p.id }">
+                            :class="{ podtrzeni: p.id === aktivniPismeno.id, spatnePismeno: p.spatne === 1 && aktivniPismeno.id > p.id, opravenePismeno: p.spatne === 2 && aktivniPismeno.id > p.id, spravnePismeno: (!p.spatne && aktivniPismeno.id > p.id) || !p.psat }">
                             {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp") }} </div>
                         </div>
                     </div>

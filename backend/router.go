@@ -110,7 +110,7 @@ func chyba(msg string) fiber.Map {
 func testPsani(c *fiber.Ctx) error {
 	id, err := utils.Autentizace(c, false)
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
 
 	var body = bodyTestPsani{}
@@ -504,17 +504,7 @@ func getVsechnyProcvic(c *fiber.Ctx) error {
 func getProcvic(c *fiber.Ctx) error {
 	id, err := utils.Autentizace(c, false)
 	if err != nil {
-		return err
-	}
-	var klavesnice string
-	if id == 0 { // neni prihlaseny
-		klavesnice = "qwertz"
-	} else {
-		u, err := databaze.GetUzivByID(id)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
-		}
-		klavesnice = u.Klavesnice
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
 	cisloProcvic, err := strconv.Atoi(c.Params("cisloProcvic")) // str -> int
 	if err != nil {
@@ -526,7 +516,12 @@ func getProcvic(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "jmeno": nazev, "klavesnice": klavesnice})
+	u, err := databaze.GetUzivByID(id)
+	if err != nil {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "jmeno": nazev})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "jmeno": nazev, "klavesnice": u.Klavesnice})
 }
 
 // porovná kód který byl uživateli zaslán na email s tím který mu přišel

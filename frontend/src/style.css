@@ -223,14 +223,15 @@ textarea:focus, input:focus, select:focus {
 .radio {
     appearance: none;
     -webkit-appearance: none;
-    border: 0.15rem solid var(--fialova);
-    border-radius: 10rem;
+    border: 2.5px solid var(--fialova);
+    border-radius: 8px;
     transition: filter 0.1s;
     width: 26px;
     height: 26px;
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 }
 
 .radio::before {
@@ -239,7 +240,7 @@ textarea:focus, input:focus, select:focus {
     height: 14px;
     transform: scale(0);
     background-color: var(--fialova);
-    border-radius: 10rem;
+    border-radius: 4px;
     transition: 0.1s;
     display: block;
 }

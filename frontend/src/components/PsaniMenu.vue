@@ -25,6 +25,7 @@ onMounted(() => {
         try {
             obj = JSON.parse(nastaveni)
         } catch {
+            console.log("nepodařilo se načíst nastavení")
             saveNastaveni(diakritika.value, velkaPismena.value, typ.value, delka.value, klavModel.value)
             return
         }
@@ -51,8 +52,7 @@ defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
 </script>
 <template>
     <div id="psani-menu">
-
-        <div v-if="vyberTextu && prihlasen" class="kontejner" style="gap: 20px;">
+        <div v-if="!(prihlasen && !vyberTextu)" class="kontejner" style="gap: 20px;">
             <input v-if="vyberTextu" v-model="typ" type="checkbox" id="toggle" class="toggleCheckbox"
                 @change="$emit('restart'); saveNastaveni(diakritika, velkaPismena, typ, delka, klavModel)" />
             <label v-if="vyberTextu" for="toggle" class="toggleContainer">
@@ -110,7 +110,7 @@ defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     margin: 0 10px;
     cursor: pointer;
     height: 30px;
