@@ -1,3 +1,4 @@
+-- Active: 1721734242835@@localhost@5432@pavouk
 <script setup lang="ts">
 import { pridatOznameni } from "../utils";
 import { mobil } from "../stores"
@@ -50,6 +51,7 @@ a p {
 .router-link-active p {
     left: 0;
     transition: 0.3s;
+    font-weight: 500;
 }
 
 a:hover .hover {
