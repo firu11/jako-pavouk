@@ -27,6 +27,11 @@ type (
 		Kod   string `json:"kod" validate:"required"`
 		Jmeno string `json:"jmeno" validate:"required,min=1,max=30"`
 	}
+	bodyPridatPraci struct {
+		Text    string `json:"text" validate:"required,min=1"`
+		Cas     int    `json:"cas" validate:"required"`
+		TridaID int    `json:"trida_id" validate:"required"`
+	}
 )
 
 // typy uživatelů
@@ -40,6 +45,8 @@ func setupSkolniRouter(api *fiber.Router) {
 	skolaApi.Get("/trida/:id", trida)
 	skolaApi.Get("/test-tridy/:kod", testTridy)
 	skolaApi.Post("/zmena-tridy", zmenaTridy)
+
+	skolaApi.Post("/pridat-praci", pridatPraci)
 
 	skolaApi.Get("/student/:id", student)
 	skolaApi.Post("/student", studentPrejmenovat)
@@ -311,6 +318,36 @@ func zapis(c *fiber.Ctx) error {
 		if err.Error() == "uz je ve tride" {
 			return c.Status(fiber.StatusBadRequest).JSON(chyba("Uz jsi ve tride"))
 		}
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+
+	return c.SendStatus(fiber.StatusOK)
+}
+
+func pridatPraci(c *fiber.Ctx) error {
+	id, err := utils.Autentizace(c, true)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	}
+	uziv, err := databaze.GetUzivByID(id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	if uziv.Role != 2 {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Tohle muze pouze ucitel"))
+	}
+
+	var body bodyPridatPraci
+	if err := c.BodyParser(&body); err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Spatny body"))
+	}
+	if err := utils.ValidateStruct(&body); err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Spatny body"))
+	}
+
+	if err = databaze.PridatPraci(body.Text, body.Cas, body.TridaID); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 
