@@ -16,9 +16,6 @@ const sirka = ref(props.sirka)
 
 onMounted(() => {
     y.value = obsah.value.getBoundingClientRect().bottom + props.vzdalenost
-    if (props.sirka == null) {
-        sirka.value = obsah.value.getBoundingClientRect().width * 2.2
-    } else sirka.value = props.sirka
 })
 </script>
 
@@ -27,7 +24,7 @@ onMounted(() => {
         <div id="obsah" ref="obsah">
             <slot />
         </div>
-        <div id="tooltip" :style="{ top: `${y}px`, maxWidth: `${sirka}px` }">
+        <div id="tooltip" :style="{ top: `${y}px`, maxWidth: `${props.sirka == null ? obsah.getBoundingClientRect().width * 2.2 : props.sirka}px` }">
             {{ zprava }}
         </div>
     </div>
@@ -44,7 +41,7 @@ onMounted(() => {
     font-size: 0.9rem;
 
     position: absolute;
-    z-index: 1;
+    z-index: 100;
 }
 
 #obsah:hover~#tooltip {

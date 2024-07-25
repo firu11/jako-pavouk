@@ -5,9 +5,13 @@ import axios from 'axios';
 import { checkTeapot, getToken, pridatOznameni } from '../utils';
 import Tooltip from "../components/Tooltip.vue";
 
+const props = defineProps({
+    tridaID: Number,
+})
+
 const textovePole = ref<InstanceType<typeof TextZadani> | null>(null)
 
-const delka = ref(1)
+const delka = ref(5 * 60)
 const typTextu = ref("")
 
 function getText() {
@@ -26,8 +30,26 @@ function getText() {
     puvodniText.value = textovePole.value!.text
 }
 
+function pridatPraci() {
+    axios.post("/skola/pridat-praci", {
+        "cas": delka,
+        "trida_id": props.tridaID,
+        "text": textovePole.value!.text
+    }, {
+        headers: {
+            Authorization: `Bearer ${getToken()}`
+        }
+    }).then(response => {
+
+    }).catch(e => {
+        if (checkTeapot(e)) return
+        console.log(e)
+        pridatOznameni("Chyba serveru")
+    })
+}
+
 function d(x: number) {
-    delka.value = x * 60
+    delka.value = x
 }
 
 const puvodniText = ref("")
@@ -44,7 +66,7 @@ function smazatVelkaPismena() {
 
 function smazatEnterAMezery() {
     puvodniText.value = textovePole.value!.text
-    textovePole.value!.text = textovePole.value!.text.replace(/\n/g, " ").replace(/ {2,}/g, " ").trimEnd()
+    textovePole.value!.text = textovePole.value!.text.replace(/\n/g, " ").replace(/ {2,}/g, " ").trim()
 }
 
 function resetSmazanych() {
@@ -63,14 +85,14 @@ function resetSmazanych() {
                         <h3>Čas</h3>
                     </Tooltip>
                     <hr id="predel2">
-                    <button :class="{ aktivni: 1 == delka }" @click="d(1)">1min</button>
-                    <button :class="{ aktivni: 2 == delka }" @click="d(2)">2min</button>
-                    <button :class="{ aktivni: 3 == delka }" @click="d(3)">3min</button>
-                    <button :class="{ aktivni: 5 == delka }" @click="d(5)">5min</button>
-                    <button :class="{ aktivni: 10 == delka }" @click="d(10)">10min</button>
-                    <button :class="{ aktivni: 15 == delka }" @click="d(15)">15min</button>
-                    <button :class="{ aktivni: 20 == delka }" @click="d(20)">20min</button>
-                    <button :class="{ aktivni: 30 == delka }" @click="d(30)">30min</button>
+                    <button :class="{ aktivni: 60 == delka }" @click="d(60)">1min</button>
+                    <button :class="{ aktivni: 120 == delka }" @click="d(120)">2min</button>
+                    <button :class="{ aktivni: 180 == delka }" @click="d(180)">3min</button>
+                    <button :class="{ aktivni: 300 == delka }" @click="d(300)">5min</button>
+                    <button :class="{ aktivni: 600 == delka }" @click="d(600)">10min</button>
+                    <button :class="{ aktivni: 900 == delka }" @click="d(900)">15min</button>
+                    <button :class="{ aktivni: 1200 == delka }" @click="d(1200)">20min</button>
+                    <button :class="{ aktivni: 1800 == delka }" @click="d(1800)">30min</button>
                 </div>
 
                 <hr id="predel">
@@ -85,13 +107,19 @@ function resetSmazanych() {
                     <div class="kontejner">
                         <button @click="resetSmazanych" class="cerveneTlacitko">Zrušit poslední úpravu</button>
                     </div>
+
+                    <button @click="resetSmazanych" class="tlacitko">Zadat práci</button>
                 </div>
             </div>
         </div>
 
         <div id="text">
             <div>
-                <div>{{ textovePole?.text.length }} znaků</div>
+                <span>
+                    <Tooltip :sirka="1000" zprava="Znaky / Slova">
+                        {{ textovePole?.text.length }} / {{ textovePole?.text == "" ? 0 : textovePole?.text.trim().split(' ').length }}
+                    </Tooltip>
+                </span>
                 <select v-model="typTextu" placeholder="Druh textu..." @select="getText">
                     <option value="" selected>Vlastní text</option>
                     <option value="Věty z pohádek">Věty z pohádek</option>
@@ -105,13 +133,16 @@ function resetSmazanych() {
     </div>
 </template>
 <style scoped>
-.tlacitko, .cerveneTlacitko {
-    width: 250px;
+.kontejner .tlacitko,
+.cerveneTlacitko {
+    width: 225px;
 }
 
 .vertKontejner {
+    width: 100%;
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: space-around;
 }
 
@@ -161,7 +192,8 @@ select option:disabled {
     width: 410px;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 90px - 60px - 40px - 25px - 30px - 5px); /* celá obrazovka - všechno co je nad tím */
+    height: calc(100vh - 90px - 60px - 40px - 25px - 30px - 5px);
+    /* celá obrazovka - všechno co je nad tím */
     border-radius: 10px;
     gap: 15px;
 }
@@ -172,7 +204,9 @@ select option:disabled {
     align-items: center;
 }
 
-#text>div>div {
+#text>div span {
+    display: block;
+    justify-self: start;
     width: 120px;
     height: 40px;
     padding: 10px;

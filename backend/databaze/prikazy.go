@@ -483,8 +483,10 @@ func GetUdaje(uzivID uint) (float32, []float64, int, map[string]int, error) {
 			return presnost, cpm, daystreak, chybyPismenka, err
 		}
 
-		if d == date.Today() && daystreak == 0 {
-			daystreak++
+		if d == date.Today() {
+			if daystreak == 0 {
+				daystreak++
+			}
 		} else if posledniHledanyDen == d {
 			daystreak++
 			posledniHledanyDen = posledniHledanyDen.AddDate(0, 0, -1) // dalsi den
@@ -870,5 +872,10 @@ func ZapsatStudenta(kod string, studentID uint, jmeno string) error {
 		return err
 	}
 	_, err = DB.Exec(`UPDATE uzivatel SET skolni_jmeno = $1 WHERE id = $2;`, jmeno, studentID)
+	return err
+}
+
+func PridatPraci(text string, cas int, tridaID int) error {
+	_, err := DB.Exec(`INSERT INTO prace (trida_id, text, cas) VALUES ($1, $2, $3)`, tridaID, text, cas)
 	return err
 }
