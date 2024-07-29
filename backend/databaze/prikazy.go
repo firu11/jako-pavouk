@@ -84,10 +84,18 @@ type (
 	Trida struct {
 		ID       uint   `json:"id" db:"id"`
 		Jmeno    string `json:"jmeno" db:"jmeno"`
-		UcitelID uint   `json:"ucitel_id" db:"ucitel_id"`
+		UcitelID uint   `json:"-" db:"ucitel_id"`
 		Kod      string `json:"kod" db:"kod"`
 		Zamknuta bool   `json:"zamknuta" db:"zamknuta"`
 		Smazana  bool   `json:"smazana" db:"smazana"`
+	}
+
+	Prace struct {
+		ID      uint      `json:"id" db:"id"`
+		TridaID uint      `json:"-" db:"trida_id"`
+		Text    string    `json:"text" db:"text"`
+		Cas     int       `json:"cas" db:"cas"`
+		Datum   time.Time `json:"datum" db:"datum"`
 	}
 )
 
@@ -269,7 +277,7 @@ func GetDokonceneCvicVLekci(uzivID uint, lekceID uint, pismena string) ([]Cvic, 
 			return cviceniIDs, err
 		}
 	}
-	rows, err = DB.Queryx(`SELECT cviceni_id, MAX(((d.delka_textu - 10 * d.neopravene) / d.cas) * 60) AS cpm FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id WHERE lekce_id = $1 AND uziv_id = $2 GROUP BY d.cviceni_id;`, lekceID, uzivID)
+	rows, err = DB.Queryx(`SELECT cviceni_id, MAX(((d.delka_textu - 10 * d.neopravene)::float / d.cas) * 60) AS cpm FROM dokoncene d JOIN cviceni c ON d.cviceni_id = c.id WHERE lekce_id = $1 AND uziv_id = $2 GROUP BY d.cviceni_id;`, lekceID, uzivID)
 	if err != nil {
 		return cviceniIDs, err
 	}
@@ -475,7 +483,7 @@ func GetUdaje(uzivID uint) (float32, []float64, int, map[string]int, error) {
 	}
 	defer rows.Close()
 
-	var posledniHledanyDen date.Date = date.Today().AddDate(0, 0, -1) // vcera
+	var posledni date.Date = date.Today()
 	for rows.Next() {
 		var c float32
 		var d date.Date
@@ -483,13 +491,14 @@ func GetUdaje(uzivID uint) (float32, []float64, int, map[string]int, error) {
 			return presnost, cpm, daystreak, chybyPismenka, err
 		}
 
-		if d == date.Today() {
+		if d == posledni {
 			if daystreak == 0 {
 				daystreak++
 			}
-		} else if posledniHledanyDen == d {
+			continue
+		} else if posledni.AddDate(0, 0, -1) == d {
 			daystreak++
-			posledniHledanyDen = posledniHledanyDen.AddDate(0, 0, -1) // dalsi den
+			posledni = d
 		} else {
 			break
 		}
@@ -759,18 +768,25 @@ func GetTrida(id uint) (Trida, error) {
 	return trida, err
 }
 
+func GetTridaByStudentID(id uint) (Trida, error) {
+	var trida Trida
+	err := DB.QueryRowx(`SELECT * FROM trida WHERE id = (SELECT s.trida_id FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id WHERE u.id = $1);`, id).StructScan(&trida)
+	return trida, err
+}
+
 type TridaInfo struct {
 	ID            string `json:"id" db:"id"`
 	Jmeno         string `json:"jmeno" db:"jmeno"`
 	Kod           string `json:"kod" db:"kod"`
 	Zamknuta      bool   `json:"zamknuta" db:"zamknuta"`
 	PocetStudentu int    `json:"pocet_studentu" db:"pocet_studentu"`
+	PocetPraci    int    `json:"pocet_praci" db:"pocet_praci"`
 }
 
 func GetTridy(ucitelID uint) ([]TridaInfo, error) {
 	var tridy []TridaInfo = []TridaInfo{}
 
-	rows, err := DB.Queryx(`SELECT id, jmeno, kod, zamknuta, (SELECT COUNT(*) FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id WHERE s.trida_id = trida.id) as pocet_studentu FROM trida WHERE ucitel_id = $1 AND smazana = FALSE;`, ucitelID)
+	rows, err := DB.Queryx(`SELECT id, jmeno, kod, zamknuta, (SELECT COUNT(*) FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id WHERE s.trida_id = trida.id) as pocet_studentu,  (SELECT COUNT(*) FROM prace WHERE prace.trida_id = trida.id) as pocet_praci FROM trida WHERE ucitel_id = $1 AND smazana = FALSE;`, ucitelID)
 	if err != nil {
 		return tridy, err
 	}
@@ -875,7 +891,91 @@ func ZapsatStudenta(kod string, studentID uint, jmeno string) error {
 	return err
 }
 
-func PridatPraci(text string, cas int, tridaID int) error {
+func PridatPraci(text string, cas int, tridaID uint) error {
 	_, err := DB.Exec(`INSERT INTO prace (trida_id, text, cas) VALUES ($1, $2, $3)`, tridaID, text, cas)
+	return err
+}
+
+func GetVsechnyPrace(tridaID uint) ([]Prace, error) {
+	var prace []Prace = []Prace{}
+
+	rows, err := DB.Queryx(`SELECT * FROM prace WHERE trida_id = $1;`, tridaID)
+	if err != nil {
+		return prace, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var p Prace
+		err := rows.StructScan(&p)
+		if err != nil {
+			return prace, err
+		}
+
+		prace = append(prace, p)
+	}
+
+	return prace, nil
+}
+
+func GetDokoncenePrace(tridaID, studentID uint) (map[uint]float64, map[uint]float64, error) {
+	var cpmka map[uint]float64 = make(map[uint]float64)
+	var presnost map[uint]float64 = make(map[uint]float64)
+
+	rows, err := DB.Queryx(`SELECT p.id, ((d.delka_textu - 10 * d.neopravene)::float / d.cas) * 60 AS cpm, d.delka_textu, d.neopravene, d.chyby_pismenka FROM dokoncena_prace d INNER JOIN prace p ON d.prace_id = p.id WHERE p.trida_id = $1 AND d.student_id = $2;`, tridaID, studentID)
+	if err != nil {
+		return cpmka, presnost, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var p uint
+		var cpm float64
+		var delkaTextu, neopravene int
+		var chybyPismenkaRowByte []byte
+		err := rows.Scan(&p, &cpm, &delkaTextu, &neopravene, &chybyPismenkaRowByte)
+		if err != nil {
+			return cpmka, presnost, err
+		}
+
+		var soucetChyb int
+		var chybyPismenkaRow map[string]int
+		err = json.Unmarshal(chybyPismenkaRowByte, &chybyPismenkaRow)
+		if err != nil {
+			return cpmka, presnost, err
+		}
+
+		for _, hodnota := range chybyPismenkaRow {
+			soucetChyb += hodnota
+		}
+		var pres float64 = float64(delkaTextu-soucetChyb-neopravene) / float64(delkaTextu) * 100
+		if pres < 0 {
+			pres = 0
+		}
+
+		presnost[p] = pres
+		cpmka[p] = cpm
+	}
+
+	return cpmka, presnost, nil
+}
+
+func GetPrace(praceID, studentID uint) (string, int, error) {
+	var text string
+	var cas int
+	err := DB.QueryRowx(`SELECT p.text, p.cas FROM prace p INNER JOIN student_a_trida s ON p.trida_id = s.trida_id AND s.student_id = $1 AND p.id = $2;`, studentID, praceID).Scan(&text, &cas)
+	if err == sql.ErrNoRows {
+		return text, cas, errors.New("asi nepatris do teto tridy")
+	}
+	return text, cas, err
+}
+
+func DokoncitPraci(praceID, studentID uint, neopravene int, cas float32, delkaTextu int, chybyPismenka map[string]int) error {
+	chybyPismenkaJSON, err := json.Marshal(chybyPismenka)
+	if err != nil {
+		return err
+	}
+
+	_, err = DB.Exec(`INSERT INTO dokoncena_prace (prace_id, student_id, neopravene, cas, delka_textu, chyby_pismenka) VALUES ($1, $2, $3, $4, $5, $6);`, praceID, studentID, neopravene, cas, delkaTextu, chybyPismenkaJSON)
 	return err
 }

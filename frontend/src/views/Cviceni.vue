@@ -51,12 +51,13 @@ function get() {
         posledni.value = response.data.posledni
         klavesnice.value = response.data.klavesnice
         typTextu.value = response.data.typ
-        nacitamNovej.value = false
     }).catch(e => {
         if (!checkTeapot(e)) {
             pridatOznameni()
             router.back()
         }
+    }).finally(() => {
+        nacitamNovej.value = false
     })
 }
 

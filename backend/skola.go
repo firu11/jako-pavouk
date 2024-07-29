@@ -6,6 +6,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -30,7 +31,20 @@ type (
 	bodyPridatPraci struct {
 		Text    string `json:"text" validate:"required,min=1"`
 		Cas     int    `json:"cas" validate:"required"`
-		TridaID int    `json:"trida_id" validate:"required"`
+		TridaID uint   `json:"trida_id" validate:"required"`
+	}
+	bodyGetText struct {
+		Typ string `json:"typ" validate:"required"`
+	}
+
+	praceProStudenta struct {
+		ID       uint      `json:"id"`
+		TridaID  uint      `json:"-"`
+		Text     string    `json:"-"`
+		Cas      int       `json:"cas"`
+		Datum    time.Time `json:"datum"`
+		Cpm      float64   `json:"cpm"`
+		Presnost float64   `json:"presnost"`
 	}
 )
 
@@ -42,11 +56,16 @@ func setupSkolniRouter(api *fiber.Router) {
 
 	skolaApi.Post("/create-trida", createTrida)
 	skolaApi.Get("/tridy", tridy)
+	skolaApi.Get("/trida", tridaStudent)
 	skolaApi.Get("/trida/:id", trida)
 	skolaApi.Get("/test-tridy/:kod", testTridy)
 	skolaApi.Post("/zmena-tridy", zmenaTridy)
 
 	skolaApi.Post("/pridat-praci", pridatPraci)
+	skolaApi.Get("/get-praci/:id", getPraci)
+	skolaApi.Post("/dokoncit-praci/:id", dokoncitPraci)
+
+	skolaApi.Post("/text", getText)
 
 	skolaApi.Get("/student/:id", student)
 	skolaApi.Post("/student", studentPrejmenovat)
@@ -147,8 +166,55 @@ func trida(c *fiber.Ctx) error {
 		log.Println(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
+	prace, err := databaze.GetVsechnyPrace(trida.ID)
+	if err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"trida": trida, "studenti": studenti})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"trida": trida, "studenti": studenti, "prace": prace})
+}
+
+func tridaStudent(c *fiber.Ctx) error {
+	id, err := utils.Autentizace(c, true)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	}
+	uziv, err := databaze.GetUzivByID(id)
+	if err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+
+	trida, err := databaze.GetTridaByStudentID(uziv.ID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
+	prace, err := databaze.GetVsechnyPrace(trida.ID)
+	if err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	cpmka, presnost, err := databaze.GetDokoncenePrace(trida.ID, uziv.ID)
+	if err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+
+	var vysledek []praceProStudenta
+	for _, p := range prace {
+		cpm, ok := cpmka[p.ID]
+		if !ok || cpm < 0 {
+			cpm = -1
+		}
+		pres, ok := presnost[p.ID]
+		if !ok || pres < 0 {
+			pres = -1
+		}
+		vysledek = append(vysledek, praceProStudenta{ID: p.ID, TridaID: p.TridaID, Text: p.Text, Cas: p.Cas, Datum: p.Datum, Cpm: cpm, Presnost: pres})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"trida": trida, "prace": vysledek})
 }
 
 func testTridy(c *fiber.Ctx) error {
@@ -349,6 +415,116 @@ func pridatPraci(c *fiber.Ctx) error {
 
 	if err = databaze.PridatPraci(body.Text, body.Cas, body.TridaID); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+
+	return c.SendStatus(fiber.StatusOK)
+}
+
+func getText(c *fiber.Ctx) error {
+	id, err := utils.Autentizace(c, true)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	}
+	uziv, err := databaze.GetUzivByID(id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	if uziv.Role != 2 {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Tohle muze pouze ucitel"))
+	}
+
+	var body bodyGetText
+	if err := c.BodyParser(&body); err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Spatny body"))
+	}
+	if err := utils.ValidateStruct(&body); err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Spatny body"))
+	}
+
+	var text strings.Builder
+
+	if body.Typ == "Věty z pohádek" {
+		vety, err := databaze.GetVsechnyVety(int(pocetZnaku / 85)) // cca 85 znaku na vetu
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
+		}
+
+		for _, v := range vety {
+			text.WriteString(v)
+			text.WriteString(" ")
+		}
+	} else {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Takový typ nemáme"))
+	}
+
+	var vyslednyText string = text.String()
+	if string(vyslednyText[len(vyslednyText)-1]) == " " {
+		vyslednyText = vyslednyText[:len(vyslednyText)-1]
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": vyslednyText})
+}
+
+func getPraci(c *fiber.Ctx) error {
+	id, err := utils.Autentizace(c, true)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	}
+	uziv, err := databaze.GetUzivByID(id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+
+	praceID, err := strconv.ParseUint(c.Params("id"), 10, 32)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
+
+	text, cas, err := databaze.GetPrace(uint(praceID), id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
+	}
+
+	var vyslednyText []string
+
+	slova := strings.Split(text, " ")
+	for _, v := range slova {
+		vyslednyText = append(vyslednyText, v+" ")
+	}
+
+	utils.SmazatMezeruNaKonci(vyslednyText)
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": vyslednyText, "cas": cas, "klavesnice": uziv.Klavesnice})
+}
+
+func dokoncitPraci(c *fiber.Ctx) error {
+	id, err := utils.Autentizace(c, true)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	}
+	var body = bodyDokoncit{}
+
+	if err := c.BodyParser(&body); err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	if err := utils.ValidateStruct(&body); err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	praceID, err := strconv.ParseUint(c.Params("id"), 10, 32)
+	if err != nil {
+		log.Print(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+
+	log.Println(praceID)
+
+	err = databaze.DokoncitPraci(uint(praceID), id, body.Preklepy, body.Cas, body.DelkaTextu, body.NejcastejsiChyby)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
 
 	return c.SendStatus(fiber.StatusOK)

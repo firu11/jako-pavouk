@@ -146,7 +146,7 @@ function zrusitVyber() {
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 5" pismena="..." :jeDokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[3]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
             :oznacena="o.is(l['id'])" :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
-        <h2>Poslední soud</h2>
+        <h2>Závěr kurzu</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 2" pismena="..." :jeDokoncena="false" />
         <BlokLekce v-else v-for="l in lekce[4]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
             :oznacena="o.is(l['id'])" :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />

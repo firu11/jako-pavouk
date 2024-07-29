@@ -155,3 +155,10 @@ func GetRole(uzivRole int, trida_id uint) string {
 	}
 	return "basic"
 }
+
+func SmazatMezeruNaKonci(text []string) {
+	posledniSlovo := text[len(text)-1]
+	if string(posledniSlovo[len(posledniSlovo)-1]) == " " {
+		text[len(text)-1] = text[len(text)-1][:len(posledniSlovo)-1]
+	}
+}
