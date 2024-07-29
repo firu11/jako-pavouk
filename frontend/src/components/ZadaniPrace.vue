@@ -9,38 +9,46 @@ const props = defineProps({
     tridaID: Number,
 })
 
+const emit = defineEmits(["zadano"])
+
 const textovePole = ref<InstanceType<typeof TextZadani> | null>(null)
 
 const delka = ref(5 * 60)
 const typTextu = ref("")
 
 function getText() {
+    if (typTextu.value == "") return
+
     axios.post("/skola/text", { "typ": typTextu.value }, {
         headers: {
             Authorization: `Bearer ${getToken()}`
         }
     }).then(response => {
-        console.log(response)
+        puvodniText.value = textovePole.value!.text
+        textovePole.value!.text = response.data.text
     }).catch(e => {
         if (checkTeapot(e)) return
         console.log(e)
         pridatOznameni("Chyba serveru")
     })
-
-    puvodniText.value = textovePole.value!.text
 }
 
 function pridatPraci() {
+    if (textovePole.value!.text.length <= 10) {
+        pridatOznameni("Není text nějak krátký?")
+        return
+    }
+
     axios.post("/skola/pridat-praci", {
-        "cas": delka,
+        "cas": delka.value,
         "trida_id": props.tridaID,
         "text": textovePole.value!.text
     }, {
         headers: {
             Authorization: `Bearer ${getToken()}`
         }
-    }).then(response => {
-
+    }).then(_ => {
+        emit("zadano")
     }).catch(e => {
         if (checkTeapot(e)) return
         console.log(e)
@@ -108,7 +116,7 @@ function resetSmazanych() {
                         <button @click="resetSmazanych" class="cerveneTlacitko">Zrušit poslední úpravu</button>
                     </div>
 
-                    <button @click="resetSmazanych" class="tlacitko">Zadat práci</button>
+                    <button @click="pridatPraci" class="tlacitko">Zadat práci</button>
                 </div>
             </div>
         </div>
@@ -120,9 +128,10 @@ function resetSmazanych() {
                         {{ textovePole?.text.length }} / {{ textovePole?.text == "" ? 0 : textovePole?.text.trim().split(' ').length }}
                     </Tooltip>
                 </span>
-                <select v-model="typTextu" placeholder="Druh textu..." @select="getText">
+                <select v-model="typTextu" @change="getText">
                     <option value="" selected>Vlastní text</option>
                     <option value="Věty z pohádek">Věty z pohádek</option>
+                    <option value="Pohádky">Pohádky</option>
                     <option value="Zeměpis">Zeměpis</option>
                     <option value="Dějepis">Dějepis</option>
                 </select>

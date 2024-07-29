@@ -423,7 +423,7 @@ function zmenaJmena(e: Event) {
 
 #nadpisy form {
     margin: 0;
-    max-width: 280px;
+    max-width: 250px;
 }
 
 #ucet img {

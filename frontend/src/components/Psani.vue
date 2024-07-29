@@ -19,14 +19,44 @@ useHead({
 
 const emit = defineEmits(["konec", "pise", "restart", "prodlouzit"])
 
-const props = defineProps<{
-    text: { id: number, znak: string, spatne: number, psat: boolean }[][]
-    cas: number, // vteřiny
-    klavesnice: string,
-    hideKlavesnice: boolean,
-    nacitamNovej: boolean,
-    delkaTextu: number,
-}>()
+interface TextInterface {
+    id: number;
+    znak: string;
+    spatne: number;
+    psat: boolean;
+}
+type TextTyp = TextInterface[][];
+
+const props = defineProps({
+    text: {
+        type: Array as () => TextTyp, //whataheeeeeel
+        required: true,
+    },
+    cas: {
+        type: Number,
+        required: true
+    },
+    klavesnice: {
+        type: String,
+        required: true
+    },
+    hideKlavesnice: {
+        type: Boolean,
+        required: true
+    },
+    nacitamNovej: {
+        type: Boolean,
+        required: true
+    },
+    delkaTextu: {
+        type: Number,
+        required: true
+    },
+    resetBtn: {
+        type: Boolean,
+        default: true
+    }
+})
 
 const route = useRoute()
 
@@ -58,7 +88,7 @@ const casFormat = computed(() => {
 })
 
 const aktivniPismeno = computed(() => {
-    if (counterSlov.value < props.text.length) return props.text[counterSlov.value][counter.value]
+    if (counterSlov.value < props.text!.length) return props.text[counterSlov.value][counter.value]
     return { id: -1, znak: "", spatne: 0, psat: false }
 })
 
@@ -378,7 +408,8 @@ defineExpose({ restart })
                 <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice" />
             </Transition>
             <Transition>
-                <div v-if="klavesnice != ''" id="resetBtn" @click="resetTlacitko(); animace()" :class="{ schovat: route.fullPath == '/prvni-psani' }">
+                <div v-if="klavesnice != '' && props.resetBtn" id="resetBtn" @click="resetTlacitko(); animace()"
+                    :class="{ schovat: route.fullPath == '/prvni-psani' }">
                     <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Nastavení">
                 </div>
             </Transition>

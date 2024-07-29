@@ -14,7 +14,7 @@ watch(text, () => {
     let t = text.value
         .replace(/\n$/g, '\n\n')
         .replace(/(\r\n|\r|\n)/g, "↵\n")
-        .replace(/( {2,})|(↵\n)|( $)|!(.(\r\n|\r|\n))|([^A-Za-z0-9ěščřžýáíéůúťďňó ,.!?;:_=+\-*/%()[\]{}<>])/g, `<m style='background-color: rgba(255, 0, 0, 0.4); font-family: "Red Hat Mono", monospace; border-radius: 3px'>$&</m>`)
+        .replace(/(^ )|( {2,})|(↵\n)|( $)|!(.(\r\n|\r|\n))|([^A-Za-z0-9ěščřžýáíéůúťďňóĚŠČŘŽÝÁÍÉŮÚŤĎŇÓ ,.!?;:_=+\-*/%()[\]{}<>])/g, `<m style='background-color: rgba(255, 0, 0, 0.4); font-family: "Red Hat Mono", monospace; border-radius: 3px'>$&</m>`)
     // krejzy https://codersblock.com/blog/highlight-text-inside-a-textarea/
     div.value!.innerHTML = t
 })
@@ -42,7 +42,7 @@ div {
     overflow-y: auto;
     text-decoration: none;
 
-    color: transparent;
+    color: rgb(156, 156, 156);
     font-family: "Red Hat Mono", monospace;
 
     white-space: pre-wrap;

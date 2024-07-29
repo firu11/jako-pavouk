@@ -41,6 +41,10 @@ const router = createRouter({
             component: () => import('./views/student/Trida.vue'),
         },
         {
+            path: '/prace/:id',
+            component: () => import('./views/student/Prace.vue'),
+        },
+        {
             path: '/zapis/:kod',
             component: () => import('./views/student/Zapis.vue'),
         },

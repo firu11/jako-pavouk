@@ -202,12 +202,12 @@ h2 {
     }
 
     .blok span b {
-        font-size: 1.2rem;
+        font-size: 1.35rem;
     }
 
     .blok span {
         font-size: 0.8rem;
-        top: -0.5px;
+        top: -2.5px;
         gap: 3px;
         height: 22px;
     }

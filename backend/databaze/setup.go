@@ -19,4 +19,6 @@ func DBConnect() {
 	if err != nil {
 		log.Fatal("Databaze se pokazila", err)
 	}
+
+	log.Printf("Připojeno k db %q", os.Getenv("DB_JMENO"))
 }

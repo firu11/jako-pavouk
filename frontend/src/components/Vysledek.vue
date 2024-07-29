@@ -34,7 +34,10 @@ const props = defineProps({
         default: new MojeMapa()
     },
     cislo: String,
-    posledni: Boolean
+    posledni: {
+        type: Boolean,
+        default: true
+    }
 })
 
 let rychlost = ((props.delkaTextu - (10 * props.preklepy)) / props.cas) * 60
@@ -89,6 +92,24 @@ onMounted(() => {
         if (props.cislo == "test-psani") cislo = "0" // test psani
 
         axios.post("/dokonceno-procvic/" + cislo, {
+            "neopravenePreklepy": props.preklepy,
+            "cas": props.cas,
+            "delkaTextu": props.delkaTextu,
+            "nejcastejsiChyby": Object.fromEntries(props.nejcastejsiChyby)
+        }, {
+            headers: {
+                Authorization: `Bearer ${getToken()}`
+            }
+        }).catch(function (e) {
+            console.log(e)
+        })
+        return
+    }
+
+    if (props.pismena == "pracepraceprace") { // je to práce
+        let id = props.cislo
+
+        axios.post("/skola/dokoncit-praci/" + id, {
             "neopravenePreklepy": props.preklepy,
             "cas": props.cas,
             "delkaTextu": props.delkaTextu,
@@ -205,7 +226,10 @@ function e1(e: KeyboardEvent) {
         </div>
     </div>
 
-    <div v-if="props.cislo != 'prvni-psani' && props.cislo != 'test-psani'" id="tlacitka_kontainer">
+    <div v-if="props.pismena == 'pracepraceprace'" id="tlacitka_kontainer">
+        <button class="tlacitko" @click="router.push('/trida')">Zpět do třídy</button>
+    </div>
+    <div v-else-if="props.cislo != 'prvni-psani' && props.cislo != 'test-psani'" id="tlacitka_kontainer">
         <button class="tlacitko" @click="reset">Zkusit znovu</button>
         <button class="tlacitko" @click="dalsi()">Pokračovat</button>
     </div>

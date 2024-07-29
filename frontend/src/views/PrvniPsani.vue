@@ -34,7 +34,7 @@ function setup() {
     text.value = [] as { id: number, znak: string, spatne: number, psat: boolean }[][]
     let textRaw = "ffff jjjj ffjj jjff fjfj jfjf fjjj jfff jfjj fjff jjfj ffjf fjjf jffj "
     let slovoCounter = -1
-    for (let j = 0; j < 20; j++) {
+    for (let j = 0; j < 35; j++) {
         for (let i = 0; i < textRaw.length; i++) {
             if (i == 0 || textRaw[i - 1] == " ") {
                 text.value.push([])
@@ -64,7 +64,7 @@ const ok = ref(false)
     <h1 style="margin: 0">První krůčky</h1>
 
     <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="ok = true" :text :klavesnice="'qwertz'" :hide-klavesnice="!ok"
-        :nacitamNovej="false" :cas="15" :delkaTextu />
+        :nacitamNovej="false" :cas="30" :delkaTextu />
 
     <Vysledek v-else :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaNapsanehoTextu" :cas="15" :cislo="'prvni-psani'" :posledni="true"
         @restart="restart" />
