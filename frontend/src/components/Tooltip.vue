@@ -12,7 +12,6 @@ const props = defineProps({
 
 const obsah = ref({} as HTMLElement)
 const y = ref(0)
-const sirka = ref(props.sirka)
 
 onMounted(() => {
     y.value = obsah.value.getBoundingClientRect().bottom + props.vzdalenost

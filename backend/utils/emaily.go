@@ -24,7 +24,9 @@ func PoslatOverovaciEmail(email string, kod string) error {
 
 	d := gomail.NewDialer(os.Getenv("EMAIL_HOST"), port, os.Getenv("EMAIL_FROM"), os.Getenv("EMAIL_HESLO"))
 	if err := d.DialAndSend(m); err != nil {
-		log.Print("NEFUNGUJE MAIL GG WOOWOO")
+		log.Print("NEFUNGUJE MAIL GG WOOWOO", err)
+		MobilNotifikace("NEFUNGUJE MAIL")
+		return err
 	}
 	log.Println("Posláno -", email)
 	return nil
