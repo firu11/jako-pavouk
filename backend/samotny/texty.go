@@ -3,8 +3,9 @@ package main
 import (
 	"bufio"
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
-	"log"
+	"io"
 	"os"
 	"sort"
 	"strings"
@@ -23,9 +24,9 @@ type lekcos struct {
 }
 
 func main() {
-	err := godotenv.Load(".env")
+	err := godotenv.Load("../.env")
 	if err != nil {
-		log.Fatal("Nenašel jsem soubor .env v /backend.")
+		panic("Nenašel jsem soubor .env v /backend.")
 	}
 
 	fmt.Printf("Připojuješ se na %s (.env)\n", os.Getenv("DB_JMENO"))
@@ -33,18 +34,23 @@ func main() {
 	connStr := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=disable", os.Getenv("DB_UZIV"), os.Getenv("DB_HESLO"), os.Getenv("DB_HOST"), os.Getenv("DB_JMENO"))
 	DB, err = sqlx.Open("postgres", connStr)
 	if err != nil {
-		log.Fatal("Databaze se pokazila", err)
+		panic("Databaze se pokazila" + err.Error())
 	}
 
 	for {
-		fmt.Print("Slovnik (s) / Pohadky (p): ")
+		fmt.Print("Slovnik (s) / Pohadky (p) / Texty (t): ")
 		var input string
 		fmt.Scan(&input)
 		if input == "s" {
 			PushSlovnik()
-			break
 		} else if input == "p" {
 			PushPohadky()
+		} else if input == "t" {
+			PushTexty()
+		} else if input == "q" {
+			break
+		} else if input == "l" {
+			//TODO testovaci
 			break
 		}
 	}
@@ -57,6 +63,7 @@ Tahle funkce projde vsechny slovicka ve csv souboru a nasazi do databaze do tabu
 */
 func PushSlovnik() {
 	fmt.Println("\nJdem na slovník")
+	fmt.Println("-----------------------------")
 
 	rowsZ, err1 := DB.Query(`SELECT id, pismena FROM lekce WHERE klavesnice = 'qwertz' OR klavesnice = 'oboje' ORDER BY id ASC;`)
 	rowsY, err2 := DB.Query(`SELECT id, pismena FROM lekce WHERE klavesnice = 'qwerty' OR klavesnice = 'oboje' ORDER BY id ASC;`)
@@ -84,9 +91,9 @@ func PushSlovnik() {
 
 	fmt.Println("Lekce z DB načteny")
 
-	f, err := os.Open("./slovnik.txt")
+	f, err := os.Open("./samotny/texty/slovnik.txt")
 	if err != nil {
-		log.Println("spatna cesta k slovniku")
+		fmt.Println("spatna cesta k slovniku")
 		return
 	}
 	csvReader := csv.NewReader(f)
@@ -151,7 +158,7 @@ func PushSlovnik() {
 		CREATE INDEX idx_random ON slovnik (nahodnost);
 	`)
 	if err != nil {
-		log.Panic(err)
+		panic(err)
 	}
 
 	fmt.Printf("%v slov jde do DB\n", len(records))
@@ -174,10 +181,11 @@ func obsahujeJenOKPismena(slovo string, pismena string) bool {
 
 func PushPohadky() {
 	fmt.Println("\nJdem na pohadky")
+	fmt.Println("-----------------------------")
 
-	f, err := os.Open("./pohadky.txt")
+	f, err := os.Open("./samotny/texty/pohadky.txt")
 	if err != nil {
-		log.Println("spatna cesta k souboru")
+		fmt.Println("spatna cesta k souboru")
 		return
 	}
 	defer f.Close()
@@ -225,7 +233,7 @@ func PushPohadky() {
     	);
 	`)
 	if err != nil {
-		log.Panic(err)
+		panic(err)
 	}
 
 	fmt.Printf("%v pohádek jde do DB", pocet)
@@ -233,4 +241,139 @@ func PushPohadky() {
 	if _, err := DB.Exec(st); err != nil {
 		panic(err)
 	}
+}
+
+func PushTexty() {
+	/*
+		dohodněme se že:
+			všechny pohádky = typ 1
+			dějepis = typ 2
+			zeměpis = typ 3
+	*/
+
+	fmt.Print("\n")
+	dejepisQuery := pushDejepis()
+	fmt.Print("\n\n")
+	zemepisQuery := pushZemepis()
+	fmt.Print("\n\n")
+
+	var prepare string = `
+		DROP TABLE IF EXISTS texty;
+		DROP TABLE IF EXISTS druhy_textu;
+		CREATE TABLE druhy_textu (
+			id SERIAL PRIMARY KEY,
+			jmeno VARCHAR(255) NOT NULL
+		);
+		CREATE TABLE texty (
+    		id SERIAL PRIMARY KEY,
+    		cislo INTEGER,
+    		jmeno VARCHAR(255),
+    		typ INTEGER REFERENCES druhy_textu (id),
+    		text TEXT,
+    		delka INTEGER
+		);
+		INSERT INTO druhy_textu (id, jmeno) VALUES 
+			(1, 'Zeměpis'),
+			(2, 'Dějepis'),
+			(3, 'Pohádky')
+		;
+	`
+	_, err := DB.Exec(prepare)
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = DB.Exec(dejepisQuery)
+	if err != nil {
+		panic(err)
+	}
+	_, err = DB.Exec(zemepisQuery)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func pushDejepis() string {
+	fmt.Println("Jdem na dějepis")
+	fmt.Println("-----------------------------")
+
+	f, err := os.Open("./texty/dejepis.txt")
+	if err != nil {
+		panic("spatna cesta k souboru")
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+
+	var texty map[string]string = make(map[string]string)
+	var jmeno string
+	for scanner.Scan() {
+		if jmeno == "" {
+			jmeno = strings.TrimSpace(scanner.Text())
+		} else if scanner.Text() == "" {
+			texty[jmeno] = strings.TrimSpace(texty[jmeno])
+			jmeno = ""
+		} else {
+			texty[jmeno] += strings.TrimSpace(scanner.Text())
+			texty[jmeno] += " "
+		}
+	}
+	texty[jmeno] += strings.TrimSpace(texty[jmeno])
+
+	var pocet int = 0
+	var st string = `INSERT INTO texty (cislo, jmeno, typ, text, delka) VALUES `
+
+	for k, v := range texty {
+		pocet++
+		delka := utf8.RuneCountInString(v)
+		st += fmt.Sprintf(`(%d, '%s', %d, '%s', %d), `, pocet, k, 2, v, delka)
+	}
+
+	st = st[:len(st)-2]
+	st += ";"
+
+	fmt.Printf("%v dějepisných textů jde do DB", pocet)
+
+	return st
+}
+
+func pushZemepis() string {
+	fmt.Println("Jdem na zeměpis")
+	fmt.Println("-----------------------------")
+
+	f, err := os.Open("./texty/zemepis.json")
+	if err != nil {
+		panic("spatna cesta k souboru")
+	}
+	defer f.Close()
+
+	souborByte, err := io.ReadAll(f)
+	if err != nil {
+		panic(err)
+	}
+
+	type Zeme struct {
+		Jmeno string `json:"name"`
+		Obsah string `json:"content"`
+	}
+	var vsechnyZeme map[string]Zeme
+
+	err = json.Unmarshal(souborByte, &vsechnyZeme)
+	if err != nil {
+		panic(err)
+	}
+
+	var st string = `INSERT INTO texty (cislo, jmeno, typ, text, delka) VALUES `
+	var pocet int
+	for _, v := range vsechnyZeme {
+		pocet++
+		st += fmt.Sprintf(`(%d, '%s', %d, '%s', %d), `, pocet, strings.TrimSpace(v.Jmeno), 3, strings.TrimSpace(v.Obsah), utf8.RuneCountInString(v.Obsah))
+	}
+
+	st = st[:len(st)-2]
+	st += ";"
+
+	fmt.Printf("%v zeměpisných textů jde do DB", pocet)
+
+	return st
 }

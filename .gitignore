@@ -5,9 +5,7 @@ taskfile.yaml
 backend/.env
 backend/backend
 backend/backend.exe
-backend/slovnik.csv
-backend/slovnik.txt
-backend/vety.txt
+backend/samotny/texty/
 
 frontend/public/seznam-wmt-BUnHTQ6XWvu0wBfMQUVc2QkzAKbmEEiS.txt
 frontend/dist
