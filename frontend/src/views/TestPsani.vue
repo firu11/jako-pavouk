@@ -9,6 +9,7 @@ import { mobil } from "../stores";
 import { useRouter } from "vue-router";
 import NastaveniBtn from "../components/NastaveniBtn.vue";
 import PsaniMenu from "../components/PsaniMenu.vue";
+import SipkaZpet from '../components/SipkaZpet.vue';
 
 useHead({
     title: "Test psaní",
@@ -200,7 +201,10 @@ async function prodlouzit() {
 </script>
 
 <template>
-    <h1 style="margin: 0">Test psaní</h1>
+    <h1 class="nadpisSeSipkou" style="margin: 0; direction: ltr;">
+        <SipkaZpet />
+        Test psaní
+    </h1>
 
     <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="hideKlavecnice = false" @prodlouzit="prodlouzit" :text="text"
         :klavesnice="klavesnice" :delkaTextu="delkaTextu" :hide-klavesnice="hideKlavecnice" :nacitam-novej="nacitamNovej"

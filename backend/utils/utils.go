@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/mail"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -161,4 +162,73 @@ func SmazatMezeruNaKonci(text []string) {
 	if string(posledniSlovo[len(posledniSlovo)-1]) == " " {
 		text[len(text)-1] = text[len(text)-1][:len(posledniSlovo)-1]
 	}
+}
+
+var uvozovka string = `"`
+var pomlcka string = `-`
+var tabulka = map[rune]string{
+	'„': uvozovka,
+	'”': uvozovka,
+	'“': uvozovka,
+	'‟': uvozovka,
+	'❞': uvozovka,
+	'❝': uvozovka,
+	'🙷': uvozovka,
+	'🙶': uvozovka,
+	'＂': uvozovka,
+	'‚': uvozovka,
+	'’': uvozovka,
+	'‘': uvozovka,
+	'‛': uvozovka,
+	'❛': uvozovka,
+	'❜': uvozovka,
+	'⹂': uvozovka,
+	'…': "...",
+	'‑': pomlcka,
+	'‐': pomlcka,
+	'־': pomlcka,
+	'‒': pomlcka,
+	'–': pomlcka,
+	'—': pomlcka,
+	'―': pomlcka,
+	'⸺': pomlcka,
+	'⸻': pomlcka,
+	'﹘': pomlcka,
+	'﹣': pomlcka,
+	'－': pomlcka,
+	'֊': pomlcka,
+	'᠆': pomlcka,
+	'ä': "a", // nemecke
+	'ö': "o",
+	'ü': "u",
+	'ć': "c", // polske
+	'ą': "a",
+	'ę': "e",
+	'ł': "l",
+	'ń': "n",
+	'ó': "o",
+	'ź': "z",
+	'ż': "z",
+	'ĺ': "l", //slovenske
+	'ľ': "l",
+	'ô': "o",
+	'ŕ': "r",
+}
+
+var mezery = regexp.MustCompile("( {2,})")
+
+func UpravaTextu(txt string) string {
+	var v strings.Builder
+	for _, ch := range txt {
+		if tabulka[ch] != "" {
+			v.WriteString(tabulka[ch])
+		} else {
+			v.WriteRune(ch)
+		}
+	}
+
+	vysledek := v.String()
+	vysledek = mezery.ReplaceAllString(vysledek, " ") // odstrani vice mezer
+
+	return vysledek
 }

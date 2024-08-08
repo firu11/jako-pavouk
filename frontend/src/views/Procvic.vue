@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { checkTeapot, clone, getCisloProcvic, getToken, MojeMapa, pridatOznameni, saveNastaveni } from '../utils';
+import { checkTeapot, clone, getToken, MojeMapa, pridatOznameni, saveNastaveni } from '../utils';
 import SipkaZpet from '../components/SipkaZpet.vue';
-import { computed, onMounted, ref, toRaw } from 'vue';
+import { computed, onMounted, ref, toRaw, watch } from 'vue';
 import axios from 'axios';
 import Vysledek from '../components/Vysledek.vue';
 import { useHead } from '@unhead/vue';
@@ -26,8 +26,9 @@ const opravenePocet = ref(0)
 const nejcastejsiChyby = ref()
 
 const jmeno = ref(". . .")
+const typ = ref(". . .")
 
-const psaniRef = ref()
+const psaniRef = ref<InstanceType<typeof Psani> | null>(null)
 const menuRef = ref()
 
 const konec = ref(false)
@@ -36,11 +37,13 @@ const nacitamNovej = ref(false)
 
 const hideKlavecnice = ref(false)
 
-const interpunkce = ref(false)
+const chciZmenitJmeno = ref([] as { pismeno: number, jmeno: string }[])
+
+let predchoziCislo = 0
 
 function get() {
     nacitamNovej.value = true
-    axios.get("/procvic/" + id + "/" + getCisloProcvic(id), {
+    axios.get("/procvic/" + id + "/" + predchoziCislo, {
         headers: {
             Authorization: `Bearer ${getToken()}`
         }
@@ -49,11 +52,15 @@ function get() {
             text.value.push([])
             const slovoArr = [...slovo]
             slovoArr.forEach(pismeno => {
-                text.value[i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !",.;!?".includes(pismeno) || interpunkce.value })
+                text.value[i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !",.;!?\"".includes(pismeno) || PsaniMenu.interpunkce })
                 delkaTextu.value++
             })
         })
+        if (delkaTextu.value < 250) prodlouzit()
+
         jmeno.value = response.data.jmeno
+        typ.value = response.data.typ
+        predchoziCislo = response.data.cislo
 
         loadAlternativy()
         toggleDiakritikaAVelkaPismena()
@@ -61,7 +68,7 @@ function get() {
         if (response.data.klavesnice != undefined) menuRef.value.klavModel = response.data.klavesnice == "qwerty"
 
         useHead({
-            title: jmeno.value
+            title: typ.value
         })
     }).catch(e => {
         if (!checkTeapot(e)) {
@@ -148,7 +155,7 @@ async function loadAlternativy() {
 async function prodlouzit() {
     nacitamNovej.value = true
 
-    axios.get("/procvic/" + id + "/" + getCisloProcvic(id), {
+    axios.get("/procvic/" + id, {
         headers: {
             Authorization: `Bearer ${getToken()}`
         }
@@ -176,12 +183,14 @@ async function prodlouzit() {
             text.value[pocetSlov - 1].push({ id: delkaTextu.value, znak: " ", spatne: 0, psat: true })
         }
 
+        chciZmenitJmeno.value.push({ pismeno: delkaTextu.value + 1, jmeno: response.data.jmeno })
+
         response.data.text.forEach((slovo: string, i: number) => {
             text.value.push([])
             const slovoArr = [...slovo]
             slovoArr.forEach(pismeno => {
                 delkaTextu.value++
-                text.value[pocetSlov + i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !",.;!?".includes(pismeno) || interpunkce.value })
+                text.value[pocetSlov + i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !",.;!?".includes(pismeno) || PsaniMenu.interpunkce })
             })
         })
     }).catch(e => {
@@ -194,13 +203,29 @@ async function prodlouzit() {
     })
 }
 
+const a = computed(() => {
+    return psaniRef.value?.aktivniPismeno.id
+})
+
+watch(a, () => {
+    if (chciZmenitJmeno.value.length < 1) return
+
+    chciZmenitJmeno.value.sort((a, b) => { return a.pismeno - b.pismeno })
+
+    if (a.value == chciZmenitJmeno.value[0].pismeno) {
+        jmeno.value = chciZmenitJmeno.value[0].jmeno
+        chciZmenitJmeno.value.shift()
+    }
+})
+
 </script>
 
 <template>
     <h1 class="nadpisSeSipkou" style="margin: 0; direction: ltr;">
         <SipkaZpet />
-        {{ jmeno }}
+        {{ typ }}
     </h1>
+    <h2>{{ jmeno }}</h2>
 
     <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="hideKlavecnice = false" @prodlouzit="prodlouzit" :text="text"
         :klavesnice="klavesnice" :delkaTextu="delkaTextu" :hide-klavesnice="hideKlavecnice" :nacitam-novej="nacitamNovej"
@@ -209,7 +234,7 @@ async function prodlouzit() {
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaNapsanehoTextu"
         :cas="menuRef == undefined ? 15 : menuRef.delka" :cislo="id" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
 
-    <PsaniMenu :class="{ hide: konec || !hideKlavecnice }" @restart="restart(); psaniRef.restart()" @toggle="toggleDiakritikaAVelkaPismena"
+    <PsaniMenu :class="{ hide: konec || !hideKlavecnice }" @restart="restart(); psaniRef?.restart()" @toggle="toggleDiakritikaAVelkaPismena"
         :vyberTextu="false" ref="menuRef" />
 
     <NastaveniBtn v-if="!konec" @klik="hideKlavecnice = !hideKlavecnice" />
@@ -220,5 +245,10 @@ async function prodlouzit() {
     opacity: 0;
     z-index: -1000;
     user-select: none;
+}
+
+h2 {
+    margin-top: 5px;
+    color: rgb(194, 194, 194);
 }
 </style>

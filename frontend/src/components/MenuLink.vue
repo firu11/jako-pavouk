@@ -33,6 +33,7 @@ function mobilKlik(e: MouseEvent) {
 <style scoped>
 a {
     color: var(--bila);
+    /* background-color: transparent; TODO aby to při reloadu nešlo do černa*/
     display: block;
     padding: 5px;
     text-decoration: none;

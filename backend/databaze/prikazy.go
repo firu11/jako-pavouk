@@ -97,6 +97,12 @@ type (
 		Cas     int       `json:"cas" db:"cas"`
 		Datum   time.Time `json:"datum" db:"datum"`
 	}
+
+	Procvic struct {
+		ID        uint   `json:"id" db:"id"`
+		Jmeno     string `json:"jmeno" db:"jmeno"`
+		Kategorie string `json:"kategorie" db:"kategorie"`
+	}
 )
 
 // vybírá jméno pro uživatele který se zaregistroval přes google
@@ -226,31 +232,27 @@ func GetDokonceneLekce(uzivID uint) ([]int32, error) {
 	return vysledek, nil
 }
 
-func GetTexty() ([]string, error) {
-	var texty []string
+func GetTexty() ([]Procvic, error) {
+	var texty []Procvic
 
-	rows, err := DB.Query(`SELECT jmeno FROM texty ORDER BY id;`)
+	rows, err := DB.Query(`SELECT id, jmeno, kategorie FROM druhy_textu ORDER BY jmeno;`)
 	if err != nil {
 		return texty, err
 	}
 
-	for rows.Next() {
-		var t string
-		if err = rows.Scan(&t); err != nil {
-			return texty, err
-		}
-		texty = append(texty, t)
-	}
-	return texty, nil
+	err = scan.Rows(&texty, rows)
+
+	return texty, err
 }
 
-func GetProcvicovani(id int, cislo string) (string, []string, error) {
-	var text string
-	var nazev string
+func GetProcvicovani(id, neCislo int) (string, string, []string, int, error) {
+	var text, nazev, podnazev string
+	var cislo int
 
-	err := DB.QueryRow(`SELECT jmeno, text`+cislo+` FROM texty WHERE id = $1 ORDER by id;`, id).Scan(&nazev, &text)
+	r := DB.QueryRow(`SELECT d.jmeno as nazev, t.jmeno as podnazev, t.txt, t.cislo FROM texty t JOIN druhy_textu d ON t.typ = d.id WHERE d.id = $1 AND t.cislo != $2 ORDER BY RANDOM() LIMIT 1;`, id, neCislo)
+	err := r.Scan(&nazev, &podnazev, &text, &cislo)
 	if err != nil {
-		return "", []string{}, err
+		return "", "", []string{}, 0, err
 	}
 
 	var textArr []string = strings.Fields(text)
@@ -258,7 +260,7 @@ func GetProcvicovani(id int, cislo string) (string, []string, error) {
 		textArr[i] += " "
 	}
 
-	return nazev, textArr, nil
+	return nazev, podnazev, textArr, cislo, nil
 }
 
 type Cvic struct {

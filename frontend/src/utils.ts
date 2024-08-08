@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { cislaProcvicJmeno, levelyPresnosti, levelyRychlosti, nastaveniJmeno, tokenJmeno } from "./stores";
+import { levelyPresnosti, levelyRychlosti, nastaveniJmeno, tokenJmeno } from "./stores";
 
 export function formatovanyPismena(pismena: string | string[] | undefined) {
     if (pismena === "..." || pismena === undefined) return pismena
@@ -22,20 +22,6 @@ export function format(p: string) {
 
 export function getToken() {
     return localStorage.getItem(tokenJmeno)
-}
-
-export function getCisloProcvic(id: string) {
-    let cislo = localStorage.getItem(cislaProcvicJmeno + id)
-    if (cislo === null) {
-        localStorage.setItem(cislaProcvicJmeno + id, "2")
-        return "1"
-    }
-    if (cislo == "10") {
-        localStorage.setItem(cislaProcvicJmeno + id, "1")
-        return cislo
-    }
-    localStorage.setItem(cislaProcvicJmeno + id, String(Number(cislo) + 1))
-    return cislo
 }
 
 export const oznameni = ref([] as { text: string, typ: string }[])
@@ -164,4 +150,8 @@ export function clone(obj: any) { // kvůli starším prohlížečům (koukám n
 
 export async function saveNastaveni(diakritika: boolean, velkaPismena: boolean, vetySlova: boolean, delka: number, klavesnice: boolean) {
     localStorage.setItem(nastaveniJmeno, JSON.stringify({ "diakritika": diakritika, "velkaPismena": velkaPismena, "vetySlova": vetySlova, "delka": delka, "klavesnice": klavesnice }))
+}
+
+export function naJednoDesetiny(cpm: number) {
+    return Math.round(cpm * 10) / 10
 }

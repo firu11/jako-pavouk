@@ -77,7 +77,7 @@ func SetupRouter(app *fiber.App) {
 	api.Post("/dokonceno/:pismena/:cislo", dokoncitCvic)
 	api.Post("/dokonceno-procvic/:cislo", dokoncitProcvic)
 	api.Get("/procvic", getVsechnyProcvic)
-	api.Get("/procvic/:cisloProcvic/:cislo", getProcvic)
+	api.Get("/procvic/:cisloProcvic/:neCislo", getProcvic)
 	api.Post("/test-psani", testPsani)
 
 	api.Post("/overit-email", overitEmail)
@@ -510,18 +510,22 @@ func getProcvic(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
-	cislo := c.Params("cislo") // str -> int
-	nazev, text, err := databaze.GetProcvicovani(cisloProcvic, cislo)
+	neCislo, err := strconv.Atoi(c.Params("neCislo")) // str -> int
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
+	}
+
+	nazev, podnazev, text, cislo, err := databaze.GetProcvicovani(cisloProcvic, neCislo)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
 
 	u, err := databaze.GetUzivByID(id)
 	if err != nil {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "jmeno": nazev})
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "typ": nazev, "jmeno": podnazev, "cislo": cislo})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "jmeno": nazev, "klavesnice": u.Klavesnice})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text, "typ": nazev, "jmeno": podnazev, "cislo": cislo, "klavesnice": u.Klavesnice})
 }
 
 // porovná kód který byl uživateli zaslán na email s tím který mu přišel
