@@ -99,9 +99,10 @@ type (
 	}
 
 	Procvic struct {
-		ID        uint   `json:"id" db:"id"`
-		Jmeno     string `json:"jmeno" db:"jmeno"`
-		Kategorie string `json:"kategorie" db:"kategorie"`
+		ID        uint    `json:"id" db:"id"`
+		Jmeno     string  `json:"jmeno" db:"jmeno"`
+		Kategorie string  `json:"kategorie" db:"kategorie"`
+		CPM       float32 `json:"cpm" db:"-"`
 	}
 )
 
@@ -298,12 +299,12 @@ func GetDokonceneCvicVLekci(uzivID uint, lekceID uint, pismena string) ([]Cvic, 
 	return cviceniIDs, nil
 }
 
-func GetDokonceneProcvic(uzivID uint) (map[int]float32, error) {
+func GetRychlostiProcvic(uzivID uint) (map[int]float32, error) {
 	var rychlosti map[int]float32 = make(map[int]float32)
 	var rows *sql.Rows
 	var err error
 
-	rows, err = DB.Query(`WITH sus AS (SELECT * FROM (SELECT ROW_NUMBER() OVER (PARTITION BY procvic_id ORDER BY datum DESC) AS r, d.* FROM dokoncene_procvic d WHERE uziv_id = $1) AS idk WHERE idk.r <= $2) SELECT procvic_id, AVG(GREATEST(((delka_textu - 10 * neopravene) / cas) * 60, 0)) AS cpm FROM sus GROUP BY procvic_id;`, uzivID, poslednich)
+	rows, err = DB.Query(`WITH sus AS (SELECT * FROM (SELECT ROW_NUMBER() OVER (PARTITION BY typ_textu ORDER BY datum DESC) AS r, d.* FROM dokoncene_procvic d WHERE uziv_id = $1) AS idk WHERE idk.r <= $2) SELECT typ_textu, AVG(GREATEST(((delka_textu - 10 * neopravene) / cas) * 60, 0)) AS cpm FROM sus GROUP BY typ_textu;`, uzivID, poslednich)
 	if err != nil {
 		return rychlosti, err
 	}
@@ -529,9 +530,9 @@ func PridatDokonceneProcvic(procvicID, uzivID uint, neopravene int, cas float32,
 	chybyPismenkaJSON, err := json.Marshal(chybyPismenka)
 
 	// pokud je procvic 0 neboli je to test psaní, vložim NULL
-	var procvicCislo = sql.NullString{String: fmt.Sprintf("%d", procvicID), Valid: true}
-	if procvicID == 0 {
-		procvicCislo = sql.NullString{}
+	var procvicCislo = sql.NullString{}
+	if procvicID != 0 {
+		procvicCislo = sql.NullString{String: fmt.Sprintf("%d", procvicID), Valid: true}
 	}
 	var id = sql.NullInt32{Int32: int32(uzivID), Valid: true}
 	if uzivID == 0 {
@@ -540,7 +541,7 @@ func PridatDokonceneProcvic(procvicID, uzivID uint, neopravene int, cas float32,
 	if err != nil {
 		return errors.New("konverze mapy chyb na json se nepovedla")
 	}
-	_, err = DB.Exec(`INSERT INTO dokoncene_procvic (uziv_id, procvic_id, neopravene, cas, delka_textu, chyby_pismenka) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT ON CONSTRAINT duplicitni2 DO NOTHING`, id, procvicCislo, neopravene, cas, delkaTextu, chybyPismenkaJSON)
+	_, err = DB.Exec(`INSERT INTO dokoncene_procvic (uziv_id, typ_textu, neopravene, cas, delka_textu, chyby_pismenka) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT ON CONSTRAINT duplicitni2 DO NOTHING`, id, procvicCislo, neopravene, cas, delkaTextu, chybyPismenkaJSON)
 	return err
 }
 

@@ -15,8 +15,8 @@ useHead({
     ]
 })
 
-const texty = ref(new Map<string, { id: number, jmeno: string, cislo: number }[]>())
-const rychlosti = ref([] as number[])
+const texty = ref(new Map<string, { id: number, jmeno: string, cpm: number, cislo: number }[]>())
+const testPsaniCPM = ref(-1)
 const o = new Oznacene()
 let randomCvic = 1
 
@@ -28,17 +28,17 @@ onMounted(() => {
     }).then(response => {
         var i = 2
         response.data.texty = response.data.texty.sort((a: { id: number, jmeno: string, kategorie: string }, b: { id: number, jmeno: string, kategorie: string }) => a.kategorie.localeCompare(b.kategorie))
-        response.data.texty.forEach((txt: { id: number, jmeno: string, kategorie: string }) => {
+        response.data.texty.forEach((txt: { id: number, jmeno: string, cpm: number, kategorie: string }) => {
             let a = texty.value.get(txt.kategorie)
 
             if (a) {
-                a.push({ id: txt.id, jmeno: txt.jmeno, cislo: i })
+                a.push({ id: txt.id, jmeno: txt.jmeno, cpm: txt.cpm, cislo: i })
             } else {
-                texty.value.set(txt.kategorie, [{ id: txt.id, jmeno: txt.jmeno, cislo: i }])
+                texty.value.set(txt.kategorie, [{ id: txt.id, jmeno: txt.jmeno, cpm: txt.cpm, cislo: i }])
             }
             i++
         })
-        rychlosti.value = response.data.rychlosti
+        testPsaniCPM.value = response.data.testPsaniCPM
         o.setMax(response.data.texty.length + 1)
         randomCvic = Math.floor(Math.random() * response.data.texty.length) + 1
     }).catch(e => {
@@ -107,11 +107,11 @@ onUnmounted(() => {
         <RouterLink v-if="!mobil" :to="'/test-psani'" class="blok" :i="1 == o.index.value"
             :class="{ oznacene: 1 == o.index.value, nohover: o.index.value != 0 }" style="margin-top: 5px;">
             <h2>Test psaní</h2>
-            <span v-if="texty.size != 0 && rychlosti[0] != -1"><b>{{ naJednoDesetiny(rychlosti[0]) }}</b> CPM</span>
+            <span v-if="texty.size != 0 && testPsaniCPM != -1"><b>{{ naJednoDesetiny(testPsaniCPM) }}</b> CPM</span>
         </RouterLink>
         <a v-else href="/test-psani" class="blok" :i="1 == o.index.value" style="user-select: none;" @click="mobilKlik">
             <h2>Test psaní</h2>
-            <span v-if="texty.size != 0 && rychlosti[0] != -1"><b>{{ naJednoDesetiny(rychlosti[0]) }}</b> CPM</span>
+            <span v-if="texty.size != 0 && testPsaniCPM != -1"><b>{{ naJednoDesetiny(testPsaniCPM) }}</b> CPM</span>
         </a>
 
         <div v-for="k in texty.keys()">
@@ -120,10 +120,10 @@ onUnmounted(() => {
             <div v-if="texty.size == 0" v-for="_ in 4" class="blok">
                 <h2>. . .</h2>
             </div>
-            <RouterLink v-else-if="!mobil" v-for="t, i in texty.get(k)" :to="`/procvic/${t.id}`" class="blok" :i="t.cislo == o.index.value"
+            <RouterLink v-else-if="!mobil" v-for="t in texty.get(k)" :to="`/procvic/${t.id}`" class="blok" :i="t.cislo == o.index.value"
                 :class="{ oznacene: t.cislo == o.index.value, nohover: o.index.value != 0 }">
                 <h2>{{ t.jmeno }}</h2>
-                <span v-if="rychlosti[i + 1] != -1"><b>{{ naJednoDesetiny(rychlosti[i + 1]) }}</b> CPM</span>
+                <span v-if="t.cpm != -1"><b>{{ naJednoDesetiny(t.cpm) }}</b> CPM</span>
             </RouterLink>
             <div v-else v-for="t in texty" class="blok" @click="mobilKlik">
                 <h2>{{ t }}</h2>
