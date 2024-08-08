@@ -33,7 +33,7 @@ const menuRef = ref()
 
 const konec = ref(false)
 const delkaNapsanehoTextu = ref(0)
-const nacitamNovej = ref(true)
+const nacitamNovej = ref(false)
 
 const hideKlavecnice = ref(false)
 
@@ -110,8 +110,7 @@ function konecTextu(o: number, p: number, n: MojeMapa, d: number) {
 }
 
 const klavesnice = computed(() => {
-    if (nacitamNovej.value) return ""
-    if (menuRef.value == undefined) return "qwertz"
+    if (menuRef.value == undefined || (delkaTextu.value == 0 && puvodniText.length == 0)) return ""
     return menuRef.value.klavModel ? "qwerty" : "qwertz"
 })
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 onMounted(() => {
     document.addEventListener('keydown', e1)
@@ -15,8 +16,11 @@ function e1(e: KeyboardEvent) { // Escape = šipka zpět
     }
 }
 
+const router = useRouter()
+
 function zpatky() {
-    history.back() // používám history, aby to scrollovalo tam kde jsem skoncil
+    if (history.state.current == "/test-psani") router.push("/procvic")
+    else history.back() // používám history, aby to scrollovalo tam kde jsem skoncil
 }
 
 </script>
