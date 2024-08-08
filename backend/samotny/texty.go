@@ -1,22 +1,25 @@
 package main
 
 import (
+	"backend/utils"
 	"bufio"
+	"database/sql"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 	"unicode/utf8"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
-var DB *sqlx.DB
+var DB *sql.DB
+var minDelkaTextu int = 180
 
 type lekcos struct {
 	Id      uint   `json:"id"`
@@ -32,7 +35,7 @@ func main() {
 	fmt.Printf("Připojuješ se na %s (.env)\n", os.Getenv("DB_JMENO"))
 
 	connStr := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=disable", os.Getenv("DB_UZIV"), os.Getenv("DB_HESLO"), os.Getenv("DB_HOST"), os.Getenv("DB_JMENO"))
-	DB, err = sqlx.Open("postgres", connStr)
+	DB, err = sql.Open("postgres", connStr)
 	if err != nil {
 		panic("Databaze se pokazila" + err.Error())
 	}
@@ -44,13 +47,13 @@ func main() {
 		if input == "s" {
 			PushSlovnik()
 		} else if input == "p" {
-			PushPohadky()
+			PushRandomVety()
 		} else if input == "t" {
 			PushTexty()
 		} else if input == "q" {
 			break
 		} else if input == "l" {
-			//TODO testovaci
+			fmt.Println(pushPohadky())
 			break
 		}
 	}
@@ -179,11 +182,11 @@ func obsahujeJenOKPismena(slovo string, pismena string) bool {
 	return ok
 }
 
-func PushPohadky() {
-	fmt.Println("\nJdem na pohadky")
+func PushRandomVety() {
+	fmt.Println("\nJdem na vety")
 	fmt.Println("-----------------------------")
 
-	f, err := os.Open("./samotny/texty/pohadky.txt")
+	f, err := os.Open("./samotny/texty/vety.txt")
 	if err != nil {
 		fmt.Println("spatna cesta k souboru")
 		return
@@ -236,7 +239,7 @@ func PushPohadky() {
 		panic(err)
 	}
 
-	fmt.Printf("%v pohádek jde do DB", pocet)
+	fmt.Printf("%v random vět jde do DB", pocet)
 
 	if _, err := DB.Exec(st); err != nil {
 		panic(err)
@@ -244,13 +247,6 @@ func PushPohadky() {
 }
 
 func PushTexty() {
-	/*
-		dohodněme se že:
-			všechny pohádky = typ 1
-			dějepis = typ 2
-			zeměpis = typ 3
-	*/
-
 	fmt.Print("\n")
 	dejepisQuery := pushDejepis()
 	fmt.Print("\n\n")
@@ -262,20 +258,24 @@ func PushTexty() {
 		DROP TABLE IF EXISTS druhy_textu;
 		CREATE TABLE druhy_textu (
 			id SERIAL PRIMARY KEY,
-			jmeno VARCHAR(255) NOT NULL
+			jmeno VARCHAR(255) NOT NULL,
+			kategorie VARCHAR(255),
+			obtiznost INTEGER DEFAULT 1
 		);
 		CREATE TABLE texty (
     		id SERIAL PRIMARY KEY,
     		cislo INTEGER,
     		jmeno VARCHAR(255),
     		typ INTEGER REFERENCES druhy_textu (id),
-    		text TEXT,
+    		txt TEXT,
     		delka INTEGER
 		);
-		INSERT INTO druhy_textu (id, jmeno) VALUES 
-			(1, 'Zeměpis'),
-			(2, 'Dějepis'),
-			(3, 'Pohádky')
+		INSERT INTO druhy_textu (id, jmeno, kategorie, obtiznost) VALUES 
+			(1, 'Zeměpis', 'Naučné', 2),
+			(2, 'Dějepis', 'Naučné', 3),
+			(3, 'Těžší pohádky', 'Zábavné', 3),
+			(4, 'Pohádky', 'Zábavné', 1),
+			(5, 'Farma zvířat', 'Knihy', 1)
 		;
 	`
 	_, err := DB.Exec(prepare)
@@ -318,15 +318,18 @@ func pushDejepis() string {
 			texty[jmeno] += " "
 		}
 	}
-	texty[jmeno] += strings.TrimSpace(texty[jmeno])
+	texty[jmeno] = strings.TrimSpace(texty[jmeno])
 
 	var pocet int = 0
-	var st string = `INSERT INTO texty (cislo, jmeno, typ, text, delka) VALUES `
+	var st string = `INSERT INTO texty (cislo, jmeno, typ, txt, delka) VALUES `
 
 	for k, v := range texty {
-		pocet++
 		delka := utf8.RuneCountInString(v)
-		st += fmt.Sprintf(`(%d, '%s', %d, '%s', %d), `, pocet, k, 2, v, delka)
+		if delka < minDelkaTextu {
+			continue
+		}
+		pocet++
+		st += fmt.Sprintf(`(%d, '%s', %d, '%s', %d), `, pocet, k, 2, utils.UpravaTextu(v), delka)
 	}
 
 	st = st[:len(st)-2]
@@ -363,11 +366,16 @@ func pushZemepis() string {
 		panic(err)
 	}
 
-	var st string = `INSERT INTO texty (cislo, jmeno, typ, text, delka) VALUES `
+	var st string = `INSERT INTO texty (cislo, jmeno, typ, txt, delka) VALUES `
 	var pocet int
 	for _, v := range vsechnyZeme {
+
+		delka := utf8.RuneCountInString(v.Obsah)
+		if delka < minDelkaTextu {
+			continue
+		}
 		pocet++
-		st += fmt.Sprintf(`(%d, '%s', %d, '%s', %d), `, pocet, strings.TrimSpace(v.Jmeno), 3, strings.TrimSpace(v.Obsah), utf8.RuneCountInString(v.Obsah))
+		st += fmt.Sprintf(`(%d, '%s', %d, '%s', %d), `, pocet, strings.TrimSpace(v.Jmeno), 1, strings.TrimSpace(utils.UpravaTextu(v.Obsah)), utf8.RuneCountInString(v.Obsah))
 	}
 
 	st = st[:len(st)-2]
@@ -376,4 +384,69 @@ func pushZemepis() string {
 	fmt.Printf("%v zeměpisných textů jde do DB", pocet)
 
 	return st
+}
+
+func pushPohadky() string {
+	fmt.Println("Jdem na Pohadkozem")
+	fmt.Println("-----------------------------")
+
+	var soubory []string = []string{"pohadkozem.txt", "pohadky_org.txt"}
+	var texty map[string]string = make(map[string]string)
+
+	for _, v := range soubory {
+		f, err := os.Open("./texty/" + v)
+		if err != nil {
+			panic("spatna cesta k souboru")
+		}
+		scanner := bufio.NewScanner(f)
+
+		var jmeno string
+		for scanner.Scan() {
+			if jmeno == "" {
+				jmeno = strings.TrimSpace(scanner.Text())
+			} else if scanner.Text() == "" {
+				texty[jmeno] = strings.TrimSpace(texty[jmeno])
+				jmeno = ""
+			} else {
+				texty[jmeno] += strings.TrimSpace(scanner.Text())
+				texty[jmeno] += " "
+			}
+		}
+		texty[jmeno] += strings.TrimSpace(texty[jmeno])
+
+		f.Close()
+	}
+
+	var st string = `INSERT INTO texty (cislo, jmeno, typ, text, delka) VALUES `
+	r := regexp.MustCompile(`["\(\)]`)
+
+	var easy, hard = 0, 0
+
+	for k, v := range texty {
+		delka := utf8.RuneCountInString(v)
+
+		if delka < minDelkaTextu {
+			continue
+		}
+
+		kolikSus := len(r.FindAllString(v, -1))
+		fmt.Println(k, kolikSus)
+
+		if kolikSus != 0 {
+			hard++
+			st += fmt.Sprintf(`(%d, '%s', %d, '%s', %d), `, hard, k, 4, v, delka)
+		} else {
+			easy++
+			st += fmt.Sprintf(`(%d, '%s', %d, '%s', %d), `, easy, k, 3, v, delka)
+		}
+	}
+
+	fmt.Println(easy, hard)
+
+	st = st[:len(st)-2]
+	st += ";"
+
+	fmt.Printf("%v pohádek jde do DB", easy+hard)
+
+	return "st"
 }

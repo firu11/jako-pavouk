@@ -381,7 +381,7 @@ function resetTlacitko() {
     restart()
 }
 
-defineExpose({ restart })
+defineExpose({ restart, aktivniPismeno })
 </script>
 
 <template>

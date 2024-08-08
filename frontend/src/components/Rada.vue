@@ -22,8 +22,8 @@ function hop() {
 <style scoped>
 #box {
     background-color: var(--tmave-fialova);
-    border-radius: 8px;
-    padding: 16px 15px 12px 25px;
+    border-radius: 10px;
+    padding: 12px 15px 12px 25px;
     display: flex;
     width: 500px;
     align-items: center;

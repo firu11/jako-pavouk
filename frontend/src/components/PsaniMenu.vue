@@ -15,6 +15,7 @@ defineProps({
 const typ = ref(true) // false = slova, true = vety
 const delka = ref(60)
 const diakritika = ref(true)
+const interpunkce = ref(true)
 const velkaPismena = ref(false)
 const klavModel = ref(false)
 
@@ -47,7 +48,7 @@ function d(x: number) {
     saveNastaveni(diakritika.value, velkaPismena.value, typ.value, delka.value, klavModel.value)
 }
 
-defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
+defineExpose({ diakritika, velkaPismena, typ, delka, klavModel, interpunkce })
 
 </script>
 <template>
