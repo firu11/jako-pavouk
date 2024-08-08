@@ -480,24 +480,21 @@ func getVsechnyProcvic(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
-	rychlosti, err := databaze.GetDokonceneProcvic(id)
+	rychlosti, err := databaze.GetRychlostiProcvic(id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
 
-	var rych []float32
-	for i := -1; i < len(texty); i++ {
-		r := rychlosti[i]
-		if r < 0 {
-			rych = append(rych, 0)
-		} else if r == 0 {
-			rych = append(rych, -1)
+	for i := 0; i < len(texty); i++ {
+		r := rychlosti[int(texty[i].ID)-1]
+		if r == 0 {
+			texty[i].CPM = -1
 		} else {
-			rych = append(rych, r)
+			texty[i].CPM = r
 		}
 	}
 
-	return c.JSON(fiber.Map{"texty": texty, "rychlosti": rych})
+	return c.JSON(fiber.Map{"texty": texty, "testPsaniCPM": rychlosti[-1]})
 }
 
 // vrací text k odpovídajícímu procvičování

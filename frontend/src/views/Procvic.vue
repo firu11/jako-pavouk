@@ -13,7 +13,7 @@ import { mobil } from '../stores';
 
 const router = useRouter()
 const route = useRoute()
-const id: string = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
+const typ: string = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
 
 useHead({
     title: "Procvičování" // po fetchi změnim
@@ -26,7 +26,7 @@ const opravenePocet = ref(0)
 const nejcastejsiChyby = ref()
 
 const jmeno = ref(". . .")
-const typ = ref(". . .")
+const nazev = ref(". . .")
 
 const psaniRef = ref<InstanceType<typeof Psani> | null>(null)
 const menuRef = ref()
@@ -39,11 +39,11 @@ const hideKlavecnice = ref(false)
 
 const chciZmenitJmeno = ref([] as { pismeno: number, jmeno: string }[])
 
-let predchoziCislo = 0
+let cislo = 0
 
 function get() {
     nacitamNovej.value = true
-    axios.get("/procvic/" + id + "/" + predchoziCislo, {
+    axios.get("/procvic/" + typ + "/" + cislo, {
         headers: {
             Authorization: `Bearer ${getToken()}`
         }
@@ -59,8 +59,8 @@ function get() {
         if (delkaTextu.value < 250) prodlouzit()
 
         jmeno.value = response.data.jmeno
-        typ.value = response.data.typ
-        predchoziCislo = response.data.cislo
+        nazev.value = response.data.typ
+        cislo = response.data.cislo
 
         if (menuRef.value == null) return
 
@@ -70,7 +70,7 @@ function get() {
         if (response.data.klavesnice != undefined) menuRef.value.klavModel = response.data.klavesnice == "qwerty"
 
         useHead({
-            title: typ.value
+            title: nazev.value
         })
     }).catch(e => {
         console.log(e)
@@ -158,7 +158,7 @@ async function loadAlternativy() {
 async function prodlouzit() {
     nacitamNovej.value = true
 
-    axios.get("/procvic/" + id + "/" + predchoziCislo, {
+    axios.get("/procvic/" + typ + "/" + cislo, {
         headers: {
             Authorization: `Bearer ${getToken()}`
         }
@@ -177,7 +177,7 @@ async function prodlouzit() {
                 response.data.text[i] = response.data.text[i].toLocaleLowerCase()
             }
         }
-        predchoziCislo = response.data.cislo
+        cislo = response.data.cislo
 
         let pocetSlov = text.value.length
 
@@ -228,7 +228,7 @@ watch(a, () => {
 <template>
     <h1 class="nadpisSeSipkou" style="margin: 0; direction: ltr;">
         <SipkaZpet />
-        {{ typ }}
+        {{ nazev }}
     </h1>
     <h2>{{ jmeno }}</h2>
 
@@ -237,7 +237,7 @@ watch(a, () => {
         :cas="menuRef == undefined ? 15 : menuRef.delka" ref="psaniRef" />
 
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaNapsanehoTextu"
-        :cas="menuRef == undefined ? 15 : menuRef.delka" :cislo="id" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
+        :cas="menuRef == undefined ? 15 : menuRef.delka" :cislo="typ" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
 
     <PsaniMenu :class="{ hide: konec || !hideKlavecnice }" @restart="restart(); psaniRef?.restart()" @toggle="toggleDiakritikaAVelkaPismena"
         :vyberTextu="false" ref="menuRef" />
