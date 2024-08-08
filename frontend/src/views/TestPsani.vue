@@ -40,7 +40,7 @@ const menuRef = ref()
 
 const konec = ref(false)
 const delkaNapsanehoTextu = ref(0)
-const nacitamNovej = ref(false)
+const nacitamNovej = ref(true)
 
 const hideKlavecnice = ref(false)
 
@@ -66,6 +66,8 @@ function get() {
                 delkaTextu.value++
             })
         })
+
+        if (menuRef.value == null) return
 
         loadAlternativy()
         toggleDiakritikaAVelkaPismena()
@@ -107,6 +109,7 @@ function konecTextu(o: number, p: number, n: MojeMapa, d: number) {
 }
 
 const klavesnice = computed(() => {
+    if (nacitamNovej.value) return ""
     if (menuRef.value == undefined) return "qwertz"
     return menuRef.value.klavModel ? "qwerty" : "qwertz"
 })
@@ -165,6 +168,8 @@ async function prodlouzit() {
             }
         }
     ).then(response => {
+        if (menuRef.value == null) return
+
         if (!menuRef.value.diakritika && !menuRef.value.velkaPismena) {
             for (let i = 0; i < response.data.text.length; i++) {
                 response.data.text[i] = response.data.text[i].normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase()
@@ -216,7 +221,7 @@ async function prodlouzit() {
     <PsaniMenu :class="{ hide: konec || !hideKlavecnice }" @restart="restart(); psaniRef.restart()" @toggle="toggleDiakritikaAVelkaPismena"
         ref="menuRef" />
 
-    <NastaveniBtn v-if="!konec" @klik="hideKlavecnice = !hideKlavecnice" />
+    <NastaveniBtn v-if="!konec && klavesnice != ''" @klik="hideKlavecnice = !hideKlavecnice" />
 </template>
 
 <style scoped>

@@ -40,7 +40,7 @@ onMounted(() => {
         })
         rychlosti.value = response.data.rychlosti
         o.setMax(response.data.texty.length + 1)
-        randomCvic = Math.floor(Math.random() * texty.value.size) + 1
+        randomCvic = Math.floor(Math.random() * response.data.texty.length) + 1
     }).catch(e => {
         if (!checkTeapot(e)) {
             pridatOznameni()
