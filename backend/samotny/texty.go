@@ -21,6 +21,21 @@ import (
 var DB *sql.DB
 var minDelkaTextu int = 180
 
+type druh struct {
+	ID        int
+	Kategorie string
+	Obtiznost int
+}
+
+var druhyTextu = map[string]druh{
+	"Zeměpis":         {1, "Naučné", 2},
+	"Dějepis":         {2, "Naučné", 3},
+	"Těžsí pohádky":   {3, "Zábavné", 3},
+	"Pohádky":         {4, "Zábavné", 1},
+	"Robinson Crusoe": {5, "Knihy", 1},
+	"Farma Zvířat":    {6, "Knihy", 1},
+}
+
 type lekcos struct {
 	Id      uint   `json:"id"`
 	Pismena string `json:"pismena"`
@@ -44,6 +59,7 @@ func main() {
 		fmt.Print("Slovnik (s) / Pohadky (p) / Texty (t): ")
 		var input string
 		fmt.Scan(&input)
+		fmt.Println()
 		if input == "s" {
 			PushSlovnik()
 		} else if input == "p" {
@@ -53,7 +69,7 @@ func main() {
 		} else if input == "q" {
 			break
 		} else if input == "l" {
-			fmt.Println(pushPohadky())
+			fmt.Println(PushKnihy())
 			break
 		}
 	}
@@ -61,9 +77,58 @@ func main() {
 	fmt.Println("\nHotovo!")
 }
 
-/*
-Tahle funkce projde vsechny slovicka ve csv souboru a nasazi do databaze do tabulky slovnik spolu s id lekce ve které je pomocí dosavandne naucenych slovicek možné ho napsat
-*/
+func PushKnihy() string {
+	fmt.Println("Jdem na Knihy")
+	fmt.Println("-----------------------------")
+
+	soubory, err := os.ReadDir("./knihy/")
+	if err != nil {
+		panic(err)
+	}
+
+	var st string = `INSERT INTO texty (cislo, jmeno, typ, text, delka) VALUES `
+	var pocet int
+	for _, v := range soubory {
+		if v.IsDir() {
+			continue
+		}
+		f, err := os.Open("./knihy/" + v.Name())
+		if err != nil {
+			panic(err)
+		}
+		scanner := bufio.NewScanner(f)
+
+		scanner.Scan()
+		jmeno := strings.TrimSpace(scanner.Text())
+		idKnihy := druhyTextu[jmeno].ID
+		if idKnihy == 0 {
+			panic("nejaka divna kniha, nemuzu najit id")
+		}
+
+		var i int = 1
+		for scanner.Scan() {
+			if scanner.Text() == "" || scanner.Text()[0] == '%' {
+				continue
+			}
+
+			text := strings.TrimSpace(scanner.Text())
+			st += fmt.Sprintf(`(%d, '%s', %d, '%s', %d), `, i, fmt.Sprintf("Část %v", i), idKnihy, utils.UpravaTextu(text), utf8.RuneCountInString(text))
+
+			i++
+			pocet++
+		}
+
+		f.Close()
+	}
+
+	st = st[:len(st)-2]
+	st += ";"
+
+	fmt.Printf("%v textů z knih jde do DB", pocet)
+
+	return "st"
+}
+
 func PushSlovnik() {
 	fmt.Println("\nJdem na slovník")
 	fmt.Println("-----------------------------")
@@ -252,16 +317,11 @@ func PushTexty() {
 	fmt.Print("\n\n")
 	zemepisQuery := pushZemepis()
 	fmt.Print("\n\n")
+	pohadkyQuery := pushPohadky()
+	fmt.Print("\n\n")
 
 	var prepare string = `
 		DROP TABLE IF EXISTS texty;
-		DROP TABLE IF EXISTS druhy_textu;
-		CREATE TABLE druhy_textu (
-			id SERIAL PRIMARY KEY,
-			jmeno VARCHAR(255) NOT NULL,
-			kategorie VARCHAR(255),
-			obtiznost INTEGER DEFAULT 1
-		);
 		CREATE TABLE texty (
     		id SERIAL PRIMARY KEY,
     		cislo INTEGER,
@@ -271,13 +331,14 @@ func PushTexty() {
     		delka INTEGER
 		);
 		INSERT INTO druhy_textu (id, jmeno, kategorie, obtiznost) VALUES 
-			(1, 'Zeměpis', 'Naučné', 2),
-			(2, 'Dějepis', 'Naučné', 3),
-			(3, 'Těžší pohádky', 'Zábavné', 3),
-			(4, 'Pohádky', 'Zábavné', 1),
-			(5, 'Farma zvířat', 'Knihy', 1)
-		;
 	`
+
+	for jmeno, v := range druhyTextu {
+		prepare += fmt.Sprintf(`(%d, '%s', '%s', %d), `, v.ID, jmeno, v.Kategorie, v.Obtiznost)
+	}
+	prepare = prepare[:len(prepare)-2]
+	prepare += ` ON CONFLICT DO NOTHING;`
+
 	_, err := DB.Exec(prepare)
 	if err != nil {
 		panic(err)
@@ -288,6 +349,10 @@ func PushTexty() {
 		panic(err)
 	}
 	_, err = DB.Exec(zemepisQuery)
+	if err != nil {
+		panic(err)
+	}
+	_, err = DB.Exec(pohadkyQuery)
 	if err != nil {
 		panic(err)
 	}
@@ -387,7 +452,7 @@ func pushZemepis() string {
 }
 
 func pushPohadky() string {
-	fmt.Println("Jdem na Pohadkozem")
+	fmt.Println("Jdem na Pohádky")
 	fmt.Println("-----------------------------")
 
 	var soubory []string = []string{"pohadkozem.txt", "pohadky_org.txt"}
@@ -417,7 +482,7 @@ func pushPohadky() string {
 		f.Close()
 	}
 
-	var st string = `INSERT INTO texty (cislo, jmeno, typ, text, delka) VALUES `
+	var st string = `INSERT INTO texty (cislo, jmeno, typ, txt, delka) VALUES `
 	r := regexp.MustCompile(`["\(\)]`)
 
 	var easy, hard = 0, 0
@@ -430,7 +495,6 @@ func pushPohadky() string {
 		}
 
 		kolikSus := len(r.FindAllString(v, -1))
-		fmt.Println(k, kolikSus)
 
 		if kolikSus != 0 {
 			hard++
@@ -448,5 +512,5 @@ func pushPohadky() string {
 
 	fmt.Printf("%v pohádek jde do DB", easy+hard)
 
-	return "st"
+	return st
 }
