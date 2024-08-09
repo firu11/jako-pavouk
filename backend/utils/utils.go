@@ -230,5 +230,5 @@ func UpravaTextu(txt string) string {
 	vysledek := v.String()
 	vysledek = mezery.ReplaceAllString(vysledek, " ") // odstrani vice mezer
 
-	return vysledek
+	return strings.TrimSpace(vysledek)
 }

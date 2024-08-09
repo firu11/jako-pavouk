@@ -6,6 +6,7 @@ backend/.env
 backend/backend
 backend/backend.exe
 backend/samotny/texty/
+backend/samotny/knihy/
 
 frontend/public/seznam-wmt-BUnHTQ6XWvu0wBfMQUVc2QkzAKbmEEiS.txt
 frontend/dist
