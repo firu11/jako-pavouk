@@ -18,4 +18,12 @@ Umět psát všemi deseti je krásná dovednost. Jak se ji ale naučit?
 - **Backend** používá programovací jazyk [Go](https://go.dev/) a framework [Fiber](https://gofiber.io/)
 - **Databázi** jsem zvolil [PostgreSQL](https://www.postgresql.org/) hlavně kvůli popularitě a výkonu
 
+## Zdroje textů
+- [dejepis.com](https://www.dejepis.com/)
+- [pohadky.org](https://www.pohadky.org/)
+- [pohadkozem.cz](https://www.pohadkozem.cz/)
+- [zemepis24.cz](https://www.zemepis24.cz/)
+
+<!-- - [Dobrý Zprávy](https://dobryzpravy.cz/) -->
+
 [Původní repozitář v organizaci Gymnázium Arabská](https://github.com/gyarab/2023-4e-ruzicka-jako_pavouk)
