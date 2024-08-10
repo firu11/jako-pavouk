@@ -33,7 +33,6 @@ var druhyTextu = map[string]druh{
 	"Těžsí pohádky":   {3, "Zábavné", 3},
 	"Pohádky":         {4, "Zábavné", 1},
 	"Robinson Crusoe": {5, "Knihy", 1},
-	"Farma Zvířat":    {6, "Knihy", 1},
 }
 
 type lekcos struct {
@@ -56,7 +55,7 @@ func main() {
 	}
 
 	for {
-		fmt.Print("Slovnik (s) / Pohadky (p) / Texty (t): ")
+		fmt.Print("(s)lovnik / (p)ohadky / (t)exty / (q)uit: ")
 		var input string
 		fmt.Scan(&input)
 		fmt.Println()
@@ -68,8 +67,8 @@ func main() {
 			PushTexty()
 		} else if input == "q" {
 			break
-		} else if input == "l" {
-			fmt.Println(PushKnihy())
+		} else if input == "x" {
+			//fmt.Println(pushKnihy())
 			break
 		}
 	}
@@ -77,7 +76,7 @@ func main() {
 	fmt.Println("\nHotovo!")
 }
 
-func PushKnihy() string {
+func pushKnihy() string {
 	fmt.Println("Jdem na Knihy")
 	fmt.Println("-----------------------------")
 
@@ -86,7 +85,7 @@ func PushKnihy() string {
 		panic(err)
 	}
 
-	var st string = `INSERT INTO texty (cislo, jmeno, typ, text, delka) VALUES `
+	var st string = `INSERT INTO texty (cislo, jmeno, typ, txt, delka) VALUES `
 	var pocet int
 	for _, v := range soubory {
 		if v.IsDir() {
@@ -126,7 +125,7 @@ func PushKnihy() string {
 
 	fmt.Printf("%v textů z knih jde do DB", pocet)
 
-	return "st"
+	return st
 }
 
 func PushSlovnik() {
@@ -319,6 +318,8 @@ func PushTexty() {
 	fmt.Print("\n\n")
 	pohadkyQuery := pushPohadky()
 	fmt.Print("\n\n")
+	knihyQuery := pushKnihy()
+	fmt.Print("\n\n")
 
 	var prepare string = `
 		DROP TABLE IF EXISTS texty;
@@ -353,6 +354,10 @@ func PushTexty() {
 		panic(err)
 	}
 	_, err = DB.Exec(pohadkyQuery)
+	if err != nil {
+		panic(err)
+	}
+	_, err = DB.Exec(knihyQuery)
 	if err != nil {
 		panic(err)
 	}
