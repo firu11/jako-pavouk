@@ -63,7 +63,7 @@ watch(() => props.typ, (ted) => {
     }
 })
 
-if (cesta == "závorky" || cesta == "operátory") {
+if (decodeURI(cesta) == "závorky" || decodeURI(cesta) == "operátory") {
     schema[4][0] = "Ctrl"
     schema[4][3] = "Alt"
 }
@@ -97,7 +97,7 @@ function oznacene(tlacitko: string) {
     } else if ('óťňď'.includes(pismeno)) {
         if (tlacitko == 'ˇ´') return true
         if ((tlacitko == 'O' && pismeno == 'ó') || (tlacitko == 'T' && pismeno == 'ť') || (tlacitko == 'N' && pismeno == 'ň') || (tlacitko == 'D' && pismeno == 'ď')) return true
-    } else if ("[]{}<>*".includes(pismeno)) {
+    } else if ("[]{}<>*|&".includes(pismeno)) {
         if (tlacitko === "Ctrl" || tlacitko === "Alt") return true
         if (props.typ === "qwertz") {
             if (pismeno === "[" && tlacitko === "F") return true
@@ -105,12 +105,15 @@ function oznacene(tlacitko: string) {
             if (pismeno === "{" && tlacitko === "B") return true
             if (pismeno === "}" && tlacitko === "N") return true
             if (pismeno == "*" && tlacitko == "_-") return true
+            if (pismeno == "|" && tlacitko == "W") return true
+            if (pismeno == "&" && tlacitko == "C") return true
         } else {
             if (pismeno === "[" && tlacitko === "/ú") return true
             if (pismeno === "]" && tlacitko === "()") return true
             if (pismeno === "{" && tlacitko === "/ú") return true
             if (pismeno === "}" && tlacitko === "()") return true
-            if (pismeno == "*" && tlacitko == "8á") return true
+            if (pismeno == "|" && tlacitko == "'¨") return true
+            if (pismeno == "&" && tlacitko == "7ý") return true
         }
         if (pismeno === "<" && tlacitko === "?,") return true
         if (pismeno === ">" && tlacitko === ":.") return true
@@ -173,7 +176,7 @@ function potrebujeShift(pismeno: string) {
     if (props.typ === "qwertz" && "[]{}<>*".includes(pismeno)) return false
     else if (props.typ === "qwerty" && "<>[]*".includes(pismeno)) return false
 
-    return (pismeno === pismeno.toUpperCase() && !["+", "=", "-", ".", ",", "§", ")", "´", ";"].includes(pismeno))
+    return (pismeno === pismeno.toUpperCase() && !["+", "=", "-", ".", ",", "§", ")", "´", ";", "|", "&"].includes(pismeno))
 }
 </script>
 

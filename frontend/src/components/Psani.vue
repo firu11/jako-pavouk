@@ -7,7 +7,7 @@ import klik1 from "../assets/zvuky/klik1.ogg";
 import klik2 from "../assets/zvuky/klik2.ogg";
 import klik3 from "../assets/zvuky/klik3.ogg";
 import miss from "../assets/zvuky/miss.ogg";
-import { MojeMapa } from "../utils";
+import { MojeMapa, pridatOznameni } from "../utils";
 import { useRoute } from "vue-router";
 import { useHead } from "unhead"
 
@@ -81,6 +81,8 @@ const capslock = ref(false)
 let interval: number
 
 const celyPsani = ref()
+
+let counterSpatneSvislaCara = 0
 
 const casFormat = computed(() => {
     let zobrazeny = props.cas - cas.value
@@ -195,10 +197,16 @@ function klik(this: any, e: KeyboardEvent) {
             aktivniPismeno.value.spatne = 2
         }
         nextPismeno()
+        counterSpatneSvislaCara = 0
     } else {
         if (zvukyZaply.value) zvuky[3].play()
         aktivniPismeno.value.spatne = 1
         chybyPismenka.put(aktivniPismeno.value.znak)
+
+        if (aktivniPismeno.value.znak === "|") {
+            counterSpatneSvislaCara++
+            if (counterSpatneSvislaCara >= 2) pridatOznameni(`Znak "|" je lehce problematický a jeho poloha se může lišit. Pokud máte dvouřádkový Enter, je označená klávesa posunutá vlevo od něj. Pokud jen nefunguje zvýrazněná klávesa, pravděpodobně se znak schovává vpravo od levého Shiftu. S pozdravem, Firu`, 15_000)
+        }
         nextPismeno()
     }
 

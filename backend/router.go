@@ -350,7 +350,7 @@ func getCviceni(c *fiber.Ctx) error {
 				}
 			}
 		} else if pismena == "operátory" {
-			var oper []string = []string{"=", "==", "!=", "<=", ">=", "<", ">", "+", "-", "*", "/", "%", "+=", "-=", "*=", "/="}
+			var oper []string = []string{"=", "==", "!=", "<=", ">=", "<", ">", "+", "-", "*", "/", "%", "+=", "-=", "*=", "/=", "||", "&&"}
 			var operLen = len(oper)
 			var i int = 0
 			var zi int = 0
