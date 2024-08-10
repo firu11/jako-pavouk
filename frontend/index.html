@@ -3,12 +3,17 @@
 
 <head>
     <title>Psaní všemi deseti zdarma | Jako Pavouk</title>
+    <meta charset="UTF-8">
     <meta name="description"
         content="Webová aplikace na výuku psaní všemi deseti zdarma. Chceš se naučit psát rychle Jako Pavouk? Buď pánem své klávesnice!">
     <meta name="keywords"
         content="jako, pavouk, psani, psaní, všemi, vsemi, všema, vsema, deseti, hrave, hravě, prsty, klavesnici, klavesnice, prst, klávesnice, klávesnici, rychle, rychlé, výuka, vyuka, zdarma, free, pavoucek, pocitaci, pocitac, notebooku, notebook, stroj, stroji, na, online, program, aplikace, webovka, procvicovani, procvičování, test">
 
     <meta name="publisher" content="Filip Růžička, firu@jakopavouk.cz">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preload" href="/RedHatMono.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/Montserrat.woff2" as="font" type="font/woff2" crossorigin>
+    <meta name="robots" content="noarchive">
 
     <!-- Ikony -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -18,7 +23,6 @@
 
     <link rel="manifest" href="/manifest.json" id="manifest">
     <meta name="theme-color" content="#3F3351">
-    <meta name="darkreader-lock"> <!-- aby se nespouštělo dark reader rozšíření -->
 
     <!-- Facebook Meta Tags -->
     <meta property="og:url" content="https://jakopavouk.cz/">
@@ -37,12 +41,6 @@
     <meta name="twitter:title" content="Jako Pavouk">
     <meta name="twitter:description" content="Webová aplikace pro výuku psaní všemi deseti.">
     <meta name="twitter:image" content="https://jakopavouk.cz/OGnahled.png">
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preload" href="/RedHatMono.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="/Montserrat.woff2" as="font" type="font/woff2" crossorigin>
-    <meta name="robots" content="noarchive">
 
     <style>
         #pavucina {
@@ -68,28 +66,7 @@
     <img id="pavucina" src="./src/assets/pavucina.svg" alt="Pavucina">
     <!-- je tady aby ji mohl browser nacist co nejdrive ještě pred js -->
 
-    <script defer>
-        // na telefonu chci aby šel web přidat na plochu jako link, ne jako standalone aplikace
-        if (document.body.clientWidth <= 900) {
-            document.getElementById("manifest").remove()
-        }
-
-        // https://ishadeed.com/article/flexbox-gap/
-        var flex = document.createElement("div")
-        flex.style.display = "flex"
-        flex.style.flexDirection = "column"
-        flex.style.rowGap = "1px"
-
-        flex.appendChild(document.createElement("div"))
-        flex.appendChild(document.createElement("div"))
-
-        document.body.appendChild(flex)
-        var isSupported = flex.scrollHeight === 1
-        flex.parentNode.removeChild(flex)
-
-        if (!isSupported) alert("Váš prohlížeč je pravděpodobně příliš starý, nebo nepodporuje vše na to, aby mohl tuto aplikaci používat. Bohužel nemůže psát Jako Pavouk.")
-        else console.log("asi ok")
-    </script>
+    <script type="text/javascript" src="/src/start-script.js" defer></script>
     <script type="module" src="/src/main.ts"></script>
 </body>
 

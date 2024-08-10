@@ -49,14 +49,24 @@ function copyEmail() {
         Když jsem ale začal hledat vhodné programy, zjistil jsem, že jich není mnoho a některé z nich stojí téměř 1000
         Kč. A tak jsem se rozhodl vytvořit si vlastní.
         <span style="margin: -14px;" /> <!-- trochu menší mezera než 2x <br> -->
-        A ano, čteš správně! 
+        A ano, čteš správně!
         Text je psán v první osobě. Možná by se tato stránka měla jmenovat spíše "O mně", jelikož tuto stránku spravuje pouze jeden člověk.
+    </p>
+    <p>
+        Chtěl bych poděkovat těmto webům, které mi poskytly svůj obsah, ať už ve formě vzdělávacích textů, článků, nebo pohádek. Díky!
+        <span id="pytelPartneru">
+            <a href="https://www.dejepis.com/" target="_blank" rel="nofollow">dejepis.com</a>
+            <!-- <a href="https://dobryzpravy.cz/" target="_blank" rel="nofollow">dobryzpravy.cz</a> -->
+            <a href="https://www.pohadky.org/" target="_blank" rel="nofollow">pohadky.org</a>
+            <a href="https://www.pohadkozem.cz/" target="_blank" rel="nofollow">pohadkozem.cz</a>
+            <a href="https://www.zemepis24.cz/" target="_blank" rel="nofollow">zemepis24.cz</a>
+        </span>
     </p>
     <p>
         Jelikož je Jako Pavouk kompletně zdarma, je tu možnost tento projekt podpořit přes platformu Ko-fi níže. Moc si
         vážím vaší podpory! <br>
-        <a href="https://ko-fi.com/jakopavouk" target=”_blank” rel="nofollow"><img id="kofi"
-                src="../assets/kofi_button.webp" alt="Podpořit" width="231" height="36"></a>
+        <a href="https://ko-fi.com/jakopavouk" target="_blank" rel="nofollow"><img id="kofi" src="../assets/kofi_button.webp" alt="Podpořit"
+                width="231" height="36"></a>
     </p>
     <p>
         Objevil/a jsi nějakou chybu/bug?<br> Máš nějaký zajímavý nápad jak vylepšit tuto aplikaci nebo jen chceš dát
@@ -79,17 +89,38 @@ function copyEmail() {
     <p>
         Pro zvědavé tu mám i link na GitHub, kde je celý projekt volně k prohlédnutí.<br>
         Budu moc rád za hvězdičku!
-        <a href="https://github.com/Firu115/jako_pavouk" target=”_blank” rel="nofollow"><img id="github"
-                src="../assets/github.webp" alt="GitHub" width="173" height="60"></a> <!-- random hash -->
+        <a href="https://github.com/Firu115/jako_pavouk" target=”_blank” rel="nofollow"><img id="github" src="../assets/github.webp" alt="GitHub"
+                width="173" height="60"></a> <!-- random hash -->
     </p>
 </template>
 
 <style scoped>
+#pytelPartneru {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+#pytelPartneru a {
+    padding: 10px 16px;
+    background-color: var(--fialova);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--bila);
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+#pytelPartneru a:hover {
+    background-color: var(--svetle-fialova);
+}
+
 #btn {
     margin: -5px;
     background-color: var(--fialova);
     padding: 10px 14px 6px 14px;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: grab;
     transition: 0.2s;
 }
