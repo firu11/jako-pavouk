@@ -3,6 +3,7 @@ package main
 import (
 	"backend/databaze"
 	"backend/utils"
+	"database/sql"
 	"log"
 	"strconv"
 	"strings"
@@ -456,7 +457,15 @@ func getText(c *fiber.Ctx) error {
 			text.WriteString(" ")
 		}
 	} else {
-		return c.Status(fiber.StatusBadRequest).JSON(chyba("Takový typ nemáme"))
+		txt, err := databaze.GetRandomProcvic(body.Typ)
+		if err == sql.ErrNoRows {
+			return c.Status(fiber.StatusBadRequest).JSON(chyba("Takový typ nemáme"))
+		}
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+		}
+
+		text.WriteString(txt)
 	}
 
 	var vyslednyText string = text.String()
