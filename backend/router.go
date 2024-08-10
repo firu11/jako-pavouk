@@ -480,6 +480,14 @@ func getVsechnyProcvic(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
+
+	if id == 0 {
+		for i := 0; i < len(texty); i++ {
+			texty[i].CPM = -1
+		}
+		return c.JSON(fiber.Map{"texty": texty, "testPsaniCPM": -1})
+	}
+
 	rychlosti, err := databaze.GetRychlostiProcvic(id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
@@ -494,7 +502,14 @@ func getVsechnyProcvic(c *fiber.Ctx) error {
 		}
 	}
 
-	return c.JSON(fiber.Map{"texty": texty, "testPsaniCPM": rychlosti[-1]})
+	var testPsaniCPM float32
+	if rychlosti[-1] == 0 {
+		testPsaniCPM = -1
+	} else {
+		testPsaniCPM = rychlosti[-1]
+	}
+
+	return c.JSON(fiber.Map{"texty": texty, "testPsaniCPM": testPsaniCPM})
 }
 
 // vrací text k odpovídajícímu procvičování

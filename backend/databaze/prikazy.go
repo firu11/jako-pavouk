@@ -264,6 +264,17 @@ func GetProcvicovani(id, cislo int) (string, string, []string, int, error) {
 	return nazev, podnazev, textArr, realCislo, nil
 }
 
+func GetRandomProcvic(jmeno string) (string, error) {
+	var text string
+
+	err := DB.QueryRow(`SELECT t.txt FROM texty t INNER JOIN druhy_textu d ON t.typ = d.id WHERE d.jmeno = $1 ORDER BY RANDOM() LIMIT 1;`, jmeno).Scan(&text)
+	if err != nil {
+		return "", err
+	}
+
+	return text, nil
+}
+
 type Cvic struct {
 	Id  int     `json:"id"`
 	Cpm float32 `json:"cpm"`

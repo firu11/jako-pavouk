@@ -503,10 +503,10 @@ func pushPohadky() string {
 
 		if kolikSus != 0 {
 			hard++
-			st += fmt.Sprintf(`(%d, '%s', %d, '%s', %d), `, hard, k, 4, v, delka)
+			st += fmt.Sprintf(`(%d, '%s', %d, '%s', %d), `, hard, k, 3, v, delka)
 		} else {
 			easy++
-			st += fmt.Sprintf(`(%d, '%s', %d, '%s', %d), `, easy, k, 3, v, delka)
+			st += fmt.Sprintf(`(%d, '%s', %d, '%s', %d), `, easy, k, 4, v, delka)
 		}
 	}
 
