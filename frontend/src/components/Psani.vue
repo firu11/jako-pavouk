@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { onUnmounted } from "vue";
 import Klavesnice from "../components/Klavesnice.vue";
 import { Howl } from "howler";
@@ -90,6 +90,13 @@ const casFormat = computed(() => {
 const aktivniPismeno = computed(() => {
     if (counterSlov.value < props.text!.length) return props.text[counterSlov.value][counter.value]
     return { id: -1, znak: "", spatne: 0, psat: false }
+})
+
+watch(props.text, () => {
+    if (!aktivniPismeno.value.psat && aktivniPismeno.value.id == 0) {
+        counter.value++
+        console.log("sus")
+    }
 })
 
 onMounted(() => {

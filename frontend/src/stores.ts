@@ -4,6 +4,7 @@ export let prihlasen = ref(false)
 export const role = ref("basic")
 export const tokenJmeno = "pavouk_token"
 export const nastaveniJmeno = "pavouk_nastaveni_psani"
+export const cislaProcvicJmeno = "pavouk_procvic_"
 export const levelyRychlosti = [60, 100, 140]
 export const levelyPresnosti = [92.5, 97.5] // jen pro message uzivateli, ne pro hvezdy
 export const maxPismenNaRadek = 629 / 19 // sirka ramecku / sirka pismene
@@ -23,3 +24,5 @@ export function getCas(key: string) {
 }
 
 export const mobil = ref(document.body.clientWidth <= 900)
+
+export const okZnaky = /([^A-Za-z0-9ěščřžýáíéůúťďňóĚŠČŘŽÝÁÍÉŮÚŤĎŇÓ ,.!?;:_=+\-*/%()[\]{}<>"])/

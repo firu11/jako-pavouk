@@ -5,7 +5,7 @@ import axios from "axios";
 import Vysledek from "../components/Vysledek.vue";
 import { useHead } from "@unhead/vue";
 import Psani from "../components/Psani.vue";
-import { mobil } from "../stores";
+import { mobil, okZnaky } from "../stores";
 import { useRouter } from "vue-router";
 import NastaveniBtn from "../components/NastaveniBtn.vue";
 import PsaniMenu from "../components/PsaniMenu.vue";
@@ -44,8 +44,6 @@ const nacitamNovej = ref(false)
 
 const hideKlavecnice = ref(false)
 
-const interpunkce = ref(false)
-
 function get() {
     nacitamNovej.value = true
     axios.post("/test-psani",
@@ -62,7 +60,7 @@ function get() {
             text.value.push([])
             const slovoArr = [...slovo]
             slovoArr.forEach(pismeno => {
-                text.value[i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !",.;!?".includes(pismeno) || interpunkce.value })
+                text.value[i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !okZnaky.test(pismeno) })
                 delkaTextu.value++
             })
         })
@@ -73,7 +71,7 @@ function get() {
         toggleDiakritikaAVelkaPismena()
 
         if (response.data.klavesnice != undefined) menuRef.value.klavModel = response.data.klavesnice == "qwerty"
-        
+
     }).catch(e => {
         if (!checkTeapot(e)) {
             console.log(e)
@@ -189,7 +187,7 @@ async function prodlouzit() {
             text.value.push([])
             const slovoArr = [...slovo]
             slovoArr.forEach(pismeno => {
-                text.value[pocetSlov + i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !",.;!?".includes(pismeno) || interpunkce.value })
+                text.value[pocetSlov + i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !okZnaky.test(pismeno) })
                 delkaTextu.value++
             })
         })

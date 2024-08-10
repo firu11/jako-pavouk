@@ -503,16 +503,16 @@ func getProcvic(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
-	cisloProcvic, err := strconv.Atoi(c.Params("cisloProcvic")) // str -> int
+	typ, err := strconv.Atoi(c.Params("cisloProcvic")) // str -> int
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
-	neCislo, err := strconv.Atoi(c.Params("neCislo")) // str -> int
+	cislo, err := strconv.Atoi(c.Params("neCislo")) // str -> int
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
-
-	nazev, podnazev, text, cislo, err := databaze.GetProcvicovani(cisloProcvic, neCislo)
+	log.Println(typ, cislo)
+	nazev, podnazev, text, cislo, err := databaze.GetProcvicovani(typ, cislo)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}

@@ -3,7 +3,7 @@ import "./style.css"
 import App from "./App.vue"
 import router from "./router.ts"
 import axios from "axios"
-import { createHead } from "@unhead/vue"
+import { createHead, setHeadInjectionHandler } from "@unhead/vue"
 import vue3GoogleLogin from "vue3-google-login"
 
 const app = createApp(App)
@@ -16,5 +16,5 @@ app.use(vue3GoogleLogin, {
 })
 
 app.use(router)
-app.use(head)
+setHeadInjectionHandler(() => head) // zmizí warning: "inject() can only be used inside setup() or functional components." https://github.com/unjs/unhead/discussions/375
 app.mount("#app")

@@ -1,16 +1,17 @@
 import { ref } from "vue";
-import { levelyPresnosti, levelyRychlosti, nastaveniJmeno, tokenJmeno } from "./stores";
+import { cislaProcvicJmeno, levelyPresnosti, levelyRychlosti, nastaveniJmeno, tokenJmeno } from "./stores";
 
-export function formatovanyPismena(pismena: string | string[] | undefined) {
-    if (pismena === "..." || pismena === undefined) return pismena
-    let vratit = "";
+export function formatovanyPismena(pismena: string | string[] | undefined): string {
+    if (pismena === undefined) return ""
+    if (pismena === "...") return pismena
+    let vratit = ""
     for (let i = 0; i < pismena.length; i++) {
-        vratit += i < pismena.length - 1 ? pismena.at(i) + ", " : pismena.at(i);
+        vratit += i < pismena.length - 1 ? pismena.at(i) + ", " : pismena.at(i)
     }
-    return vratit;
+    return vratit
 }
 
-export function format(p: string) {
+export function format(p: string): string {
     if (p === "zbylá diakritika") return "Zbylá diakritika"
     else if (p === "velká písmena (shift)") return "Velká písmena (Shift)"
     else if (p === "závorky") return "Závorky"
@@ -38,7 +39,7 @@ export function napovedaKNavigaci() {
     pridatOznameni("Pro nápovědu k navigaci se podívej do záložky Jak psát.")
 }
 
-export function checkTeapot(e: any) {
+export function checkTeapot(e: any): boolean {
     if (e.response && e.response.status == 418) {
         if (oznameni.value.length < 3) {
             pridatOznameni("Dej si čajík a vydýchej se...")
@@ -119,7 +120,7 @@ export class MojeMapa extends Map<string, number> {
     }
 }
 
-export function getCisloPochvaly(rychlost: number, presnost: number) {
+export function getCisloPochvaly(rychlost: number, presnost: number): number {
     if (rychlost >= levelyRychlosti[2] && presnost >= levelyPresnosti[1]) { // paradni
         return 0
     } else if (rychlost >= levelyRychlosti[1] && rychlost < levelyRychlosti[2] && presnost >= levelyPresnosti[1]) { // rychlost muze byt lepsi
@@ -138,7 +139,7 @@ export function getCisloPochvaly(rychlost: number, presnost: number) {
     return 0 // nestane se
 }
 
-export function clone(obj: any) { // kvůli starším prohlížečům (koukám na tebe safari <14.0)
+export function clone(obj: any): any { // kvůli starším prohlížečům (koukám na tebe safari <14.0)
     let x: any
     try {
         x = structuredClone(obj)
@@ -152,6 +153,19 @@ export async function saveNastaveni(diakritika: boolean, velkaPismena: boolean, 
     localStorage.setItem(nastaveniJmeno, JSON.stringify({ "diakritika": diakritika, "velkaPismena": velkaPismena, "vetySlova": vetySlova, "delka": delka, "klavesnice": klavesnice }))
 }
 
-export function naJednoDesetiny(cpm: number) {
+export function naJednoDesetiny(cpm: number): number {
     return Math.round(cpm * 10) / 10
+}
+
+export function getCisloProcvic(id: string): number {
+    let cislo = localStorage.getItem(cislaProcvicJmeno + id)
+    if (cislo === null) {
+        setCisloProcvic(cislaProcvicJmeno + id, 2)
+        return 1
+    }
+    return Number(cislo)
+}
+
+export function setCisloProcvic(id: string, cislo: number) {
+    localStorage.setItem(cislaProcvicJmeno + id, String(cislo))
 }

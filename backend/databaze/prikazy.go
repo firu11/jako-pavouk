@@ -246,12 +246,12 @@ func GetTexty() ([]Procvic, error) {
 	return texty, err
 }
 
-func GetProcvicovani(id, neCislo int) (string, string, []string, int, error) {
+func GetProcvicovani(id, cislo int) (string, string, []string, int, error) {
 	var text, nazev, podnazev string
-	var cislo int
+	var realCislo int
 
-	r := DB.QueryRow(`SELECT d.jmeno as nazev, t.jmeno as podnazev, t.txt, t.cislo FROM texty t JOIN druhy_textu d ON t.typ = d.id WHERE d.id = $1 AND t.cislo != $2 ORDER BY RANDOM() LIMIT 1;`, id, neCislo)
-	err := r.Scan(&nazev, &podnazev, &text, &cislo)
+	r := DB.QueryRow(`WITH maximum AS ( SELECT MAX(cislo) as m FROM texty WHERE typ = $1) SELECT d.jmeno as nazev, t.jmeno as podnazev, t.txt, t.cislo FROM texty t JOIN druhy_textu d ON t.typ = d.id, maximum WHERE d.id = $1 AND t.cislo = ((($2 - 1) % maximum.m) + 1) ORDER BY RANDOM() LIMIT 1;`, id, cislo)
+	err := r.Scan(&nazev, &podnazev, &text, &realCislo)
 	if err != nil {
 		return "", "", []string{}, 0, err
 	}
@@ -261,7 +261,7 @@ func GetProcvicovani(id, neCislo int) (string, string, []string, int, error) {
 		textArr[i] += " "
 	}
 
-	return nazev, podnazev, textArr, cislo, nil
+	return nazev, podnazev, textArr, realCislo, nil
 }
 
 type Cvic struct {

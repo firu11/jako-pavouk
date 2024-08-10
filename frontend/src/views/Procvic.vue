@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { checkTeapot, clone, getToken, MojeMapa, pridatOznameni, saveNastaveni } from '../utils';
+import { checkTeapot, clone, getCisloProcvic, getToken, MojeMapa, pridatOznameni, saveNastaveni, setCisloProcvic } from '../utils';
 import SipkaZpet from '../components/SipkaZpet.vue';
 import { computed, onMounted, ref, toRaw, watch } from 'vue';
 import axios from 'axios';
@@ -9,7 +9,7 @@ import { useHead } from '@unhead/vue';
 import Psani from '../components/Psani.vue';
 import NastaveniBtn from "../components/NastaveniBtn.vue";
 import PsaniMenu from "../components/PsaniMenu.vue";
-import { mobil } from '../stores';
+import { mobil, okZnaky } from '../stores';
 
 const router = useRouter()
 const route = useRoute()
@@ -37,13 +37,13 @@ const nacitamNovej = ref(false)
 
 const hideKlavecnice = ref(false)
 
-const chciZmenitJmeno = ref([] as { pismeno: number, jmeno: string }[])
-
-let cislo = 0
+const chciZmenitJmeno = ref([] as { pismeno: number, jmeno: string, cislo: number }[])
 
 function get() {
     nacitamNovej.value = true
-    axios.get("/procvic/" + typ + "/" + cislo, {
+    const cislo = getCisloProcvic(typ)
+
+    axios.get(`/procvic/${typ}/${cislo}`, {
         headers: {
             Authorization: `Bearer ${getToken()}`
         }
@@ -52,15 +52,16 @@ function get() {
             text.value.push([])
             const slovoArr = [...slovo]
             slovoArr.forEach(pismeno => {
-                text.value[i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !",.;!?\"".includes(pismeno) || PsaniMenu.interpunkce })
+                text.value[i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !okZnaky.test(pismeno) })
                 delkaTextu.value++
             })
         })
-        if (delkaTextu.value < 250) prodlouzit()
-
         jmeno.value = response.data.jmeno
         nazev.value = response.data.typ
-        cislo = response.data.cislo
+        if (response.data.cislo != cislo) setCisloProcvic(typ, 1)
+        else setCisloProcvic(typ, cislo + 1)
+
+        if (delkaTextu.value < 250) prodlouzit()
 
         if (menuRef.value == null) return
 
@@ -96,6 +97,7 @@ onMounted(() => {
 function restart() {
     text.value = [] as { id: number, znak: string, spatne: number, psat: boolean }[][]
     delkaTextu.value = 0
+    chciZmenitJmeno.value = []
 
     get()
     konec.value = false
@@ -157,8 +159,9 @@ async function loadAlternativy() {
 
 async function prodlouzit() {
     nacitamNovej.value = true
+    const cislo = getCisloProcvic(typ)
 
-    axios.get("/procvic/" + typ + "/" + cislo, {
+    axios.get(`/procvic/${typ}/${cislo}`, {
         headers: {
             Authorization: `Bearer ${getToken()}`
         }
@@ -177,8 +180,6 @@ async function prodlouzit() {
                 response.data.text[i] = response.data.text[i].toLocaleLowerCase()
             }
         }
-        cislo = response.data.cislo
-
         let pocetSlov = text.value.length
 
         let lastSlovo = text.value[pocetSlov - 1]
@@ -188,14 +189,14 @@ async function prodlouzit() {
             text.value[pocetSlov - 1].push({ id: delkaTextu.value, znak: " ", spatne: 0, psat: true })
         }
 
-        chciZmenitJmeno.value.push({ pismeno: delkaTextu.value + 1, jmeno: response.data.jmeno })
+        chciZmenitJmeno.value.push({ pismeno: delkaTextu.value + 1, jmeno: response.data.jmeno, cislo: response.data.cislo })
 
         response.data.text.forEach((slovo: string, i: number) => {
             text.value.push([])
             const slovoArr = [...slovo]
             slovoArr.forEach(pismeno => {
                 delkaTextu.value++
-                text.value[pocetSlov + i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !",.;!?".includes(pismeno) || PsaniMenu.interpunkce })
+                text.value[pocetSlov + i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !okZnaky.test(pismeno) })
             })
         })
     }).catch(e => {
@@ -219,6 +220,7 @@ watch(a, () => {
 
     if (a.value == chciZmenitJmeno.value[0].pismeno) {
         jmeno.value = chciZmenitJmeno.value[0].jmeno
+        setCisloProcvic(typ, chciZmenitJmeno.value[0].cislo + 1)
         chciZmenitJmeno.value.shift()
     }
 })
