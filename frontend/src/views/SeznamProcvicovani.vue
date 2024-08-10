@@ -163,6 +163,7 @@ h2 {
     background-color: var(--tmave-fialova);
     min-height: 64px;
     transition-duration: 0.2s;
+    justify-content: space-between;
 
     cursor: pointer;
     user-select: none;
