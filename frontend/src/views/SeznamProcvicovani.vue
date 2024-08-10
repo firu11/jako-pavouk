@@ -106,39 +106,46 @@ onUnmounted(() => {
     <div id="seznam">
         <RouterLink v-if="!mobil" :to="'/test-psani'" class="blok" :i="1 == o.index.value"
             :class="{ oznacene: 1 == o.index.value, nohover: o.index.value != 0 }" style="margin-top: 5px;">
-            <h2>Test psaní</h2>
+            <h3>Test psaní</h3>
             <span v-if="texty.size != 0 && testPsaniCPM != -1"><b>{{ naJednoDesetiny(testPsaniCPM) }}</b> CPM</span>
         </RouterLink>
-        <a v-else href="/test-psani" class="blok" :i="1 == o.index.value" style="user-select: none;" @click="mobilKlik">
-            <h2>Test psaní</h2>
+        <a v-else href="/test-psani" class="blok" :i="1 == o.index.value" style="user-select: none; margin-top: 5px;" @click="mobilKlik">
+            <h3>Test psaní</h3>
             <span v-if="texty.size != 0 && testPsaniCPM != -1"><b>{{ naJednoDesetiny(testPsaniCPM) }}</b> CPM</span>
         </a>
 
-        <div v-for="k in texty.keys()">
+        <div v-if="texty.size != 0" v-for="k in texty.keys()" style="width: 100%;">
             <h2>{{ k }}</h2>
 
-            <div v-if="texty.size == 0" v-for="_ in 4" class="blok">
-                <h2>. . .</h2>
-            </div>
-            <RouterLink v-else-if="!mobil" v-for="t in texty.get(k)" :to="`/procvic/${t.id}`" class="blok" :i="t.cislo == o.index.value"
+            <RouterLink v-if="!mobil" v-for="t in texty.get(k)" :to="`/procvic/${t.id}`" class="blok" :i="t.cislo == o.index.value"
                 :class="{ oznacene: t.cislo == o.index.value, nohover: o.index.value != 0 }">
-                <h2>{{ t.jmeno }}</h2>
+                <h3>{{ t.jmeno }}</h3>
                 <span v-if="t.cpm != -1"><b>{{ naJednoDesetiny(t.cpm) }}</b> CPM</span>
             </RouterLink>
-            <div v-else v-for="t in texty" class="blok" @click="mobilKlik">
-                <h2>{{ t }}</h2>
+            <div v-else v-for="t in texty.get(k)" class="blok" @click="mobilKlik">
+                <h3>{{ t.jmeno }}</h3>
+            </div>
+        </div>
+        <div v-else>
+            <div v-if="texty.size == 0" v-for="_ in 4" class="blok">
+                <h3>. . .</h3>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-#seznam,
-#seznam div {
+#seznam {
+    display: flex;
+    gap: 20px;
+    text-align: left;
+    flex-direction: column;
+}
+
+#seznam>div {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    text-align: left;
 }
 
 h2 {
@@ -156,7 +163,6 @@ h2 {
     background-color: var(--tmave-fialova);
     min-height: 64px;
     transition-duration: 0.2s;
-    justify-content: space-between;
 
     cursor: pointer;
     user-select: none;
@@ -169,7 +175,7 @@ h2 {
     transition-duration: 0.2s;
 }
 
-.blok h2 {
+.blok h3 {
     font-size: 24px;
     font-weight: 300;
     margin: 0;
@@ -199,6 +205,10 @@ h2 {
         align-items: center;
     }
 
+    #seznam div {
+        align-items: center;
+    }
+
     h2 {
         align-self: start;
     }
@@ -206,11 +216,7 @@ h2 {
     .blok {
         min-width: 260px;
         width: 100%;
-        background-color: var(--tmave-fialova);
         min-height: 48px;
-        max-height: 100px;
-        height: auto;
-        transition-duration: 0.2s;
 
         /* kvuli tomu neprihlasenymu */
         cursor: pointer;
@@ -227,7 +233,7 @@ h2 {
         height: 22px;
     }
 
-    .blok h2 {
+    .blok h3 {
         font-size: 1.3rem;
     }
 }
