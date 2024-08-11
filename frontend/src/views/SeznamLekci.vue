@@ -6,7 +6,6 @@ import { onMounted, onUnmounted, ref } from "vue"
 import { Oznacene, checkTeapot, getToken, pridatOznameni, napovedaKNavigaci } from "../utils";
 import { useHead } from "unhead"
 import { useRouter } from "vue-router";
-import { mobil, prihlasen } from "../stores"
 
 useHead({
     title: "Lekce",
@@ -31,7 +30,11 @@ const prvniNedokoncena = ref(1)
 
 const router = useRouter()
 
+const nacitam = ref(false)
+
 onMounted(() => {
+    nacitam.value = true
+
     const header = getToken() ? { headers: { Authorization: `Bearer ${getToken()}` } } : {}
     axios.get("/lekce", header)
         .then(response => {
@@ -54,7 +57,11 @@ onMounted(() => {
                 pridatOznameni()
                 console.log(e)
             }
+        }).finally(() => {
+            nacitam.value = false
         })
+
+
     document.addEventListener("keydown", e1)
     document.addEventListener("keyup", e2)
     document.addEventListener("mousemove", zrusitVyber)
@@ -128,32 +135,32 @@ function zrusitVyber() {
 <template>
     <h1>Lekce</h1>
     <div id="seznam">
-        <Rada v-if="(!prihlasen || (dokoncene.length < 2 && lekce.length != 1)) && !mobil" />
+        <Rada :pocetDoko="nacitam ? -1 : dokoncene.length" />
         <h2>Střední řada</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 4" pismena="..." :jeDokoncena="false" />
         <!-- jen aby tam něco bylo než se to načte -->
-        <BlokLekce v-else v-for="l in lekce[0]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
-            :oznacena="o.is(l['id'])" :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
+        <BlokLekce v-else v-for="l in lekce[0]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])" :oznacena="o.is(l['id'])"
+            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
         <h2>Horní řada</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 5" pismena="..." :jeDokoncena="false" />
-        <BlokLekce v-else v-for="l in lekce[1]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
-            :oznacena="o.is(l['id'])" :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
+        <BlokLekce v-else v-for="l in lekce[1]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])" :oznacena="o.is(l['id'])"
+            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
         <h2>Dolní řada</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 3" pismena="..." :jeDokoncena="false" />
-        <BlokLekce v-else v-for="l in lekce[2]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
-            :oznacena="o.is(l['id'])" :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
+        <BlokLekce v-else v-for="l in lekce[2]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])" :oznacena="o.is(l['id'])"
+            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
         <h2>Diakritika</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 5" pismena="..." :jeDokoncena="false" />
-        <BlokLekce v-else v-for="l in lekce[3]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
-            :oznacena="o.is(l['id'])" :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
+        <BlokLekce v-else v-for="l in lekce[3]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])" :oznacena="o.is(l['id'])"
+            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
         <h2>Závěr kurzu</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 2" pismena="..." :jeDokoncena="false" />
-        <BlokLekce v-else v-for="l in lekce[4]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
-            :oznacena="o.is(l['id'])" :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
+        <BlokLekce v-else v-for="l in lekce[4]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])" :oznacena="o.is(l['id'])"
+            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
         <h2>Pro programátory</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 2" pismena="..." :jeDokoncena="false" />
-        <BlokLekce v-else v-for="l in lekce[5]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])"
-            :oznacena="o.is(l['id'])" :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
+        <BlokLekce v-else v-for="l in lekce[5]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])" :oznacena="o.is(l['id'])"
+            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
     </div>
 </template>
 
