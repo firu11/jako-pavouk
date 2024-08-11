@@ -250,7 +250,7 @@ func GetProcvicovani(id, cislo int) (string, string, []string, int, error) {
 	var text, nazev, podnazev string
 	var realCislo int
 
-	r := DB.QueryRow(`WITH maximum AS ( SELECT MAX(cislo) as m FROM texty WHERE typ = $1) SELECT d.jmeno as nazev, t.jmeno as podnazev, t.txt, t.cislo FROM texty t JOIN druhy_textu d ON t.typ = d.id, maximum WHERE d.id = $1 AND t.cislo = ((($2 - 1) % maximum.m) + 1) ORDER BY RANDOM() LIMIT 1;`, id, cislo)
+	r := DB.QueryRow(`WITH maximum AS ( SELECT MAX(cislo) as m FROM texty WHERE typ = $1) SELECT d.jmeno as nazev, t.jmeno as podnazev, t.txt, t.cislo FROM texty t JOIN druhy_textu d ON t.typ = d.id, maximum WHERE d.id = $1 AND t.cislo = ((($2 - 1) % maximum.m) + 1) LIMIT 1;`, id, cislo)
 	err := r.Scan(&nazev, &podnazev, &text, &realCislo)
 	if err != nil {
 		return "", "", []string{}, 0, err
