@@ -65,8 +65,9 @@ function copyEmail() {
     <p>
         Jelikož je Jako Pavouk kompletně zdarma, je tu možnost tento projekt podpořit přes platformu Ko-fi níže. Moc si
         vážím vaší podpory! <br>
-        <a href="https://ko-fi.com/jakopavouk" target="_blank" rel="nofollow"><img id="kofi" src="../assets/kofi_button.webp" alt="Podpořit"
-                width="230" height="36"></a>
+        <a href="https://ko-fi.com/jakopavouk" target="_blank" rel="nofollow">
+            <img id="kofi" src="../assets/kofi_button.webp" alt="Podpořit" width="230" height="36">
+        </a>
     </p>
     <p>
         Objevil/a jsi nějakou chybu/bug?<br> Máš nějaký zajímavý nápad jak vylepšit tuto aplikaci nebo jen chceš dát
@@ -89,8 +90,9 @@ function copyEmail() {
     <p>
         Pro zvědavé tu mám i link na GitHub, kde je celý projekt volně k prohlédnutí.<br>
         Budu moc rád za hvězdičku!
-        <a href="https://github.com/Firu115/jako_pavouk" target=”_blank” rel="nofollow"><img id="github" src="../assets/github.webp" alt="GitHub"
-                width="173" height="60"></a> <!-- random hash -->
+        <a href="https://github.com/Firu115/jako_pavouk" target=”_blank” rel="nofollow">
+            <img id="github" src="../assets/github.webp" alt="GitHub" width="173" height="60">
+        </a>
     </p>
 </template>
 
