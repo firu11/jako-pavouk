@@ -526,7 +526,6 @@ func getProcvic(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
-	log.Println(typ, cislo)
 	nazev, podnazev, text, cislo, err := databaze.GetProcvicovani(typ, cislo)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
