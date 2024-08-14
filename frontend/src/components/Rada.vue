@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { mobil, prihlasen } from "../stores"
+import { mobil, prihlasen, role } from "../stores"
 
 const router = useRouter()
 
@@ -25,7 +25,7 @@ function hop() {
         </div>
         <img src="../assets/theThinker.svg" alt="Pavouk the thinker" width="180" height="157">
     </div>
-    <div v-else-if="!mobil && pocetDoko >= 12 - 2" id="box">
+    <div v-else-if="!mobil && pocetDoko >= 12 - 2 && role == 'basic'" id="box">
         <div>
             <h2>Líbí se ti projekt?</h2>
             <p>Pokud už píšeš Jako Pavouk, oceníme finanční podporu!</p>

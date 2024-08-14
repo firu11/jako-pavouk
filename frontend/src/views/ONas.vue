@@ -53,7 +53,8 @@ function copyEmail() {
         Text je psán v první osobě. Možná by se tato stránka měla jmenovat spíše "O mně", jelikož tuto stránku spravuje pouze jeden člověk.
     </p>
     <p>
-        Chtěl bych poděkovat těmto webům, které mi poskytly svůj obsah, ať už ve formě vzdělávacích textů, článků, nebo pohádek. Díky!
+        Chtěl bych poděkovat těmto webům, které mi poskytly svůj obsah, ať už ve formě vzdělávacích textů, článků, nebo pohádek. 
+        Většina textů je upravena.
         <span id="pytelPartneru">
             <a href="https://www.dejepis.com/" target="_blank" rel="nofollow">dejepis.com</a>
             <!-- <a href="https://dobryzpravy.cz/" target="_blank" rel="nofollow">dobryzpravy.cz</a> -->

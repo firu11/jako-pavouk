@@ -28,11 +28,12 @@ type druh struct {
 }
 
 var druhyTextu = map[string]druh{
-	"Zeměpis":         {1, "Naučné", 2},
-	"Dějepis":         {2, "Naučné", 3},
-	"Těžsí pohádky":   {3, "Zábavné", 3},
-	"Pohádky":         {4, "Zábavné", 1},
-	"Robinson Crusoe": {5, "Knihy", 1},
+	"Zeměpis":           {1, "Naučné", 2},
+	"Dějepis":           {2, "Naučné", 3},
+	"Těžsí pohádky":     {3, "Zábavné", 3},
+	"Pohádky":           {4, "Zábavné", 1},
+	"Robinson Crusoe":   {5, "Knihy", 1},
+	"Gulliverovy cesty": {6, "Knihy", 1},
 }
 
 type lekcos struct {
