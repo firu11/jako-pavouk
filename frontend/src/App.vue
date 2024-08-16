@@ -2,7 +2,7 @@
 import { onMounted, ref } from "vue";
 import MenuLink from "./components/MenuLink.vue";
 import { mobil, prihlasen, role, tokenJmeno } from "./stores";
-import { checkTeapot, jeToRobot, getToken, oznameni, pridatOznameni } from "./utils";
+import { jeToRobot, getToken, oznameni, pridatOznameni } from "./utils";
 import { useHead } from "unhead"
 import axios from "axios";
 import { useRouter } from "vue-router";
@@ -35,7 +35,7 @@ onMounted(() => {
                 prihlasen.value = true
             }
         }).catch(e => {
-            if (!checkTeapot(e)) {
+            if (!(e.response && e.response.status == 418)) {
                 console.log(e)
                 pridatOznameni("Chyba serveru")
             }

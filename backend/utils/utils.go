@@ -214,7 +214,9 @@ var tabulka = map[rune]string{
 	'ô': "o",
 	'ŕ': "r",
 }
-
+var tabulka2 map[string]string = map[string]string{
+	"…": "...",
+}
 var mezery = regexp.MustCompile("( {2,})")
 
 func UpravaTextu(txt string) string {
@@ -225,6 +227,10 @@ func UpravaTextu(txt string) string {
 		} else {
 			v.WriteRune(ch)
 		}
+	}
+
+	for o, n := range tabulka2 {
+		txt = strings.ReplaceAll(txt, o, n)
 	}
 
 	vysledek := v.String()
