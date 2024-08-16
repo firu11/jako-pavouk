@@ -8,7 +8,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/rickb777/date v1.21.1
 	github.com/valyala/fasthttp v1.55.0
-	golang.org/x/text v0.16.0 // indirect
+	golang.org/x/text v0.17.0 // indirect
 	gopkg.in/Regis24GmbH/go-diacritics.v2 v2.0.3
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	zgo.at/isbot v1.0.0
@@ -32,7 +32,7 @@ require (
 	github.com/tinylib/msgp v1.2.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	golang.org/x/net v0.27.0 // indirect
+	golang.org/x/net v0.28.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 )
 
@@ -40,6 +40,6 @@ require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	golang.org/x/crypto v0.25.0
-	golang.org/x/sys v0.23.0 // indirect
+	golang.org/x/crypto v0.26.0
+	golang.org/x/sys v0.24.0 // indirect
 )
