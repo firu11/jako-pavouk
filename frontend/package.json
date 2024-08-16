@@ -10,17 +10,17 @@
     },
     "dependencies": {
         "@unhead/vue": "^1.9.16",
-        "axios": "^1.7.2",
+        "axios": "^1.7.4",
         "howler": "^2.2.4",
-        "vue": "^3.4.31",
-        "vue-router": "^4.4.0",
+        "vue": "^3.4.38",
+        "vue-router": "^4.4.3",
         "vue3-google-login": "^2.0.27"
     },
     "devDependencies": {
         "@types/howler": "^2.2.11",
-        "@vitejs/plugin-vue": "^5.0.5",
-        "typescript": "^5.5.3",
-        "vite": "^5.3.4",
-        "vue-tsc": "^2.0.26"
+        "@vitejs/plugin-vue": "^5.1.2",
+        "typescript": "^5.5.4",
+        "vite": "^5.4.1",
+        "vue-tsc": "^2.0.29"
     }
 }
