@@ -301,6 +301,7 @@ function specialniKlik(e: KeyboardEvent) {
         if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
     } else if (e.key == "Enter") {
         e.preventDefault()
+        if (e.repeat) return
         resetTlacitko()
         animace()
     }
