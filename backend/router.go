@@ -35,12 +35,12 @@ type (
 	bodyRegistrace struct {
 		Email string `json:"email" validate:"required,email"`
 		Jmeno string `json:"jmeno" validate:"required,min=3,max=16"`
-		Heslo string `json:"heslo" validate:"required,min=5,max=128"`
+		Heslo string `json:"heslo" validate:"required,ascii,min=5,max=72"`
 	}
 
 	bodyPrihlaseni struct {
 		EmailNeboJmeno string `json:"email" validate:"required"`
-		Heslo          string `json:"heslo" validate:"required,min=5,max=25"`
+		Heslo          string `json:"heslo" validate:"required,ascii,min=5,max=72"`
 	}
 
 	bodyUprava struct {
@@ -55,7 +55,7 @@ type (
 	bodyOvereniZmenaHesla struct {
 		Email string `json:"email" validate:"required,email"`
 		Kod   string `json:"kod" validate:"required,len=5"`
-		Heslo string `json:"heslo" validate:"required,min=5,max=128"`
+		Heslo string `json:"heslo" validate:"required,ascii,min=5,max=72"`
 	}
 
 	bodyGoogle struct {

@@ -43,7 +43,7 @@ function registr(e: Event) {
         else if (spatnyJmeno.value && jmeno.value.length < 3) pridatOznameni("Jméno je moc dlouhé.<br>(3-12 znaků)")
         else if (spatnyJmeno.value) pridatOznameni("Jméno může obsahovat jen velká a malá písmena, čísla a znaky _-+*!?")
         else if (spatnyEmail.value) pridatOznameni("Email není validní.")
-        else if (spatnyHeslo.value) pridatOznameni("Heslo musí obsahovat alespoň 5 znaků. Toť vše.")
+        else if (spatnyHeslo.value) pridatOznameni("Heslo musí obsahovat alespoň 5 znaků. Bez diakritiky.")
         return
     }
 
@@ -109,7 +109,7 @@ function overeniPost(e: Event) {
 
 function chekujUdaje(jaky: string) {
     if (jaky === "email" && email.value) spatnyEmail.value = !/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/g.test(email.value)
-    else if (jaky === "heslo" && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*[a-zA-Z]).{5,128}$/.test(heslo.value) //heslo min 5 znaku
+    else if (jaky === "heslo" && heslo.value !== undefined) spatnyHeslo.value = !/^[\x00-\x7F]{5,72}$/.test(heslo.value) //ascii 5-72
     else if (jaky === "jmeno" && jmeno.value !== undefined) spatnyJmeno.value = !/^[a-zA-Z0-9ěščřžýáíéůúťňďóĚŠČŘŽÝÁÍÉŮÚŤŇĎÓ_\-+*! ]{3,12}$/.test(jmeno.value) //jmeno 3-12
     else if (jaky === "kod" && kod.value !== undefined) spatnyKod.value = !/^\d{5}$/.test(kod.value) //kod 5 dlouhy
     if (jaky === "email" && email.value.length === 0) spatnyEmail.value = false
