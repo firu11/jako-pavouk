@@ -53,14 +53,14 @@ function copyEmail() {
         Text je psán v první osobě. Možná by se tato stránka měla jmenovat spíše "O mně", jelikož tuto stránku spravuje pouze jeden člověk.
     </p>
     <p>
-        Chtěl bych poděkovat těmto webům, které mi poskytly svůj obsah, ať už ve formě vzdělávacích textů, článků, nebo pohádek. 
+        Chtěl bych poděkovat těmto webům, které mi poskytly svůj obsah, ať už ve formě vzdělávacích textů, článků, nebo pohádek.
         Většina textů je upravena.
         <span id="pytelPartneru">
-            <a href="https://www.dejepis.com/" target="_blank" rel="nofollow">dejepis.com</a>
-            <!-- <a href="https://dobryzpravy.cz/" target="_blank" rel="nofollow">dobryzpravy.cz</a> -->
-            <a href="https://www.pohadky.org/" target="_blank" rel="nofollow">pohadky.org</a>
-            <a href="https://www.pohadkozem.cz/" target="_blank" rel="nofollow">pohadkozem.cz</a>
-            <a href="https://www.zemepis24.cz/" target="_blank" rel="nofollow">zemepis24.cz</a>
+            <a href="https://www.dejepis.com/" target="_blank">dejepis.com</a>
+            <!-- <a href="https://dobryzpravy.cz/" target="_blank">dobryzpravy.cz</a> -->
+            <a href="https://www.pohadky.org/" target="_blank">pohadky.org</a>
+            <a href="https://www.pohadkozem.cz/" target="_blank">pohadkozem.cz</a>
+            <a href="https://www.zemepis24.cz/" target="_blank">zemepis24.cz</a>
         </span>
     </p>
     <p>
