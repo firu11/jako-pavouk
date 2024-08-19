@@ -19,7 +19,6 @@ function e1(e: KeyboardEvent) { // Escape = šipka zpět
 const router = useRouter()
 
 function zpatky() {
-    console.log(history.state)
     if (history.state.current == "/test-psani") {
         router.push("/procvic")
         return

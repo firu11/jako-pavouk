@@ -86,7 +86,7 @@ let counterSpatneSvislaCara = 0
 
 const casFormat = computed(() => {
     let zobrazeny = props.cas - cas.value
-    return zobrazeny < 60 ? Math.floor(zobrazeny).toString() + "s" : `${Math.floor(zobrazeny / 60)}:${zobrazeny % 60 < 10 ? "0" + Math.floor(zobrazeny % 60).toString() : Math.floor(zobrazeny % 60)}`
+    return zobrazeny < 60 ? Math.floor(zobrazeny).toString() : `${Math.floor(zobrazeny / 60)}:${zobrazeny % 60 < 10 ? "0" + Math.floor(zobrazeny % 60).toString() : Math.floor(zobrazeny % 60)}`
 })
 
 const aktivniPismeno = computed(() => {
@@ -487,7 +487,7 @@ defineExpose({ restart, aktivniPismeno })
     align-items: center;
     justify-content: center;
     left: 385px;
-    top: -233px;
+    top: -154px;
     cursor: pointer;
     transition: background-color 0.1s;
     user-select: none;
