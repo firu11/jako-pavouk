@@ -19,8 +19,15 @@ function e1(e: KeyboardEvent) { // Escape = šipka zpět
 const router = useRouter()
 
 function zpatky() {
-    if (history.state.current == "/test-psani") router.push("/procvic")
-    if (history.state.back == null) history.back()
+    console.log(history.state)
+    if (history.state.current == "/test-psani") {
+        router.push("/procvic")
+        return
+    }
+    if (history.state.back == null) {
+        history.back()
+        return
+    }
 
     const current: Array<string> = history.state.current.split("/")
     const back: Array<string> = history.state.back.split("/")
