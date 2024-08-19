@@ -208,6 +208,7 @@ async function prodlouzit() {
         <SipkaZpet />
         Test psaní
     </h1>
+    <h2>Typ: {{ menuRef != undefined ? (menuRef.typ ? "Věty" : "Slova") : " " }}</h2>
 
     <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="hideKlavecnice = false" @prodlouzit="prodlouzit" :text="text"
         :klavesnice="klavesnice" :delkaTextu="delkaTextu" :hide-klavesnice="hideKlavecnice" :nacitam-novej="nacitamNovej"
@@ -231,5 +232,9 @@ label.kontejner:hover {
     opacity: 0;
     z-index: -1000;
     user-select: none;
+}
+h2 {
+    margin-top: 5px;
+    color: rgb(194, 194, 194);
 }
 </style>

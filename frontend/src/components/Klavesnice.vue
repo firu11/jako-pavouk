@@ -225,7 +225,7 @@ function potrebujeShift(pismeno: string) {
 <style scoped>
 #nohy {
     margin-top: 25px;
-    margin-bottom: -120px;
+    margin-bottom: -200px;
     position: relative;
     display: flex;
     justify-content: center;
@@ -260,7 +260,8 @@ function potrebujeShift(pismeno: string) {
     filter: brightness(0.9);
 }
 
-.oznacenaKlavesa, .koleckoAktivni {
+.oznacenaKlavesa,
+.koleckoAktivni {
     border: #fff solid 3.5px;
     transition: 0.1s;
     filter: brightness(1.6) saturate(2);

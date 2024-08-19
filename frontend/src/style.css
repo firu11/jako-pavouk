@@ -254,40 +254,6 @@ textarea:focus, input:focus, select:focus {
     font-weight: 500;
 }
 
-#psani-menu {
-    background-color: var(--tmave-fialova);
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 186px;
-    margin-top: 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    position: absolute;
-    top: calc(340px);
-    flex-wrap: wrap;
-    align-items: center;
-    box-shadow: 0 0 50px 0 rgba(0, 0, 0, 10);
-    transition: opacity 0.2s;
-}
-
-#psani-menu button, #delka button {
-    background-color: transparent;
-    border: none;
-    color: var(--bila);
-    transition: 0.1s;
-    font-size: 1em;
-    border-radius: 5px;
-    padding: 0 2px;
-}
-
-#psani-menu button:hover, #delka button:hover {
-    color: var(--svetle-fialova);
-    font-weight: 500;
-    color: white;
-    cursor: pointer;
-}
-
 .toggleCheckbox {
     display: none;
 }
