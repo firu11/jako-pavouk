@@ -229,16 +229,16 @@ function e1(e: KeyboardEvent) {
     <div v-if="props.pismena == 'pracepraceprace'" id="tlacitka_kontainer">
         <button class="tlacitko" @click="router.push('/trida')">Zpět do třídy</button>
     </div>
-    <div v-else-if="props.cislo != 'prvni-psani' && props.cislo != 'test-psani'" id="tlacitka_kontainer">
-        <button class="tlacitko" @click="reset">Zkusit znovu</button>
-        <button class="tlacitko" @click="dalsi()">Pokračovat</button>
-    </div>
-    <div v-else-if="props.cislo == 'test-psani'" id="tlacitka_kontainer">
-        <button class="tlacitko" @click="reset">Zkusit znovu</button>
-    </div>
-    <div v-else id="tlacitka_kontainer" style="align-items: center;">
+    <div v-else-if="props.cislo == 'prvni-psani'" id="tlacitka_kontainer" style="align-items: center;">
         <span>Líbí se ti aplikace?</span>
         <button class="tlacitko" @click="router.push('/registrace')">Vytvořit účet</button>
+    </div>
+    <div v-else-if="props.cislo == 'test-psani' || props.pismena == ''" id="tlacitka_kontainer">
+        <button class="tlacitko" @click="reset">Zkusit znovu</button>
+    </div>
+    <div v-else id="tlacitka_kontainer">
+        <button class="tlacitko" @click="reset">Zkusit znovu</button>
+        <button class="tlacitko" @click="dalsi()">Pokračovat</button>
     </div>
 </template>
 

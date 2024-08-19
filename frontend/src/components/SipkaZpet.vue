@@ -20,6 +20,15 @@ const router = useRouter()
 
 function zpatky() {
     if (history.state.current == "/test-psani") router.push("/procvic")
+    if (history.state.back == null) history.back()
+
+    const current: Array<string> = history.state.current.split("/")
+    const back: Array<string> = history.state.back.split("/")
+    current.pop()
+    current.shift()
+    back.pop()
+    back.shift()
+    if (current.toString() === back.toString()) router.push("/" + current.join("/")) // pokud píšu cvičení kam jsem šel přes pokračovat, aby to neskočilo zase na to první ale zpátky na lekci
     else history.back() // používám history, aby to scrollovalo tam kde jsem skoncil
 }
 
