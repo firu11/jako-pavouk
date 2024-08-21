@@ -103,6 +103,7 @@ type (
 		Jmeno     string  `json:"jmeno" db:"jmeno"`
 		Kategorie string  `json:"kategorie" db:"kategorie"`
 		CPM       float32 `json:"cpm" db:"-"`
+		Obtiznost int     `json:"obtiznost" db:"obtiznost"`
 	}
 )
 
@@ -236,7 +237,7 @@ func GetDokonceneLekce(uzivID uint) ([]int32, error) {
 func GetTexty() ([]Procvic, error) {
 	var texty []Procvic
 
-	rows, err := DB.Query(`SELECT id, jmeno, kategorie FROM druhy_textu ORDER BY jmeno;`)
+	rows, err := DB.Query(`SELECT id, jmeno, kategorie, obtiznost FROM druhy_textu ORDER BY jmeno;`)
 	if err != nil {
 		return texty, err
 	}

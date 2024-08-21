@@ -14,8 +14,7 @@ defineProps({
 </script>
 
 <template>
-    <RouterLink v-if="pismena !== '...'" class="lekceBlok" :class="{ hotovoBlok: jeDokoncena, oznacene: oznacena }"
-        :to="'/lekce/' + pismena">
+    <RouterLink v-if="pismena !== '...'" class="lekceBlok" :class="{ hotovoBlok: jeDokoncena, oznacene: oznacena }" :to="'/lekce/' + pismena">
         <h2>Lekce: <b>{{ format(pismena) }}</b></h2>
         <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
     </RouterLink>

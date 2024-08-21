@@ -76,12 +76,12 @@ defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
             <div class="kontejner">
                 <div id="delka">
                     <button @keyup="disabledBtn" :class="{ aktivni: 15 == delka }" @click="d(15)" in="15s">15s</button>
-                    <!-- "in" je kvuli css ::after -->
                     <button @keyup="disabledBtn" :class="{ aktivni: 30 == delka }" @click="d(30)" in="30s">30s</button>
                     <button @keyup="disabledBtn" :class="{ aktivni: 60 == delka }" @click="d(60)" in="1min">1min</button>
                     <button @keyup="disabledBtn" :class="{ aktivni: 120 == delka }" @click="d(120)" in="2min">2min</button>
                     <button @keyup="disabledBtn" :class="{ aktivni: 300 == delka }" @click="d(300)" in="5min">5min</button>
                     <button @keyup="disabledBtn" :class="{ aktivni: 600 == delka }" @click="d(600)" in="10min">10min</button>
+                    <!-- "in" je kvuli css ::after -->
                 </div>
             </div>
 
@@ -173,7 +173,12 @@ defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
 #delka button:hover {
     color: var(--svetle-fialova);
     font-weight: 500;
-    color: white;
+    color: var(--bila);
     cursor: pointer;
+}
+
+.aktivni {
+    color: var(--svetle-fialova) !important;
+    font-weight: 500 !important;
 }
 </style>

@@ -249,11 +249,6 @@ textarea:focus, input:focus, select:focus {
     transform: scale(1);
 }
 
-.aktivni {
-    color: var(--svetle-fialova) !important;
-    font-weight: 500;
-}
-
 .toggleCheckbox {
     display: none;
 }

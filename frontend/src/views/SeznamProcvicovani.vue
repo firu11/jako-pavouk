@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { useHead } from "unhead"
+import { useHead } from "unhead";
 import { Oznacene, checkTeapot, getToken, napovedaKNavigaci, pridatOznameni, naJednoDesetiny } from "../utils";
 import axios from "axios";
 import { onMounted, onUnmounted, ref } from "vue";
-import { mobil } from "../stores"
+import { mobil } from "../stores";
+import ObtiznostBar from "../components/ObtiznostBar.vue";
 
 useHead({
     title: "Procvičování",
@@ -15,7 +16,7 @@ useHead({
     ]
 })
 
-const texty = ref(new Map<string, { id: number, jmeno: string, cpm: number, cislo: number }[]>())
+const texty = ref(new Map<string, { id: number, jmeno: string, cpm: number, cislo: number, obtiznost: number }[]>())
 const testPsaniCPM = ref(-1)
 const o = new Oznacene()
 let randomCvic = 1
@@ -27,14 +28,14 @@ onMounted(() => {
         }
     }).then(response => {
         var i = 2
-        response.data.texty = response.data.texty.sort((a: { id: number, jmeno: string, kategorie: string }, b: { id: number, jmeno: string, kategorie: string }) => a.kategorie.localeCompare(b.kategorie))
-        response.data.texty.forEach((txt: { id: number, jmeno: string, cpm: number, kategorie: string }) => {
+        response.data.texty = response.data.texty.sort((a: { id: number, jmeno: string, kategorie: string, obtiznost: number }, b: { id: number, jmeno: string, kategorie: string, obtiznost: number }) => a.kategorie.localeCompare(b.kategorie))
+        response.data.texty.forEach((txt: { id: number, jmeno: string, cpm: number, kategorie: string, obtiznost: number }) => {
             let a = texty.value.get(txt.kategorie)
 
             if (a) {
-                a.push({ id: txt.id, jmeno: txt.jmeno, cpm: txt.cpm, cislo: i })
+                a.push({ id: txt.id, jmeno: txt.jmeno, cpm: txt.cpm, cislo: i, obtiznost: txt.obtiznost })
             } else {
-                texty.value.set(txt.kategorie, [{ id: txt.id, jmeno: txt.jmeno, cpm: txt.cpm, cislo: i }])
+                texty.value.set(txt.kategorie, [{ id: txt.id, jmeno: txt.jmeno, cpm: txt.cpm, cislo: i, obtiznost: txt.obtiznost }])
             }
             i++
         })
@@ -119,16 +120,22 @@ onUnmounted(() => {
 
             <RouterLink v-if="!mobil" v-for="t in texty.get(k)" :to="`/procvic/${t.id}`" class="blok" :i="t.cislo == o.index.value"
                 :class="{ oznacene: t.cislo == o.index.value, nohover: o.index.value != 0 }">
-                <h3>{{ t.jmeno }}</h3>
+                <h3>
+                    <ObtiznostBar :o="t.obtiznost" />
+                    {{ t.jmeno }}
+                </h3>
                 <span v-if="t.cpm != -1"><b>{{ naJednoDesetiny(t.cpm) }}</b> CPM</span>
             </RouterLink>
             <div v-else v-for="t in texty.get(k)" class="blok" @click="mobilKlik">
-                <h3>{{ t.jmeno }}</h3>
+                <h3>
+                    <ObtiznostBar :o="t.obtiznost" />
+                    {{ t.jmeno }}
+                </h3>
             </div>
         </div>
         <div v-else>
             <div v-if="texty.size == 0" v-for="_ in 4" class="blok">
-                <h3>. . .</h3>
+                <h3 style="margin-left: 8px;">. . .</h3>
             </div>
         </div>
     </div>
@@ -156,7 +163,7 @@ h2 {
 .blok {
     display: flex;
     color: var(--bila);
-    padding: 12px 20px 12px 25px;
+    padding: 12px 20px 12px calc(25px - 8px);
     text-decoration: none;
     border-radius: 10px;
     width: 500px;
@@ -170,6 +177,10 @@ h2 {
     /* kvuli tomu neprihlasenymu */
 }
 
+.blok:first-child {
+    padding: 12px 20px 12px 25px;
+}
+
 .blok:hover,
 .oznacene {
     background-color: var(--fialova);
@@ -181,6 +192,9 @@ h2 {
     font-weight: 300;
     margin: 0;
     align-self: center;
+    display: flex;
+    align-items: center;
+    line-height: 40px;
 }
 
 .blok span {
