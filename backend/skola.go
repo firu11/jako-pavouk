@@ -96,15 +96,16 @@ func createTrida(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 
-	err = databaze.CreateTrida(body.Jmeno, id, utils.GenTridaKod())
-	if err != nil { // kod asi neni unikatni
+	for i := 0; i < 5; i++ {
 		err = databaze.CreateTrida(body.Jmeno, id, utils.GenTridaKod())
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+		if err == nil {
+			return c.SendStatus(fiber.StatusOK)
 		}
+		// kod asi neni unikatni tak zkusim znovu
 	}
 
-	return c.SendStatus(fiber.StatusOK)
+	// několikrat se to pokazilo tak hodim error
+	return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 }
 
 func tridy(c *fiber.Ctx) error {
