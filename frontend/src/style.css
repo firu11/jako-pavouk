@@ -125,9 +125,21 @@ hr {
 }
 
 .tlacitko:disabled {
-    background-color: var(--fialova);
     filter: brightness(0.7);
     cursor: not-allowed;
+}
+
+.tlacitko:disabled:hover {
+    background-color: var(--fialova);
+}
+
+.cerveneTlacitko:disabled {
+    filter: brightness(0.7);
+    cursor: not-allowed;
+}
+
+.cerveneTlacitko:disabled:hover {
+    background-color: #a01e1e;
 }
 
 .nadpisSeSipkou {
