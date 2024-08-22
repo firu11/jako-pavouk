@@ -8,18 +8,19 @@ defineProps({
         default: ""
     },
     jeDokoncena: Boolean,
-    oznacena: Boolean
+    oznacena: Boolean,
+    cislo: Number
 })
 
 </script>
 
 <template>
     <RouterLink v-if="pismena !== '...'" class="lekceBlok" :class="{ hotovoBlok: jeDokoncena, oznacene: oznacena }" :to="'/lekce/' + pismena">
-        <h2>Lekce: <b>{{ format(pismena) }}</b></h2>
+        <h2>Lekce {{ cislo }}: <b>{{ format(pismena) }}</b></h2>
         <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
     </RouterLink>
     <a v-else class="lekceBlok"> <!-- aby na to neslo kliknout nez se to nacte -->
-        <h2>Lekce: <b>{{ formatovanyPismena(pismena) }}</b></h2>
+        <h2>Lekce {{ cislo }}: <b>{{ formatovanyPismena(pismena) }}</b></h2>
         <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
     </a>
 </template>

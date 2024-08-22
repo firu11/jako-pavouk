@@ -137,30 +137,30 @@ function zrusitVyber() {
     <div id="seznam">
         <Rada :pocetDoko="nacitam ? -1 : dokoncene.length" />
         <h2>Střední řada</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 4" pismena="..." :jeDokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="i in 4" pismena="..." :jeDokoncena="false" :cislo="i" />
         <!-- jen aby tam něco bylo než se to načte -->
         <BlokLekce v-else v-for="l in lekce[0]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])" :oznacena="o.is(l['id'])"
-            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
+            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" :cislo="l['cislo']" />
         <h2>Horní řada</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 5" pismena="..." :jeDokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="i in 5" pismena="..." :jeDokoncena="false" :cislo="i + 4" />
         <BlokLekce v-else v-for="l in lekce[1]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])" :oznacena="o.is(l['id'])"
-            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
+            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" :cislo="l['cislo']" />
         <h2>Dolní řada</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 3" pismena="..." :jeDokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="i in 3" pismena="..." :jeDokoncena="false" :cislo="i + 4 + 5" />
         <BlokLekce v-else v-for="l in lekce[2]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])" :oznacena="o.is(l['id'])"
-            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
+            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" :cislo="l['cislo']" />
         <h2>Diakritika</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 5" pismena="..." :jeDokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="i in 5" pismena="..." :jeDokoncena="false" :cislo="i + 4 + 5 + 3" />
         <BlokLekce v-else v-for="l in lekce[3]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])" :oznacena="o.is(l['id'])"
-            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
+            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" :cislo="l['cislo']" />
         <h2>Závěr kurzu</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 2" pismena="..." :jeDokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="i in 2" pismena="..." :jeDokoncena="false" :cislo="i + 4 + 5 + 3 + 5" />
         <BlokLekce v-else v-for="l in lekce[4]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])" :oznacena="o.is(l['id'])"
-            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
+            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" :cislo="l['cislo']" />
         <h2>Pro programátory</h2>
-        <BlokLekce v-if="lekce[0].length == 0" v-for="_ in 2" pismena="..." :jeDokoncena="false" />
+        <BlokLekce v-if="lekce[0].length == 0" v-for="i in 2" pismena="..." :jeDokoncena="false" :cislo="i + 4 + 5 + 3 + 5 + 2" />
         <BlokLekce v-else v-for="l in lekce[5]" :pismena="l['pismena']" :jeDokoncena="dokoncene.includes(l['id'])" :oznacena="o.is(l['id'])"
-            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" />
+            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" :cislo="l['cislo']" />
     </div>
 </template>
 
