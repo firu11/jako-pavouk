@@ -378,13 +378,13 @@ function zmenaJmena(e: Event) {
 #presnost {
     display: flex;
     text-decoration: none;
-    justify-content: space-evenly;
+    justify-content: space-between;
     align-items: center;
     width: 100%;
     background-color: var(--tmave-fialova);
     height: 120px;
     transition-duration: 0.2s;
-    padding: 0 25px;
+    padding: 0 40px 0 25px;
     gap: 10px;
     max-height: 100px;
 }

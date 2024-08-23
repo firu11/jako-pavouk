@@ -134,7 +134,18 @@ onUnmounted(() => {
             </div>
         </div>
         <div v-else>
-            <div v-if="texty.size == 0" v-for="_ in 4" class="blok">
+            <h2>Knihy</h2>
+            <div v-if="texty.size == 0" v-for="_ in 3" class="blok">
+                <h3 style="margin-left: 8px;">. . .</h3>
+            </div>
+
+            <h2>Naučné</h2>
+            <div v-if="texty.size == 0" v-for="_ in 2" class="blok">
+                <h3 style="margin-left: 8px;">. . .</h3>
+            </div>
+
+            <h2>Zábavné</h2>
+            <div v-if="texty.size == 0" v-for="_ in 2" class="blok">
                 <h3 style="margin-left: 8px;">. . .</h3>
             </div>
         </div>
@@ -229,9 +240,11 @@ h2 {
     }
 
     .blok {
-        min-width: 260px;
+        min-width: 254px;
         width: 100%;
-        min-height: 48px;
+        height: 48px;
+        min-height: auto;
+        padding: 12px 10px 12px 10px;
 
         /* kvuli tomu neprihlasenymu */
         cursor: pointer;
@@ -251,5 +264,7 @@ h2 {
     .blok h3 {
         font-size: 1.3rem;
     }
+
+
 }
 </style>
