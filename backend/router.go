@@ -242,11 +242,33 @@ func getCviceni(c *fiber.Ctx) error {
 			pismena = "óďťň"
 		}
 		var pismenaRuny []rune = []rune(pismena)
+		var pocetPismenek int = len(pismenaRuny)
+
+		for _, v := range pismenaRuny {
+			zakladni := utils.PismenaPobliz[v]
+			if zakladni != 0 {
+				pismenaRuny = append(pismenaRuny, zakladni)
+			}
+		}
 
 		var slovo strings.Builder
 		for i := 0; i < int(pocetZnaku/float32(pocetPismenVeSlovu)); i++ {
-			for j := 0; j < pocetPismenVeSlovu; j++ {
-				r := rand.Intn(len(pismenaRuny)) // utf-8 jsou sus
+			for j := 0; j < pocetPismenVeSlovu/2; j++ {
+				r := rand.Intn(len(pismenaRuny))
+				slovo.WriteRune(pismenaRuny[r])
+
+				if len(pismenaRuny) != pocetPismenek*2 {
+					r = rand.Intn(len(pismenaRuny))
+					slovo.WriteRune(pismenaRuny[r])
+					continue
+				}
+
+				if r+1 > pocetPismenek {
+					r %= pocetPismenek
+				} else {
+					r += pocetPismenek
+				}
+
 				slovo.WriteRune(pismenaRuny[r])
 			}
 			slovo.WriteRune(' ')
