@@ -222,6 +222,16 @@ b {
     bottom: 1.5px;
 }
 
+.klavesaVTextuMensi {
+    border-radius: 3px;
+    background-color: var(--bila);
+    color: black;
+    padding: 2px 2px 1px 2px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    box-shadow: 0px 2px #a7a7a7;
+}
+
 .klavSipka {
     width: 20px !important;
     height: 11px !important;

@@ -196,7 +196,7 @@ function e1(e: KeyboardEvent) {
 
     <div id="bloky">
         <div class="blok">
-            <Tooltip zprava="Za neopravené chyby je adekvátní penalizace." :sirka="180" :vzdalenost="48">
+            <Tooltip zprava="Za neopravené chyby je adekvátní penalizace. Chybu opravíš pomocí klávesy <span class='klavesaVTextuMensi'>backspace</span> ." :sirka="180" :vzdalenost="48">
                 <h2>{{ rychlost > 0 ? Math.round(rychlost * 10) / 10 : 0 }}</h2>
             </Tooltip>
             <hr>

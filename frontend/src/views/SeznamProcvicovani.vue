@@ -5,6 +5,7 @@ import axios from "axios";
 import { onMounted, onUnmounted, ref } from "vue";
 import { mobil } from "../stores";
 import ObtiznostBar from "../components/ObtiznostBar.vue";
+import Tooltip from "../components/Tooltip.vue";
 
 useHead({
     title: "Procvičování",
@@ -121,7 +122,9 @@ onUnmounted(() => {
             <RouterLink v-if="!mobil" v-for="t in texty.get(k)" :to="`/procvic/${t.id}`" class="blok" :i="t.cislo == o.index.value"
                 :class="{ oznacene: t.cislo == o.index.value, nohover: o.index.value != 0 }">
                 <h3>
-                    <ObtiznostBar :o="t.obtiznost" />
+                    <Tooltip :sirka="100" :zprava="`${t.obtiznost == 1 ? 'Jednoduchá' : (t.obtiznost == 2 ? 'Střední' : 'Těžká')} obtížnost`" :xOffset="-38" :vzdalenost="5">
+                        <ObtiznostBar :o="t.obtiznost" />
+                    </Tooltip>
                     {{ t.jmeno }}
                 </h3>
                 <span v-if="t.cpm != -1"><b>{{ naJednoDesetiny(t.cpm) }}</b> CPM</span>

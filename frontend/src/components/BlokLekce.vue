@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { prihlasen } from '../stores'
-import { formatovanyPismena, format } from '../utils';
+import { format } from '../utils';
 
 defineProps({
     pismena: {
