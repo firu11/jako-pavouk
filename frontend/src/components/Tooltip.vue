@@ -24,8 +24,10 @@ onMounted(() => {
     if (props.xOffset != 0) {
         let rect = tip.value.getBoundingClientRect()
         tip.value.style.left = `${props.xOffset + rect.left}px`
+        obsah.value.style.left = `${props.xOffset}px`
     }
 })
+
 </script>
 
 <template>
@@ -59,6 +61,7 @@ onMounted(() => {
 }
 
 #obsah {
+    position: relative;
     cursor: help;
 }
 </style>

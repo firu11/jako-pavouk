@@ -31,14 +31,13 @@ defineProps<{
     background-color: var(--cerna);
     overflow: hidden;
     width: 8px;
-    position: relative;
-    right: 38px;
 }
 
 .pilulka>div {
     width: 100%;
     background-color: rgba(255, 255, 255, 0.25);
     height: 11.666px;
+    transition: 0.3s;
 }
 
 .easy {
@@ -51,6 +50,15 @@ defineProps<{
 
 .hard {
     background-color: red !important;
+}
+
+.pilulka:hover>div:nth-child(3) {
+    height: 100%;
+}
+
+.pilulka:hover>div:nth-child(1),
+.pilulka:hover>div:nth-child(2) {
+    height: 0%;
 }
 
 @media screen and (max-width: 1100px) {
