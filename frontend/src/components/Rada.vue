@@ -41,6 +41,7 @@ function hop() {
 a {
     margin-top: 10px;
     height: 36px;
+    width: auto;
 }
 
 #kofi {
@@ -66,6 +67,7 @@ a {
 #box div {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
 }
 
 h2 {

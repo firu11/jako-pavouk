@@ -42,7 +42,7 @@ onMounted(() => {
 
 <style scoped>
 #tooltip {
-    visibility: hidden;
+    opacity: 0%;
     background-color: black;
     color: white;
     text-align: center;
@@ -54,10 +54,12 @@ onMounted(() => {
     z-index: 100;
     line-height: 1rem;
     pointer-events: none;
+
+    transition: 0.1s opacity;
 }
 
 #obsah:hover~#tooltip {
-    visibility: visible;
+    opacity: 100%;
 }
 
 #obsah {
