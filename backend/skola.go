@@ -197,7 +197,7 @@ func tridaStudent(c *fiber.Ctx) error {
 		log.Println(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
-	cpmka, presnost, err := databaze.GetDokoncenePrace(trida.ID, uziv.ID)
+	cpmka, presnost, err := databaze.GetDokoncenePrace(uziv.ID)
 	if err != nil {
 		log.Println(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
@@ -308,28 +308,36 @@ func student(c *fiber.Ctx) error {
 	}
 	student, err := databaze.GetUzivByID(uint(studentID))
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
-	presnost, cpm, daystreak, chybyPismenka, err := databaze.GetUdaje(uint(studentID))
+	presnost, cpm, daystreak, chybyPismenka, err := databaze.GetUdaje(student.ID)
 	if err != nil {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
-	dokonceno, err := databaze.DokonceneProcento(id)
+	dokonceno, err := databaze.DokonceneProcento(student.ID)
 	if err != nil {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	cpmkaVPracich, presnostVPracich, err := databaze.GetDokoncenePrace(student.ID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"email":            student.Email,
-		"jmeno":            student.SkolniJmeno,
-		"daystreak":        daystreak,
-		"uspesnost":        presnost,
-		"medianRychlosti":  utils.Prumer(cpm),
-		"dokonceno":        dokonceno,
-		"nejcastejsiChyby": chybyPismenka,
-		"klavesnice":       student.Klavesnice,
+		"student": fiber.Map{
+			"email":            student.Email,
+			"jmeno":            student.SkolniJmeno,
+			"daystreak":        daystreak,
+			"uspesnost":        presnost,
+			"rychlost":         utils.Prumer(cpm),
+			"dokonceno":        dokonceno,
+			"nejcastejsiChyby": chybyPismenka,
+			"klavesnice":       student.Klavesnice,
+		},
+		"cpmVPracich":      cpmkaVPracich,
+		"presnostVPracich": presnostVPracich,
 	})
 }
 
