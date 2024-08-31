@@ -375,7 +375,7 @@ func GetCviceniVLekciByPismena(uzivID uint, pismena string) ([]Cviceni, error) {
 
 func GetUzivByID(uzivID uint) (Uzivatel, error) {
 	var uziv Uzivatel
-	row, err := DB.Query(`SELECT * FROM uzivatel WHERE id = $1 AND NOT smazany;;`, uzivID)
+	row, err := DB.Query(`SELECT * FROM uzivatel WHERE id = $1 AND NOT smazany;`, uzivID)
 	if err != nil {
 		return uziv, err
 	}
@@ -385,7 +385,7 @@ func GetUzivByID(uzivID uint) (Uzivatel, error) {
 
 func GetUzivByEmail(email string) (Uzivatel, error) {
 	var uziv Uzivatel
-	row, err := DB.Query(`SELECT * FROM uzivatel WHERE email = $1 AND NOT smazany;;`, email)
+	row, err := DB.Query(`SELECT * FROM uzivatel WHERE email = $1 AND NOT smazany;`, email)
 	if err != nil {
 		return uziv, err
 	}
@@ -800,7 +800,7 @@ type TridaInfo struct {
 func GetTridy(ucitelID uint) ([]TridaInfo, error) {
 	var tridy []TridaInfo = []TridaInfo{}
 
-	rows, err := DB.Query(`SELECT id, jmeno, kod, zamknuta, (SELECT COUNT(*) FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id WHERE s.trida_id = trida.id) as pocet_studentu,  (SELECT COUNT(*) FROM prace WHERE prace.trida_id = trida.id) as pocet_praci FROM trida WHERE ucitel_id = $1 AND smazana = FALSE;`, ucitelID)
+	rows, err := DB.Query(`SELECT id, jmeno, kod, zamknuta, (SELECT COUNT(*) FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id WHERE s.trida_id = trida.id AND NOT u.smazany) as pocet_studentu,  (SELECT COUNT(*) FROM prace WHERE prace.trida_id = trida.id) as pocet_praci FROM trida WHERE ucitel_id = $1 AND smazana = FALSE;`, ucitelID)
 	if err != nil {
 		return tridy, err
 	}
@@ -821,7 +821,7 @@ func GetStudentyZeTridy(tridaID uint) ([]Student, error) {
 
 	// super ultra šílený query by LLM
 	// předtím jsem pro každého studenta posílal query samostatně (30 žáků | 900ms -> 80ms)
-	rows, err := DB.Query(`WITH cpm_data AS (SELECT datum, (((delka_textu - 10 * neopravene) / cas) * 60) AS cpm, uziv_id FROM dokoncene UNION ALL SELECT datum, (((delka_textu - 10 * neopravene) / cas) * 60) AS cpm, uziv_id FROM dokoncene_procvic), cpm_filtered AS (SELECT uziv_id, datum, CASE WHEN cpm < 0 THEN 0 ELSE cpm END AS cpm, ROW_NUMBER() OVER (PARTITION BY uziv_id ORDER BY datum DESC) AS rn FROM cpm_data), latest_15_cpm AS (SELECT uziv_id, datum, cpm FROM cpm_filtered WHERE rn <= 15), cpm AS (SELECT uziv_id, AVG(cpm) AS cpm FROM latest_15_cpm GROUP BY uziv_id) SELECT u.id, u.skolni_jmeno, u.email, COALESCE(mc.cpm, 0) as cpm FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id INNER JOIN trida t ON t.id = s.trida_id FULL OUTER JOIN latest_15_cpm l15 ON l15.uziv_id = u.id FULL OUTER JOIN cpm mc ON mc.uziv_id = u.id WHERE s.trida_id = $1 AND t.smazana = FALSE GROUP BY u.id, u.skolni_jmeno, u.email, mc.cpm;`, tridaID)
+	rows, err := DB.Query(`WITH cpm_data AS (SELECT datum, (((delka_textu - 10 * neopravene)::float / cas) * 60) AS cpm, uziv_id FROM dokoncene UNION ALL SELECT datum, (((delka_textu - 10 * neopravene) / cas)::float * 60) AS cpm, uziv_id FROM dokoncene_procvic), cpm_filtered AS (SELECT uziv_id, datum, CASE WHEN cpm < 0 THEN 0 ELSE cpm END AS cpm, ROW_NUMBER() OVER (PARTITION BY uziv_id ORDER BY datum DESC) AS rn FROM cpm_data), latest_15_cpm AS (SELECT uziv_id, datum, cpm FROM cpm_filtered WHERE rn <= 15), cpm AS (SELECT uziv_id, AVG(cpm) AS cpm FROM latest_15_cpm GROUP BY uziv_id) SELECT u.id, u.skolni_jmeno, u.email, COALESCE(mc.cpm, 0) as cpm FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id INNER JOIN trida t ON t.id = s.trida_id FULL OUTER JOIN latest_15_cpm l15 ON l15.uziv_id = u.id FULL OUTER JOIN cpm mc ON mc.uziv_id = u.id WHERE s.trida_id = $1 AND t.smazana = FALSE AND NOT u.smazany GROUP BY u.id, u.skolni_jmeno, u.email, mc.cpm;`, tridaID)
 	if err != nil {
 		return zaci, err
 	}
@@ -911,11 +911,12 @@ func GetVsechnyPrace(tridaID uint) ([]Prace, error) {
 	return prace, err
 }
 
-func GetDokoncenePrace(tridaID, studentID uint) (map[uint]float64, map[uint]float64, error) {
+/* cpmka, presnost, error */
+func GetDokoncenePrace(studentID uint) (map[uint]float64, map[uint]float64, error) {
 	var cpmka map[uint]float64 = make(map[uint]float64)
 	var presnost map[uint]float64 = make(map[uint]float64)
 
-	rows, err := DB.Query(`SELECT p.id, ((d.delka_textu - 10 * d.neopravene)::float / d.cas) * 60 AS cpm, d.delka_textu, d.neopravene, d.chyby_pismenka FROM dokoncena_prace d INNER JOIN prace p ON d.prace_id = p.id WHERE p.trida_id = $1 AND d.student_id = $2;`, tridaID, studentID)
+	rows, err := DB.Query(`SELECT p.id, ((d.delka_textu - 10 * d.neopravene)::float / d.cas) * 60 AS cpm, d.delka_textu, d.neopravene, d.chyby_pismenka FROM dokoncena_prace d INNER JOIN prace p ON d.prace_id = p.id WHERE d.student_id = $1;`, studentID)
 	if err != nil {
 		return cpmka, presnost, err
 	}
