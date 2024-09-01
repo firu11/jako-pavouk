@@ -238,7 +238,9 @@ b {
     filter: invert(1);
 }
 
-textarea:focus, input:focus, select:focus {
+textarea:focus,
+input:focus,
+select:focus {
     outline: none;
 }
 
@@ -333,6 +335,32 @@ textarea:focus, input:focus, select:focus {
 .toggleCheckbox+.toggleContainer div:last-child {
     color: transparent;
     transition: color 0.3s;
+}
+
+select {
+    border: none;
+    border-radius: 5px;
+    padding: 3px;
+    font-size: 1.3rem;
+    color: white;
+    font-family: "Red Hat Mono";
+    background-color: var(--fialova);
+    cursor: pointer;
+    transition: 0.2s;
+    padding-left: 8px;
+}
+
+select option {
+    background-color: var(--fialova);
+    font-family: "Red Hat Mono";
+    font-size: 1rem;
+    border: none;
+}
+
+@supports(-webkit-tap-highlight-color: black) { /* ne na firefoxu, jinak je to sus */
+    select:hover {
+        background-color: var(--svetle-fialova);
+    }
 }
 
 @media screen and (max-width: 1100px) {
