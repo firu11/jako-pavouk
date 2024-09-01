@@ -91,11 +91,14 @@ type (
 	}
 
 	Prace struct {
-		ID      uint      `json:"id" db:"id"`
-		TridaID uint      `json:"-" db:"trida_id"`
-		Text    string    `json:"text" db:"text"`
-		Cas     int       `json:"cas" db:"cas"`
-		Datum   time.Time `json:"datum" db:"datum"`
+		ID                uint      `json:"id" db:"id"`
+		TridaID           uint      `json:"-" db:"trida_id"`
+		Text              string    `json:"text" db:"text"`
+		Cas               int       `json:"cas" db:"cas"`
+		Datum             time.Time `json:"datum" db:"datum"`
+		PrumerneCPM       float32   `json:"prumerne_cpm" db:"prumerne_cpm"`
+		PrumernaPresnost  float32   `json:"prumerna_presnost" db:"prumerna_presnost"`
+		StudentuDokoncilo int       `json:"studentu_dokoncilo" db:"studentu_dokoncilo"`
 	}
 
 	Procvic struct {
@@ -902,7 +905,7 @@ func PridatPraci(text string, cas int, tridaID uint) error {
 func GetVsechnyPrace(tridaID uint) ([]Prace, error) {
 	var prace []Prace = []Prace{}
 
-	rows, err := DB.Query(`SELECT * FROM prace WHERE trida_id = $1;`, tridaID)
+	rows, err := DB.Query(`WITH soucet_neopravenych AS ( SELECT prace_id, SUM(neopravene) as pocet FROM dokoncena_prace GROUP BY prace_id ), soucet_chyb AS ( SELECT prace_id, SUM((value::VARCHAR(5))::NUMERIC) AS pocet FROM dokoncena_prace, jsonb_each_text(chyby_pismenka) GROUP BY prace_id ), delky_textu AS ( SELECT prace_id, SUM(delka_textu) AS soucet_delek FROM dokoncena_prace GROUP BY prace_id ), rychlosti AS ( WITH cpmka AS ( SELECT ( ( ( dp.delka_textu - 10 * dp.neopravene ) / dp.cas::FLOAT ) * 60 ) AS cpm, p.id AS prace_id FROM dokoncena_prace dp INNER JOIN prace p ON dp.prace_id = p.id WHERE p.trida_id = $1 ) SELECT prace_id, AVG(cpm) AS prumerne_cpm FROM cpmka GROUP BY prace_id ), studenti AS ( SELECT prace_id, COUNT(*) as studentu_dokoncilo FROM dokoncena_prace GROUP BY prace_id ) SELECT p.id, COALESCE(r.prumerne_cpm, -1) AS prumerne_cpm, p.cas, p.datum, p.text, p.trida_id, COALESCE(s.studentu_dokoncilo, 0) AS studentu_dokoncilo, COALESCE( ( ( dt.soucet_delek - sc.pocet - sn.pocet ) / dt.soucet_delek::FLOAT ) * 100, -1 ) AS prumerna_presnost FROM soucet_neopravenych sn FULL OUTER JOIN soucet_chyb sc USING (prace_id) FULL OUTER JOIN delky_textu dt USING (prace_id) FULL OUTER JOIN rychlosti r USING (prace_id) FULL OUTER JOIN studenti s USING (prace_id) FULL OUTER JOIN prace p ON p.id = r.prace_id;`, tridaID)
 	if err != nil {
 		return prace, err
 	}
