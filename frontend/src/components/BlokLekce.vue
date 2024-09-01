@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { prihlasen } from '../stores'
-import { format } from '../utils';
+import { prihlasen } from "../stores";
+import { format } from "../utils";
 
 defineProps({
     pismena: {
@@ -15,18 +15,18 @@ defineProps({
 </script>
 
 <template>
-    <RouterLink v-if="pismena !== '. . .'" class="lekceBlok" :class="{ hotovoBlok: jeDokoncena, oznacene: oznacena }" :to="'/lekce/' + pismena">
+    <RouterLink v-if="pismena !== '. . .'" class="lekce-blok" :class="{ hotovoBlok: jeDokoncena, oznacene: oznacena }" :to="'/lekce/' + pismena">
         <h2>Lekce {{ cislo }}: <b>{{ format(pismena) }}</b></h2>
         <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
     </RouterLink>
-    <a v-else class="lekceBlok"> <!-- aby na to neslo kliknout nez se to nacte -->
+    <a v-else class="lekce-blok"> <!-- aby na to neslo kliknout nez se to nacte -->
         <h2>Lekce {{ cislo }}: <b>{{ pismena }}</b></h2>
         <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
     </a>
 </template>
 
 <style scoped>
-.lekceBlok {
+.lekce-blok {
     color: var(--bila);
     display: flex;
     flex-direction: row;
@@ -42,7 +42,7 @@ defineProps({
     /* kvuli tomu neprihlasenymu */
 }
 
-.lekceBlok:hover,
+.lekce-blok:hover,
 .oznacene {
     background-color: var(--fialova);
     transition-duration: 0.2s;
@@ -53,14 +53,14 @@ defineProps({
     opacity: 80%;
 }
 
-.lekceBlok h2 {
+.lekce-blok h2 {
     align-self: center;
     font-size: 24px;
     font-weight: 300;
 }
 
 @media screen and (max-width: 1100px) {
-    .lekceBlok {
+    .lekce-blok {
         min-width: 260px;
         width: 100%;
         background-color: var(--tmave-fialova);
@@ -73,7 +73,7 @@ defineProps({
         cursor: pointer;
     }
 
-    .lekceBlok h2 {
+    .lekce-blok h2 {
         font-size: 1.3rem;
     }
 

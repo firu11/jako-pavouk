@@ -224,7 +224,7 @@ h2 {
 }
 
 .blok span b {
-    font-family: 'Red Hat Mono';
+    font-family: "Red Hat Mono";
     font-size: 1.8rem;
 }
 

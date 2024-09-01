@@ -1,12 +1,12 @@
 @font-face {
     font-family: "Montserrat";
-    src: url("/Montserrat.woff2") format('woff2');
+    src: url("/Montserrat.woff2") format("woff2");
     font-display: swap;
 }
 
 @font-face {
     font-family: "Red Hat Mono";
-    src: url("/RedHatMono.woff2") format('woff2');
+    src: url("/RedHatMono.woff2") format("woff2");
     font-display: swap;
 }
 
@@ -80,11 +80,7 @@ hr {
     align-self: center;
 }
 
-.fajvkaVetsi {
-    height: 45px;
-}
-
-.playVetsi {
+.play-vetsi {
     height: 45px;
 }
 
@@ -106,7 +102,7 @@ hr {
     transition: 0.2s;
 }
 
-.cerveneTlacitko {
+.cervene-tlacitko {
     width: 150px;
     height: 40px;
     border: none;
@@ -119,7 +115,7 @@ hr {
     cursor: pointer;
 }
 
-.cerveneTlacitko:hover {
+.cervene-tlacitko:hover {
     background-color: #ce0000;
     transition: 0.2s;
 }
@@ -133,16 +129,16 @@ hr {
     background-color: var(--fialova);
 }
 
-.cerveneTlacitko:disabled {
+.cervene-tlacitko:disabled {
     filter: brightness(0.7);
     cursor: not-allowed;
 }
 
-.cerveneTlacitko:disabled:hover {
+.cervene-tlacitko:disabled:hover {
     background-color: #a01e1e;
 }
 
-.nadpisSeSipkou {
+.nadpis-se-sipkou {
     display: inline-flex;
     position: relative;
     right: 25px;
@@ -210,7 +206,7 @@ b {
     border-width: 0;
 }
 
-.klavesaVTextu {
+.klavesa-v-textu {
     border-radius: 5px;
     background-color: var(--bila);
     color: black;
@@ -222,7 +218,7 @@ b {
     bottom: 1.5px;
 }
 
-.klavesaVTextuMensi {
+.klavesa-v-textu-mensi {
     border-radius: 3px;
     background-color: var(--bila);
     color: black;
@@ -232,7 +228,7 @@ b {
     box-shadow: 0px 2px #a7a7a7;
 }
 
-.klavSipka {
+.klav-sipka {
     width: 20px !important;
     height: 11px !important;
     filter: invert(1);
@@ -273,11 +269,11 @@ select:focus {
     transform: scale(1);
 }
 
-.toggleCheckbox {
+.toggle-checkbox {
     display: none;
 }
 
-.toggleContainer {
+.toggle-contejner {
     position: relative;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -293,7 +289,7 @@ select:focus {
     height: 30px;
 }
 
-.toggleContainer::before {
+.toggle-contejner::before {
     content: '';
     position: absolute;
     width: 50%;
@@ -304,11 +300,11 @@ select:focus {
     transition: all 0.3s;
 }
 
-.toggleCheckbox:checked+.toggleContainer::before {
+.toggle-checkbox:checked+.toggle-contejner::before {
     left: 50%;
 }
 
-.toggleContainer div {
+.toggle-contejner div {
     padding: 6px;
     text-align: center;
     z-index: 1;
@@ -317,22 +313,22 @@ select:focus {
     top: -1px;
 }
 
-.toggleCheckbox:checked+.toggleContainer div:first-child {
+.toggle-checkbox:checked+.toggle-contejner div:first-child {
     color: transparent;
     transition: color 0.3s;
 }
 
-.toggleCheckbox:checked+.toggleContainer div:last-child {
+.toggle-checkbox:checked+.toggle-contejner div:last-child {
     color: white;
     transition: color 0.3s;
 }
 
-.toggleCheckbox+.toggleContainer div:first-child {
+.toggle-checkbox+.toggle-contejner div:first-child {
     color: white;
     transition: color 0.3s;
 }
 
-.toggleCheckbox+.toggleContainer div:last-child {
+.toggle-checkbox+.toggle-contejner div:last-child {
     color: transparent;
     transition: color 0.3s;
 }

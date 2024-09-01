@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useHead } from 'unhead'
-import { ref } from 'vue';
-import { pridatOznameni } from '../utils';
+import { useHead } from "unhead";
+import { ref } from "vue";
+import { pridatOznameni } from "../utils";
 
 useHead({
     title: "Systém pro školy"
@@ -170,10 +170,6 @@ form label {
     font-size: 1.1em;
     margin: 0 5px 5px 5px;
     display: inline-block;
-}
-
-.spatnej_input {
-    border: 1px solid red;
 }
 
 h1 {

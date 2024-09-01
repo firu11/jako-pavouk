@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from "vue";
 
 const rotacePocet = ref(0)
 function animace() {
@@ -19,7 +19,7 @@ onMounted(() => {
 </script>
 <template>
     <Transition>
-        <div v-if="ready" id="nastaveniBtn" @click="$emit('klik'); animace()">
+        <div v-if="ready" id="nastaveni-btn" @click="$emit('klik'); animace()">
             <img :style="{ transform: rotace }" src="../assets/icony/nastaveni.svg" alt="Nastavení">
         </div>
     </Transition>
@@ -33,7 +33,7 @@ onMounted(() => {
     opacity: 0;
 }
 
-#nastaveniBtn {
+#nastaveni-btn {
     position: relative;
     width: 55px;
     height: 55px;
@@ -49,12 +49,12 @@ onMounted(() => {
     user-select: none;
 }
 
-#nastaveniBtn img {
+#nastaveni-btn img {
     width: 30px;
     transition-duration: 0.4s;
 }
 
-#nastaveniBtn:hover {
+#nastaveni-btn:hover {
     background-color: var(--fialova);
 }
 </style>

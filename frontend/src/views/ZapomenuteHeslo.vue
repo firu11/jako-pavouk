@@ -2,7 +2,7 @@
 import axios from "axios";
 import { ref } from "vue";
 import { checkTeapot, pridatOznameni } from "../utils";
-import { useHead } from "unhead"
+import { useHead } from "unhead";
 import { useRouter } from "vue-router";
 
 useHead({
@@ -94,17 +94,17 @@ function presmerovat(e: Event) {
     <form v-if="state === 'email'">
         <h3 style="margin-bottom: 20px;">Na e-mail ti bude zaslán <br> ověřovací kód pro obnovení hesla.</h3>
         <h3 class="nadpis">Zadej email:</h3>
-        <input :class="{ spatnej_input: spatnyEmail }" :oninput="zmena" type="text" v-model="email"
+        <input :class="{ 'spatnej-input': spatnyEmail }" :oninput="zmena" type="text" v-model="email"
             placeholder="Např: pepa@zdepa.cz" inputmode="email">
         <button type="submit" class="tlacitko" @click="poslatEmail" :disabled="posilame">{{ posilame ? ". . ." : "Poslat email" }}</button>
     </form>
     <form v-else-if="state === 'kod'">
         <h3 style="margin-bottom: 20px;">Zkontroluj prosím svou<br> emailovou schránku.</h3>
         <h3 class="nadpis">Kód z emailu:</h3>
-        <input style="margin-bottom: 20px;" :class="{ spatnej_input: spatnyKod }" @:input="chekujUdaje('kod')" type="text"
+        <input style="margin-bottom: 20px;" :class="{ 'spatnej-input': spatnyKod }" @:input="chekujUdaje('kod')" type="text"
             inputmode="numeric" v-model.trim="kod" placeholder="Např: 12345">
         <h3 class="nadpis">Nové heslo:</h3>
-        <input :class="{ spatnej_input: spatnyHeslo }" @:input="chekujUdaje('heslo')" type="password" v-model="heslo"
+        <input :class="{ 'spatnej-input': spatnyHeslo }" @:input="chekujUdaje('heslo')" type="password" v-model="heslo"
             placeholder="Rozhodně ne 'Pepa123'">
         <button type="submit" class="tlacitko" @click="overitZmenu">Potvrdit</button>
     </form>

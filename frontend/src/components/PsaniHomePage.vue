@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref } from "vue";
 
 let delka = 9
 const counter = ref(delka - 1)
@@ -25,7 +25,7 @@ function dalsi() {
 <template>
     <div id="box">
         <TransitionGroup name="pismenka">
-            <span v-for="(p, i) in viditelny" :class="{ spravnePismeno: i < 2 }" class="pismeno" :key="p.toString()">
+            <span v-for="(p, i) in viditelny" :class="{ 'spravne-pismeno': i < 2 }" class="pismeno" :key="p.toString()">
                 {{ p[1] != " " ? p[1] : "&nbsp" }}
             </span>
         </TransitionGroup>
@@ -74,7 +74,7 @@ function dalsi() {
 }
 
 .pismeno {
-    font-family: 'Red Hat Mono', monospace;
+    font-family: "Red Hat Mono", monospace;
     line-height: 1.2;
     text-decoration: none;
     color: var(--bila);
@@ -83,7 +83,7 @@ function dalsi() {
     max-width: 67px;
 }
 
-.spravnePismeno {
+.spravne-pismeno {
     color: rgba(100, 100, 100, 20);
 }
 

@@ -3,7 +3,7 @@ import { onMounted, ref } from "vue";
 import MenuLink from "./components/MenuLink.vue";
 import { mobil, prihlasen, role, tokenJmeno } from "./stores";
 import { jeToRobot, getToken, oznameni, pridatOznameni } from "./utils";
-import { useHead } from "unhead"
+import { useHead } from "unhead";
 import axios from "axios";
 import { useRouter } from "vue-router";
 
@@ -53,9 +53,9 @@ onMounted(() => {
 
 <template>
     <header>
-        <div id="menuMobilniBtn" @click="mobilMenu = !mobilMenu"><img id="menuIcon" src="./assets/icony/menu.svg" alt="Menu" width="40" height="40">
+        <div id="menu-mobilni-btn" @click="mobilMenu = !mobilMenu"><img id="menuIcon" src="./assets/icony/menu.svg" alt="Menu" width="40" height="40">
         </div>
-        <nav :class="{ mobilHidden: !mobilMenu }" @click="mobilMenu = !mobilMenu">
+        <nav :class="{ 'mobil-hidden': !mobilMenu }" @click="mobilMenu = !mobilMenu">
             <MenuLink jmeno="Domů" cesta="/" />
             <MenuLink jmeno="Jak psát" cesta="/jak-psat" />
             <MenuLink jmeno="Lekce" cesta="/lekce" />
@@ -151,7 +151,7 @@ nav {
     overflow: hidden;
 }
 
-#menuMobilniBtn {
+#menu-mobilni-btn {
     display: none;
 }
 
@@ -166,12 +166,12 @@ nav {
 }
 
 @media screen and (max-width: 1100px) {
-    .mobilHidden {
+    .mobil-hidden {
         transform: translateX(-250px);
         transition: transform ease-in-out 0.3s;
     }
 
-    #menuMobilniBtn {
+    #menu-mobilni-btn {
         background-color: var(--tmave-fialova);
         border-radius: 100px;
         padding: 10px;

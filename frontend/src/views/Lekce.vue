@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import axios from 'axios'
-import { onMounted, onUnmounted, ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router'
-import { Oznacene, format, getToken, napovedaKNavigaci } from '../utils';
-import BlokCviceni from '../components/BlokCviceni.vue';
-import SipkaZpet from '../components/SipkaZpet.vue';
-import { useHead } from 'unhead'
+import axios from "axios";
+import { onMounted, onUnmounted, ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { Oznacene, format, getToken, napovedaKNavigaci } from "../utils";
+import BlokCviceni from "../components/BlokCviceni.vue";
+import SipkaZpet from "../components/SipkaZpet.vue";
+import { useHead } from "unhead";
 
 const route = useRoute().params.pismena
 const pismena = Array.isArray(route) ? route[0] : route // sus proste kdyby nahodou to byl array jakoze nebude tak to indexnem
@@ -22,13 +22,13 @@ const o = new Oznacene()
 const prvniNedokoncene = ref(1)
 
 onMounted(() => {
-    axios.get('/lekce/' + encodeURIComponent(pismena), {
+    axios.get("/lekce/" + encodeURIComponent(pismena), {
         headers: {
             Authorization: `Bearer ${getToken()}`
         }
     }).then(response => {
         if (response.data.cviceni === null) {
-            router.push('/404')
+            router.push("/404")
         }
         cviceni.value = response.data.cviceni
         dokoncene.value = response.data.dokoncene
@@ -45,44 +45,44 @@ onMounted(() => {
             }
         }
     }).catch(_ => {
-        router.push('/404')
+        router.push("/404")
     })
 
-    document.addEventListener('keydown', e1)
-    document.addEventListener('keyup', e2)
-    document.addEventListener('mousemove', zrusitVyber)
+    document.addEventListener("keydown", e1)
+    document.addEventListener("keyup", e2)
+    document.addEventListener("mousemove", zrusitVyber)
 })
 
 onUnmounted(() => {
-    document.removeEventListener('keydown', e1)
-    document.removeEventListener('keyup', e2)
-    document.removeEventListener('mousemove', zrusitVyber)
+    document.removeEventListener("keydown", e1)
+    document.removeEventListener("keyup", e2)
+    document.removeEventListener("mousemove", zrusitVyber)
 })
 
 function e1(e: KeyboardEvent) {
-    if (e.key == 'ArrowLeft' || e.key == 'ArrowUp') {
+    if (e.key == "ArrowLeft" || e.key == "ArrowUp") {
         e.preventDefault()
         if (o.index.value == 0) o.index.value = prvniNedokoncene.value + 1
         o.mensi()
-    } else if (e.key == 'ArrowRight' || e.key == 'ArrowDown') {
+    } else if (e.key == "ArrowRight" || e.key == "ArrowDown") {
         e.preventDefault()
         if (o.index.value == 0) o.index.value = prvniNedokoncene.value - 1
         o.vetsi()
-    } else if (e.key == 'Enter') {
+    } else if (e.key == "Enter") {
         e.preventDefault()
         let cvicE: HTMLElement | null = document.querySelector(`[i="true"]`)
         if (cvicE == null || o.bezOznaceni) {
             o.bezOznaceni = true
             o.index.value = prvniNedokoncene.value
         } else cvicE?.click()
-    } else if (e.key == 'Tab') {
+    } else if (e.key == "Tab") {
         e.preventDefault()
         napovedaKNavigaci()
     }
 }
 
 function e2(e: KeyboardEvent) {
-    if (e.key == 'Enter') {
+    if (e.key == "Enter") {
         e.preventDefault()
         let cvicE: HTMLElement | null = document.querySelector(`[i="true"]`)
         cvicE?.click()
@@ -110,7 +110,7 @@ function cvicID(id: number) {
 </script>
 
 <template>
-    <h1 class="nadpisSeSipkou">
+    <h1 class="nadpis-se-sipkou">
         <SipkaZpet />
         Lekce: {{ format(pismena) }}
     </h1>
