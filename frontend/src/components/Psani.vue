@@ -9,7 +9,7 @@ import klik3 from "../assets/zvuky/klik3.ogg";
 import miss from "../assets/zvuky/miss.ogg";
 import { MojeMapa, pridatOznameni } from "../utils";
 import { useRoute } from "vue-router";
-import { useHead } from "unhead"
+import { useHead } from "unhead";
 
 useHead({
     meta: [
@@ -115,7 +115,7 @@ onUnmounted(() => {
 })
 
 function enableKurzor() {
-    celyPsani.value.classList.remove("bezKurzoru")
+    celyPsani.value.classList.remove("bez-kurzoru")
 }
 
 function capslockCheck(e: KeyboardEvent) { // TODO chtelo by to checknout hned po nacteni stranky ale nevim jestli to jde (spíš ne)
@@ -224,7 +224,7 @@ function klik(this: any, e: KeyboardEvent) {
     }
 
     predchoziZnak = ""
-    celyPsani.value.classList.add("bezKurzoru")
+    celyPsani.value.classList.add("bez-kurzoru")
 
     if (textViditelny.value[textViditelny.value.length - 1] == props.text[props.text.length - 1] && !props.nacitamNovej) emit("prodlouzit")
 }
@@ -413,7 +413,7 @@ defineExpose({ restart, aktivniPismeno })
                 <div id="text" ref="textElem" data-nosnippet>
                     <div class="slovo" v-for="s in textViditelny">
                         <div v-for="p in s" class="pismeno" :id="'p' + p.id"
-                            :class="{ podtrzeni: p.id === aktivniPismeno.id, spatnePismeno: p.spatne === 1 && aktivniPismeno.id > p.id, opravenePismeno: p.spatne === 2 && aktivniPismeno.id > p.id, spravnePismeno: (!p.spatne && aktivniPismeno.id > p.id) || !p.psat }">
+                            :class="{ podtrzeni: p.id === aktivniPismeno.id, 'spatne-pismeno': p.spatne === 1 && aktivniPismeno.id > p.id, 'opravene-pismeno': p.spatne === 2 && aktivniPismeno.id > p.id, 'spravne-pismeno': (!p.spatne && aktivniPismeno.id > p.id) || !p.psat }">
                             {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp") }} </div>
                         </div>
                     </div>
@@ -424,15 +424,15 @@ defineExpose({ restart, aktivniPismeno })
                 <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice" />
             </Transition>
             <Transition>
-                <div v-if="klavesnice != '' && props.resetBtn" id="resetBtn" @click="resetTlacitko(); animace()"
+                <div v-if="klavesnice != '' && props.resetBtn" id="reset-btn" @click="resetTlacitko(); animace()"
                     :class="{ schovat: route.fullPath == '/prvni-psani' }">
                     <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Nastavení">
                 </div>
             </Transition>
 
-            <div id="zvukBtn" @click="toggleZvuk">
-                <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvukIcon" src="../assets/icony/zvukOn.svg" alt="Zvuky jsou zapnuté">
-                <img v-else style="margin-left: 1px;" class="zvukIcon" src="../assets/icony/zvukOff.svg" alt="Zvuky jsou vypnuté">
+            <div id="zvuk-btn" @click="toggleZvuk">
+                <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvuk-icon" src="../assets/icony/zvukOn.svg" alt="Zvuky jsou zapnuté">
+                <img v-else style="margin-left: 1px;" class="zvuk-icon" src="../assets/icony/zvukOff.svg" alt="Zvuky jsou vypnuté">
             </div>
         </div>
 </template>
@@ -443,7 +443,7 @@ defineExpose({ restart, aktivniPismeno })
     cursor: auto !important;
 }
 
-.bezKurzoru {
+.bez-kurzoru {
     cursor: none;
 }
 
@@ -455,13 +455,13 @@ defineExpose({ restart, aktivniPismeno })
     opacity: 0;
 }
 
-.zvukIcon {
+.zvuk-icon {
     width: 45px;
     height: 35px;
     margin-top: 1px;
 }
 
-#zvukBtn {
+#zvuk-btn {
     position: fixed;
     right: 30px;
     bottom: 25px;
@@ -477,7 +477,7 @@ defineExpose({ restart, aktivniPismeno })
     user-select: none;
 }
 
-#resetBtn {
+#reset-btn {
     position: relative;
     width: 55px;
     height: 55px;
@@ -493,15 +493,15 @@ defineExpose({ restart, aktivniPismeno })
     user-select: none;
 }
 
-#resetBtn img {
+#reset-btn img {
     width: 30px;
     padding-bottom: 1px;
     transition-duration: 0.2s;
     transition-timing-function: ease-out;
 }
 
-#resetBtn:hover,
-#zvukBtn:hover {
+#reset-btn:hover,
+#zvuk-btn:hover {
     background-color: var(--fialova);
 }
 
@@ -571,7 +571,7 @@ defineExpose({ restart, aktivniPismeno })
 .pismeno {
     border-radius: 3px;
     display: inline-flex;
-    font-family: 'Red Hat Mono', monospace;
+    font-family: "Red Hat Mono", monospace;
     font-weight: 400;
     font-size: 1.56rem;
     line-height: 2.2rem;
@@ -589,7 +589,7 @@ defineExpose({ restart, aktivniPismeno })
     font-weight: 300;
 }
 
-.spravnePismeno {
+.spravne-pismeno {
     color: #8c8c8c;
 }
 
@@ -598,11 +598,11 @@ defineExpose({ restart, aktivniPismeno })
     border-radius: 0;
 }
 
-.spatnePismeno {
+.spatne-pismeno {
     color: #ff0000;
 }
 
-.opravenePismeno {
+.opravene-pismeno {
     color: #b1529c;
 }
 </style>

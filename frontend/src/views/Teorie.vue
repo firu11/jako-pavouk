@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useHead } from 'unhead'
+import { useHead } from "unhead";
 
 useHead({
     title: "Jak psát všemi deseti",
@@ -74,26 +74,26 @@ useHead({
         <img src="../assets/sipky.svg" alt="Pavouk s klávesnicí" width="345" height="244">
         <div class="text">
             <h2>Pohyb po Pavoukovi</h2>
-            <ul class="mensiPadding" style="list-style: none;">
+            <ul class="mensi-padding" style="list-style: none;">
                 <li><b>Výběr lekce / cvičení:</b></li>
                 <li>
                     <ul style="margin: 0 0 1.1rem 0.5rem; list-style: none;">
-                        <li><span class="klavesaVTextu">Enter</span> podržet - vybere to, kde jsem skončil</li>
-                        <li><span class="klavesaVTextu" style="margin-right: 5px;"><img src="../assets/icony/sipkaL.svg" alt="Šipka"
-                                    class="klavSipka"></span>
-                            <span class="klavesaVTextu"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klavSipka"
+                        <li><span class="klavesa-v-textu">Enter</span> podržet - vybere to, kde jsem skončil</li>
+                        <li><span class="klavesa-v-textu" style="margin-right: 5px;"><img src="../assets/icony/sipkaL.svg" alt="Šipka"
+                                    class="klav-sipka"></span>
+                            <span class="klavesa-v-textu"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klav-sipka"
                                     style="transform: scaleX(-1);"></span> - přesný výběr,
-                            <span class="klavesaVTextu" style="margin-left: 5px;">Enter</span>
+                            <span class="klavesa-v-textu" style="margin-left: 5px;">Enter</span>
                             - potvrzení
                         </li>
                     </ul>
                 </li>
 
-                <li><span class="klavesaVTextu"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klavSipka"
+                <li><span class="klavesa-v-textu"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klav-sipka"
                             style="transform: scaleX(-1);"></span> - pokračuje na další cvičení
                 </li>
-                <li><span class="klavesaVTextu">Enter</span> - opakuje cvičení</li>
-                <li><span class="klavesaVTextu">Esc</span> - zpět</li>
+                <li><span class="klavesa-v-textu">Enter</span> - opakuje cvičení</li>
+                <li><span class="klavesa-v-textu">Esc</span> - zpět</li>
             </ul>
         </div>
     </div>
@@ -145,7 +145,7 @@ li {
     font-size: 1.1rem;
 }
 
-.mensiPadding li {
+.mensi-padding li {
     padding: 3px 0 !important;
 }
 

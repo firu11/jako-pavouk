@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import axios from 'axios';
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { prihlasen, tokenJmeno } from '../stores';
-import { pridatOznameni } from '../utils';
-import { useHead } from 'unhead'
+import axios from "axios";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { prihlasen, tokenJmeno } from "../stores";
+import { pridatOznameni } from "../utils";
+import { useHead } from "unhead";
 
 useHead({
     title: "Přihlášení",
@@ -34,7 +34,7 @@ function login(e: Event) {
     }
     if (spatnyEmail.value || spatnyHeslo.value) return //nezkoušet ani
 
-    axios.post('/prihlaseni', {
+    axios.post("/prihlaseni", {
         "email": email.value,
         "heslo": heslo.value
     }).then(response => {
@@ -83,10 +83,10 @@ const handleLoginSuccess = (response: any) => {
     <h2>Přihlášení</h2>
     <form>
         <h3 class="nadpis">Email nebo jméno:</h3>
-        <input :class="{ spatnej_input: spatnyEmail }" :oninput="zmena" type="text" v-model="email"
+        <input :class="{ 'spatnej-input': spatnyEmail }" :oninput="zmena" type="text" v-model="email"
             placeholder="Např: pan@pavouk.cz" inputmode="email">
         <h3 class="nadpis">Heslo:</h3>
-        <input :class="{ spatnej_input: spatnyHeslo }" :oninput="zmena" type="password" v-model="heslo"
+        <input :class="{ 'spatnej-input': spatnyHeslo }" :oninput="zmena" type="password" v-model="heslo"
             placeholder='Rozhodně ne "Pavouk123"'>
         <button type="submit" class="tlacitko" @click="login">Přihlásit</button>
 

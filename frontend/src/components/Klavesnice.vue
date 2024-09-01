@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useRoute } from 'vue-router';
+import { computed, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
 const props = defineProps({
     aktivniPismeno: {
@@ -92,11 +92,11 @@ function oznacene(tlacitko: string) {
         if (pismeno !== "ů" && tlacitko === "ˇ´") return true
         return false
     }
-    if ((pismeno === ' ' && tlacitko === '______') || (tlacitko.length === 1 && tlacitko.toLowerCase() === pismeno) || (tlacitko.length === 2 && tlacitko.toLowerCase().includes(pismeno) && tlacitko !== '  ')) {
+    if ((pismeno === " " && tlacitko === "______") || (tlacitko.length === 1 && tlacitko.toLowerCase() === pismeno) || (tlacitko.length === 2 && tlacitko.toLowerCase().includes(pismeno) && tlacitko !== "  ")) {
         return true
-    } else if ('óťňď'.includes(pismeno)) {
-        if (tlacitko == 'ˇ´') return true
-        if ((tlacitko == 'O' && pismeno == 'ó') || (tlacitko == 'T' && pismeno == 'ť') || (tlacitko == 'N' && pismeno == 'ň') || (tlacitko == 'D' && pismeno == 'ď')) return true
+    } else if ("óťňď".includes(pismeno)) {
+        if (tlacitko == "ˇ´") return true
+        if ((tlacitko == "O" && pismeno == "ó") || (tlacitko == "T" && pismeno == "ť") || (tlacitko == "N" && pismeno == "ň") || (tlacitko == "D" && pismeno == "ď")) return true
     } else if ("[]{}<>*|&".includes(pismeno)) {
         if (tlacitko === "Ctrl" || tlacitko === "Alt") return true
         if (props.typ === "qwertz") {
@@ -129,12 +129,12 @@ function oznacene(tlacitko: string) {
 
 function barva(tlacitko: string) {
     let pismeno = props.aktivniPismeno
-    if (tlacitko === 'Shift') {
+    if (tlacitko === "Shift") {
         if (potrebujeShift(pismeno) && pismeno !== " ") {
             shiftSviti.value = true
         } else shiftSviti.value = false
 
-        return prstoklad['P_Mali'][0]
+        return prstoklad["P_Mali"][0]
 
     } else if (tlacitko.length === 2 && tlacitko.toLowerCase().includes(pismeno.toLowerCase())) {
         for (let prst in prstoklad) {
@@ -165,7 +165,7 @@ function delkaTlacitka(tlacitko: string) {
 }
 
 function potrebujeShift(pismeno: string) {
-    if (['"', '/', '?', ':', '_', '!', '(', '%', 'ˇ', '°', 'ť', 'Ť', 'ď', 'Ď', 'ň', 'Ň', 'Ě', 'Š', 'Č', 'Ř', 'Ž', 'Ý', 'Á', 'Í', 'É', 'Ú', 'Ů'].includes(pismeno)) {
+    if (['"', "/", "?", ":", "_", "!", "(", "%", "ˇ", "°", "ť", "Ť", "ď", "Ď", "ň", "Ň", "Ě", "Š", "Č", "Ř", "Ž", "Ý", "Á", "Í", "É", "Ú", "Ů"].includes(pismeno)) {
         return true
     } else if (/^\d$/.test(pismeno)) { // jestli to je cislo
         return true

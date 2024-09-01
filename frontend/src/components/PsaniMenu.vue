@@ -59,15 +59,15 @@ defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
     <div id="kontejneros">
         <div id="psani-menu">
             <div v-if="!(prihlasen && !vyberTextu)" class="kontejner" style="gap: 20px;">
-                <input v-if="vyberTextu" v-model="typ" type="checkbox" id="toggle" class="toggleCheckbox"
+                <input v-if="vyberTextu" v-model="typ" type="checkbox" id="toggle" class="toggle-checkbox"
                     @change="$emit('restart'); saveNastaveni(diakritika, velkaPismena, typ, delka, klavModel)" />
-                <label v-if="vyberTextu" for="toggle" class="toggleContainer">
+                <label v-if="vyberTextu" for="toggle" class="toggle-contejner">
                     <div>Slova</div>
                     <div>Věty</div>
                 </label>
                 <input v-if="!prihlasen" @change="saveNastaveni(diakritika, velkaPismena, typ, delka, klavModel)" v-model="klavModel" type="checkbox"
-                    id="toggle1" class="toggleCheckbox" />
-                <label v-if="!prihlasen" for="toggle1" class="toggleContainer">
+                    id="toggle1" class="toggle-checkbox" />
+                <label v-if="!prihlasen" for="toggle1" class="toggle-contejner">
                     <div>Qwertz</div>
                     <div>Qwerty</div>
                 </label>

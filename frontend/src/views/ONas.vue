@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useHead } from 'unhead'
-import { ref } from 'vue';
-import { pridatOznameni } from '../utils';
+import { useHead } from "unhead";
+import { ref } from "vue";
+import { pridatOznameni } from "../utils";
 
 useHead({
     title: "O nás",
@@ -31,7 +31,7 @@ function copyEmail() {
             }, 110)
         }, 110)
     }, function (err) {
-        console.error('Async: Could not copy text: ', err);
+        console.error("Async: Could not copy text: ", err);
     })
     pridatOznameni("Zkopírováno!", undefined, "copy")
 }
@@ -54,7 +54,7 @@ function copyEmail() {
     <p>
         Chtěl bych poděkovat těmto webům, které mi poskytly svůj obsah, ať už ve formě vzdělávacích textů, článků, nebo pohádek.
         Většina textů je upravena.
-        <span id="pytelPartneru">
+        <span id="pytel-partneru">
             <a href="https://www.dejepis.com/" target="_blank">dejepis.com</a>
             <!-- <a href="https://dobryzpravy.cz/" target="_blank">dobryzpravy.cz</a> -->
             <a href="https://www.pohadky.org/" target="_blank">pohadky.org</a>
@@ -98,14 +98,14 @@ function copyEmail() {
 </template>
 
 <style scoped>
-#pytelPartneru {
+#pytel-partneru {
     display: flex;
     gap: 20px;
     flex-wrap: wrap;
     justify-content: center;
 }
 
-#pytelPartneru a {
+#pytel-partneru a {
     padding: 10px 16px;
     background-color: var(--fialova);
     border-radius: 8px;
@@ -115,7 +115,7 @@ function copyEmail() {
     transition: 0.2s;
 }
 
-#pytelPartneru a:hover {
+#pytel-partneru a:hover {
     background-color: var(--svetle-fialova);
 }
 

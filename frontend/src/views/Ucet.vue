@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import axios from "axios"
+import axios from "axios";
 import { prihlasen, role, tokenJmeno } from "../stores";
 import { useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 import { checkTeapot, getToken, MojeMapa, pridatOznameni } from "../utils";
-import { useHead } from "unhead"
+import { useHead } from "unhead";
 import Tooltip from "../components/Tooltip.vue";
 import AnimaceCisla from "../components/AnimaceCisla.vue";
 
@@ -174,8 +174,8 @@ function zmenaJmena(e: Event) {
             <img src="../assets/icony/iconaKlavesnice.svg" alt="Klavesnice" width="75">
             <span class="popis">
                 Klávesnice:
-                <input type="checkbox" id="toggle1" class="toggleCheckbox" v-model="klavesniceUprava" @change="postKlavesnice" />
-                <label for="toggle1" class="toggleContainer">
+                <input type="checkbox" id="toggle1" class="toggle-checkbox" v-model="klavesniceUprava" @change="postKlavesnice" />
+                <label for="toggle1" class="toggle-contejner">
                     <div>Qwertz</div>
                     <div>Qwerty</div>
                 </label>
@@ -223,8 +223,8 @@ function zmenaJmena(e: Event) {
 
     <div id="tlacitka">
         <button @click="odhlasit" class="tlacitko">Odhlásit</button>
-        <button v-if="!smazatPotvrzeni" @click="smazatPotvrzeni = true" class="cerveneTlacitko">Smazat účet</button>
-        <button v-else @click="postSmazat" class="cerveneTlacitko">Opravdu?</button>
+        <button v-if="!smazatPotvrzeni" @click="smazatPotvrzeni = true" class="cervene-tlacitko">Smazat účet</button>
+        <button v-else @click="postSmazat" class="cervene-tlacitko">Opravdu?</button>
     </div>
 </template>
 
@@ -233,14 +233,14 @@ function zmenaJmena(e: Event) {
     font-weight: 600;
 }
 
-.toggleContainer {
+.toggle-contejner {
     font-size: 16px;
     width: calc(100% - 20px);
     height: 34px;
     margin: 10px 10px 0 10px;
 }
 
-.toggleContainer div {
+.toggle-contejner div {
     padding: 7px;
 }
 
@@ -271,7 +271,7 @@ function zmenaJmena(e: Event) {
 
 #prvni b,
 #druhy b {
-    font-family: 'Red Hat Mono', monospace;
+    font-family: "Red Hat Mono", monospace;
 }
 
 #chyby {
@@ -343,7 +343,7 @@ function zmenaJmena(e: Event) {
 .cislo {
     font-size: 28pt;
     font-weight: 480;
-    font-family: 'Red Hat Mono';
+    font-family: "Red Hat Mono";
 }
 
 #bloky {
@@ -486,12 +486,8 @@ function zmenaJmena(e: Event) {
     transition: 1000ms;
 }
 
-#druhKlavesnice {
-    display: flex;
-}
-
 @media screen and (max-width: 1100px) {
-    .toggleContainer {
+    .toggle-contejner {
         font-size: 16px;
         width: 100%;
         margin: 10px 0 0 0;
@@ -537,7 +533,7 @@ function zmenaJmena(e: Event) {
     }
 
     .tlacitko,
-    .cerveneTlacitko {
+    .cervene-tlacitko {
         width: 120px;
     }
 

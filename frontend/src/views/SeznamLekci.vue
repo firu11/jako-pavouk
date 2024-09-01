@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import axios from "axios"
+import axios from "axios";
 import BlokLekce from "../components/BlokLekce.vue";
 import Rada from "../components/Rada.vue"
-import { onMounted, onUnmounted, ref } from "vue"
+import { onMounted, onUnmounted, ref } from "vue";
 import { Oznacene, checkTeapot, getToken, pridatOznameni, napovedaKNavigaci } from "../utils";
-import { useHead } from "unhead"
+import { useHead } from "unhead";
 import { useRouter } from "vue-router";
 
 useHead({
@@ -40,15 +40,15 @@ onMounted(() => {
         .then(response => {
             lekce.value = response.data.lekce
             dokoncene.value = response.data.dokoncene
-            o.setMax(lekce.value.join(',').split(',').length) // pocet lekci
+            o.setMax(lekce.value.join(",").split(",").length) // pocet lekci
 
             let counter = 1
             let nebylaNedoko = true
             for (let i = 0; i < lekce.value.length; i++) {
                 for (let j = 0; j < lekce.value[i].length; j++) {
-                    lekce.value[i][j]['cislo'] = counter
+                    lekce.value[i][j]["cislo"] = counter
                     counter += 1
-                    if (dokoncene.value.includes(lekce.value[i][j]['id']) && nebylaNedoko) prvniNedokoncena.value += 1
+                    if (dokoncene.value.includes(lekce.value[i][j]["id"]) && nebylaNedoko) prvniNedokoncena.value += 1
                     else nebylaNedoko = false
                 }
             }

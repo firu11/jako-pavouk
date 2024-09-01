@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { mobil, prihlasen, role } from "../stores"
+import { mobil, prihlasen, role } from "../stores";
 
 const router = useRouter()
 

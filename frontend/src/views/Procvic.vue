@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router';
-import { checkTeapot, clone, getCisloProcvic, getToken, MojeMapa, pridatOznameni, saveNastaveni, setCisloProcvic } from '../utils';
-import SipkaZpet from '../components/SipkaZpet.vue';
-import { computed, onMounted, ref, toRaw, watch } from 'vue';
-import axios from 'axios';
-import Vysledek from '../components/Vysledek.vue';
-import { useHead } from '@unhead/vue';
-import Psani from '../components/Psani.vue';
+import { useRoute, useRouter } from "vue-router";
+import { checkTeapot, clone, getCisloProcvic, getToken, MojeMapa, pridatOznameni, saveNastaveni, setCisloProcvic } from "../utils";
+import SipkaZpet from "../components/SipkaZpet.vue";
+import { computed, onMounted, ref, toRaw, watch } from "vue";
+import axios from "axios";
+import Vysledek from "../components/Vysledek.vue";
+import { useHead } from "@unhead/vue";
+import Psani from "../components/Psani.vue";
 import NastaveniBtn from "../components/NastaveniBtn.vue";
 import PsaniMenu from "../components/PsaniMenu.vue";
-import { mobil, okZnaky } from '../stores';
+import { mobil, okZnaky } from "../stores";
 
 const router = useRouter()
 const route = useRoute()
@@ -228,7 +228,7 @@ watch(a, () => {
 </script>
 
 <template>
-    <h1 class="nadpisSeSipkou" style="margin: 0; direction: ltr;">
+    <h1 class="nadpis-se-sipkou" style="margin: 0; direction: ltr;">
         <SipkaZpet />
         {{ nazev }}
     </h1>

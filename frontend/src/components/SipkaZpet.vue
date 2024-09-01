@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
 
 onMounted(() => {
-    document.addEventListener('keydown', e1)
+    document.addEventListener("keydown", e1)
 })
 
 onUnmounted(() => {
-    document.removeEventListener('keydown', e1)
+    document.removeEventListener("keydown", e1)
 })
 
 function e1(e: KeyboardEvent) { // Escape = šipka zpět

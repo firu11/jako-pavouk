@@ -15,7 +15,7 @@ form .nadpis {
     display: inline-block;
 }
 
-.infoNadpis {
+.info-nadpis {
     display: flex !important;
     justify-content: space-between;
     width: 100%;
@@ -62,7 +62,7 @@ p {
     margin: 10px;
 }
 
-.spatnej_input {
+.spatnej-input {
     border: 1px solid red;
 }
 
@@ -89,12 +89,12 @@ form img {
     font-weight: bold;
 }
 
-#infoShow {
+#info-show {
     opacity: 1;
     transition: ease-in 0.1s;
 }
 
-#infoHide {
+#info-hide {
     opacity: 0;
     transition: ease-in 0.1s;
     user-select: none;
@@ -109,14 +109,6 @@ form img {
 
 .info li {
     padding-top: 5px;
-}
-
-.chybaExistuje {
-    margin: 2px 0 4px 5px;
-    color: #fd2323;
-    font-size: 14px;
-    line-height: 14px;
-    align-self: flex-start;
 }
 
 .opacity0 {

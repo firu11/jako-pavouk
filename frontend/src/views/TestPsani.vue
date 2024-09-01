@@ -204,7 +204,7 @@ async function prodlouzit() {
 </script>
 
 <template>
-    <h1 class="nadpisSeSipkou" style="margin: 0; direction: ltr;">
+    <h1 class="nadpis-se-sipkou" style="margin: 0; direction: ltr;">
         <SipkaZpet />
         Test psaní
     </h1>
@@ -224,10 +224,6 @@ async function prodlouzit() {
 </template>
 
 <style scoped>
-label.kontejner:hover {
-    filter: brightness(120%);
-}
-
 .hide {
     opacity: 0;
     z-index: -1000;

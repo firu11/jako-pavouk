@@ -196,7 +196,7 @@ function e1(e: KeyboardEvent) {
 
     <div id="bloky">
         <div class="blok">
-            <Tooltip zprava="Za neopravené chyby je adekvátní penalizace. Chybu opravíš pomocí klávesy <span class='klavesaVTextuMensi'>backspace</span> ." :sirka="180" :vzdalenost="48">
+            <Tooltip zprava="Za neopravené chyby je adekvátní penalizace. Chybu opravíš pomocí klávesy <span class='klavesa-v-textu-mensi'>backspace</span> ." :sirka="180" :vzdalenost="48">
                 <h2>{{ rychlost > 0 ? Math.round(rychlost * 10) / 10 : 0 }}</h2>
             </Tooltip>
             <hr>
@@ -226,17 +226,17 @@ function e1(e: KeyboardEvent) {
         </div>
     </div>
 
-    <div v-if="props.pismena == 'pracepraceprace'" id="tlacitka_kontainer">
+    <div v-if="props.pismena == 'pracepraceprace'" id="tlacitka-kontainer">
         <button class="tlacitko" @click="router.push('/trida')">Zpět do třídy</button>
     </div>
-    <div v-else-if="props.cislo == 'prvni-psani'" id="tlacitka_kontainer" style="align-items: center;">
+    <div v-else-if="props.cislo == 'prvni-psani'" id="tlacitka-kontainer" style="align-items: center;">
         <span>Líbí se ti aplikace?</span>
         <button class="tlacitko" @click="router.push('/registrace')">Vytvořit účet</button>
     </div>
-    <div v-else-if="props.cislo == 'test-psani' || props.pismena == ''" id="tlacitka_kontainer">
+    <div v-else-if="props.cislo == 'test-psani' || props.pismena == ''" id="tlacitka-kontainer">
         <button class="tlacitko" @click="reset">Zkusit znovu</button>
     </div>
-    <div v-else id="tlacitka_kontainer">
+    <div v-else id="tlacitka-kontainer">
         <button class="tlacitko" @click="reset">Zkusit znovu</button>
         <button class="tlacitko" @click="dalsi()">Pokračovat</button>
     </div>
@@ -256,7 +256,7 @@ li:first-child {
 
 ol li span {
     font-weight: 500;
-    font-family: 'Red Hat Mono', monospace;
+    font-family: "Red Hat Mono", monospace;
 }
 
 ol,
@@ -343,7 +343,7 @@ ul {
 .blok h2 {
     font-size: 40px;
     font-weight: 500;
-    font-family: 'Red Hat Mono';
+    font-family: "Red Hat Mono";
 }
 
 .jednotka {
@@ -363,13 +363,13 @@ ul {
     margin-top: 12px;
 }
 
-#tlacitka_kontainer {
+#tlacitka-kontainer {
     display: inline-flex;
     gap: 20px;
     margin-top: 20px;
 }
 
-#tlacitka_kontainer .tlacitko {
+#tlacitka-kontainer .tlacitko {
     margin: 0 !important;
 }
 </style>

@@ -4,7 +4,7 @@ import { ref } from "vue";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
 import { prihlasen, tokenJmeno } from "../stores";
 import { pridatOznameni } from "../utils";
-import { useHead } from "unhead"
+import { useHead } from "unhead";
 
 useHead({
     title: "Registrace",
@@ -118,11 +118,11 @@ function chekujUdaje(jaky: string) {
 }
 
 function openInfo() {
-    document.getElementsByClassName("info")[0].id = "infoShow";
+    document.getElementsByClassName("info")[0].id = "info-show";
 }
 
 function closeInfo() {
-    document.getElementsByClassName("info")[0].id = "infoHide";
+    document.getElementsByClassName("info")[0].id = "info-hide";
 }
 
 onBeforeRouteLeave(() => {
@@ -150,23 +150,21 @@ const handleLoginSuccess = (response: any) => {
     <div v-if="!overeni">
         <form>
             <h3 class="nadpis">Uživatelské jméno:</h3>
-            <input :class="{ spatnej_input: spatnyJmeno }" @:input="chekujUdaje('jmeno')" type="text" v-model="jmeno"
+            <input :class="{ 'spatnej-input': spatnyJmeno }" @:input="chekujUdaje('jmeno')" type="text" v-model="jmeno"
                 placeholder="Např: Pan Pavouk">
             <h3 class="nadpis">Email:</h3>
-            <input :class="{ spatnej_input: spatnyEmail }" @:input="chekujUdaje('email')" type="email" v-model="email"
+            <input :class="{ 'spatnej-input': spatnyEmail }" @:input="chekujUdaje('email')" type="email" v-model="email"
                 placeholder="Např: pan@pavouk.cz" inputmode="email">
-            <h3 class="nadpis infoNadpis">Heslo: <img src="../assets/icony/info.svg" alt="info" @mouseover="openInfo"
-                    @mouseleave="closeInfo"></h3>
-            <input :class="{ spatnej_input: spatnyHeslo }" @:input="chekujUdaje('heslo')" type="password"
-                v-model="heslo" placeholder="Rozhodně ne 'Pavouk123'">
+            <h3 class="nadpis info-nadpis">Heslo: <img src="../assets/icony/info.svg" alt="info" @mouseover="openInfo" @mouseleave="closeInfo"></h3>
+            <input :class="{ 'spatnej-input': spatnyHeslo }" @:input="chekujUdaje('heslo')" type="password" v-model="heslo"
+                placeholder="Rozhodně ne 'Pavouk123'">
             <button type="submit" class="tlacitko" @click="registr" :disabled="posilame">{{ posilame ? ". . ." :
-        "Registrovat" }}</button>
+                "Registrovat" }}</button>
 
             <hr id="predel">
-            <GoogleLogin id="google" :callback="handleLoginSuccess" :error="pridatOznameni"
-                :buttonConfig="{ text: 'continue_with' }" />
+            <GoogleLogin id="google" :callback="handleLoginSuccess" :error="pridatOznameni" :buttonConfig="{ text: 'continue_with' }" />
         </form>
-        <div id="infoHide" class="info">
+        <div id="info-hide" class="info">
             Doporučujeme:
             <ul>
                 <li>Minimálně 5 znaků</li>
@@ -179,8 +177,8 @@ const handleLoginSuccess = (response: any) => {
         <form id="overeni">
             <h3 style="margin-bottom: 20px;">Na e-mail: "<i>{{ email }}</i>" ti byl zaslán ověřovací kód.</h3>
             <h3 class="nadpis">Zadej kód z emailu:</h3>
-            <input :class="{ spatnej_input: spatnyKod }" @:input="chekujUdaje('kod')" type="text" inputmode="numeric"
-                v-model.trim="kod" placeholder="Např: 12345">
+            <input :class="{ 'spatnej-input': spatnyKod }" @:input="chekujUdaje('kod')" type="text" inputmode="numeric" v-model.trim="kod"
+                placeholder="Např: 12345">
             <button type="submit" class="tlacitko" @click="overeniPost">Potvrdit</button>
         </form>
     </div>

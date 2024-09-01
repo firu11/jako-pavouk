@@ -4,7 +4,7 @@ import { useHead } from "@unhead/vue";
 import Psani from "../components/Psani.vue";
 import { pridatOznameni } from "../utils";
 import Vysledek from "../components/Vysledek.vue";
-import { mobil } from "../stores"
+import { mobil } from "../stores";
 
 useHead({
     title: "První krůčky"
@@ -74,8 +74,8 @@ const ok = ref(false)
             <h3>Nápověda</h3>
             <ul>
                 <li>Podtržení ukazuje na písmeno, které máš napsat.</li>
-                <li>Pokud uděláš chybu, můžeš se vrátit zpět pomocí klávesy <span class="klavesaVTextu">Backspace</span> a překlep opravit.</li>
-                <li>Kdyby jsi chtěl začít odznova, zmáčkni klávesu <span class="klavesaVTextu">Enter</span>.</li>
+                <li>Pokud uděláš chybu, můžeš se vrátit zpět pomocí klávesy <span class="klavesa-v-textu">Backspace</span> a překlep opravit.</li>
+                <li>Kdyby jsi chtěl začít odznova, zmáčkni klávesu <span class="klavesa-v-textu">Enter</span>.</li>
             </ul>
         </div>
     </Transition>

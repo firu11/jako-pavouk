@@ -20,7 +20,7 @@ defineProps({
 </script>
 
 <template>
-    <router-link v-if="prihlasen && typ !== '...' && !mobil" class="cvicBlok"
+    <router-link v-if="prihlasen && typ !== '...' && !mobil" class="cvic-blok"
         :class="{ dokoncenyBlok: dokonceno, oznacene: oznacene }" :to="'/lekce/' + pismena + '/' + index">
         <h2>{{ index }}</h2>
         <hr>
@@ -36,15 +36,15 @@ defineProps({
             <img v-if="rychlost >= levelyRychlosti[2]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
             <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
         </div>
-        <img class="playVetsi" v-else src="../assets/icony/start.svg" alt="Začít lekci">
+        <img class="play-vetsi" v-else src="../assets/icony/start.svg" alt="Začít lekci">
     </router-link>
-    <a v-else-if="typ === '...' && !mobil" class="cvicBlok"> <!-- aby na to ńeslo kliknout nez se to nacte -->
+    <a v-else-if="typ === '...' && !mobil" class="cvic-blok"> <!-- aby na to ńeslo kliknout nez se to nacte -->
         <h2>{{ index }}</h2>
         <hr>
         <h3>...</h3>
-        <img class="playVetsi" src="../assets/icony/start.svg" alt="Začít lekci">
+        <img class="play-vetsi" src="../assets/icony/start.svg" alt="Začít lekci">
     </a>
-    <a v-else-if="!mobil" class="cvicBlok" :class="{ oznacene: oznacene }"
+    <a v-else-if="!mobil" class="cvic-blok" :class="{ oznacene: oznacene }"
         @click="pridatOznameni('Bez přihlášení si můžeš psaní vyzkoušet v sekci Procvičování')">
         <h2>{{ index }}</h2>
         <hr>
@@ -52,9 +52,9 @@ defineProps({
         <h3 v-else-if="typ === 'naucena'">Probraná písmenka</h3>
         <h3 v-else-if="typ === 'slova'">Se slovy</h3>
         <h3 v-else>...</h3>
-        <img class="playVetsi" src="../assets/icony/start.svg" alt="Začít lekci">
+        <img class="play-vetsi" src="../assets/icony/start.svg" alt="Začít lekci">
     </a>
-    <a v-else class="cvicBlok" :class="{ dokoncenyBlok: dokonceno }"
+    <a v-else class="cvic-blok" :class="{ dokoncenyBlok: dokonceno }"
         @click="pridatOznameni('Psaní na telefonech zatím neučíme...')">
         <h2>{{ index }}</h2>
         <hr>
@@ -70,7 +70,7 @@ defineProps({
             <img v-if="rychlost >= levelyRychlosti[2]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
             <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
         </div>
-        <img class="playVetsi" v-else src="../assets/icony/start.svg" alt="Začít lekci">
+        <img class="play-vetsi" v-else src="../assets/icony/start.svg" alt="Začít lekci">
     </a>
 </template>
 
@@ -85,7 +85,7 @@ defineProps({
     top: -10px;
 }
 
-.cvicBlok {
+.cvic-blok {
     color: var(--bila);
     display: flex;
     flex-direction: column;
@@ -98,13 +98,13 @@ defineProps({
     padding: 15px 15px 15px 15px;
 }
 
-.cvicBlok:hover,
+.cvic-blok:hover,
 .oznacene {
     background-color: var(--fialova);
     transition-duration: 0.2s;
 }
 
-.cvicBlok hr {
+.cvic-blok hr {
     width: 135px;
     align-self: center;
     margin: 5px;
@@ -116,14 +116,14 @@ defineProps({
     opacity: 70%;
 }
 
-.cvicBlok h3 {
+.cvic-blok h3 {
     align-self: center;
     font-size: 23px;
     height: 60px;
     margin-bottom: 22px
 }
 
-.cvicBlok a {
+.cvic-blok a {
     text-decoration: none;
     color: var(--bila);
     cursor: pointer;
@@ -135,7 +135,7 @@ h2 {
 }
 
 @media screen and (max-width: 1100px) {
-    .cvicBlok {
+    .cvic-blok {
         max-width: 155px;
         width: auto;
         background-color: var(--tmave-fialova);
@@ -145,8 +145,7 @@ h2 {
         font-size: 0.8em;
     }
 
-    .fajvkaVetsi,
-    .playVetsi {
+    .play-vetsi {
         width: 100px;
         height: 35px;
         align-self: center;
@@ -157,7 +156,7 @@ h2 {
         font-size: 18px !important;
     }
 
-    .cvicBlok hr {
+    .cvic-blok hr {
         width: 130px;
     }
 
