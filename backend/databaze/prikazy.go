@@ -905,7 +905,7 @@ func PridatPraci(text string, cas int, tridaID uint) error {
 func GetVsechnyPrace(tridaID uint) ([]Prace, error) {
 	var prace []Prace = []Prace{}
 
-	rows, err := DB.Query(`WITH soucet_neopravenych AS ( SELECT prace_id, SUM(neopravene) as pocet FROM dokoncena_prace GROUP BY prace_id ), soucet_chyb AS ( SELECT prace_id, SUM((value::VARCHAR(5))::NUMERIC) AS pocet FROM dokoncena_prace, jsonb_each_text(chyby_pismenka) GROUP BY prace_id ), delky_textu AS ( SELECT prace_id, SUM(delka_textu) AS soucet_delek FROM dokoncena_prace GROUP BY prace_id ), rychlosti AS ( WITH cpmka AS ( SELECT ( ( ( dp.delka_textu - 10 * dp.neopravene ) / dp.cas::FLOAT ) * 60 ) AS cpm, p.id AS prace_id FROM dokoncena_prace dp INNER JOIN prace p ON dp.prace_id = p.id ) SELECT prace_id, AVG(cpm) AS prumerne_cpm FROM cpmka GROUP BY prace_id ), studenti AS ( SELECT prace_id, COUNT(*) as studentu_dokoncilo FROM dokoncena_prace GROUP BY prace_id ) SELECT p.id, COALESCE(r.prumerne_cpm, -1) AS prumerne_cpm, p.cas, p.datum, p.text, p.trida_id, COALESCE(s.studentu_dokoncilo, 0) AS studentu_dokoncilo, COALESCE( ( ( dt.soucet_delek - sc.pocet - sn.pocet ) / dt.soucet_delek::FLOAT ) * 100, dt.soucet_delek / dt.soucet_delek * 100, -1 ) AS prumerna_presnost FROM soucet_neopravenych sn FULL OUTER JOIN soucet_chyb sc USING (prace_id) FULL OUTER JOIN delky_textu dt USING (prace_id) FULL OUTER JOIN rychlosti r USING (prace_id) FULL OUTER JOIN studenti s USING (prace_id) FULL OUTER JOIN prace p ON p.id = r.prace_id WHERE p.trida_id = $1;`, tridaID)
+	rows, err := DB.Query(`WITH soucet_neopravenych AS ( SELECT prace_id, SUM(neopravene) as pocet FROM dokoncena_prace GROUP BY prace_id ), soucet_chyb AS ( SELECT prace_id, SUM((value::VARCHAR(5))::NUMERIC) AS pocet FROM dokoncena_prace, jsonb_each_text(chyby_pismenka) GROUP BY prace_id ), delky_textu AS ( SELECT prace_id, SUM(delka_textu) AS soucet_delek FROM dokoncena_prace GROUP BY prace_id ), rychlosti AS ( WITH cpmka AS ( SELECT ( ( ( dp.delka_textu - 10 * dp.neopravene ) / dp.cas::FLOAT ) * 60 ) AS cpm, p.id AS prace_id FROM dokoncena_prace dp INNER JOIN prace p ON dp.prace_id = p.id ) SELECT prace_id, AVG(GREATEST(cpm, 0)) AS prumerne_cpm FROM cpmka GROUP BY prace_id ), studenti AS ( SELECT prace_id, COUNT(*) as studentu_dokoncilo FROM dokoncena_prace GROUP BY prace_id ) SELECT p.id, COALESCE(r.prumerne_cpm, -1) AS prumerne_cpm, p.cas, p.datum, p.text, p.trida_id, COALESCE(s.studentu_dokoncilo, 0) AS studentu_dokoncilo, ( ( dt.soucet_delek - COALESCE(sc.pocet, 0) - COALESCE(sn.pocet, 0) ) / dt.soucet_delek::FLOAT ) * 100 AS prumerna_presnost FROM soucet_neopravenych sn FULL OUTER JOIN soucet_chyb sc USING (prace_id) FULL OUTER JOIN delky_textu dt USING (prace_id) FULL OUTER JOIN rychlosti r USING (prace_id) FULL OUTER JOIN studenti s USING (prace_id) FULL OUTER JOIN prace p ON p.id = r.prace_id WHERE p.trida_id = $1;`, tridaID)
 	if err != nil {
 		return prace, err
 	}
@@ -919,39 +919,22 @@ func GetDokoncenePrace(studentID uint) (map[uint]float64, map[uint]float64, erro
 	var cpmka map[uint]float64 = make(map[uint]float64)
 	var presnost map[uint]float64 = make(map[uint]float64)
 
-	rows, err := DB.Query(`SELECT p.id, ((d.delka_textu - 10 * d.neopravene)::float / d.cas) * 60 AS cpm, d.delka_textu, d.neopravene, d.chyby_pismenka FROM dokoncena_prace d INNER JOIN prace p ON d.prace_id = p.id WHERE d.student_id = $1;`, studentID)
+	rows, err := DB.Query(`WITH soucet_chyb AS ( SELECT prace_id, SUM((value::VARCHAR(5))::NUMERIC) AS pocet FROM dokoncena_prace, jsonb_each_text(chyby_pismenka) WHERE student_id = $1 GROUP BY prace_id ) SELECT dp.prace_id, GREATEST( ( ( dp.delka_textu - 10 * dp.neopravene )::FLOAT / dp.cas ) * 60, 0 ) AS cpm, ( ( dp.delka_textu - COALESCE(sc.pocet, 0) - COALESCE(dp.neopravene, 0) ) / dp.delka_textu::FLOAT ) * 100 AS prumerna_presnost FROM soucet_chyb sc FULL OUTER JOIN dokoncena_prace dp USING (prace_id) WHERE student_id = $1;`, studentID)
 	if err != nil {
 		return cpmka, presnost, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var p uint
-		var cpm float64
-		var delkaTextu, neopravene int
-		var chybyPismenkaRowByte []byte
-		err := rows.Scan(&p, &cpm, &delkaTextu, &neopravene, &chybyPismenkaRowByte)
+		var id uint
+		var cpm, pres float64
+		err := rows.Scan(&id, &cpm, &pres)
 		if err != nil {
 			return cpmka, presnost, err
 		}
 
-		var soucetChyb int
-		var chybyPismenkaRow map[string]int
-		err = json.Unmarshal(chybyPismenkaRowByte, &chybyPismenkaRow)
-		if err != nil {
-			return cpmka, presnost, err
-		}
-
-		for _, hodnota := range chybyPismenkaRow {
-			soucetChyb += hodnota
-		}
-		var pres float64 = float64(delkaTextu-soucetChyb-neopravene) / float64(delkaTextu) * 100
-		if pres < 0 {
-			pres = 0
-		}
-
-		presnost[p] = pres
-		cpmka[p] = cpm
+		presnost[id] = pres
+		cpmka[id] = cpm
 	}
 
 	return cpmka, presnost, nil
