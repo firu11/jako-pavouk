@@ -43,7 +43,7 @@ function registr(e: Event) {
         else if (spatnyJmeno.value && jmeno.value.length < 3) pridatOznameni("Jméno je moc dlouhé.<br>(3-12 znaků)")
         else if (spatnyJmeno.value) pridatOznameni("Jméno může obsahovat jen velká a malá písmena, čísla a znaky _-+*!?")
         else if (spatnyEmail.value) pridatOznameni("Email není validní.")
-        else if (spatnyHeslo.value) pridatOznameni("Heslo musí obsahovat alespoň 5 znaků. Bez diakritiky.")
+        else if (spatnyHeslo.value) pridatOznameni("Heslo musí být 5-72 znaků dlouhé. Bez diakritiky.")
         return
     }
 

@@ -14,7 +14,7 @@ useHead({
 
 const router = useRouter()
 
-const info = ref({ jmeno: "...", email: "...@...", dokonceno: 0, daystreak: 0, medianRychlosti: -1, uspesnost: -1, klavesnice: "QWERTZ", celkovyCas: 0, nejcastejsiChyby: new Map })
+const info = ref({ jmeno: "...", email: "...@...", dokonceno: 0, daystreak: 0, rychlost: -1, uspesnost: -1, klavesnice: "QWERTZ", celkovyCas: 0, nejcastejsiChyby: new Map })
 const uprava = ref(false)
 
 const klavesniceUprava = ref(false)
@@ -156,10 +156,10 @@ function zmenaJmena(e: Event) {
         <div class="blok">
             <img src="../assets/icony/rychlost.svg" alt="Rychlost" width="75">
             <Tooltip zprava="Za neopravené chyby je adekvátní penalizace. (CPM = úhozů za minutu)" :sirka="200" style="width: 60%;">
-                <span v-if="info.medianRychlosti == -1" class="popis">Rychlost:<br><span class="nic">Zatím nic</span></span>
+                <span v-if="info.rychlost == -1" class="popis">Rychlost:<br><span class="nic">Zatím nic</span></span>
                 <span v-else class="popis">
                     Rychlost:<br>
-                    <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.medianRychlosti)" /> CPM
+                    <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.rychlost)" /> CPM
                 </span>
             </Tooltip>
         </div>
