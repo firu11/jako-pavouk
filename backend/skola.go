@@ -508,10 +508,12 @@ func getPraci(c *fiber.Ctx) error {
 	var vyslednyText []string
 
 	slova := strings.Split(text, " ")
+	if slova[len(slova)-1] == "" {
+		slova = slova[:len(slova)-1]
+	}
 	for _, v := range slova {
 		vyslednyText = append(vyslednyText, v+" ")
 	}
-
 	utils.SmazatMezeruNaKonci(vyslednyText)
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": vyslednyText, "cas": cas, "klavesnice": uziv.Klavesnice})
