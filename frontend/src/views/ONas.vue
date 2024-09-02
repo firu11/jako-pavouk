@@ -57,8 +57,8 @@ function copyEmail() {
         <span id="pytel-partneru">
             <a href="https://www.dejepis.com/" target="_blank">dejepis.com</a>
             <!-- <a href="https://dobryzpravy.cz/" target="_blank">dobryzpravy.cz</a> -->
-            <a href="https://www.pohadky.org/" target="_blank">pohadky.org</a>
             <a href="https://www.pohadkozem.cz/" target="_blank">pohadkozem.cz</a>
+            <a href="https://www.pohadky.org/" target="_blank">pohadky.org</a>
             <a href="https://www.zemepis24.cz/" target="_blank">zemepis24.cz</a>
         </span>
     </p>

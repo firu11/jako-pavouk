@@ -87,7 +87,7 @@ const ok = ref(false)
     padding: 20px;
     border-radius: 10px;
     position: relative;
-    top: -270px;
+    top: -190px;
     max-width: 470px;
     display: flex;
     gap: 12px;
