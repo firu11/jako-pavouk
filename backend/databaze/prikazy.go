@@ -889,6 +889,15 @@ func ZapsatStudenta(kod string, studentID uint, jmeno string) error {
 		return errors.New("trida je smazana")
 	}
 
+	var role int
+	err = DB.QueryRow(`SELECT role FROM uzivatel WHERE id = $1`, studentID).Scan(&role)
+	if err != nil {
+		return err
+	}
+	if role == 2 {
+		return errors.New("jako ucitel nemuzete byt ve tride")
+	}
+
 	_, err = DB.Exec(`INSERT INTO student_a_trida (student_id, trida_id) VALUES ($1, (SELECT id FROM trida WHERE kod = $2 AND NOT zamknuta)) ON CONFLICT DO NOTHING;`, studentID, kod)
 	if err != nil {
 		return err
