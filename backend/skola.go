@@ -224,12 +224,9 @@ func testTridy(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
 	}
-	uziv, err := databaze.GetUzivByID(id)
+	_, err = databaze.GetUzivByID(id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
-	}
-	if uziv.Role == 2 {
-		return c.Status(fiber.StatusBadRequest).JSON(chyba("Jako ucitel nemuzete byt ve tride"))
 	}
 
 	trida, err := databaze.GetTridaByKod(strings.ToUpper(c.Params("kod")))
@@ -394,6 +391,9 @@ func zapis(c *fiber.Ctx) error {
 	if err != nil {
 		if err.Error() == "uz je ve tride" {
 			return c.Status(fiber.StatusBadRequest).JSON(chyba("Uz jsi ve tride"))
+		}
+		if err.Error() == "jako ucitel nemuzete byt ve tride" {
+			return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 		}
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
