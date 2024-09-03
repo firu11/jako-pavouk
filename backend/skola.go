@@ -236,6 +236,9 @@ func testTridy(c *fiber.Ctx) error {
 	if trida.Zamknuta {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Trida je zamcena"))
 	}
+	if trida.UcitelID == id {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Jako ucitel nemuzete byt ve tride"))
+	}
 
 	return c.SendStatus(fiber.StatusOK)
 }
