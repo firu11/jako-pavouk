@@ -231,7 +231,6 @@ func testTridy(c *fiber.Ctx) error {
 
 	trida, err := databaze.GetTridaByKod(strings.ToUpper(c.Params("kod")))
 	if err != nil {
-		log.Println(err)
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Takova trida neexistuje"))
 	}
 	if trida.Zamknuta {
@@ -390,7 +389,6 @@ func zapis(c *fiber.Ctx) error {
 
 	err = databaze.ZapsatStudenta(body.Kod, id, body.Jmeno)
 	if err != nil {
-		log.Println(err)
 		if err.Error() == "uz je ve tride" {
 			return c.Status(fiber.StatusBadRequest).JSON(chyba("Uz jsi ve tride"))
 		}
