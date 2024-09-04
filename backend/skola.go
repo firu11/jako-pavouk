@@ -538,8 +538,6 @@ func dokoncitPraci(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 
-	log.Println(praceID)
-
 	err = databaze.DokoncitPraci(uint(praceID), id, body.Preklepy, body.Cas, body.DelkaTextu, body.NejcastejsiChyby)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
