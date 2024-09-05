@@ -601,7 +601,6 @@ func overitEmail(c *fiber.Ctx) error {
 		log.Print(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
-	go utils.MobilNotifikace(cekajiciUziv.Jmeno + " - " + body.Email)
 	go databaze.OdebratOvereni(cekajiciUziv.Email)
 	go databaze.SmazatPoLimitu()
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
@@ -729,7 +728,6 @@ func google(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba("Token se pokazil"))
 		}
-		go utils.MobilNotifikace(jmeno + " - " + email + " (google)")
 	} else {
 		token, err = utils.GenerovatToken(email, uziv.ID)
 		if err != nil {
