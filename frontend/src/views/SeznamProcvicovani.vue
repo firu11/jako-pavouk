@@ -42,7 +42,7 @@ onMounted(() => {
         })
         testPsaniCPM.value = response.data.testPsaniCPM
         o.setMax(response.data.texty.length + 1)
-        randomCvic = Math.floor(Math.random() * response.data.texty.length) + 1
+        randomCvic = Math.floor(Math.random() * response.data.texty.length) + 2
     }).catch(e => {
         if (!checkTeapot(e)) {
             pridatOznameni()
@@ -53,23 +53,43 @@ onMounted(() => {
     document.addEventListener("mousemove", zrusitVyber)
 })
 
+let jede = false
+let ms = 120
+
 function e1(e: KeyboardEvent) {
     if (e.key == "ArrowUp" || e.key == "ArrowLeft") {
         e.preventDefault()
-        o.mensi()
+        if (jede) return
+
+        if (o.index.value == 0) o.index.value = 2
+        else o.mensi()
         let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
         window.scrollTo({ top: lekce?.offsetTop! - 500 })
+
+        jede = true
+        setTimeout(() => { jede = false }, ms)
     } else if (e.key == "ArrowDown" || e.key == "ArrowRight") {
         e.preventDefault()
-        o.vetsi()
+        if (jede) return
+
+        if (o.index.value == 0) o.index.value = 2
+        else o.vetsi()
+
         let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
         window.scrollTo({ top: lekce?.offsetTop! - 200 })
+
+        jede = true
+        setTimeout(() => { jede = false }, ms)
     } else if (e.key == "Enter") {
         e.preventDefault()
         let cvicE: HTMLElement | null = document.querySelector(`[i="true"]`)
         if (cvicE == null || o.bezOznaceni) {
+            if (jede) return
+
             o.bezOznaceni = true
             o.index.value = randomCvic
+
+            setTimeout(() => { cvicE = document.querySelector(`[i="true"]`); window.scrollTo({ top: cvicE?.offsetTop! - 300 }) }, 0) // idk proč to musim delaynout i o 0ms xddddd
         } else cvicE?.click()
     } else if (e.key == "Tab") {
         e.preventDefault()
@@ -122,7 +142,8 @@ onUnmounted(() => {
             <RouterLink v-if="!mobil" v-for="t in texty.get(k)" :to="`/procvic/${t.id}`" class="blok" :i="t.cislo == o.index.value"
                 :class="{ oznacene: t.cislo == o.index.value, nohover: o.index.value != 0 }">
                 <h3>
-                    <Tooltip :sirka="100" :zprava="`${t.obtiznost == 1 ? 'Jednoduchá' : (t.obtiznost == 2 ? 'Střední' : 'Těžká')} obtížnost`" :xOffset="-38" :vzdalenost="5">
+                    <Tooltip :sirka="100" :zprava="`${t.obtiznost == 1 ? 'Jednoduchá' : (t.obtiznost == 2 ? 'Střední' : 'Těžká')} obtížnost`"
+                        :xOffset="-38" :vzdalenost="5">
                         <ObtiznostBar :o="t.obtiznost" />
                     </Tooltip>
                     {{ t.jmeno }}
