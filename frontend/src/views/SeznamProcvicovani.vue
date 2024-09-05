@@ -152,7 +152,10 @@ onUnmounted(() => {
             </RouterLink>
             <div v-else v-for="t in texty.get(k)" class="blok" @click="mobilKlik">
                 <h3>
-                    <ObtiznostBar :o="t.obtiznost" />
+                    <Tooltip :sirka="100" :zprava="`${t.obtiznost == 1 ? 'Jednoduchá' : (t.obtiznost == 2 ? 'Střední' : 'Těžká')} obtížnost`"
+                        :xOffset="-28" :vzdalenost="5">
+                        <ObtiznostBar :o="t.obtiznost" />
+                    </Tooltip>
                     {{ t.jmeno }}
                 </h3>
             </div>
@@ -288,7 +291,5 @@ h2 {
     .blok h3 {
         font-size: 1.3rem;
     }
-
-
 }
 </style>

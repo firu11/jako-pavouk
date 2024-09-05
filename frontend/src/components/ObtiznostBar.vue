@@ -61,9 +61,4 @@ defineProps<{
     height: 0%;
 }
 
-@media screen and (max-width: 1100px) {
-    .pilulka {
-        right: 30px;
-    }
-}
 </style>
