@@ -57,7 +57,7 @@ func main() {
 	}
 
 	for {
-		fmt.Print("(s)lovnik / (p)ohadky / (t)exty / (q)uit: ")
+		fmt.Print("(s)lovnik / (p)ohadky věty / (t)exty / (q)uit: ")
 		var input string
 		fmt.Scan(&input)
 		fmt.Println()

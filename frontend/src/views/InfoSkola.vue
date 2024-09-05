@@ -43,23 +43,31 @@ function chekujUdaje(jaky: string) {
     <h1>Systém pro školy</h1>
 
     <div class="bloky">
-        <img src="../assets/thethinker.svg" alt="Pavouk s klávesnicí" width="300" height="223">
-        <div class="text">
-            <h2>Co systém nabízí?</h2>
-            <ul>
-                <li>Řazení žáků do tříd</li>
-                <li>Sledování statistik</li>
-                <li>Zadávání procvičování</li>
-            </ul>
-        </div>
+        <video controls controlslist="nodownload" width="100%" poster="/OGnahled.png">
+            <source src="../assets/video.mp4">
+
+            Váš prohlížeč neumí přehrát toto video. <!-- to snad už ani nejde aby to někdo nepodporoval -->
+            <a href="../assets/video.mp4" download="../assets/video.mp4">Tady</a> si ho můžete zkusit stáhnout.
+        </video>
     </div>
     <div class="bloky">
         <div class="text">
-            <h2>Vzhled</h2>
+            <h2>Co systém nabízí?</h2>
             <ul>
-                <li>bla</li>
-                <li>bla</li>
-                <li>bla</li>
+                <li>
+                    Správa tříd
+                    <ul>
+                        <li>Řazení tříd podle ročníků</li>
+                        <li></li>
+                    </ul>
+                </li>
+                <li>
+                    Zadávání prací
+                    <ul>
+                        <li>Řazení tříd podle ročníků</li>
+                        <li></li>
+                    </ul>
+                </li>
             </ul>
         </div>
         <img src="../assets/pavoukStudent.svg" alt="Pavouk s klávesnicí" width="300" height="223">
@@ -103,6 +111,12 @@ function chekujUdaje(jaky: string) {
 </template>
 
 <style scoped>
+.bloky:first-of-type {
+    flex-direction: column;
+    height: auto;
+    padding: 30px;
+}
+
 #predel {
     margin-bottom: 10px;
     width: 91%;
@@ -125,10 +139,11 @@ form {
 form #flex {
     display: flex;
     justify-content: space-around;
+    align-items: center;
     width: 100%;
 }
 
-#flex div{
+#flex div {
     display: flex;
     flex-direction: column;
 }
@@ -174,5 +189,43 @@ form label {
 
 h1 {
     margin-bottom: 0;
+}
+
+@media screen and (max-width: 1100px) {
+    form input {
+        width: 100%;
+    }
+
+    form input:focus {
+        width: 101%;
+    }
+
+    #flex div {
+        width: 40%;
+        align-items: center;
+    }
+
+    form input {
+        width: 97%;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    form #flex {
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    #flex div {
+        width: 90%;
+    }
+
+    form input {
+        width: 98%;
+    }
+
+    .bloky:first-of-type {
+        padding: 10px;
+    }
 }
 </style>

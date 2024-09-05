@@ -353,6 +353,11 @@ select option {
     border: none;
 }
 
+video {
+    border-radius: 8px;
+    background-color: var(--tmave-fialova) !important;
+}
+
 @supports(-webkit-tap-highlight-color: black) { /* ne na firefoxu, jinak je to sus */
     select:hover {
         background-color: var(--svetle-fialova);

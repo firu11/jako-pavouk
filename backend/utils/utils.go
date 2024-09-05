@@ -213,6 +213,10 @@ var tabulka = map[rune]string{
 	'ľ': "l",
 	'ô': "o",
 	'ŕ': "r",
+	'è': "e", // ani nevim
+	'ã': "a",
+	'ë': "e",
+	'æ': "ae",
 }
 var tabulka2 map[string]string = map[string]string{
 	"…": "...",
