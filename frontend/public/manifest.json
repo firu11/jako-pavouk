@@ -4,7 +4,7 @@
     "start_url": ".",
     "display": "standalone",
     "background_color": "#3F3351",
-    "description": "Tato instalace udělá z webové stránky aplikaci v počítači. (V telefonu je to trošku hloupé 😂)",
+    "description": "Tato instalace udělá z webové stránky aplikaci v počítači.",
     "icons": [
         {
             "src": "favicon-192.png",
