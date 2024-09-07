@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/mail"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -108,7 +109,7 @@ func CheckKod(kod1 string, kod2 string) bool {
 
 // pošle mi na telefon notigikaci, chci vědět když se někdo zaregistruje :)
 func MobilNotifikace(s string) {
-	http.Post("https://ntfy.sh/novy_uzivatel115115jakopavouk", "text/plain", strings.NewReader(s))
+	http.Post(os.Getenv("MOBIL_NOTIFIKACE_URL"), "text/plain", strings.NewReader(s))
 }
 
 // počítá délku textu z pole ["slovo ", "slovo "]

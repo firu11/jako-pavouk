@@ -45,7 +45,7 @@ defineProps({
         <img class="play-vetsi" src="../assets/icony/start.svg" alt="Začít lekci">
     </a>
     <a v-else-if="!mobil" class="cvic-blok" :class="{ oznacene: oznacene }"
-        @click="pridatOznameni('Bez přihlášení si můžeš psaní vyzkoušet v sekci Procvičování')">
+        @click="pridatOznameni('Bez přihlášení si můžeš psaní vyzkoušet v sekci Procvičování', 10000)">
         <h2>{{ index }}</h2>
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>
