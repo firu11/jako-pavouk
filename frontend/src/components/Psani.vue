@@ -421,7 +421,7 @@ defineExpose({ restart, aktivniPismeno })
             </div>
 
             <Transition>
-                <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice" />
+                <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice" :cekame="aktivniPismeno.id == 0 || aktivniPismeno.id == -1" />
             </Transition>
             <Transition>
                 <div v-if="klavesnice != '' && props.resetBtn" id="reset-btn" @click="resetTlacitko(); animace()"

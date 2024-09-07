@@ -13,10 +13,13 @@ const props = defineProps({
     },
     rozmazat: {
         type: Boolean
+    }, 
+    cekame: {
+        type: Boolean
     }
 })
 
-const cesta = useRoute().path.split("/")[2]
+const cesta = useRoute().path.split("/")
 
 const barvy = ["#6ada56", "#81bffc", "#fa5ca1", "#ff8800", "#6f86f7"]
 let schema = [
@@ -63,7 +66,7 @@ watch(() => props.typ, (ted) => {
     }
 })
 
-if (decodeURI(cesta) == "závorky" || decodeURI(cesta) == "operátory") {
+if (decodeURI(cesta[2]) == "závorky" || decodeURI(cesta[2]) == "operátory") {
     schema[4][0] = "Ctrl"
     schema[4][3] = "Alt"
 }
@@ -178,11 +181,12 @@ function potrebujeShift(pismeno: string) {
 
     return (pismeno === pismeno.toUpperCase() && !["+", "=", "-", ".", ",", "§", ")", "´", ";", "|", "&"].includes(pismeno))
 }
+
 </script>
 
 <template>
     <div>
-        <div id="klavesnice" :class="{ rozmazany: props.rozmazat }">
+        <div id="klavesnice" :class="{ rozmazany: props.rozmazany, 'rozmazany-min': props.cekame }">
             <div class="radek" v-for="radek in schema">
                 <div v-for="tlacitko in radek" class="klavesa"
                     :class="{ oznacenaKlavesa: oznacene(tlacitko) || (tlacitko === 'Shift' && shiftSviti), fjPodtrzeni: tlacitko === 'F' || tlacitko === 'J' }"
@@ -196,6 +200,18 @@ function potrebujeShift(pismeno: string) {
                         <div class="klavesa" style="height: 18px"></div>
                         <div class="klavesa" style="height: 18px"></div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="cesta[1] != 'prvni-psani'" id="zakladni-pozice" :style="{ opacity: props.cekame ? 1 : 0 }">
+            <div v-for="tlacitko in ['A', 'S', 'D', 'F', 'J', 'K', 'L', '&quot;ů']" class="klavesa"
+                :class="{ oznacenaKlavesa: oznacene(tlacitko) || (tlacitko === 'Shift' && shiftSviti), fjPodtrzeni: tlacitko === 'F' || tlacitko === 'J' }"
+                :style="{ backgroundColor: barva(tlacitko), flexGrow: delkaTlacitka(tlacitko), marginRight: tlacitko == 'F' ? '90px' : 0 }">
+
+                <div :style="{ color: '#000' }">
+                    {{ tlacPismeno(0, tlacitko) }} <br>
+                    {{ tlacPismeno(1, tlacitko) }}
                 </div>
             </div>
         </div>
@@ -223,6 +239,17 @@ function potrebujeShift(pismeno: string) {
 </template>
 
 <style scoped>
+#zakladni-pozice {
+    display: flex;
+    gap: 5px;
+    font-size: 0.8em;
+    line-height: 1.3em;
+    height: 0;
+    position: relative;
+    left: 92px;
+    bottom: 138px;
+}
+
 #nohy {
     margin-top: 25px;
     margin-bottom: -200px;
@@ -312,6 +339,11 @@ function potrebujeShift(pismeno: string) {
 
 .rozmazany {
     filter: blur(2px) brightness(20%) contrast(110%);
+    /* blur je trochu heavy */
+}
+
+.rozmazany-min {
+    filter: brightness(30%) contrast(105%);
     /* blur je trochu heavy */
 }
 </style>
