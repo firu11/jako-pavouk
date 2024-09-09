@@ -623,15 +623,11 @@ func registrace(c *fiber.Ctx) error {
 	}
 
 	body.Email = strings.ToLower(body.Email)
-	// validace emailu
-	if !utils.ValidFormat(body.Email) {
-		return c.Status(fiber.StatusBadRequest).JSON(chyba("Invalidni email"))
+	if err := utils.ValidaceEmailu(body.Email); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(fmt.Sprintf("Invalidni email: %s", err)))
 	}
 	if _, err := databaze.GetUzivByEmail(body.Email); err == nil { // uz existuje
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s timto emailem jiz existuje"))
-	}
-	if err := utils.ValidaceEmailu(body.Email); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(chyba(fmt.Sprintf("Invalidni email: %s", err)))
 	}
 
 	if !regexJmeno.MatchString(body.Jmeno) {
