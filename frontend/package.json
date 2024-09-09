@@ -9,10 +9,10 @@
         "preview": "vite preview"
     },
     "dependencies": {
-        "@unhead/vue": "^1.10.0",
-        "axios": "^1.7.5",
+        "@unhead/vue": "^1.11.1",
+        "axios": "^1.7.7",
         "howler": "^2.2.4",
-        "vue": "^3.4.38",
+        "vue": "^3.5.3",
         "vue-router": "^4.4.3",
         "vue3-google-login": "^2.0.33"
     },
@@ -20,7 +20,7 @@
         "@types/howler": "^2.2.11",
         "@vitejs/plugin-vue": "^5.1.3",
         "typescript": "^5.5.4",
-        "vite": "^5.4.2",
-        "vue-tsc": "^2.1.2"
+        "vite": "^5.4.3",
+        "vue-tsc": "^2.1.6"
     }
 }
