@@ -15,7 +15,7 @@ require (
 )
 
 require (
-	github.com/badoux/checkmail v1.2.4
+	github.com/AfterShip/email-verifier v1.4.0
 	github.com/blockloop/scan/v2 v2.5.0
 )
 
@@ -25,6 +25,7 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/hbollon/go-edlib v1.6.0 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

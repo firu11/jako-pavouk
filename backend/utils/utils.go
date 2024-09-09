@@ -15,19 +15,33 @@ import (
 	"strconv"
 	"strings"
 
+	emailverifier "github.com/AfterShip/email-verifier"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
 // validuje email
+var verifier = emailverifier.NewVerifier()
+
+func ValidaceEmailu(email string) error {
+	ret, err := verifier.Verify(email)
+	if err != nil {
+		return err
+	}
+	if !ret.Syntax.Valid {
+		return errors.New("email ma spatny syntax")
+	}
+	return nil
+}
+
 func ValidFormat(email string) bool {
 	_, err := mail.ParseAddress(email)
 	return err == nil
 }
 
+// přetvoří request body do požadovaného structu
 var validate = validator.New()
 
-// přetvoří request body do požadovaného structu
 func ValidateStruct(s interface{}) error {
 	err := validate.Struct(s)
 	return err

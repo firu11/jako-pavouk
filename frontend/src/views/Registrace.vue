@@ -62,17 +62,16 @@ function registr(e: Event) {
         }).catch(e => {
             if (e.response.data.error.search("emailem") != -1) {
                 spatnyEmail.value = true
-                pridatOznameni("Uživatel s tímto emailem už existuje.")
+                pridatOznameni("Uživatel s tímto e-mailem už existuje.")
             }
             else if (e.response.data.error.search("Invalidni") != -1) {
                 spatnyEmail.value = true
-                let err = e.response.data.error.split(" ")
-                let konec = 0
-                for (const slovo of err) {
-                    if (slovo.toLowerCase() == "please") break
-                    konec++
+                let err: string[] = e.response.data.error.split(" ")
+                if (err.slice(-3).join(" ") == "no such host") {
+                    pridatOznameni(`Špatný e-mail: Doména "${err.at(-4)}" není platná.`)
+                } else {
+                    pridatOznameni(e.response.data.error, 10000)
                 }
-                pridatOznameni(err.slice(0, konec).join(" "), 10000)
             }
             else if (e.response.data.error.search("docasne") != -1) {
                 spatnyJmeno.value = true
@@ -88,7 +87,7 @@ function registr(e: Event) {
 }
 
 function overeniPost(e: Event) {
-    e.preventDefault(); //aby se nerefreshla stranka
+    e.preventDefault() //aby se nerefreshla stranka
 
     if (!spatnyKod.value && kod.value.length == 5) {
         axios
