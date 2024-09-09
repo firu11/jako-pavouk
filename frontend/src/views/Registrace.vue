@@ -60,9 +60,19 @@ function registr(e: Event) {
             heslo.value = "" // radsi uz smazem idk
             posilame.value = false
         }).catch(e => {
-            if (e.response.data.error.search("email") != -1) {
+            if (e.response.data.error.search("emailem") != -1) {
                 spatnyEmail.value = true
                 pridatOznameni("Uživatel s tímto emailem už existuje.")
+            }
+            else if (e.response.data.error.search("Invalidni") != -1) {
+                spatnyEmail.value = true
+                let err = e.response.data.error.split(" ")
+                let konec = 0
+                for (const slovo of err) {
+                    if (slovo.toLowerCase() == "please") break
+                    konec++
+                }
+                pridatOznameni(err.slice(0, konec).join(" "), 10000)
             }
             else if (e.response.data.error.search("docasne") != -1) {
                 spatnyJmeno.value = true

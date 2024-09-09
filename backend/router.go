@@ -630,11 +630,15 @@ func registrace(c *fiber.Ctx) error {
 	if _, err := databaze.GetUzivByEmail(body.Email); err == nil { // uz existuje
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s timto emailem jiz existuje"))
 	}
-	if _, err := databaze.GetUzivByJmeno(body.Jmeno); err == nil { // uz existuje
-		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s timto jmenem jiz existuje"))
+	if err := utils.ValidaceEmailu(body.Email); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(fmt.Sprintf("Invalidni email: %s", err)))
 	}
+
 	if !regexJmeno.MatchString(body.Jmeno) {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Invalidni jmeno"))
+	}
+	if _, err := databaze.GetUzivByJmeno(body.Jmeno); err == nil { // uz existuje
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Uzivatel s timto jmenem jiz existuje"))
 	}
 
 	hesloHASH, err := utils.HashPassword(body.Heslo)

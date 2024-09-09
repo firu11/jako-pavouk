@@ -1,11 +1,13 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
 
+	"github.com/badoux/checkmail"
 	"gopkg.in/gomail.v2"
 )
 
@@ -29,5 +31,17 @@ func PoslatOverovaciEmail(email string, kod string) error {
 		return err
 	}
 	log.Println("Posláno -", email)
+	return nil
+}
+
+func ValidaceEmailu(email string) error {
+	err := checkmail.ValidateHost(email)
+	if err != nil {
+		return err
+	}
+	err = checkmail.ValidateHostAndUser(os.Getenv("EMAIL_HOST"), os.Getenv("EMAIL_FROM"), email)
+	if smtpErr, ok := err.(checkmail.SmtpError); ok && err != nil {
+		return errors.New(smtpErr.Error())
+	}
 	return nil
 }
