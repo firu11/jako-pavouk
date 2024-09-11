@@ -22,7 +22,7 @@ func PoslatOverovaciEmail(email string, kod string) error {
 		log.Panic("konverze portu na int se rozbila")
 	}
 
-	t, err := template.ParseFiles("./utils/overovaci_email.html")
+	t, err := template.ParseFiles("./overovaci_email.html")
 	if err != nil {
 		MobilNotifikace("NEFUNGUJE MAIL " + err.Error())
 	}
@@ -40,7 +40,7 @@ func PoslatOverovaciEmail(email string, kod string) error {
 	m.SetHeader("Subject", "Verifikace")
 	m.AddAlternative("text/plain", fmt.Sprintf("Tvůj ověřovací kód je: %s", kod))
 	m.SetBody("text/html", buf.String())
-	m.Embed("./utils/pavoucekDoEmailu.png")
+	m.Embed("./pavoucekDoEmailu.png")
 
 	d := gomail.NewDialer(os.Getenv("EMAIL_HOST"), port, os.Getenv("EMAIL_FROM"), os.Getenv("EMAIL_HESLO"))
 	if err := d.DialAndSend(m); err != nil {
