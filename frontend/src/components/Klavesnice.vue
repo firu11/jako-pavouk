@@ -186,7 +186,7 @@ function potrebujeShift(pismeno: string) {
 
 <template>
     <div>
-        <div id="klavesnice" :class="{ rozmazany: props.rozmazany, 'rozmazany-min': props.cekame }">
+        <div id="klavesnice" :class="{ rozmazany: props.rozmazat, 'rozmazany-min': props.cekame && !props.rozmazat }">
             <div class="radek" v-for="radek in schema">
                 <div v-for="tlacitko in radek" class="klavesa"
                     :class="{ oznacenaKlavesa: oznacene(tlacitko) || (tlacitko === 'Shift' && shiftSviti), fjPodtrzeni: tlacitko === 'F' || tlacitko === 'J' }"
@@ -204,7 +204,7 @@ function potrebujeShift(pismeno: string) {
             </div>
         </div>
 
-        <div v-if="cesta[1] != 'prvni-psani'" id="zakladni-pozice" :style="{ opacity: props.cekame ? 1 : 0 }">
+        <div v-if="cesta[1] != 'prvni-psani'" id="zakladni-pozice" :style="{ opacity: props.cekame && !props.rozmazat ? 1 : 0 }">
             <div v-for="tlacitko in ['A', 'S', 'D', 'F', 'J', 'K', 'L', '&quot;ů']" class="klavesa"
                 :class="{ oznacenaKlavesa: oznacene(tlacitko) || (tlacitko === 'Shift' && shiftSviti), fjPodtrzeni: tlacitko === 'F' || tlacitko === 'J' }"
                 :style="{ backgroundColor: barva(tlacitko), flexGrow: delkaTlacitka(tlacitko), marginRight: tlacitko == 'F' ? '90px' : 0 }">
@@ -248,6 +248,7 @@ function potrebujeShift(pismeno: string) {
     position: relative;
     left: 92px;
     bottom: 138px;
+    transition: opacity 0.2s;
 }
 
 #nohy {
