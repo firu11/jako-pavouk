@@ -36,7 +36,7 @@ onMounted(() => {
         o.setMax(cviceni.value.length)
 
         if (dokoncene.value.length == cviceni.value.length) {
-            prvniNedokoncene.value = Math.ceil(cviceni.value.length/2) + 1
+            prvniNedokoncene.value = Math.ceil(cviceni.value.length / 2) + 1
         } else {
             let dokoIds = dokoncene.value.map(a => a.id);
             for (let i = 0; i < cviceni.value.length; i++) {
@@ -116,9 +116,9 @@ function cvicID(id: number) {
     </h1>
     <div class="kontejnr">
         <div v-if="cviceni.length !== 0 && fetchProbehl" v-for="({ id, typ }, index) in cviceni">
-            <BlokCviceni :dokonceno="jeDokoncene(id)" :typ="typ" :index="index + 1" :pismena="pismena"
-                :rychlost="cvicID(id).cpm" :presnost="cvicID(id).presnost" :i="index + 1 == o.index.value"
-                :class="{ nohover: o.index.value != 0 }" :oznacene="index + 1 == o.index.value" />
+            <BlokCviceni :dokonceno="jeDokoncene(id)" :typ="typ" :index="index + 1" :pismena="pismena" :rychlost="cvicID(id).cpm"
+                :presnost="cvicID(id).presnost" :i="index + 1 == o.index.value" :class="{ nohover: o.index.value != 0 }"
+                :oznacene="index + 1 == o.index.value" />
         </div>
         <p v-else-if="cviceni.length == 0 && fetchProbehl">Tato lekce zatím nemá žádná cvičení</p>
     </div>
