@@ -136,6 +136,9 @@ function zrusitVyber() {
     <h1>Lekce</h1>
     <div id="seznam">
         <Rada :pocetDoko="nacitam ? -1 : dokoncene.length" />
+        <div id="pokracovani">
+            <button class="tlacitko">Pokračovat</button>
+        </div>
         <h2>Střední řada</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="i in 4" pismena=". . ." :jeDokoncena="false" :cislo="i" />
         <!-- jen aby tam něco bylo než se to načte -->
@@ -165,6 +168,18 @@ function zrusitVyber() {
 </template>
 
 <style scoped>
+#pokracovani {
+    background-color: var(--tmave-fialova);
+    padding: 14px;
+    border-radius: 10px;
+    width: 70%;
+    align-self: center;
+}
+
+#pokracovani .tlacitko {
+    margin: 0;
+}
+
 #seznam {
     display: flex;
     flex-direction: column;
