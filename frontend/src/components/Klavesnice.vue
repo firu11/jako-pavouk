@@ -249,6 +249,7 @@ function potrebujeShift(pismeno: string) {
     left: 92px;
     bottom: 138px;
     transition: opacity 0.2s;
+    user-select: none;
 }
 
 #nohy {
