@@ -28,17 +28,17 @@ onMounted(() => {
             Authorization: `Bearer ${getToken()}`
         }
     }).then(response => {
-        var i = 2
-        response.data.texty = response.data.texty.sort((a: { id: number, jmeno: string, kategorie: string, obtiznost: number }, b: { id: number, jmeno: string, kategorie: string, obtiznost: number }) => a.kategorie.localeCompare(b.kategorie))
         response.data.texty.forEach((txt: { id: number, jmeno: string, cpm: number, kategorie: string, obtiznost: number }) => {
             let a = texty.value.get(txt.kategorie)
 
             if (a) {
-                a.push({ id: txt.id, jmeno: txt.jmeno, cpm: txt.cpm, cislo: i, obtiznost: txt.obtiznost })
+                a.push({ id: txt.id, jmeno: txt.jmeno, cpm: txt.cpm, cislo: NaN, obtiznost: txt.obtiznost })
             } else {
-                texty.value.set(txt.kategorie, [{ id: txt.id, jmeno: txt.jmeno, cpm: txt.cpm, cislo: i, obtiznost: txt.obtiznost }])
+                texty.value.set(txt.kategorie, [{ id: txt.id, jmeno: txt.jmeno, cpm: txt.cpm, cislo: NaN, obtiznost: txt.obtiznost }])
             }
-            i++
+        })
+        texty.value.forEach((v) => {
+            v = v.sort((a, b) => a.obtiznost - b.obtiznost || a.jmeno.localeCompare(b.jmeno))
         })
         testPsaniCPM.value = response.data.testPsaniCPM
         o.setMax(response.data.texty.length + 1)
@@ -114,6 +114,14 @@ function mobilKlik(e: MouseEvent) {
     pridatOznameni("Psaní na telefonech zatím neučíme...")
 }
 
+function sortKategorii(x: IterableIterator<string>): string[] {
+    let list: string[] = []
+    for (const e of x) {
+        list.push(e)
+    }
+    return list.sort((a, b) => a.localeCompare(b)) // sort podle abecedy
+}
+
 onUnmounted(() => {
     document.removeEventListener("keydown", e1)
     document.removeEventListener("keyup", e2)
@@ -136,7 +144,7 @@ onUnmounted(() => {
             <span v-if="texty.size != 0 && testPsaniCPM != -1"><b>{{ naJednoDesetiny(testPsaniCPM) }}</b> CPM</span>
         </a>
 
-        <div v-if="texty.size != 0" v-for="k in texty.keys()" style="width: 100%;">
+        <div v-if="texty.size != 0" v-for="k in sortKategorii(texty.keys())" style="width: 100%">
             <h2>{{ k }}</h2>
 
             <RouterLink v-if="!mobil" v-for="t in texty.get(k)" :to="`/procvic/${t.id}`" class="blok" :i="t.cislo == o.index.value"
@@ -160,19 +168,19 @@ onUnmounted(() => {
                 </h3>
             </div>
         </div>
-        <div v-else>
+        <div v-else style="width: 100%">
             <h2>Knihy</h2>
-            <div v-if="texty.size == 0" v-for="_ in 3" class="blok">
+            <div v-for="_ in 3" class="blok">
                 <h3 style="margin-left: 8px;">. . .</h3>
             </div>
 
             <h2>Naučné</h2>
-            <div v-if="texty.size == 0" v-for="_ in 2" class="blok">
+            <div v-for="_ in 2" class="blok">
                 <h3 style="margin-left: 8px;">. . .</h3>
             </div>
 
             <h2>Zábavné</h2>
-            <div v-if="texty.size == 0" v-for="_ in 2" class="blok">
+            <div v-for="_ in 2" class="blok">
                 <h3 style="margin-left: 8px;">. . .</h3>
             </div>
         </div>
