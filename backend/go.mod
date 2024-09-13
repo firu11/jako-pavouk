@@ -1,6 +1,6 @@
 module backend
 
-go 1.23
+go 1.23.1
 
 require (
 	github.com/go-playground/validator/v10 v10.22.1
@@ -15,7 +15,7 @@ require (
 )
 
 require (
-	github.com/AfterShip/email-verifier v1.4.0
+	github.com/AfterShip/email-verifier v1.4.1
 	github.com/blockloop/scan/v2 v2.5.0
 )
 
@@ -36,7 +36,9 @@ require (
 	github.com/tinylib/msgp v1.2.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
+	golang.org/x/mod v0.18.0 // indirect
 	golang.org/x/net v0.29.0 // indirect
+	golang.org/x/tools v0.22.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 )
 
