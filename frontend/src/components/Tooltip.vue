@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { onMounted, ref } from "vue";
 
 const props = defineProps({
@@ -16,11 +17,13 @@ const props = defineProps({
 
 const obsah = ref({} as HTMLElement)
 const tip = ref({} as HTMLElement)
-const y = ref(0)
+
+const y = computed(() => {
+    if (typeof obsah.value.getBoundingClientRect !== 'function') return props.vzdalenost + document.documentElement.scrollTop
+    return obsah.value.getBoundingClientRect().bottom + props.vzdalenost + document.documentElement.scrollTop
+})
 
 onMounted(() => {
-    y.value = obsah.value.getBoundingClientRect().bottom + props.vzdalenost
-
     if (props.xOffset != 0) {
         let rect = tip.value.getBoundingClientRect()
         tip.value.style.left = `${props.xOffset + rect.left}px`
