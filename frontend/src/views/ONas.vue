@@ -45,11 +45,11 @@ function copyEmail() {
         <span style="margin: -14px;" /> <!-- trochu menší mezera než 2x <br> -->
         Když jsem se rozhodl, že bych se chtěl naučit psát rychleji, začal jsem hledat vhodné programy, které by mi s tím pomohly.
         <br>
-        Zjistil jsem ale, že zejména pro českou klávesnici jich není mnoho. Některé z nich dokonce stojí téměř 1000 Kč.
+        Zjistil jsem ale, že zejména pro českou klávesnici jich není mnoho a některé z nich dokonce stojí téměř 1000 Kč.
         A tak jsem se rozhodl vytvořit si vlastní.
         <span style="margin: -14px;" /> <!-- trochu menší mezera než 2x <br> -->
         A ano, čteš správně!
-        Text je psán v první osobě. Možná by se tato stránka měla jmenovat spíše "O mně", jelikož tuto stránku spravuje pouze jeden člověk.
+        Text je psán v první osobě. Možná by se tato stránka měla jmenovat spíše "O mně", jelikož tento web spravuje pouze jeden člověk.
     </p>
     <p>
         Chtěl bych poděkovat těmto webům, které mi poskytly svůj obsah, ať už ve formě vzdělávacích textů, článků, nebo pohádek.
