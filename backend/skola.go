@@ -368,7 +368,6 @@ func studentUprava(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Spatny body"))
 	}
 
-	log.Println(body)
 	if body.Jmeno != "" {
 		err = databaze.PrejmenovatStudenta(body.ID, body.Jmeno)
 		if err != nil {
