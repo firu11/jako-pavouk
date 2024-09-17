@@ -11,6 +11,7 @@ export const maxPismenNaRadek = 629 / 19 // sirka ramecku / sirka pismene
 
 export const moznostiRocnik = ["1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.", "9.", "Prima ", "Sekunda ", "Tercie ", "Kvarta ", "Kvinta ", "Sexta ", "Septima ", "Oktáva "]
 export const moznostiTrida = ["A", "B", "C", "D", "E", "F", "G", "H"]
+export const moznostiSkupina = ["-", "1", "2", "3", "4"]
 
 export const delkyCviceni = new Map<string, number>([
     ["nova", 2*60],
