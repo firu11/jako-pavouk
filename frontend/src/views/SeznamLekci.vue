@@ -136,9 +136,9 @@ function zrusitVyber() {
     <h1>Lekce</h1>
     <div id="seznam">
         <Rada :pocetDoko="nacitam ? -1 : dokoncene.length" />
-        <div id="pokracovani">
+        <!-- <div id="pokracovani">
             <button class="tlacitko">Pokračovat</button>
-        </div>
+        </div> -->
         <h2>Střední řada</h2>
         <BlokLekce v-if="lekce[0].length == 0" v-for="i in 4" pismena=". . ." :jeDokoncena="false" :cislo="i" />
         <!-- jen aby tam něco bylo než se to načte -->
