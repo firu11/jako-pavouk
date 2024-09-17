@@ -853,6 +853,16 @@ func PrejmenovatStudenta(id uint, skolniJmeno string) error {
 	return err
 }
 
+func PresunoutStudenta(id uint, tridaID int) error {
+	_, err := DB.Exec(`UPDATE student_a_trida SET trida_id = $1 WHERE student_id = $2;`, tridaID, id)
+	return err
+}
+
+func OdebratStudenta(id uint) error {
+	_, err := DB.Exec(`DELETE FROM student_a_trida WHERE student_id = $1;`, id)
+	return err
+}
+
 func GetTridaByKod(kod string) (Trida, error) {
 	var trida Trida
 	row, err := DB.Query(`SELECT * FROM trida WHERE kod = $1 AND NOT smazana;`, kod)

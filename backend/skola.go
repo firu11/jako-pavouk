@@ -22,8 +22,9 @@ type (
 		Hodnota string `json:"hodnota"`
 	}
 	bodyZmenaJmenaStudenta struct {
-		ID    uint   `json:"id" validate:"required"`
-		Jmeno string `json:"jmeno" validate:"required,min=1,max=30"`
+		ID      uint   `json:"id" validate:"required"`
+		Jmeno   string `json:"jmeno" validate:"max=30"`
+		TridaID int    `json:"trida_id"`
 	}
 	bodyZapis struct {
 		Kod   string `json:"kod" validate:"required"`
@@ -69,7 +70,7 @@ func setupSkolniRouter(api *fiber.Router) {
 	skolaApi.Post("/text", getText)
 
 	skolaApi.Get("/student/:id", student)
-	skolaApi.Post("/student", studentPrejmenovat)
+	skolaApi.Post("/student", studentUprava)
 	skolaApi.Post("/zapis", zapis)
 }
 
@@ -118,7 +119,7 @@ func tridy(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 	if uziv.Role != 2 {
-		return c.Status(fiber.StatusBadRequest).JSON(chyba("Tridy muze videt pouze ucitel"))
+		return c.Status(fiber.StatusUnauthorized).JSON(chyba("Tridy muze videt pouze ucitel"))
 	}
 
 	tridy, err := databaze.GetTridy(id)
@@ -156,6 +157,10 @@ func trida(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 	}
+	ostatniTridy, err := databaze.GetTridy(uziv.ID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
 	trida, err := databaze.GetTrida(uint(tridaID))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
@@ -174,7 +179,7 @@ func trida(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"trida": trida, "studenti": studenti, "prace": prace})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"trida": trida, "studenti": studenti, "prace": prace, "ostatniTridy": ostatniTridy})
 }
 
 func tridaStudent(c *fiber.Ctx) error {
@@ -340,7 +345,7 @@ func student(c *fiber.Ctx) error {
 	})
 }
 
-func studentPrejmenovat(c *fiber.Ctx) error {
+func studentUprava(c *fiber.Ctx) error {
 	id, err := utils.Autentizace(c, true)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
@@ -363,10 +368,27 @@ func studentPrejmenovat(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Spatny body"))
 	}
 
-	err = databaze.PrejmenovatStudenta(body.ID, body.Jmeno)
-	if err != nil {
-		log.Println(err)
-		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	log.Println(body)
+	if body.Jmeno != "" {
+		err = databaze.PrejmenovatStudenta(body.ID, body.Jmeno)
+		if err != nil {
+			log.Println(err)
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+		}
+	}
+	if body.TridaID == -1 {
+		err = databaze.OdebratStudenta(body.ID)
+		if err != nil {
+			log.Println(err)
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+		}
+	}
+	if body.TridaID != 0 {
+		err = databaze.PresunoutStudenta(body.ID, body.TridaID)
+		if err != nil {
+			log.Println(err)
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+		}
 	}
 
 	return c.SendStatus(fiber.StatusOK)
