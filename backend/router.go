@@ -252,7 +252,7 @@ func getCviceni(c *fiber.Ctx) error {
 		}
 
 		var slovo strings.Builder
-		for i := 0; i < int(pocetZnaku/float32(pocetPismenVeSlovu)); i++ {
+		for i := 0; i < int(pocetZnaku/float32(pocetPismenVeSlovu+1)); i++ {
 			for j := 0; j < pocetPismenVeSlovu/2; j++ {
 				r := rand.Intn(len(pismenaRuny))
 				slovo.WriteRune(pismenaRuny[r])
@@ -292,7 +292,7 @@ func getCviceni(c *fiber.Ctx) error {
 		}
 
 		var slovo strings.Builder
-		for i := 0; i < int(pocetZnaku/float32(pocetPismenVeSlovu)); i++ {
+		for i := 0; i < int(pocetZnaku/float32(pocetPismenVeSlovu+1)); i++ {
 			for j := 0; j < pocetPismenVeSlovu; j++ {
 				r := rand.Intn(utf8.RuneCountInString(naucenaPismena)) // utf-8 jsou sus
 				slovo.WriteRune([]rune(naucenaPismena)[r])
@@ -311,11 +311,14 @@ func getCviceni(c *fiber.Ctx) error {
 
 		var pocetSlovKMani int = len(slova)
 		var i int = 0
+		var delka int = 0
+
 		for pocetSlovKMani != 0 {
-			if utils.DelkaTextuArray(text) >= int(pocetZnaku/7.5) {
+			if float32(delka) >= pocetZnaku {
 				break
 			}
 			text = append(text, slova[i]+" ")
+			delka += utf8.RuneCountInString(slova[i]) + 1
 
 			i++
 			if i >= pocetSlovKMani {
@@ -355,12 +358,16 @@ func getCviceni(c *fiber.Ctx) error {
 			var zavorkyLen = len(zavorky)
 			var i int = 0
 			var zi int = 0
+			var delka int = 0
+
 			rand.Shuffle(zavorkyLen, func(i, j int) { zavorky[i], zavorky[j] = zavorky[j], zavorky[i] })
 			for {
-				if utils.DelkaTextuArray(text) >= int(pocetZnaku/7.5) {
+				if float32(delka) >= pocetZnaku {
 					break
 				}
-				text = append(text, fmt.Sprintf("%s%v%s ", string([]rune(zavorky[zi])[0]), slova[i], string([]rune(zavorky[zi])[1])))
+				str := fmt.Sprintf("%s%v%s ", string([]rune(zavorky[zi])[0]), slova[i], string([]rune(zavorky[zi])[1]))
+				text = append(text, str)
+				delka += utf8.RuneCountInString(str)
 
 				i++
 				zi++
@@ -376,13 +383,17 @@ func getCviceni(c *fiber.Ctx) error {
 			var operLen = len(oper)
 			var i int = 0
 			var zi int = 0
+			var delka int = 0
+
 			rand.Shuffle(operLen, func(i, j int) { oper[i], oper[j] = oper[j], oper[i] })
 			text = append(text, slova[pocetSlovKMani-1]+" ")
 			for {
-				if utils.DelkaTextuArray(text) >= int(pocetZnaku/7.5) {
+				if float32(delka) >= pocetZnaku {
 					break
 				}
-				text = append(text, fmt.Sprintf("%s %v ", string([]rune(oper[zi])), slova[i]))
+				str := fmt.Sprintf("%s %v ", string([]rune(oper[zi])), slova[i])
+				text = append(text, str)
+				delka += utf8.RuneCountInString(str)
 
 				i++
 				zi++
