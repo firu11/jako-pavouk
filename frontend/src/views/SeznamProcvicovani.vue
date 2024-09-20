@@ -37,8 +37,14 @@ onMounted(() => {
                 texty.value.set(txt.kategorie, [{ id: txt.id, jmeno: txt.jmeno, cpm: txt.cpm, cislo: NaN, obtiznost: txt.obtiznost }])
             }
         })
-        texty.value.forEach((v) => {
-            v = v.sort((a, b) => a.obtiznost - b.obtiznost || a.jmeno.localeCompare(b.jmeno))
+        let c = 2
+        sortKategorii(texty.value.keys()).forEach((v) => {
+            let procvic = texty.value.get(v)!
+            procvic.sort((a, b) => a.obtiznost - b.obtiznost || a.jmeno.localeCompare(b.jmeno))
+            for (let i = 0; i < procvic.length; i++) {
+                procvic[i].cislo = c
+                c++
+            }
         })
         testPsaniCPM.value = response.data.testPsaniCPM
         o.setMax(response.data.texty.length + 1)
