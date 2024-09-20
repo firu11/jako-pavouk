@@ -311,7 +311,7 @@ func getCviceni(c *fiber.Ctx) error {
 
 		var pocetSlovKMani int = len(slova)
 		var i int = 0
-		for {
+		for pocetSlovKMani != 0 {
 			if utils.DelkaTextuArray(text) >= int(pocetZnaku/7.5) {
 				break
 			}
