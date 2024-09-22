@@ -66,14 +66,14 @@ function zmena() { // pokud zacnu znova psat tak zrusim znaceni spatnyho inputu
     spatnyHeslo.value = false
 }
 
-const handleLoginSuccess = (response: any) => {
+const handleLoginSuccess = (response: { credential: string}) => {
     axios.post("/google", {
         "access_token": response.credential,
     }).then(response => {
         localStorage.setItem(tokenJmeno, response.data.token)
         prihlasen.value = true
         router.push("/ucet")
-    }).catch(_ => {
+    }).catch(() => {
         pridatOznameni()
     })
 }

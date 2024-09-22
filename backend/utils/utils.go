@@ -14,6 +14,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	emailverifier "github.com/AfterShip/email-verifier"
 	"github.com/go-playground/validator/v10"
@@ -130,7 +131,7 @@ func MobilNotifikace(s string) {
 func DelkaTextuArray(a []string) int {
 	var x int
 	for _, v := range a {
-		x += len(v)
+		x += utf8.RuneCountInString(v)
 	}
 	return x
 }

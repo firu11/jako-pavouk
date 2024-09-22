@@ -36,7 +36,8 @@ type (
 		TridaID uint   `json:"trida_id" validate:"required"`
 	}
 	bodyGetText struct {
-		Typ string `json:"typ" validate:"required"`
+		Typ    string `json:"typ" validate:"required"`
+		ZLekce string `json:"z_lekce"`
 	}
 
 	praceProStudenta struct {
@@ -66,8 +67,10 @@ func setupSkolniRouter(api *fiber.Router) {
 	skolaApi.Post("/pridat-praci", pridatPraci)
 	skolaApi.Get("/get-praci/:id", getPraci)
 	skolaApi.Post("/dokoncit-praci/:id", dokoncitPraci)
+	skolaApi.Delete("/smazat-praci/:id", smazatPraci)
 
 	skolaApi.Post("/text", getText)
+	skolaApi.Get("/typy-cviceni", getTypyCviceni)
 
 	skolaApi.Get("/student/:id", student)
 	skolaApi.Post("/student", studentUprava)
@@ -452,6 +455,31 @@ func pridatPraci(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+func smazatPraci(c *fiber.Ctx) error {
+	id, err := utils.Autentizace(c, true)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	}
+	uziv, err := databaze.GetUzivByID(id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	if uziv.Role != 2 {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba("Tohle muze pouze ucitel"))
+	}
+
+	praceID, err := strconv.ParseUint(c.Params("id"), 10, 32)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
+	}
+	err = databaze.SmazatPraci(uint(praceID))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+
+	return c.SendStatus(fiber.StatusOK)
+}
+
 func getText(c *fiber.Ctx) error {
 	id, err := utils.Autentizace(c, true)
 	if err != nil {
@@ -476,8 +504,13 @@ func getText(c *fiber.Ctx) error {
 	}
 
 	var text strings.Builder
+	if body.Typ == "1" {
 
-	if body.Typ == "Věty z pohádek" {
+	} else if body.Typ == "2" {
+
+	} else if body.Typ == "2" {
+
+	} else if body.Typ == "Věty z pohádek" {
 		vety, err := databaze.GetVsechnyVety(int(pocetZnaku / 85)) // cca 85 znaku na vetu
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
@@ -568,4 +601,12 @@ func dokoncitPraci(c *fiber.Ctx) error {
 	}
 
 	return c.SendStatus(fiber.StatusOK)
+}
+
+func getTypyCviceni(c *fiber.Ctx) error {
+	mapa, err := databaze.GetTypyCviceni()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+	return c.Status(fiber.StatusOK).JSON(mapa)
 }

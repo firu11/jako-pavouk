@@ -73,7 +73,7 @@ function zacit() {
             <p>
                 Tato funkce je právě v raném vývoji. Pokud už teď máte zájem o podobnou službu, neváhejte mě kontaktovat na e-mail v záložce "O nás".
             </p>
-            <button class="tlacitko" @click="" style="cursor: no-drop; margin-right: 15px;"><del>Číst dál</del></button> <!-- router.push('/info-skola') -->
+            <button class="tlacitko" @click="null" style="cursor: no-drop; margin-right: 15px;"><del>Číst dál</del></button> <!-- router.push('/info-skola') -->
             <button class="tlacitko" @click="router.push('/zapis')">Zapsat se</button>
         </div>
     </div>

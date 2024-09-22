@@ -121,7 +121,7 @@ hr {
 }
 
 .tlacitko:disabled {
-    filter: brightness(0.7);
+    opacity: 0.7;
     cursor: not-allowed;
 }
 
@@ -339,16 +339,20 @@ select {
     padding: 3px;
     font-size: 1.3rem;
     color: white;
-    font-family: "Red Hat Mono";
+    font-family: "Red Hat Mono", monospace;
     background-color: var(--fialova);
     cursor: pointer;
     transition: 0.2s;
     padding-left: 8px;
 }
 
+select:disabled:hover {
+    cursor: not-allowed;
+}
+
 select option {
     background-color: var(--fialova);
-    font-family: "Red Hat Mono";
+    font-family: "Red Hat Mono", monospace;
     font-size: 1rem;
     border: none;
 }

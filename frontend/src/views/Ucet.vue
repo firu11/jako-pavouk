@@ -20,7 +20,7 @@ const uprava = ref(false)
 const klavesniceUprava = ref(false)
 const jmenoUprava = ref("")
 
-const pismenaChyby = ref([] as any[][])
+const pismenaChyby = ref([] as {pismeno: string, pocet: number}[])
 
 const smazatPotvrzeni = ref(false)
 
@@ -51,13 +51,14 @@ async function getInfo() {
         })
         info.value = resp.data
         info.value.nejcastejsiChyby = new MojeMapa(Object.entries(info.value.nejcastejsiChyby)).top(6)
-        pismenaChyby.value = Array.from(info.value.nejcastejsiChyby, ([name, value]) => ([name, value]))
-        pismenaChyby.value.sort((a, b) => b[1] - a[1])
+        pismenaChyby.value = Array.from(info.value.nejcastejsiChyby, ([name, value]) => ({pismeno: name as string, pocet: value as number}))
+        pismenaChyby.value.sort((a, b) => b.pocet - a.pocet)
+        console.log(info.value.nejcastejsiChyby)
         jmenoUprava.value = resp.data.jmeno
         klavesniceUprava.value = resp.data.klavesnice.toLocaleLowerCase() == "qwerty"
         role.value = resp.data.role
     }
-    catch (e: any) {
+    catch (e) {
         if (!checkTeapot(e)) {
             router.push("/prihlaseni")
             prihlasen.value = false
@@ -66,13 +67,13 @@ async function getInfo() {
     setTimeout(() => {
         let jmeno = document.getElementById("jmeno")
         let velikost = 2
-        while (jmeno?.clientWidth! > 300) { // hnus ale potřebuju to zmenšit natolik aby se to tam vešlo
+        while (jmeno!.clientWidth > 300) { // hnus ale potřebuju to zmenšit natolik aby se to tam vešlo
             jmeno!.style.fontSize = `${velikost}em`
             velikost -= 0.2
         }
         let email = document.getElementById("email")
         velikost = 1.5
-        while (email?.clientWidth! > 300) { // hnus ale potřebuju to zmenšit natolik aby se to tam vešlo
+        while (email!.clientWidth > 300) { // hnus ale potřebuju to zmenšit natolik aby se to tam vešlo
             email!.style.fontSize = `${velikost}em`
             velikost -= 0.1
         }
@@ -80,7 +81,7 @@ async function getInfo() {
 }
 
 function postSmazat() {
-    axios.post("/ucet-zmena", { "zmena": "smazat" }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
+    axios.post("/ucet-zmena", { "zmena": "smazat" }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(() => {
         prihlasen.value = false
         localStorage.removeItem("pavouk_token")
         router.push("/prihlaseni")
@@ -91,7 +92,7 @@ function postSmazat() {
 }
 
 function postJmeno() {
-    axios.post("/ucet-zmena", { "zmena": "jmeno", "hodnota": jmenoUprava.value }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
+    axios.post("/ucet-zmena", { "zmena": "jmeno", "hodnota": jmenoUprava.value }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(() => {
         getInfo()
     }).catch(e => {
         if (e.response.data.error.search("uzivatel_jmeno_key")) {
@@ -102,7 +103,7 @@ function postJmeno() {
 
 function postKlavesnice() {
     let klavesnice = klavesniceUprava.value ? "qwerty" : "qwertz"
-    axios.post("/ucet-zmena", { "zmena": "klavesnice", "hodnota": klavesnice }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(_ => {
+    axios.post("/ucet-zmena", { "zmena": "klavesnice", "hodnota": klavesnice }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(() => {
         getInfo()
     }).catch(e => {
         checkTeapot(e)
@@ -200,16 +201,16 @@ function zmenaJmena(e: Event) {
             <div style="width: 100%;">
                 <div v-if="pismenaChyby.length !== 0" id="pismena">
                     <div id="prvni">
-                        <span v-for="znak, i in pismenaChyby.slice(0, 2)"><span class="cisla">{{ i + 1 }}. </span>
-                            <b :style="{ fontSize: znak[0] == ' ' ? '12px' : 'auto', fontWeight: znak[0] == ' ' ? '700' : '500' }">
-                                {{ znak[0] == " " ? "┗━┛" : znak[0] }}
+                        <span v-for="znak, i in pismenaChyby.slice(0, 2)" :key="i"><span class="cisla">{{ i + 1 }}. </span>
+                            <b :style="{ fontSize: znak.pismeno == ' ' ? '12px' : 'auto', fontWeight: znak.pismeno == ' ' ? '700' : '500' }">
+                                {{ znak.pismeno == " " ? "┗━┛" : znak.pismeno }}
                             </b>
                         </span>
                     </div>
                     <div id="druhy">
-                        <span v-for="znak, i in pismenaChyby.slice(2)"><span class="cisla">{{ i + 3 }}. </span>
-                            <b :style="{ fontSize: znak[0] == ' ' ? '12px' : 'auto', fontWeight: znak[0] == ' ' ? '700' : '500' }">
-                                {{ znak[0] == " " ? "┗━┛" : znak[0] }}
+                        <span v-for="znak, i in pismenaChyby.slice(2)" :key="i"><span class="cisla">{{ i + 3 }}. </span>
+                            <b :style="{ fontSize: znak.pismeno == ' ' ? '12px' : 'auto', fontWeight: znak.pismeno == ' ' ? '700' : '500' }">
+                                {{ znak.pismeno == " " ? "┗━┛" : znak.pismeno }}
                             </b>
                         </span>
                     </div>

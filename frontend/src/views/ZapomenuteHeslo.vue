@@ -35,7 +35,7 @@ function poslatEmail(e: Event) {
     posilame.value = true
     axios.post("/zmena-hesla", {
         "email": email.value,
-    }).then(_ => {
+    }).then(() => {
         state.value = "kod"
         posilame.value = false
     }).catch(e => {
@@ -63,7 +63,7 @@ function overitZmenu(e: Event) {
         "email": email.value,
         "heslo": heslo.value,
         "kod": kod.value
-    }).then(_ => {
+    }).then(() => {
         state.value = "konec"
     }).catch(e => {
         console.log(e)

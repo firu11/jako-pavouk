@@ -176,17 +176,17 @@ onUnmounted(() => {
         </div>
         <div v-else style="width: 100%">
             <h2>Knihy</h2>
-            <div v-for="_ in 3" class="blok">
+            <div v-for="i in 3" class="blok" :key="i">
                 <h3 style="margin-left: 8px;">. . .</h3>
             </div>
 
             <h2>Naučné</h2>
-            <div v-for="_ in 2" class="blok">
+            <div v-for="i in 2" class="blok" :key="i">
                 <h3 style="margin-left: 8px;">. . .</h3>
             </div>
 
             <h2>Zábavné</h2>
-            <div v-for="_ in 2" class="blok">
+            <div v-for="i in 2" class="blok" :key="i">
                 <h3 style="margin-left: 8px;">. . .</h3>
             </div>
         </div>

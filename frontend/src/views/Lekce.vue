@@ -44,7 +44,7 @@ onMounted(() => {
                 else break
             }
         }
-    }).catch(_ => {
+    }).catch(() => {
         router.push("/404")
     })
 
@@ -114,14 +114,14 @@ function cvicID(id: number) {
         <SipkaZpet />
         Lekce: {{ format(pismena) }}
     </h1>
-    <div class="kontejnr">
-        <div v-if="cviceni.length !== 0 && fetchProbehl" v-for="({ id, typ }, index) in cviceni">
+    <div v-if="cviceni.length !== 0 && fetchProbehl" class="kontejnr">
+        <div v-for="({ id, typ }, index) in cviceni" :key="id">
             <BlokCviceni :dokonceno="jeDokoncene(id)" :typ="typ" :index="index + 1" :pismena="pismena" :rychlost="cvicID(id).cpm"
                 :presnost="cvicID(id).presnost" :i="index + 1 == o.index.value" :class="{ nohover: o.index.value != 0 }"
                 :oznacene="index + 1 == o.index.value" />
         </div>
-        <p v-else-if="cviceni.length == 0 && fetchProbehl">Tato lekce zatím nemá žádná cvičení</p>
     </div>
+    <p v-else-if="cviceni.length == 0 && fetchProbehl">Tato lekce zatím nemá žádná cvičení</p>
 </template>
 
 <style scoped>
