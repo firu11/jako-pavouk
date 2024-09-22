@@ -291,6 +291,11 @@ func zmenaTridy(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 		}
+	case "klavesnice":
+		err := databaze.ZmenitKlavesniciTridy(body.TridaID, body.Hodnota)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
+		}
 	}
 
 	return c.SendStatus(fiber.StatusOK)

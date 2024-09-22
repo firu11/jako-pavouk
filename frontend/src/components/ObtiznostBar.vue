@@ -17,7 +17,7 @@ defineProps<{
         <div class="medium" />
     </div>
     <div v-else-if="o == 3" class="pilulka">
-        <div v-for="_ in 3" class="hard" />
+        <div v-for="i in 3" :key="i" class="hard" />
     </div>
 </template>
 <style scoped>

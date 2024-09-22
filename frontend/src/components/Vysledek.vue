@@ -180,12 +180,14 @@ function e1(e: KeyboardEvent) {
             <hr>
             <div v-if="nejcastejsiChyby.size !== 0">
                 <ol>
-                    <li v-for="znak in nejcastejsiChybyTop3"><span :style="{ fontSize: znak[0] == ' ' ? '10px' : 'auto' }">{{ znak[0] == " " ? "┗━┛" :
-                        znak[0]
-                            }}</span></li>
+                    <li v-for="znak in nejcastejsiChybyTop3" :key="znak">
+                        <span :style="{ fontSize: znak[0] == ' ' ? '10px' : 'auto' }">{{ znak[0] == " " ? "┗━┛" : znak[0] }}</span>
+                    </li>
                 </ol>
                 <ul>
-                    <li v-for="znak in nejcastejsiChybyTop3"><span v-if="znak[1] > 0">{{ znak[1] }}</span></li>
+                    <li v-for="znak in nejcastejsiChybyTop3" :key="znak">
+                        <span v-if="znak[1] > 0">{{ znak[1] }}</span>
+                    </li>
                 </ul>
             </div>
             <h3 v-else style="height: 100%; display: flex; justify-content: center; align-items: center; margin-top: 0;">
@@ -196,7 +198,9 @@ function e1(e: KeyboardEvent) {
 
     <div id="bloky">
         <div class="blok">
-            <Tooltip zprava="Za neopravené chyby je adekvátní penalizace. Chybu opravíš pomocí klávesy <span class='klavesa-v-textu-mensi'>backspace</span> ." :sirka="180" :vzdalenost="48">
+            <Tooltip
+                zprava="Za neopravené chyby je adekvátní penalizace. Chybu opravíš pomocí klávesy <span class='klavesa-v-textu-mensi'>backspace</span> ."
+                :sirka="180" :vzdalenost="48">
                 <h2>{{ rychlost > 0 ? Math.round(rychlost * 10) / 10 : 0 }}</h2>
             </Tooltip>
             <hr>

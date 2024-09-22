@@ -13,7 +13,7 @@ const props = defineProps({
     },
     rozmazat: {
         type: Boolean
-    }, 
+    },
     cekame: {
         type: Boolean
     }
@@ -73,8 +73,8 @@ if (decodeURI(cesta[2]) == "závorky" || decodeURI(cesta[2]) == "operátory") {
 
 function tlacPismeno(cislo: number, tlacitko: string) {
     try {
-        if (tlacitko.length === 2) return tlacitko.at(cislo)
-        else if (tlacitko.length === 1 && cislo === 0) return tlacitko.at(0)
+        if (tlacitko.length === 2) return tlacitko[cislo]
+        else if (tlacitko.length === 1 && cislo === 0) return tlacitko[0]
         else if (tlacitko.length >= 2 && cislo === 0) return tlacitko
     } catch { // kvůli starším prohlížečům (koukám na tebe safari <14.0)
         if (tlacitko.length === 2) return tlacitko.charAt(cislo)
@@ -187,8 +187,8 @@ function potrebujeShift(pismeno: string) {
 <template>
     <div>
         <div id="klavesnice" :class="{ rozmazany: props.rozmazat, 'rozmazany-min': props.cekame && !props.rozmazat }">
-            <div class="radek" v-for="radek in schema">
-                <div v-for="tlacitko in radek" class="klavesa"
+            <div class="radek" v-for="radek, i in schema" :key="i">
+                <div v-for="tlacitko in radek" :key="tlacitko" class="klavesa"
                     :class="{ oznacenaKlavesa: oznacene(tlacitko) || (tlacitko === 'Shift' && shiftSviti), fjPodtrzeni: tlacitko === 'F' || tlacitko === 'J' }"
                     :style="{ backgroundColor: barva(tlacitko), flexGrow: delkaTlacitka(tlacitko) }">
 
@@ -205,7 +205,7 @@ function potrebujeShift(pismeno: string) {
         </div>
 
         <div v-if="cesta[1] != 'prvni-psani'" id="zakladni-pozice" :style="{ opacity: props.cekame && !props.rozmazat ? 1 : 0 }">
-            <div v-for="tlacitko in ['A', 'S', 'D', 'F', 'J', 'K', 'L', '&quot;ů']" class="klavesa"
+            <div v-for="tlacitko in ['A', 'S', 'D', 'F', 'J', 'K', 'L', '&quot;ů']" :key="tlacitko" class="klavesa"
                 :class="{ oznacenaKlavesa: oznacene(tlacitko) || (tlacitko === 'Shift' && shiftSviti), fjPodtrzeni: tlacitko === 'F' || tlacitko === 'J' }"
                 :style="{ backgroundColor: barva(tlacitko), flexGrow: delkaTlacitka(tlacitko), marginRight: tlacitko == 'F' ? '90px' : 0 }">
 

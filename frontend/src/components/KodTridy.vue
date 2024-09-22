@@ -5,23 +5,15 @@ import { ref } from "vue";
 import Tooltip from "./Tooltip.vue"
 
 const props = defineProps({
-    id: {
-        type: Number,
-        required: true
-    },
-    kod: {
-        type: String,
-        required: true
-    },
-    zamknuta: {
-        type: Boolean,
-        required: true
-    }
+    id: Number,
+    kod: String,
+    zamknuta: Boolean,
 })
 
 const zamknuta = ref(props.zamknuta)
 
 function copy() {
+    if (!props.kod) return
     navigator.clipboard.writeText(props.kod)
     pridatOznameni("Zkopírováno!", undefined, "copy")
 }
