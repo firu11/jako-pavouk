@@ -7,7 +7,7 @@ import axios from "axios";
 import Vysledek from "../components/Vysledek.vue";
 import { useHead } from "@unhead/vue";
 import Psani from "../components/Psani.vue";
-import { getCas } from "../stores.ts";
+import { getCas } from "../stores";
 
 const router = useRouter()
 const route = useRoute()

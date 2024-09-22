@@ -3,7 +3,7 @@ import { onMounted, ref } from "vue";
 import { nastaveniJmeno, prihlasen } from "../stores";
 import { saveNastaveni } from "../utils";
 
-const emit = defineEmits(["restart", "toggle", "toggleInterpunkce"])
+defineEmits(["restart", "toggle", "toggleInterpunkce"])
 
 defineProps({
     vyberTextu: {
@@ -21,7 +21,7 @@ const klavModel = ref(false)
 onMounted(() => {
     let nastaveni = localStorage.getItem(nastaveniJmeno)
     if (nastaveni !== null) {
-        let obj: any
+        let obj: { diakritika: boolean, velkaPismena: boolean, vetySlova: boolean, delka: number, klavesnice: boolean }
         try {
             obj = JSON.parse(nastaveni)
         } catch {

@@ -82,12 +82,13 @@ type (
 	}
 
 	Trida struct {
-		ID       uint   `json:"id" db:"id"`
-		Jmeno    string `json:"jmeno" db:"jmeno"`
-		UcitelID uint   `json:"-" db:"ucitel_id"`
-		Kod      string `json:"kod" db:"kod"`
-		Zamknuta bool   `json:"zamknuta" db:"zamknuta"`
-		Smazana  bool   `json:"smazana" db:"smazana"`
+		ID         uint   `json:"id" db:"id"`
+		Jmeno      string `json:"jmeno" db:"jmeno"`
+		UcitelID   uint   `json:"-" db:"ucitel_id"`
+		Kod        string `json:"kod" db:"kod"`
+		Zamknuta   bool   `json:"zamknuta" db:"zamknuta"`
+		Smazana    bool   `json:"smazana" db:"smazana"`
+		Klavesnice string `json:"klavesnice" db:"klavesnice"`
 	}
 
 	Prace struct {
@@ -845,6 +846,11 @@ func PrejmenovatTridu(tridaID uint, noveJmeno string) error {
 
 func SmazatTridu(id uint) error {
 	_, err := DB.Exec(`UPDATE trida SET smazana = TRUE WHERE id = $1;`, id)
+	return err
+}
+
+func ZmenitKlavesniciTridy(id uint, klavesnice string) error {
+	_, err := DB.Exec(`UPDATE trida SET klavesnice = $1 WHERE id = $2;`, klavesnice, id)
 	return err
 }
 

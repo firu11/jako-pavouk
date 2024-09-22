@@ -1,4 +1,3 @@
--- Active: 1721734242835@@localhost@5432@pavouk
 <script setup lang="ts">
 import { pridatOznameni } from "../utils";
 import { mobil } from "../stores"

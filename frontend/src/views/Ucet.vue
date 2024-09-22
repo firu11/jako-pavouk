@@ -53,7 +53,6 @@ async function getInfo() {
         info.value.nejcastejsiChyby = new MojeMapa(Object.entries(info.value.nejcastejsiChyby)).top(6)
         pismenaChyby.value = Array.from(info.value.nejcastejsiChyby, ([name, value]) => ({pismeno: name as string, pocet: value as number}))
         pismenaChyby.value.sort((a, b) => b.pocet - a.pocet)
-        console.log(info.value.nejcastejsiChyby)
         jmenoUprava.value = resp.data.jmeno
         klavesniceUprava.value = resp.data.klavesnice.toLocaleLowerCase() == "qwerty"
         role.value = resp.data.role
@@ -239,10 +238,6 @@ function zmenaJmena(e: Event) {
     width: calc(100% - 20px);
     height: 34px;
     margin: 10px 10px 0 10px;
-}
-
-.toggle-contejner div {
-    padding: 7px;
 }
 
 #pismena {

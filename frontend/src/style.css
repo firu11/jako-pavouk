@@ -305,7 +305,7 @@ select:focus {
 }
 
 .toggle-contejner div {
-    padding: 6px;
+    padding: 7px;
     text-align: center;
     z-index: 1;
     user-select: none;
@@ -344,6 +344,10 @@ select {
     cursor: pointer;
     transition: 0.2s;
     padding-left: 8px;
+}
+
+select:disabled {
+    opacity: 0.7;
 }
 
 select:disabled:hover {

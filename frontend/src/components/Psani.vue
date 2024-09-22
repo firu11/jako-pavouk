@@ -3,10 +3,6 @@ import { computed, onMounted, ref, watch } from "vue";
 import { onUnmounted } from "vue";
 import Klavesnice from "../components/Klavesnice.vue";
 import { Howl } from "howler";
-import klik1 from "../assets/zvuky/klik1.ogg";
-import klik2 from "../assets/zvuky/klik2.ogg";
-import klik3 from "../assets/zvuky/klik3.ogg";
-import miss from "../assets/zvuky/miss.ogg";
 import { MojeMapa, pridatOznameni } from "../utils";
 import { useRoute } from "vue-router";
 import { useHead } from "unhead";
@@ -65,12 +61,11 @@ const counterSlov = ref(0)
 const preklepy = ref(0)
 const opravene = ref(0)
 const timerZacatek = ref(0)
-const cas = ref(0)
+const cass = ref(0)
 const textElem = ref<HTMLInputElement>()
 let indexPosunuti = -1
 const mistaPosunuti = ref([0, 0] as number[])
 const chybyPismenka = new MojeMapa()
-let preskoceneZnaky = 0
 
 let predchoziZnak = ""
 
@@ -85,7 +80,7 @@ const celyPsani = ref()
 let counterSpatneSvislaCara = 0
 
 const casFormat = computed(() => {
-    let zobrazeny = props.cas - cas.value
+    let zobrazeny = props.cas - cass.value
     return zobrazeny < 60 ? Math.floor(zobrazeny).toString() : `${Math.floor(zobrazeny / 60)}:${zobrazeny % 60 < 10 ? "0" + Math.floor(zobrazeny % 60).toString() : Math.floor(zobrazeny % 60)}`
 })
 
@@ -102,7 +97,6 @@ watch(props.text, () => {
 })
 
 onMounted(() => {
-    loadZvuk()
     document.addEventListener("keypress", klik) // je depracated ale je O TOLIK LEPSI ZE HO BUDU POUZIVAT PROSTE https://stackoverflow.com/questions/52882144/replacement-for-deprecated-keypress-dom-event
     document.addEventListener("keydown", specialniKlik)
     document.addEventListener("mousemove", enableKurzor)
@@ -134,7 +128,6 @@ function nextPismeno() {
 
     if (!aktivniPismeno.value.psat) {
         nextPismeno()
-        preskoceneZnaky++
     }
     emit("pise")
 }
@@ -154,7 +147,6 @@ function backPismeno() {
 
     if (!aktivniPismeno.value.psat) {
         backPismeno()
-        preskoceneZnaky++
     }
     emit("pise")
 }
@@ -184,9 +176,11 @@ function jeSHackem(key: string) {
     }
 }
 
-function klik(this: any, e: KeyboardEvent) {
+function klik(this: unknown, e: KeyboardEvent) {
     e.preventDefault() // ať to nescrolluje a nehazí nějaký stupid zkratky
     startTimer()
+    loadZvuk()
+
 
     let hacek = jeSHackem(e.key)
     if (hacek) predchoziZnak = ""
@@ -230,9 +224,9 @@ function klik(this: any, e: KeyboardEvent) {
 }
 
 function posunoutRadek() {
-    let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y!
-    let lastY = document.getElementById("p" + (aktivniPismeno.value.id - 1))?.getBoundingClientRect().y!
-    if (aktualniY - lastY > 30) {
+    let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y
+    let lastY = document.getElementById("p" + (aktivniPismeno.value.id - 1))?.getBoundingClientRect().y
+    if (aktualniY! - lastY! > 30) {
         textElem.value!.classList.add("animace")
         indexPosunuti++
         if (indexPosunuti == 1) textElem.value!.style.top = "-2.35rem" // posunuti dolu
@@ -260,7 +254,7 @@ function specialniKlik(e: KeyboardEvent) {
         e.preventDefault()
         if (aktivniPismeno.value.id == 0 || props.nacitamNovej) return
         if (e.ctrlKey) { // tak dáme celé slovo pryč (Ctrl + Backspace zkratka)
-            let lastY = document.getElementById("p" + (aktivniPismeno.value.id))?.getBoundingClientRect().y!
+            let lastY = document.getElementById("p" + (aktivniPismeno.value.id))?.getBoundingClientRect().y
             if (aktivniPismeno.value.znak == " ") backPismeno()
             if (counter.value == 0) backPismeno(); backPismeno()
             while (aktivniPismeno.value.znak != " ") {
@@ -271,8 +265,8 @@ function specialniKlik(e: KeyboardEvent) {
                 }
             }
             if (aktivniPismeno.value.id !== 0) nextPismeno()
-            let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y!
-            if (lastY - aktualniY > 30) {
+            let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y
+            if (lastY! - aktualniY! > 30) {
                 indexPosunuti--
                 textElem.value!.classList.add("animace")
                 textElem.value!.style.top = "0rem"
@@ -285,9 +279,9 @@ function specialniKlik(e: KeyboardEvent) {
         }
         else {
             backPismeno()
-            let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y!
-            let lastY = document.getElementById("p" + (aktivniPismeno.value.id + 1))?.getBoundingClientRect().y!
-            if (lastY - aktualniY > 30) {
+            let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y
+            let lastY = document.getElementById("p" + (aktivniPismeno.value.id + 1))?.getBoundingClientRect().y
+            if (lastY! - aktualniY! > 30) {
                 indexPosunuti--
                 textElem.value!.classList.add("animace")
                 textElem.value!.style.top = "0rem"
@@ -316,9 +310,9 @@ function startTimer() {
 }
 
 function calcCas() {
-    cas.value = (Date.now() - timerZacatek.value) / 1000
+    cass.value = (Date.now() - timerZacatek.value) / 1000
 
-    if (props.cas - cas.value <= 0) {
+    if (props.cas - cass.value <= 0) {
         clearInterval(interval)
         document.removeEventListener("keypress", klik)
         document.removeEventListener("keydown", specialniKlik)
@@ -335,7 +329,7 @@ function toggleZvuk() {
 function restart() {
     clearInterval(interval)
     timerZacatek.value = 0
-    cas.value = 0
+    cass.value = 0
     counter.value = 0
     counterSlov.value = 0
     preklepy.value = 0
@@ -346,7 +340,7 @@ function restart() {
     opravene.value = 0
 }
 
-function loadZvuk() {
+async function loadZvuk() {
     let tmp = localStorage.getItem("pavouk_zvuk")
     if (tmp == null) {
         zvukyZaply.value = true
@@ -356,21 +350,21 @@ function loadZvuk() {
 
     zvuky.push(
         new Howl({
-            src: [klik1],
+            src: "/zvuky/klik1.ogg",
             pool: 10,
             preload: true,
         }), new Howl({
-            src: [klik2],
+            src: "/zvuky/klik2.ogg",
             pool: 10,
             preload: true,
         }),
         new Howl({
-            src: [klik3],
+            src: "/zvuky/klik3.ogg",
             pool: 10,
             preload: true,
         }),
         new Howl({
-            src: [miss],
+            src: "/zvuky/miss.ogg",
             pool: 10,
             preload: true,
         })
@@ -395,6 +389,7 @@ function resetTlacitko() {
     if (props.nacitamNovej) return
     emit("restart")
     restart()
+    zvuky[0].play()
 }
 
 defineExpose({ restart, aktivniPismeno })
@@ -411,17 +406,18 @@ defineExpose({ restart, aktivniPismeno })
         <div id="ramecek">
             <div id="fade">
                 <div id="text" ref="textElem" data-nosnippet>
-                    <div class="slovo" v-for="s in textViditelny">
-                        <div v-for="p in s" class="pismeno" :id="'p' + p.id"
+                    <div class="slovo" v-for="s, i in textViditelny" :key="i">
+                        <div v-for="p in s" :key="p.id" class="pismeno" :id="'p' + p.id"
                             :class="{ podtrzeni: p.id === aktivniPismeno.id, 'spatne-pismeno': p.spatne === 1 && aktivniPismeno.id > p.id, 'opravene-pismeno': p.spatne === 2 && aktivniPismeno.id > p.id, 'spravne-pismeno': (!p.spatne && aktivniPismeno.id > p.id) || !p.psat }">
-                            {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp") }} </div>
+                            {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp;") }} </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <Transition>
-                <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice" :cekame="(aktivniPismeno.id == 0 || aktivniPismeno.id == -1) && cas == 0" />
+                <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice"
+                    :cekame="(aktivniPismeno.id == 0 || aktivniPismeno.id == -1) && cass == 0" />
             </Transition>
             <Transition>
                 <div v-if="klavesnice != '' && props.resetBtn" id="reset-btn" @click="resetTlacitko(); animace()"
@@ -435,6 +431,13 @@ defineExpose({ restart, aktivniPismeno })
                 <img v-else style="margin-left: 1px;" class="zvuk-icon" src="../assets/icony/zvukOff.svg" alt="Zvuky jsou vypnuté">
             </div>
         </div>
+
+        <audio> <!-- načteme soubory do cache aby je měl howler rychle -->
+            <source src="/zvuky/klik1.ogg" type="audio/ogg">
+            <source src="/zvuky/klik2.ogg" type="audio/ogg">
+            <source src="/zvuky/klik3.ogg" type="audio/ogg">
+            <source src="/zvuky/miss.ogg" type="audio/ogg">
+        </audio>
 </template>
 
 <style scoped>
@@ -443,6 +446,7 @@ defineExpose({ restart, aktivniPismeno })
     cursor: auto !important;
 }
 
+/*  eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .bez-kurzoru {
     cursor: none;
 }
@@ -553,6 +557,7 @@ defineExpose({ restart, aktivniPismeno })
     top: 0em;
 }
 
+/*  eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .animace {
     transition: ease 0.2s;
 }

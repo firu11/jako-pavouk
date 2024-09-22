@@ -1,12 +1,16 @@
 import { ref } from "vue";
 import { cislaProcvicJmeno, levelyPresnosti, levelyRychlosti, nastaveniJmeno, tokenJmeno } from "./stores";
+import axios from "axios";
 
 export function formatovanyPismena(pismena: string | string[] | undefined): string {
     if (pismena === undefined) return ""
     if (pismena === "...") return pismena
+    let p: string[]
+    if (typeof pismena == "string") p = pismena.split("")
+    else p = pismena
     let vratit = ""
-    for (let i = 0; i < pismena.length; i++) {
-        vratit += i < pismena.length - 1 ? pismena.at(i) + ", " : pismena.at(i)
+    for (let i = 0; i < p.length; i++) {
+        vratit += i < p.length - 1 ? p.at(i) + ", " : p.at(i)
     }
     return vratit
 }
@@ -28,10 +32,10 @@ export function getToken() {
 export const oznameni = ref([] as { text: string, typ: string }[])
 
 export function pridatOznameni(text: string = "Něco se pokazilo", cas: number = 4000, typ: string = "vykricnik") {
-    let obj = { text: text, typ: typ }
+    const obj = { text: text, typ: typ }
     oznameni.value.push(obj)
     setTimeout(() => {
-        oznameni.value.splice(oznameni.value.indexOf(obj), 1);
+        oznameni.value.splice(oznameni.value.indexOf(obj), 1)
     }, cas)
 }
 
@@ -39,8 +43,8 @@ export function napovedaKNavigaci() {
     pridatOznameni("Pro nápovědu k navigaci se podívej do záložky Jak psát.")
 }
 
-export function checkTeapot(e: any): boolean {
-    if (e.response && e.response.status == 418) {
+export function checkTeapot(e: unknown): boolean {
+    if (axios.isAxiosError(e) && e.response?.status == 418) {
         if (oznameni.value.length < 3) {
             pridatOznameni("Dej si čajík a vydýchej se...")
         }
@@ -97,7 +101,7 @@ export class MojeMapa extends Map<string, number> {
     async put(znak: string) {
         znak = znak.toLocaleLowerCase()
 
-        let pocet = this.get(znak)
+        const pocet = this.get(znak)
         if (pocet === undefined) {
             this.set(znak, 1)
         } else {
@@ -105,16 +109,16 @@ export class MojeMapa extends Map<string, number> {
         }
     }
     top(n: number) {
-        let nejvetsi = new Map<string, number>();
+        const nejvetsi = new Map<string, number>();
         for (let i = 0; i < n; i++) {
-            let nej: any[] = [undefined, 0]
+            const nej: { znak: string, pocet: number } = { znak: "", pocet: 0 }
             this.forEach((pocet, znak) => {
-                if (pocet > nej[1] && nejvetsi.get(znak) == undefined) {
-                    nej[0] = znak
-                    nej[1] = pocet
+                if (pocet > nej.pocet && nejvetsi.get(znak) == undefined) {
+                    nej.znak = znak
+                    nej.pocet = pocet
                 }
             })
-            if (nej[0] != undefined) nejvetsi.set(nej[0], nej[1])
+            if (nej.znak != "") nejvetsi.set(nej.znak, nej.pocet)
         }
         return nejvetsi
     }
@@ -139,8 +143,8 @@ export function getCisloPochvaly(rychlost: number, presnost: number): number {
     return 0 // nestane se
 }
 
-export function clone(obj: any): any { // kvůli starším prohlížečům (koukám na tebe safari <14.0)
-    let x: any
+export function clone<typ>(obj: typ): typ { // kvůli starším prohlížečům (koukám na tebe safari <14.0)
+    let x: typ
     try {
         x = structuredClone(obj)
     } catch {
@@ -158,7 +162,7 @@ export function naJednoDesetiny(cpm: number): number {
 }
 
 export function getCisloProcvic(id: string): number {
-    let cislo = localStorage.getItem(cislaProcvicJmeno + id)
+    const cislo = localStorage.getItem(cislaProcvicJmeno + id)
     if (cislo === null) {
         setCisloProcvic(cislaProcvicJmeno + id, 2)
         return 1

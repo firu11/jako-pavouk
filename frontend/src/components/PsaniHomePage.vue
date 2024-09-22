@@ -26,7 +26,7 @@ function dalsi() {
     <div id="box">
         <TransitionGroup name="pismenka">
             <span v-for="(p, i) in viditelny" :class="{ 'spravne-pismeno': i < 2 }" class="pismeno" :key="p.toString()">
-                {{ p[1] != " " ? p[1] : "&nbsp" }}
+                {{ p[1] != " " ? p[1] : "&nbsp;" }}
             </span>
         </TransitionGroup>
         <div id="cara"></div>
