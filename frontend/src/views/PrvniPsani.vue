@@ -18,7 +18,7 @@ const opravenePocet = ref(0)
 const konec = ref(false)
 const delkaNapsanehoTextu = ref(0)
 
-function konecTextu(o: number, p: number, _: any, d: number) {
+function konecTextu(o: number, p: number, _: unknown, d: number) {
     opravenePocet.value = o
     preklepy.value = p
     konec.value = true

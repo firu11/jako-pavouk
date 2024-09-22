@@ -155,16 +155,6 @@ nav {
     display: none;
 }
 
-#vanocni {
-    position: absolute;
-    top: 3em;
-    right: -5em;
-    width: 300px;
-    transform: rotate(55deg);
-    user-select: none;
-    pointer-events: none
-}
-
 @media screen and (max-width: 1100px) {
     .mobil-hidden {
         transform: translateX(-250px);

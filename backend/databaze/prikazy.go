@@ -350,7 +350,7 @@ func GetLekceIDbyPismena(pismena string) (uint, error) {
 func GetCviceniVLekciByID(lekceID uint) ([]Cviceni, error) {
 	var cviceni []Cviceni
 
-	rows, err := DB.Query(`SELECT id, typ FROM cviceni WHERE lekce_id = $1;`, lekceID)
+	rows, err := DB.Query(`SELECT id, typ FROM cviceni WHERE lekce_id = $1 ORDER BY id;`, lekceID)
 	if err != nil {
 		return cviceni, err
 	}
@@ -362,7 +362,7 @@ func GetCviceniVLekciByID(lekceID uint) ([]Cviceni, error) {
 func GetCviceniVLekciByPismena(uzivID uint, pismena string) ([]Cviceni, error) {
 	var cviceni []Cviceni
 
-	rows, err := DB.Query(`SELECT id, typ FROM cviceni WHERE lekce_id = (SELECT id FROM lekce where pismena = $1 LIMIT 1);`, pismena)
+	rows, err := DB.Query(`SELECT id, typ FROM cviceni WHERE lekce_id = (SELECT id FROM lekce where pismena = $1 LIMIT 1) ORDER BY id;`, pismena)
 	if err != nil {
 		return cviceni, err
 	}
@@ -803,7 +803,7 @@ type TridaInfo struct {
 func GetTridy(ucitelID uint) ([]TridaInfo, error) {
 	var tridy []TridaInfo = []TridaInfo{}
 
-	rows, err := DB.Query(`SELECT id, jmeno, kod, zamknuta, (SELECT COUNT(*) FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id WHERE s.trida_id = trida.id AND NOT u.smazany) as pocet_studentu,  (SELECT COUNT(*) FROM prace WHERE prace.trida_id = trida.id) as pocet_praci FROM trida WHERE ucitel_id = $1 AND smazana = FALSE;`, ucitelID)
+	rows, err := DB.Query(`SELECT id, jmeno, kod, zamknuta, (SELECT COUNT(*) FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id WHERE s.trida_id = trida.id AND NOT u.smazany) as pocet_studentu,  (SELECT COUNT(*) FROM prace WHERE prace.trida_id = trida.id AND NOT prace.smazana) as pocet_praci FROM trida WHERE ucitel_id = $1 AND smazana = FALSE;`, ucitelID)
 	if err != nil {
 		return tridy, err
 	}
@@ -917,17 +917,23 @@ func ZapsatStudenta(kod string, studentID uint, jmeno string) error {
 }
 
 func PridatPraci(text string, cas int, tridaID uint) error {
-	_, err := DB.Exec(`INSERT INTO prace (trida_id, text, cas) VALUES ($1, $2, $3)`, tridaID, text, cas)
+	_, err := DB.Exec(`INSERT INTO prace (trida_id, text, cas) VALUES ($1, $2, $3);`, tridaID, text, cas)
+	return err
+}
+
+func SmazatPraci(id uint) error {
+	_, err := DB.Exec(`UPDATE prace SET smazana = true WHERE id = $1;`, id)
 	return err
 }
 
 func GetVsechnyPrace(tridaID uint) ([]Prace, error) {
 	var prace []Prace = []Prace{}
 
-	rows, err := DB.Query(`WITH soucet_neopravenych AS ( SELECT prace_id, SUM(neopravene) as pocet FROM dokoncena_prace GROUP BY prace_id ), soucet_chyb AS ( SELECT prace_id, SUM((value::VARCHAR(5))::NUMERIC) AS pocet FROM dokoncena_prace, jsonb_each_text(chyby_pismenka) GROUP BY prace_id ), delky_textu AS ( SELECT prace_id, SUM(delka_textu) AS soucet_delek FROM dokoncena_prace GROUP BY prace_id ), rychlosti AS ( WITH cpmka AS ( SELECT ( ( ( dp.delka_textu - 10 * dp.neopravene ) / dp.cas::FLOAT ) * 60 ) AS cpm, p.id AS prace_id FROM dokoncena_prace dp INNER JOIN prace p ON dp.prace_id = p.id ) SELECT prace_id, AVG(GREATEST(cpm, 0)) AS prumerne_cpm FROM cpmka GROUP BY prace_id ), studenti AS ( SELECT prace_id, COUNT(*) as studentu_dokoncilo FROM dokoncena_prace GROUP BY prace_id ) SELECT p.id, COALESCE(r.prumerne_cpm, -1) AS prumerne_cpm, p.cas, p.datum, p.text, p.trida_id, COALESCE(s.studentu_dokoncilo, 0) AS studentu_dokoncilo, COALESCE( ( ( dt.soucet_delek - COALESCE(sc.pocet, 0) - COALESCE(sn.pocet, 0) ) / dt.soucet_delek::FLOAT ) * 100, -1 ) AS prumerna_presnost FROM soucet_neopravenych sn FULL OUTER JOIN soucet_chyb sc USING (prace_id) FULL OUTER JOIN delky_textu dt USING (prace_id) FULL OUTER JOIN rychlosti r USING (prace_id) FULL OUTER JOIN studenti s USING (prace_id) FULL OUTER JOIN prace p ON p.id = r.prace_id WHERE p.trida_id = $1;`, tridaID)
+	rows, err := DB.Query(`WITH soucet_neopravenych AS ( SELECT dp.prace_id, SUM(dp.neopravene) as pocet FROM dokoncena_prace dp INNER JOIN student_a_trida sat ON sat.student_id = dp.student_id GROUP BY dp.prace_id ), soucet_chyb AS ( SELECT dp.prace_id, SUM((value::VARCHAR(5))::NUMERIC) AS pocet FROM dokoncena_prace dp INNER JOIN student_a_trida sat ON sat.student_id = dp.student_id, jsonb_each_text(dp.chyby_pismenka) GROUP BY dp.prace_id ), delky_textu AS ( SELECT dp.prace_id, SUM(dp.delka_textu) AS soucet_delek FROM dokoncena_prace dp INNER JOIN student_a_trida sat ON sat.student_id = dp.student_id GROUP BY dp.prace_id ), rychlosti AS ( WITH cpmka AS ( SELECT ( ( ( dp.delka_textu - 10 * dp.neopravene ) / dp.cas::FLOAT ) * 60 ) AS cpm, p.id AS prace_id FROM dokoncena_prace dp INNER JOIN prace p ON dp.prace_id = p.id INNER JOIN student_a_trida sat ON sat.student_id = dp.student_id WHERE sat.trida_id = $1 ) SELECT prace_id, AVG(GREATEST(cpm, 0)) AS prumerne_cpm FROM cpmka GROUP BY prace_id ), studenti AS ( SELECT dp.prace_id, COUNT(*) as studentu_dokoncilo FROM dokoncena_prace dp INNER JOIN student_a_trida sat ON sat.student_id = dp.student_id WHERE sat.trida_id = $1 GROUP BY dp.prace_id ) SELECT p.id, COALESCE(r.prumerne_cpm, -1) AS prumerne_cpm, p.cas, p.datum, p.text, p.trida_id, COALESCE(s.studentu_dokoncilo, 0) AS studentu_dokoncilo, COALESCE( ( ( dt.soucet_delek - COALESCE(sc.pocet, 0) - COALESCE(sn.pocet, 0) ) / dt.soucet_delek::FLOAT ) * 100, -1 ) AS prumerna_presnost FROM soucet_neopravenych sn FULL OUTER JOIN soucet_chyb sc USING (prace_id) FULL OUTER JOIN delky_textu dt USING (prace_id) FULL OUTER JOIN rychlosti r USING (prace_id) FULL OUTER JOIN studenti s USING (prace_id) FULL OUTER JOIN prace p ON p.id = r.prace_id WHERE p.trida_id = $1 AND NOT p.smazana;`, tridaID)
 	if err != nil {
 		return prace, err
 	}
+	defer rows.Close()
 
 	err = scan.Rows(&prace, rows)
 	return prace, err
@@ -962,7 +968,7 @@ func GetDokoncenePrace(studentID uint) (map[uint]float64, map[uint]float64, erro
 func GetPrace(praceID, studentID uint) (string, int, error) {
 	var text string
 	var cas int
-	err := DB.QueryRow(`SELECT p.text, p.cas FROM prace p INNER JOIN student_a_trida s ON p.trida_id = s.trida_id AND s.student_id = $1 AND p.id = $2;`, studentID, praceID).Scan(&text, &cas)
+	err := DB.QueryRow(`SELECT p.text, p.cas FROM prace p INNER JOIN student_a_trida s ON p.trida_id = s.trida_id AND s.student_id = $1 AND p.id = $2 AND NOT p.smazana;`, studentID, praceID).Scan(&text, &cas)
 	if err == sql.ErrNoRows {
 		return text, cas, errors.New("asi nepatris do teto tridy")
 	}
@@ -977,4 +983,38 @@ func DokoncitPraci(praceID, studentID uint, neopravene int, cas float32, delkaTe
 
 	_, err = DB.Exec(`INSERT INTO dokoncena_prace (prace_id, student_id, neopravene, cas, delka_textu, chyby_pismenka) VALUES ($1, $2, $3, $4, $5, $6);`, praceID, studentID, neopravene, cas, delkaTextu, chybyPismenkaJSON)
 	return err
+}
+
+type Cviceni2 struct {
+	Id      uint   `json:"id"`
+	LekceID uint   `json:"lekce_id"`
+	Pismena string `json:"pismena"`
+}
+
+func GetTypyCviceni() (map[string][]Cviceni2, error) {
+	var mapa = make(map[string][]Cviceni2)
+	rows, err := DB.Query(`SELECT typ, pismena, lekce_id, MIN(cislo) FROM ( SELECT c.typ, l.pismena, c.lekce_id, ROW_NUMBER() OVER ( PARTITION BY l.pismena, c.lekce_id ORDER BY c.id ) as cislo FROM cviceni c INNER JOIN lekce l ON c.lekce_id = l.id ) GROUP BY pismena, typ, lekce_id ORDER BY lekce_id;`)
+	if err != nil {
+		return mapa, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var typ, pismena string
+		var id, lekceID uint
+		err := rows.Scan(&typ, &pismena, &lekceID, &id)
+		if err != nil {
+			return mapa, err
+		}
+
+		mapa[typ] = append(mapa[typ], Cviceni2{id, lekceID, pismena})
+	}
+
+	return mapa, nil
+}
+
+func GetTextZLekce(typ, lekcePismena string) (string, error) {
+	rows, _ := DB.Query(`SELECT typ, string_agg( pismena::VARCHAR, ', ' ORDER BY id ) FROM ( SELECT DISTINCT c.typ, l.pismena, l.id FROM cviceni c INNER JOIN lekce l ON l.id = c.lekce_id ) GROUP BY typ;`)
+	defer rows.Close()
+	return "", nil
 }
