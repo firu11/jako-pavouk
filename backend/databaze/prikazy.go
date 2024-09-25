@@ -613,9 +613,10 @@ func GetVsechnyVety(pocet int) ([]string, error) {
 	return vysledek, nil
 }
 
-func GetSlovaProLekci(uzivID uint, pismena string, pocet int) ([]string, error) {
+func GetSlovaProLekci(uzivID uint, pismena string, pocet int, tridaID uint) ([]string, error) {
 	var vysledek []string
 	var rows *sql.Rows
+	var err error
 
 	if pismena == "velká písmena (shift)" || pismena == "čísla" || pismena == "interpunkce" {
 		var err error
@@ -624,16 +625,10 @@ func GetSlovaProLekci(uzivID uint, pismena string, pocet int) ([]string, error) 
 			return vysledek, err
 		}
 	} else {
-		var k string
-		err := DB.QueryRow(`SELECT klavesnice FROM uzivatel WHERE id = $1;`, uzivID).Scan(&k)
-		if err != nil {
-			return vysledek, err
-		}
-
-		if k == "qwertz" {
-			rows, err = DB.Query(`SELECT slovo FROM slovnik WHERE lekceqwertz_id = (SELECT id from lekce WHERE pismena = $1) ORDER BY RANDOM() LIMIT $2;`, pismena, pocet)
+		if tridaID == 0 {
+			rows, err = DB.Query(`WITH uziv AS ( SELECT klavesnice FROM uzivatel WHERE id = $3 ), qwertz AS ( SELECT slovo FROM slovnik WHERE lekceqwertz_id = ( SELECT id from lekce WHERE pismena = $1 ) AND (SELECT klavesnice FROM uziv) = 'qwertz' ORDER BY RANDOM() LIMIT $2 ), qwerty AS ( SELECT slovo FROM slovnik WHERE lekceqwerty_id = ( SELECT id from lekce WHERE pismena = $1 ) AND (SELECT klavesnice FROM uziv) = 'qwerty' ORDER BY RANDOM() LIMIT $2 ) SELECT * FROM qwertz UNION ALL SELECT * FROM qwerty;`, pismena, pocet, uzivID)
 		} else {
-			rows, err = DB.Query(`SELECT slovo FROM slovnik WHERE lekceqwerty_id = (SELECT id from lekce WHERE pismena = $1) ORDER BY RANDOM() LIMIT $2;`, pismena, pocet)
+			rows, err = DB.Query(`WITH uziv AS ( SELECT klavesnice FROM trida WHERE id = $3 ), qwertz AS ( SELECT slovo FROM slovnik WHERE lekceqwertz_id = ( SELECT id from lekce WHERE pismena = $1 ) AND (SELECT klavesnice FROM uziv) = 'qwertz' ORDER BY RANDOM() LIMIT $2 ), qwerty AS ( SELECT slovo FROM slovnik WHERE lekceqwerty_id = ( SELECT id from lekce WHERE pismena = $1 ) AND (SELECT klavesnice FROM uziv) = 'qwerty' ORDER BY RANDOM() LIMIT $2 ) SELECT * FROM qwertz UNION ALL SELECT * FROM qwerty;`, pismena, pocet, tridaID)
 		}
 		if err != nil {
 			return vysledek, err
@@ -676,9 +671,16 @@ func GetProgramatorSlova() ([]string, error) {
 	return slova, nil
 }
 
-func GetNaucenaPismena(uzivID uint, pismena string) (string, error) {
+func GetNaucenaPismena(uzivID uint, pismena string, tridaID uint) (string, error) {
 	var vysledek strings.Builder
-	rows, err := DB.Query(`SELECT pismena FROM lekce WHERE id <= (SELECT id from lekce WHERE pismena = $1) AND (klavesnice = COALESCE((SELECT klavesnice FROM uzivatel WHERE id = $2), 'qwertz') OR klavesnice = 'oboje');`, pismena, uzivID)
+
+	var rows *sql.Rows
+	var err error
+	if tridaID == 0 {
+		rows, err = DB.Query(`SELECT pismena FROM lekce WHERE id <= (SELECT id from lekce WHERE pismena = $1) AND (klavesnice = COALESCE((SELECT klavesnice FROM uzivatel WHERE id = $2), 'qwertz') OR klavesnice = 'oboje');`, pismena, uzivID)
+	} else {
+		rows, err = DB.Query(`SELECT pismena FROM lekce WHERE id <= (SELECT id from lekce WHERE pismena = $1) AND (klavesnice = COALESCE((SELECT klavesnice FROM trida WHERE id = $2), 'qwertz') OR klavesnice = 'oboje');`, pismena, tridaID)
+	}
 	if err != nil {
 		return "", err
 	}
@@ -997,9 +999,9 @@ type Cviceni2 struct {
 	Pismena string `json:"pismena"`
 }
 
-func GetTypyCviceni() (map[string][]Cviceni2, error) {
+func GetTypyCviceni(tridaID uint) (map[string][]Cviceni2, error) {
 	var mapa = make(map[string][]Cviceni2)
-	rows, err := DB.Query(`SELECT typ, pismena, lekce_id, MIN(cislo) FROM ( SELECT c.typ, l.pismena, c.lekce_id, ROW_NUMBER() OVER ( PARTITION BY l.pismena, c.lekce_id ORDER BY c.id ) as cislo FROM cviceni c INNER JOIN lekce l ON c.lekce_id = l.id ) GROUP BY pismena, typ, lekce_id ORDER BY lekce_id;`)
+	rows, err := DB.Query(`SELECT typ, pismena, lekce_id, MIN(cislo) FROM ( SELECT c.typ, l.pismena, c.lekce_id, ROW_NUMBER() OVER ( PARTITION BY l.pismena, c.lekce_id ORDER BY c.id ) as cislo FROM cviceni c INNER JOIN lekce l ON c.lekce_id = l.id WHERE l.klavesnice = 'oboje' OR l.klavesnice = ( SELECT klavesnice FROM trida WHERE id = $1 ) ) GROUP BY pismena, typ, lekce_id ORDER BY lekce_id;`, tridaID)
 	if err != nil {
 		return mapa, err
 	}

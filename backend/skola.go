@@ -36,8 +36,9 @@ type (
 		TridaID uint   `json:"trida_id" validate:"required"`
 	}
 	bodyGetText struct {
-		Typ    string `json:"typ" validate:"required"`
-		ZLekce string `json:"z_lekce"`
+		TridaID uint   `json:"trida_id"`
+		Typ     string `json:"typ" validate:"required"`
+		ZLekce  string `json:"z_lekce"`
 	}
 
 	praceProStudenta struct {
