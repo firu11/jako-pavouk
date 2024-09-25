@@ -79,9 +79,9 @@ func setupSkolniRouter(api *fiber.Router) {
 }
 
 func createTrida(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	uziv, err := databaze.GetUzivByID(id)
 	if err != nil {
@@ -114,9 +114,9 @@ func createTrida(c *fiber.Ctx) error {
 }
 
 func tridy(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	uziv, err := databaze.GetUzivByID(id)
 	if err != nil {
@@ -144,9 +144,9 @@ func tridy(c *fiber.Ctx) error {
 }
 
 func trida(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	uziv, err := databaze.GetUzivByID(id)
 	if err != nil {
@@ -187,9 +187,9 @@ func trida(c *fiber.Ctx) error {
 }
 
 func tridaStudent(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	uziv, err := databaze.GetUzivByID(id)
 	if err != nil {
@@ -229,11 +229,11 @@ func tridaStudent(c *fiber.Ctx) error {
 }
 
 func testTridy(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
-	_, err = databaze.GetUzivByID(id)
+	_, err := databaze.GetUzivByID(id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}
@@ -250,9 +250,9 @@ func testTridy(c *fiber.Ctx) error {
 }
 
 func zmenaTridy(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	uziv, err := databaze.GetUzivByID(id)
 	if err != nil {
@@ -303,9 +303,9 @@ func zmenaTridy(c *fiber.Ctx) error {
 }
 
 func student(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	uziv, err := databaze.GetUzivByID(id)
 	if err != nil {
@@ -355,9 +355,9 @@ func student(c *fiber.Ctx) error {
 }
 
 func studentUprava(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	uziv, err := databaze.GetUzivByID(id)
 	if err != nil {
@@ -403,9 +403,9 @@ func studentUprava(c *fiber.Ctx) error {
 }
 
 func zapis(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	var body bodyZapis
 	if err := c.BodyParser(&body); err != nil {
@@ -417,7 +417,7 @@ func zapis(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Spatny body"))
 	}
 
-	err = databaze.ZapsatStudenta(body.Kod, id, body.Jmeno)
+	err := databaze.ZapsatStudenta(body.Kod, id, body.Jmeno)
 	if err != nil {
 		if err.Error() == "uz je ve tride" {
 			return c.Status(fiber.StatusBadRequest).JSON(chyba("Uz jsi ve tride"))
@@ -432,9 +432,9 @@ func zapis(c *fiber.Ctx) error {
 }
 
 func pridatPraci(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	uziv, err := databaze.GetUzivByID(id)
 	if err != nil {
@@ -462,9 +462,9 @@ func pridatPraci(c *fiber.Ctx) error {
 }
 
 func smazatPraci(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	uziv, err := databaze.GetUzivByID(id)
 	if err != nil {
@@ -487,9 +487,9 @@ func smazatPraci(c *fiber.Ctx) error {
 }
 
 func getText(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	uziv, err := databaze.GetUzivByID(id)
 	if err != nil {
@@ -509,24 +509,50 @@ func getText(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba("Spatny body"))
 	}
 
-	var text strings.Builder
+	var text string = ""
 	if body.Typ == "1" {
-
+		textPole, err := generovatTextCviceni(body.ZLekce, "nova", 0, body.TridaID)
+		if err != nil {
+			log.Println(err)
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+		}
+		text = strings.Join(textPole, "")
 	} else if body.Typ == "2" {
-
-	} else if body.Typ == "2" {
-
+		textPole, err := generovatTextCviceni(body.ZLekce, "naucena", 0, body.TridaID)
+		if err != nil {
+			log.Println(err)
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+		}
+		text = strings.Join(textPole, "")
+	} else if body.Typ == "3" {
+		textPole, err := generovatTextCviceni(body.ZLekce, "slova", 0, body.TridaID)
+		if err != nil {
+			log.Println(err)
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+		}
+		text = strings.Join(textPole, "")
+	} else if body.Typ == "4" {
+		textPole, err := generovatTextCviceni(body.ZLekce, "programator", 0, body.TridaID)
+		if err != nil {
+			log.Println(err)
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+		}
+		text = strings.Join(textPole, "")
 	} else if body.Typ == "Věty z pohádek" {
+		var textBuilder strings.Builder
 		vety, err := databaze.GetVsechnyVety(int(pocetZnaku / 85)) // cca 85 znaku na vetu
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
 		}
 
 		for _, v := range vety {
-			text.WriteString(v)
-			text.WriteString(" ")
+			textBuilder.WriteString(v)
+			textBuilder.WriteString(" ")
 		}
+
+		text = textBuilder.String()
 	} else {
+		var textBuilder strings.Builder
 		txt, err := databaze.GetRandomProcvic(body.Typ)
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusBadRequest).JSON(chyba("Takový typ nemáme"))
@@ -535,21 +561,21 @@ func getText(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 		}
 
-		text.WriteString(txt)
+		textBuilder.WriteString(txt)
+		text = textBuilder.String()
 	}
 
-	var vyslednyText string = text.String()
-	if string(vyslednyText[len(vyslednyText)-1]) == " " {
-		vyslednyText = vyslednyText[:len(vyslednyText)-1]
+	if len(text) != 0 && string(text[len(text)-1]) == " " {
+		text = text[:len(text)-1]
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": vyslednyText})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"text": text})
 }
 
 func getPraci(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	uziv, err := databaze.GetUzivByID(id)
 	if err != nil {
@@ -581,10 +607,11 @@ func getPraci(c *fiber.Ctx) error {
 }
 
 func dokoncitPraci(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
+
 	var body = bodyDokoncit{}
 
 	if err := c.BodyParser(&body); err != nil {
@@ -610,7 +637,13 @@ func dokoncitPraci(c *fiber.Ctx) error {
 }
 
 func getTypyCviceni(c *fiber.Ctx) error {
-	mapa, err := databaze.GetTypyCviceni()
+	tridaID, err := strconv.Atoi(c.Query("trida_id"))
+	if err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	}
+
+	mapa, err := databaze.GetTypyCviceni(uint(tridaID))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 	}

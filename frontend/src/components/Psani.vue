@@ -389,7 +389,6 @@ function resetTlacitko() {
     if (props.nacitamNovej) return
     emit("restart")
     restart()
-    zvuky[0].play()
 }
 
 defineExpose({ restart, aktivniPismeno })
@@ -432,7 +431,7 @@ defineExpose({ restart, aktivniPismeno })
             </div>
         </div>
 
-        <audio> <!-- načteme soubory do cache aby je měl howler rychle -->
+        <audio> <!-- načteme soubory do cache, aby je měl howler rychle -->
             <source src="/zvuky/klik1.ogg" type="audio/ogg">
             <source src="/zvuky/klik2.ogg" type="audio/ogg">
             <source src="/zvuky/klik3.ogg" type="audio/ogg">
