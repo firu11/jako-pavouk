@@ -160,7 +160,7 @@ func PushSlovnik() {
 
 	fmt.Println("Lekce z DB načteny")
 
-	f, err := os.Open("./samotny/texty/slovnik.txt")
+	f, err := os.Open("texty/slovnik.txt")
 	if err != nil {
 		fmt.Println("spatna cesta k slovniku")
 		return
@@ -252,7 +252,7 @@ func PushRandomVety() {
 	fmt.Println("\nJdem na vety")
 	fmt.Println("-----------------------------")
 
-	f, err := os.Open("./samotny/texty/vety.txt")
+	f, err := os.Open("texty/vety.txt")
 	if err != nil {
 		fmt.Println("spatna cesta k souboru")
 		return
