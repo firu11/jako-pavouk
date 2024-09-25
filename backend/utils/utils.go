@@ -52,27 +52,17 @@ func ValidateStruct(s interface{}) error {
 Vraci id, error.
 id = 0 znamena ze se bud neco pokazilo nebo je autentizace nepovinna
 */
-func Autentizace(c *fiber.Ctx, povinna bool) (uint, error) {
-	if len(c.Get("Authorization")) >= 10 { // treba deset proste at tam neco je
-		var token string = c.Get("Authorization")[7:]
-		spravnej, id, err := ValidovatToken(token)
+func Autentizace(tokenHeader string) uint {
+	if len(tokenHeader) < 10 { // treba deset proste at tam neco je
+		return 0
+	}
+	var token string = tokenHeader[7:]
+	spravnej, id, err := ValidovatToken(token)
 
-		if spravnej && err == nil {
-			return id, nil
-		} else if !spravnej {
-			if povinna {
-				return 0, errors.New("spatny token")
-			} else {
-				return 0, nil
-			}
-		} else {
-			return 0, err
-		}
+	if spravnej && err == nil {
+		return id
 	} else {
-		if povinna {
-			return 0, errors.New("je potreba autentizace (JWT Token)")
-		}
-		return 0, nil
+		return 0
 	}
 }
 
