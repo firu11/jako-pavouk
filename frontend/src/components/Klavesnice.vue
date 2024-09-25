@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
 
 const props = defineProps({
@@ -22,13 +22,13 @@ const props = defineProps({
 const cesta = useRoute().path.split("/")
 
 const barvy = ["#6ada56", "#81bffc", "#fa5ca1", "#ff8800", "#6f86f7"]
-let schema = [
+let schema = ref([
     ["°;", "1+", "2ě", "3š", "4č", "5ř", "6ž", "7ý", "8á", "9í", "0é", "%=", "ˇ´", "⟵"],
     ["TAB", "Q", "W", "E", "R", "T", "Z", "U", "I", "O", "P", "/ú", "()", "'¨"],
     ["CapsLock", "A", "S", "D", "F", "G", "H", "J", "K", "L", '"ů', "!§", "Enter ↵"],
     ["Shift", "Y", "X", "C", "V", "B", "N", "M", "?,", ":.", "_-", "Shift"],
     ["  ", "", "", "", "______", "", "", "", "∧∨", ""]
-]
+])
 const delkaKlaves: { [id: string]: number } = { "⟵": 3, "Shift": 1, "Enter ↵": 1, "CapsLock": 1, "TAB": 1, "______": 24, "  ": 2, "Ctrl": 2 }
 const prstoklad: { [id: string]: string[] } = {
     "P_Ukaz": [barvy[0], "J", "H", "U", "Z", "N", "M", "7ý", "8á"],
@@ -52,23 +52,31 @@ const oznacenyPrst = computed(() => {
     return ""
 })
 
+onMounted(() => {
+    prohoditKlavesnici(props.typ)
+})
+
 watch(() => props.typ, (ted) => {
-    if (ted == "qwerty") {
-        schema[1][6] = "Y"
-        schema[3][1] = "Z"
+    prohoditKlavesnici(ted)
+})
+
+function prohoditKlavesnici(rozlozeni: string) {
+    if (rozlozeni == "qwerty") {
+        schema.value[1][6] = "Y"
+        schema.value[3][1] = "Z"
         prstoklad.P_Ukaz[4] = "Y"
         prstoklad.L_Mali[4] = "Z"
     } else {
-        schema[1][6] = "Z"
-        schema[3][1] = "Y"
+        schema.value[1][6] = "Z"
+        schema.value[3][1] = "Y"
         prstoklad.P_Ukaz[4] = "Z"
         prstoklad.L_Mali[4] = "Y"
     }
-})
+}
 
 if (decodeURI(cesta[2]) == "závorky" || decodeURI(cesta[2]) == "operátory") {
-    schema[4][0] = "Ctrl"
-    schema[4][3] = "Alt"
+    schema.value[4][0] = "Ctrl"
+    schema.value[4][3] = "Alt"
 }
 
 function tlacPismeno(cislo: number, tlacitko: string) {
