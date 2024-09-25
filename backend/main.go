@@ -47,10 +47,17 @@ func main() {
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
-	app.Use(limiter.New(limiter.Config{
-		Max:               30,
-		Expiration:        15 * time.Second,
+	app.Use("/api/prihlaseni", limiter.New(limiter.Config{
+		Max:               10,
+		Expiration:        time.Minute,
 		LimiterMiddleware: limiter.SlidingWindow{},
+		KeyGenerator: func(c *fiber.Ctx) string {
+			var body bodyPrihlaseni
+			if err := c.BodyParser(&body); err != nil {
+				return c.IP()
+			}
+			return body.EmailNeboJmeno
+		},
 		LimitReached: func(c *fiber.Ctx) error {
 			return c.SendStatus(fiber.StatusTeapot) // troulin
 		},
