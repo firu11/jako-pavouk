@@ -108,10 +108,7 @@ func chyba(msg string) fiber.Map {
 //
 // potřebuje délku textu a jeho typ: slova / věty
 func testPsani(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, false)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
-	}
+	id := c.Locals("uzivID").(uint)
 
 	var body = bodyTestPsani{}
 	if err := c.BodyParser(&body); err != nil {
@@ -126,6 +123,7 @@ func testPsani(c *fiber.Ctx) error {
 	var text []string
 	switch body.Typ {
 	case "slova":
+		var err error
 		text, err = databaze.GetVsechnySlova(int(pocetZnaku / 7.5)) // cca 8.5 znaku na slovo
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
@@ -165,10 +163,7 @@ func testPsani(c *fiber.Ctx) error {
 
 // vrací seznam všech lekcí v závislosti na klávesnici
 func getVsechnyLekce(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, false)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
-	}
+	id := c.Locals("uzivID").(uint)
 
 	lekce, err := databaze.GetLekce(id)
 	if err != nil {
@@ -189,10 +184,7 @@ func getVsechnyLekce(c *fiber.Ctx) error {
 
 // vrací všechny cvičení v lekci podle písmen lekce z parametru url
 func getCviceniVLekci(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, false)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
-	}
+	id := c.Locals("uzivID").(uint)
 	pismena, HTTPerr := utils.DecodeURL(c.Params("pismena"))
 	if HTTPerr != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba(HTTPerr.Error()))
@@ -213,9 +205,9 @@ func getCviceniVLekci(c *fiber.Ctx) error {
 //
 // text vrací v závislosti na jeho typu: nové písmena, naučená písmena, slova, + nějaké speciální (programator...)
 func getCviceni(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		return err
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	pismena, HTTPerr := utils.DecodeURL(c.Params("pismena"))
 	if HTTPerr != nil {
@@ -421,9 +413,9 @@ func getCviceni(c *fiber.Ctx) error {
 //
 // potřebuje token uživatele, rychlost, preklepy, cas, delku textu
 func dokoncitCvic(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		return err
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	var body = bodyDokoncit{}
 
@@ -466,10 +458,8 @@ func dokoncitCvic(c *fiber.Ctx) error {
 //
 // potřebuje token uživatele, rychlost, preklepy, cas, delku textu
 func dokoncitProcvic(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, false)
-	if err != nil {
-		return err
-	}
+	id := c.Locals("uzivID").(uint)
+
 	var body = bodyDokoncit{}
 
 	if err := c.BodyParser(&body); err != nil {
@@ -504,10 +494,7 @@ func dokoncitProcvic(c *fiber.Ctx) error {
 
 // vrátí seznam textů k procvičování
 func getVsechnyProcvic(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, false)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(chyba(err.Error()))
-	}
+	id := c.Locals("uzivID").(uint)
 
 	texty, err := databaze.GetTexty()
 	if err != nil {
@@ -547,10 +534,8 @@ func getVsechnyProcvic(c *fiber.Ctx) error {
 
 // vrací text k odpovídajícímu procvičování
 func getProcvic(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, false)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
-	}
+	id := c.Locals("uzivID").(uint)
+
 	typ, err := strconv.Atoi(c.Params("cisloProcvic")) // str -> int
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(chyba(err.Error()))
@@ -823,10 +808,9 @@ func overitZmenuHesla(c *fiber.Ctx) error {
 
 // vrací statistiky o uživateli podle id z tokenu
 func prehled(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		log.Print(err)
-		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	uziv, err := databaze.GetUzivByID(id)
 	if err != nil {
@@ -859,25 +843,23 @@ func prehled(c *fiber.Ctx) error {
 
 // endpoint který vrací zda je potřeba token co nejdříve vyměnit
 func testVyprseniTokenu(c *fiber.Ctx) error {
-	if len(c.Get("Authorization")) >= 10 { // treba deset proste at tam neco je
-		jePotrebaVymenit, err := utils.ValidovatExpTokenu(c.Get("Authorization")[7:])
-		if err != nil {
-			return c.Status(fiber.StatusOK).JSON(fiber.Map{"jePotrebaVymenit": true})
-		}
-		id, err := utils.Autentizace(c, true)
-		if err != nil {
-			log.Print(err)
-			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
-		}
-		uziv, err := databaze.GetUzivByID(id)
-		if err != nil && !jePotrebaVymenit {
-			jePotrebaVymenit = true
-		}
-		trida, _ := databaze.GetTridaByUziv(uziv.ID)
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{"jePotrebaVymenit": jePotrebaVymenit, "role": utils.GetRole(uziv.Role, trida.ID)})
-	} else {
+	if len(c.Get("Authorization")) < 10 { // treba deset proste at tam neco je
 		return c.Status(fiber.StatusUnauthorized).JSON(chyba(""))
 	}
+	jePotrebaVymenit, err := utils.ValidovatExpTokenu(c.Get("Authorization")[7:])
+	if err != nil {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"jePotrebaVymenit": true})
+	}
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
+	}
+	uziv, err := databaze.GetUzivByID(id)
+	if err != nil && !jePotrebaVymenit {
+		jePotrebaVymenit = true
+	}
+	trida, _ := databaze.GetTridaByUziv(uziv.ID)
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"jePotrebaVymenit": jePotrebaVymenit, "role": utils.GetRole(uziv.Role, trida.ID)})
 }
 
 // monitoruje přibližně návštěvníky které na stránku chodí
@@ -894,10 +876,9 @@ func navsteva(c *fiber.Ctx) error {
 
 // mění buď jméno uživatele nebo klávesnici
 func upravaUctu(c *fiber.Ctx) error {
-	id, err := utils.Autentizace(c, true)
-	if err != nil {
-		log.Print(err)
-		return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+	id := c.Locals("uzivID").(uint)
+	if id == 0 {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	var body = bodyUprava{}
 
@@ -914,7 +895,7 @@ func upravaUctu(c *fiber.Ctx) error {
 		if !regexJmeno.MatchString(body.Hodnota) {
 			return c.Status(fiber.StatusBadRequest).JSON(chyba("Jmeno obsahuje nepovolene znaky nebo ma spatnou delku"))
 		}
-		err = databaze.PrejmenovatUziv(id, body.Hodnota)
+		err := databaze.PrejmenovatUziv(id, body.Hodnota)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(chyba(err.Error()))
 		}

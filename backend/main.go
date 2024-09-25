@@ -63,6 +63,11 @@ func main() {
 		},
 	}))
 
+	app.Use(func(c *fiber.Ctx) error {
+		c.Locals("uzivID", utils.Autentizace(c.Get("Authorization")))
+		return c.Next()
+	})
+
 	SetupRouter(app)
 
 	err = app.Listen("127.0.0.1:44871")
