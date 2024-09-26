@@ -46,9 +46,9 @@ const router = useRouter()
 const pochavly = ["Dobrá práce!", "Bravo!", "Pěkná práce!", "Skvělá práce!", "Výborně!", "Parádní!", "Skvělý výsledek!", "Paráda!", "Hezký!", "Super výkon!", "Parádní výkon!", "Skvělý výkon!"]
 const vsechnyHodnoceni = [
     ["Pavouci jásají z tvé šikovnosti.", "Avšak i když už jsi profík, vždy je kam se posouvat.", "Píšeš krásně jako pavouk."], // parádní
-    ["Ale můžeš ještě zapracovat na rychlosti.", "Leda rychlost jde ještě zlepšovat.", "Cvičení máš hotové ale rychlost můžeš ještě zlepšit."], // dobrý ale rychlost by šla zlepšit
-    ["Ale můžeš ještě zapracovat na přesnosti.", "Leda přesnost jde ještě zlepšovat.", "Cvičení máš hotové ale přesnost můžeš ještě zlepšit."], // dobrý ale přesnost by šla zlepšit
-    ["Ale můžeš se ještě zlepšit.", "Cvičení máš hotové ale ještě je kam růst."], // dobrý ale oboje jde zlepsit
+    ["Ale můžeš ještě zapracovat na rychlosti.", "Leda rychlost jde ještě zlepšovat.", "Máš to za sebou ale rychlost můžeš ještě zlepšit."], // dobrý ale rychlost by šla zlepšit
+    ["Ale můžeš ještě zapracovat na přesnosti.", "Leda přesnost jde ještě zlepšovat.", "Máš to za sebou ale přesnost můžeš ještě zlepšit."], // dobrý ale přesnost by šla zlepšit
+    ["Ale můžeš se ještě zlepšit.", "Máš to za sebou ale ještě je kam růst."], // dobrý ale oboje jde zlepsit
     ["Dej tomu ale ještě chvíli. Jde psát i trochu rychleji.", "Zatím ale moc pomalé.", "Musíš ale ještě trochu zrychlit."], // rychlost není dostatečná
     ["Dej tomu ale ještě chvíli. Jde dělat i méně chyb.", "Zatím hodně chybuješ.", "Zaměř se i na přesnost, ještě to není ono."], // přesnost není dostatečná
     ["Dej tomu ale ještě chvíli. Zatím ti to moc nejde.", "Zkus to ale ještě jednou."]
