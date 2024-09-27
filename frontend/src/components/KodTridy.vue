@@ -14,6 +14,10 @@ const zamknuta = ref(props.zamknuta)
 
 function copy() {
     if (!props.kod) return
+    if (zamknuta.value) {
+        pridatOznameni("Třída je zamknutá, a tak se do ní nikdo další nemůže připojit.")
+        return
+    }
     navigator.clipboard.writeText(props.kod)
     pridatOznameni("Zkopírováno!", undefined, "copy")
 }
@@ -56,6 +60,7 @@ function zamek() {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
+    gap: 2px;
     width: 250px;
 }
 

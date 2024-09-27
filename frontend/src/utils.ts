@@ -10,7 +10,7 @@ export function formatovanyPismena(pismena: string | string[] | undefined): stri
     else p = pismena
     let vratit = ""
     for (let i = 0; i < p.length; i++) {
-        vratit += i < p.length - 1 ? p.at(i) + ", " : p.at(i)
+        vratit += i < p.length - 1 ? p[i] + ", " : p[i]
     }
     return vratit
 }

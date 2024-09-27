@@ -366,7 +366,9 @@ video {
     background-color: var(--tmave-fialova) !important;
 }
 
-@supports(-webkit-tap-highlight-color: black) { /* ne na firefoxu, jinak je to sus */
+@supports(-webkit-tap-highlight-color: black) {
+
+    /* ne na firefoxu, jinak je to sus */
     select:hover {
         background-color: var(--svetle-fialova);
     }
