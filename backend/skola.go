@@ -225,7 +225,7 @@ func tridaStudent(c *fiber.Ctx) error {
 		vysledek = append(vysledek, praceProStudenta{ID: p.ID, TridaID: p.TridaID, Text: p.Text, Cas: p.Cas, Datum: p.Datum, Cpm: cpm, Presnost: pres})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"trida": trida, "prace": vysledek})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"trida": trida, "prace": vysledek, "klavesnice": uziv.Klavesnice})
 }
 
 func testTridy(c *fiber.Ctx) error {
