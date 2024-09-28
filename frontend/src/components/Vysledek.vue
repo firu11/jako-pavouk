@@ -250,15 +250,19 @@ function e1(e: KeyboardEvent) {
 li {
     font-size: 1.1em;
     opacity: 70%;
+    height: 23.2px;
+    display: flex;
+    align-items: center;
 }
 
 li:first-child {
     font-size: 1.8em;
     margin-bottom: 4px;
     opacity: 100%;
+    height: 38.4px;
 }
 
-ol li span {
+ol span {
     font-weight: 500;
     font-family: "Red Hat Mono", monospace;
 }
