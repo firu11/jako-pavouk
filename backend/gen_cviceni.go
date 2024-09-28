@@ -13,7 +13,7 @@ import (
 	"unicode/utf8"
 )
 
-func generovatTextCviceni(pismena string, typ string, uzivID uint, tridaID uint) ([]string, error) {
+func generovatTextCviceni(pismena string, typ string, uzivID uint, tridaID uint, pocetZnaku float32) ([]string, error) {
 	var text []string
 	var err error
 

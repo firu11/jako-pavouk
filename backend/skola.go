@@ -36,9 +36,10 @@ type (
 		TridaID uint   `json:"trida_id" validate:"required"`
 	}
 	bodyGetText struct {
-		TridaID uint   `json:"trida_id"`
-		Typ     string `json:"typ" validate:"required"`
-		ZLekce  string `json:"z_lekce"`
+		TridaID uint    `json:"trida_id"`
+		Typ     string  `json:"typ" validate:"required"`
+		ZLekce  string  `json:"z_lekce"`
+		Delka   float32 `json:"delka"`
 	}
 
 	praceProStudenta struct {
@@ -511,28 +512,28 @@ func getText(c *fiber.Ctx) error {
 
 	var text string = ""
 	if body.Typ == "1" {
-		textPole, err := generovatTextCviceni(body.ZLekce, "nova", 0, body.TridaID)
+		textPole, err := generovatTextCviceni(body.ZLekce, "nova", 0, body.TridaID, body.Delka+5)
 		if err != nil {
 			log.Println(err)
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 		}
 		text = strings.Join(textPole, "")
 	} else if body.Typ == "2" {
-		textPole, err := generovatTextCviceni(body.ZLekce, "naucena", 0, body.TridaID)
+		textPole, err := generovatTextCviceni(body.ZLekce, "naucena", 0, body.TridaID, body.Delka+5)
 		if err != nil {
 			log.Println(err)
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 		}
 		text = strings.Join(textPole, "")
 	} else if body.Typ == "3" {
-		textPole, err := generovatTextCviceni(body.ZLekce, "slova", 0, body.TridaID)
+		textPole, err := generovatTextCviceni(body.ZLekce, "slova", 0, body.TridaID, body.Delka+5)
 		if err != nil {
 			log.Println(err)
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 		}
 		text = strings.Join(textPole, "")
 	} else if body.Typ == "4" {
-		textPole, err := generovatTextCviceni(body.ZLekce, "programator", 0, body.TridaID)
+		textPole, err := generovatTextCviceni(body.ZLekce, "programator", 0, body.TridaID, body.Delka+5)
 		if err != nil {
 			log.Println(err)
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))

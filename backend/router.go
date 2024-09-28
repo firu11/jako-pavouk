@@ -224,7 +224,7 @@ func getCviceni(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(chyba("Cviceni neexistuje"))
 	}
 
-	text, err := generovatTextCviceni(pismena, vsechnyCviceni[cislo-1].Typ, id, 0)
+	text, err := generovatTextCviceni(pismena, vsechnyCviceni[cislo-1].Typ, id, 0, pocetZnaku)
 
 	u, err := databaze.GetUzivByID(id)
 	if err != nil {
