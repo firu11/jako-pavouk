@@ -231,6 +231,7 @@ async function prodlouzit() {
 .hide {
     opacity: 0;
     user-select: none;
+    z-index: -1000;
 }
 h2 {
     margin-top: 5px;
