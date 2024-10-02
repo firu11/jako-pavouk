@@ -250,8 +250,8 @@ watch(a, () => {
 <style scoped>
 .hide {
     opacity: 0;
-    z-index: -1000;
     user-select: none;
+    z-index: -1000;
 }
 
 h2 {

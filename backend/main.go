@@ -48,7 +48,7 @@ func main() {
 	}))
 
 	app.Use("/api/prihlaseni", limiter.New(limiter.Config{
-		Max:               10,
+		Max:               5,
 		Expiration:        time.Minute,
 		LimiterMiddleware: limiter.SlidingWindow{},
 		KeyGenerator: func(c *fiber.Ctx) string {
