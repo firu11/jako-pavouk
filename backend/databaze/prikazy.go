@@ -221,21 +221,26 @@ func GetLekce(uzivID uint) ([][]Lekce, error) {
 
 func GetDokonceneLekce(uzivID uint) ([]int32, error) {
 	var vysledek []int32 = []int32{}
-	// zjistim kolik ma kazda lekce cviceni
 	rows, err := DB.Query(`WITH vsechny_cviceni AS (SELECT lekce_id, c.id as cviceni_id FROM cviceni c JOIN lekce l ON l.id = c.lekce_id WHERE l.klavesnice = (SELECT klavesnice FROM uzivatel WHERE id = $1) OR l.klavesnice = 'oboje'), moje_dokonceny AS (SELECT 1 as dokonceno, d.cviceni_id FROM dokoncene d WHERE d.uziv_id = $1) SELECT lekce_id FROM vsechny_cviceni vc LEFT JOIN moje_dokonceny d ON vc.cviceni_id = d.cviceni_id GROUP BY lekce_id HAVING (COUNT(*)) = (COUNT (*) FILTER (WHERE d.dokonceno IS NOT NULL));`, uzivID)
 	if err != nil {
 		return vysledek, err
 	}
 	defer rows.Close()
 
-	for rows.Next() {
-		var id uint
-		if err := rows.Scan(&id); err != nil {
-			return vysledek, err
-		}
-		vysledek = append(vysledek, int32(id))
+	err = scan.Rows(&vysledek, rows)
+
+	return vysledek, err
+}
+
+func GetDalsiCviceni(uzivID uint) (string, int32, error) {
+	var cislo int32
+	var lekcePismena string
+	err := DB.QueryRow(`WITH klavesnice_user AS ( SELECT klavesnice FROM uzivatel WHERE id = $1 ), vsechny_cviceni AS ( SELECT lekce_id, c.id AS cviceni_id FROM cviceni c JOIN lekce l ON l.id = c.lekce_id WHERE l.klavesnice = ( SELECT klavesnice FROM klavesnice_user ) OR l.klavesnice = 'oboje' ), moje_dokonceny AS ( SELECT d.cviceni_id FROM dokoncene d WHERE d.uziv_id = $1 ), hledany_cvic_id AS ( SELECT vc.lekce_id, vc.cviceni_id FROM vsechny_cviceni vc LEFT JOIN moje_dokonceny d ON vc.cviceni_id = d.cviceni_id WHERE d.cviceni_id IS NULL ORDER BY vc.lekce_id ASC, vc.cviceni_id ASC LIMIT 1 ), cviceni_v_lekci AS ( SELECT c.id AS cviceni_id, l.id FROM cviceni c JOIN lekce l ON l.id = c.lekce_id WHERE ( l.klavesnice = ( SELECT klavesnice FROM klavesnice_user ) OR l.klavesnice = 'oboje' ) AND l.id = ( SELECT lekce_id FROM hledany_cvic_id ) ), finalni AS ( SELECT l.pismena, ROW_NUMBER() OVER ( ORDER BY c.cviceni_id ASC ) AS cislo, c.cviceni_id FROM cviceni_v_lekci c JOIN lekce l ON l.id = c.id ) SELECT pismena, cislo FROM finalni WHERE cviceni_id = ( SELECT cviceni_id FROM hledany_cvic_id );`, uzivID).Scan(&lekcePismena, &cislo)
+	if err != nil {
+		return lekcePismena, cislo, err
 	}
-	return vysledek, nil
+
+	return lekcePismena, cislo, nil
 }
 
 func GetTexty() ([]Procvic, error) {

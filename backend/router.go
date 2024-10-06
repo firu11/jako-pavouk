@@ -175,9 +175,15 @@ func getVsechnyLekce(c *fiber.Ctx) error {
 			log.Print(err)
 			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
 		}
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{"lekce": lekce, "dokoncene": dokoncene})
+
+		lekcePismena, cisloCvic, err := databaze.GetDalsiCviceni(id)
+		if err != nil {
+			log.Print(err)
+			return c.Status(fiber.StatusInternalServerError).JSON(chyba(""))
+		}
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"lekce": lekce, "dokoncene": dokoncene, "dalsi_cviceni": fmt.Sprintf("/%s/%d", lekcePismena, cisloCvic)})
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"lekce": lekce, "dokoncene": []int{}})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"lekce": lekce, "dokoncene": []int{}, "dalsi_cviceni": ""})
 }
 
 // vrací všechny cvičení v lekci podle písmen lekce z parametru url

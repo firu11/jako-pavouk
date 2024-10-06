@@ -28,6 +28,8 @@ const dokoncene = ref([] as number[])
 const o = new Oznacene()
 const prvniNedokoncena = ref(1)
 
+let dalsiCviceni: string
+
 const router = useRouter()
 
 const nacitam = ref(false)
@@ -40,6 +42,7 @@ onMounted(() => {
         .then(response => {
             lekce.value = response.data.lekce
             dokoncene.value = response.data.dokoncene
+            dalsiCviceni = response.data.dalsi_cviceni
             o.setMax(lekce.value.join(",").split(",").length) // pocet lekci
 
             let counter = 1
@@ -130,15 +133,21 @@ function zrusitVyber() {
     o.index.value = 0
 }
 
+function pokracovatOdPosledniho() {
+    router.push("/lekce" + dalsiCviceni)
+}
+
 </script>
 
 <template>
     <h1>Lekce</h1>
     <div id="seznam">
         <Rada :pocetDoko="nacitam ? -1 : dokoncene.length" />
-        <!-- <div id="pokracovani">
-            <button class="tlacitko">Pokračovat</button>
-        </div> -->
+        <button v-if="!nacitam && dalsiCviceni" id="pokracovani" @click="pokracovatOdPosledniho">
+            Pokračovat od posledního
+            <img src="../assets/icony/start.svg" alt="Začít" width="35">
+        </button>
+
         <h2>Střední řada</h2>
         <div v-if="lekce[0].length == 0" class="kategorie">
             <!-- jen aby tam něco bylo než se to načte -->
@@ -191,23 +200,40 @@ function zrusitVyber() {
         </div>
         <div v-else class="kategorie">
             <BlokLekce v-for="l in lekce[5]" :pismena="l['pismena']" :key="l.id" :jeDokoncena="dokoncene.includes(l['id'])" :oznacena="o.is(l['id'])"
-            :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" :cislo="l['cislo']" />
+                :i="l['cislo']" :class="{ nohover: o.index.value != 0 }" :cislo="l['cislo']" />
         </div>
-        
+
     </div>
 </template>
 
 <style scoped>
 #pokracovani {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     background-color: var(--tmave-fialova);
-    padding: 14px;
     border-radius: 10px;
-    width: 70%;
+    border: none;
+    width: 100%;
+    height: 64px;
     align-self: center;
+    padding: 12px 12px 12px 25px;
+    color: white;
+    font-size: 24px;
+    font-weight: 500;
+    transition-duration: 0.1s;
+    margin-top: 5px;
 }
 
-#pokracovani .tlacitko {
-    margin: 0;
+#pokracovani:hover {
+    background-color: var(--fialova);
+    cursor: pointer;
+}
+
+#pokracovani>img {
+    height: 32px;
+    margin-right: 8px;
+    margin-bottom: 1px;
 }
 
 #seznam {
