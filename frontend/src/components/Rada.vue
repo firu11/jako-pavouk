@@ -62,6 +62,7 @@ a {
     align-items: center;
     justify-content: space-between;
     margin-top: 5px;
+    margin-bottom: -5px;
 }
 
 #box div {
