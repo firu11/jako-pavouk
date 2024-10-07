@@ -20,7 +20,7 @@ const uprava = ref(false)
 const klavesniceUprava = ref(false)
 const jmenoUprava = ref("")
 
-const pismenaChyby = ref([] as {pismeno: string, pocet: number}[])
+const pismenaChyby = ref([] as { pismeno: string, pocet: number }[])
 
 const smazatPotvrzeni = ref(false)
 
@@ -51,7 +51,7 @@ async function getInfo() {
         })
         info.value = resp.data
         info.value.nejcastejsiChyby = new MojeMapa(Object.entries(info.value.nejcastejsiChyby)).top(6)
-        pismenaChyby.value = Array.from(info.value.nejcastejsiChyby, ([name, value]) => ({pismeno: name as string, pocet: value as number}))
+        pismenaChyby.value = Array.from(info.value.nejcastejsiChyby, ([name, value]) => ({ pismeno: name as string, pocet: value as number }))
         pismenaChyby.value.sort((a, b) => b.pocet - a.pocet)
         jmenoUprava.value = resp.data.jmeno
         klavesniceUprava.value = resp.data.klavesnice.toLocaleLowerCase() == "qwerty"
@@ -165,10 +165,12 @@ function zmenaJmena(e: Event) {
         </div>
         <div class="blok">
             <img src="../assets/icony/kalendar.svg" alt="Kalendář">
-            <span class="popis" style="width: 60%;">
-                Počet dní v řadě:<br>
-                <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.daystreak)" :desetine-mista="0" />
-            </span>
+            <Tooltip zprava="Počítají se jak <b>cvičení</b> v kurzu, tak texty ze záložky <b>procvičování</b>." :sirka="200" :vzdalenost="25" style="width: 60%;">
+                <span class="popis">
+                    Počet dní v řadě:<br>
+                    <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.daystreak)" :desetine-mista="0" />
+                </span>
+            </Tooltip>
         </div>
         <div class="blok">
             <img src="../assets/icony/iconaKlavesnice.svg" alt="Klavesnice" width="75">
