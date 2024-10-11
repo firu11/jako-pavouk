@@ -32,7 +32,7 @@ function chekujUdaje(jaky: string) {
     if ((jaky === "email" || jaky == "") && email.value && !/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/g.test(email.value)) pridatOznameni("Špatný formát e-mailu.")
     else if ((jaky === "telefon" || jaky == "") && telefon.value != "+420" && !/^\+[0-9]{6,15}$/g.test(telefon.value)) pridatOznameni("Telefon musí být ve formátu: +420123456789 <br>(předčíslí a číslo nez mezer)")
     else if ((jaky === "ico" || jaky == "") && ico.value && !/^[0-9]{8}$/g.test(ico.value)) pridatOznameni("IČO musí mít 8 cifer")
-    else if ((jaky === "psc" || jaky == "") && psc.value && !/^[0-9]{3} ?[0-9]{2}$/g.test(psc.value)) pridatOznameni("PSČ musí být ve formátu: <br> 160 00 nebo 16000")
+    else if ((jaky === "psc" || jaky == "") && psc.value && !/^[0-9]{3} [0-9]{2}$/g.test(psc.value)) pridatOznameni("PSČ musí být ve formátu: <br> 160 00 (trojčíslí, mezera, dvojčíslí)")
     else return true
     return false
 }
@@ -84,7 +84,7 @@ function chekujUdaje(jaky: string) {
                     <label for="prijmeni">Příjmení</label>
                     <input type="text" id="prijmeni" placeholder="Např: Pavouková" v-model="prijmeni">
                     <label for="email">E-mail</label>
-                    <input type="email" id="email" placeholder="Např: martina@jakopavouk.cz" v-model="email" @focusout="chekujUdaje('email')">
+                    <input type="email" id="email" placeholder="Např: pavoukova@jakopavouk.cz" v-model="email" @focusout="chekujUdaje('email')">
                     <label for="tel">Telefonní číslo</label>
                     <input type="tel" id="tel" placeholder="Např: +420123456789" v-model="telefon" @focusout="chekujUdaje('telefon')">
                 </div>
@@ -98,7 +98,7 @@ function chekujUdaje(jaky: string) {
                     <label for="psc">PSČ</label>
                     <input type="tel" id="psc" placeholder="Např: 160 00" v-model="psc" @focusout="chekujUdaje('psc')">
                     <label for="ico">IČO</label>
-                    <input type="email" id="ico" placeholder="Např: 1234" v-model="ico" @focusout="chekujUdaje('ico')">
+                    <input type="email" id="ico" placeholder="Např: 12345678" v-model="ico" @focusout="chekujUdaje('ico')">
                 </div>
             </div>
 

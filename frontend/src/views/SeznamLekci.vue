@@ -6,6 +6,7 @@ import { onMounted, onUnmounted, ref } from "vue";
 import { Oznacene, checkTeapot, getToken, pridatOznameni, napovedaKNavigaci } from "../utils";
 import { useHead } from "unhead";
 import { useRouter } from "vue-router";
+import { mobil } from "../stores";
 
 useHead({
     title: "Lekce",
@@ -143,7 +144,7 @@ function pokracovatOdPosledniho() {
     <h1>Lekce</h1>
     <div id="seznam">
         <Rada :pocetDoko="nacitam ? -1 : dokoncene.length" />
-        <button v-if="!nacitam && dalsiCviceni" id="pokracovani" @click="pokracovatOdPosledniho">
+        <button v-if="!nacitam && dalsiCviceni && !mobil" id="pokracovani" @click="pokracovatOdPosledniho">
             Pokračovat od posledního
             <img src="../assets/icony/start.svg" alt="Začít" width="35">
         </button>
@@ -247,6 +248,7 @@ function pokracovatOdPosledniho() {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    width: 100%;
 }
 
 h2 {
@@ -267,6 +269,13 @@ h2 {
 
     h2 {
         align-self: start;
+    }
+    #pokracovani {
+        height: 48px;
+    }
+    #pokracovani>img {
+        width: 26px;
+        margin-right: 11px;
     }
 }
 </style>
