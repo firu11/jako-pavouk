@@ -800,7 +800,7 @@ func GetTridaByStudentID(id uint) (Trida, error) {
 }
 
 type TridaInfo struct {
-	ID            string `json:"id" db:"id"`
+	ID            uint   `json:"id" db:"id"`
 	Jmeno         string `json:"jmeno" db:"jmeno"`
 	Kod           string `json:"kod" db:"kod"`
 	Zamknuta      bool   `json:"zamknuta" db:"zamknuta"`
