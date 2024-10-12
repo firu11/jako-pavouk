@@ -6,7 +6,7 @@ import { onMounted, onUnmounted, ref } from "vue";
 import { Oznacene, checkTeapot, getToken, pridatOznameni, napovedaKNavigaci } from "../utils";
 import { useHead } from "unhead";
 import { useRouter } from "vue-router";
-import { mobil } from "../stores";
+import { mobil, prihlasen } from "../stores";
 
 useHead({
     title: "Lekce",
@@ -135,6 +135,7 @@ function zrusitVyber() {
 }
 
 function pokracovatOdPosledniho() {
+    if (dalsiCviceni == undefined) return
     router.push("/lekce" + dalsiCviceni)
 }
 
@@ -144,7 +145,7 @@ function pokracovatOdPosledniho() {
     <h1>Lekce</h1>
     <div id="seznam">
         <Rada :pocetDoko="nacitam ? -1 : dokoncene.length" />
-        <button v-if="!nacitam && dalsiCviceni && !mobil" id="pokracovani" @click="pokracovatOdPosledniho">
+        <button v-if="(dalsiCviceni || nacitam) && !mobil && prihlasen" id="pokracovani" @click="pokracovatOdPosledniho">
             Pokračovat od posledního
             <img src="../assets/icony/start.svg" alt="Začít" width="35">
         </button>
