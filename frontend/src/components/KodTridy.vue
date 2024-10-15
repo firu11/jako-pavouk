@@ -42,13 +42,15 @@ function zamek() {
 <template>
     <div id="kod">
         <div>
-            <span @click="copy" :class="{ 'zamknuty-kod': zamknuta }">{{ props.kod == undefined ? "------" : props.kod }}</span>
-            <Tooltip zprava="Uzamknout/Odemknout přístup novým žákům do této třídy" :sirka="192" :vzdalenost="12">
+            <Tooltip zprava="Kliknutím zkopírujete" :sirka="192" :vzdalenost="6">
+                <span @click="copy" :class="{ 'zamknuty-kod': zamknuta }">{{ props.kod == undefined ? "----" : props.kod }}</span>
+            </Tooltip>
+            <Tooltip zprava="Uzamknout/Odemknout přístup novým žákům do této třídy" :sirka="192" :vzdalenost="6">
                 <img v-if="!zamknuta" src="../assets/icony/zamekOpen.svg" alt="Odemčená třída" @click="zamek()">
                 <img v-else src="../assets/icony/zamekClosed.svg" alt="Zamčená třída" @click="zamek()">
             </Tooltip>
         </div>
-        <span :class="{ 'zamknuty-kod': zamknuta }">jakopavouk.cz/zapis/{{ props.kod }}</span>
+        <a :class="{ 'zamknuty-kod': zamknuta }" :href="'https://jakopavouk.cz/zapis/' + props.kod" target="_blank">jakopavouk.cz/zapis/{{ props.kod }}</a>
     </div>
 </template>
 <style scoped>
@@ -59,12 +61,12 @@ function zamek() {
     transition: 0.1s;
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    justify-content: center;
     gap: 2px;
     width: 250px;
 }
 
-#kod div {
+#kod>div {
     font-size: 2rem;
     display: flex;
     gap: 5px;
@@ -73,13 +75,21 @@ function zamek() {
 
 #kod div span {
     font-weight: 500;
-    padding: 0 6px;
-    transition: 0.2s;
+    padding: 0 6px 0 calc(6px + 0.4rem);
     border-radius: 8px;
+    letter-spacing: 0.4rem;
 }
 
-#kod>span {
+#kod>div * {
     transition: 0.2s;
+}
+
+#kod a {
+    text-decoration: none;
+    color: var(--bila);
+    font-weight: 300;
+    opacity: 0.9;
+    width: auto;
 }
 
 #kod div span:hover {
@@ -101,7 +111,7 @@ function zamek() {
 }
 
 .zamknuty-kod {
-    color: rgba(255, 255, 255, 0.3);
-    text-decoration: line-through;
+    color: rgba(255, 255, 255, 0.3) !important;
+    text-decoration: line-through !important;
 }
 </style>
