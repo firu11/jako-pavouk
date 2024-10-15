@@ -791,7 +791,7 @@ func GetTrida(id uint) (Trida, error) {
 
 func GetTridaByStudentID(id uint) (Trida, error) {
 	var trida Trida
-	row, err := DB.Query(`SELECT * FROM trida WHERE id = (SELECT s.trida_id FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id WHERE u.id = $1);`, id)
+	row, err := DB.Query(`SELECT t.* FROM trida t INNER JOIN student_a_trida sat ON t.id = sat.trida_id WHERE NOT smazana AND sat.student_id = $1 LIMIT 1;`, id)
 	if err != nil {
 		return trida, err
 	}

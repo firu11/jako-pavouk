@@ -12,16 +12,13 @@ const prijmeni = ref("")
 const email = ref("")
 const telefon = ref("+420")
 const skola = ref("")
-const adresa = ref("")
-const psc = ref("")
-const ico = ref("")
 
 const odeslano = ref(false)
 
 function potvrdit(e: Event) {
     e.preventDefault()
     if (chekujUdaje("") == false) return
-    if (jmeno.value.length == 0 || prijmeni.value.length == 0 || email.value.length == 0 || telefon.value.length <= 4 || skola.value.length == 0 || adresa.value.length == 0 || psc.value.length == 0 || ico.value.length == 0) {
+    if (jmeno.value.length == 0 || prijmeni.value.length == 0 || email.value.length == 0 || telefon.value.length <= 4 || skola.value.length == 0) {
         pridatOznameni("Vyplň prosím všechna pole!")
         return
     }
@@ -31,8 +28,6 @@ function potvrdit(e: Event) {
 function chekujUdaje(jaky: string) {
     if ((jaky === "email" || jaky == "") && email.value && !/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/g.test(email.value)) pridatOznameni("Špatný formát e-mailu.")
     else if ((jaky === "telefon" || jaky == "") && telefon.value != "+420" && !/^\+[0-9]{6,15}$/g.test(telefon.value)) pridatOznameni("Telefon musí být ve formátu: +420123456789 <br>(předčíslí a číslo nez mezer)")
-    else if ((jaky === "ico" || jaky == "") && ico.value && !/^[0-9]{8}$/g.test(ico.value)) pridatOznameni("IČO musí mít 8 cifer")
-    else if ((jaky === "psc" || jaky == "") && psc.value && !/^[0-9]{3} [0-9]{2}$/g.test(psc.value)) pridatOznameni("PSČ musí být ve formátu: <br> 160 00 (trojčíslí, mezera, dvojčíslí)")
     else return true
     return false
 }
@@ -76,33 +71,19 @@ function chekujUdaje(jaky: string) {
         <h2>Formulář pro zařazení školy</h2>
         <hr id="predel">
         <form v-if="!odeslano">
-            <div id="flex">
-                <div>
-                    <h3>Kontaktní osoba</h3>
-                    <label for="jmeno">Jméno</label>
-                    <input type="text" id="jmeno" placeholder="Např: Petra" v-model="jmeno">
-                    <label for="prijmeni">Příjmení</label>
-                    <input type="text" id="prijmeni" placeholder="Např: Pavouková" v-model="prijmeni">
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" placeholder="Např: pavoukova@jakopavouk.cz" v-model="email" @focusout="chekujUdaje('email')">
-                    <label for="tel">Telefonní číslo</label>
-                    <input type="tel" id="tel" placeholder="Např: +420123456789" v-model="telefon" @focusout="chekujUdaje('telefon')">
-                </div>
-
-                <div>
-                    <h3>Fakturační údaje</h3>
-                    <label for="skola">Škola</label>
-                    <input type="text" id="skola" placeholder="Např: Gymnázium pana Pavouka" v-model="skola">
-                    <label for="adresa">Adresa</label>
-                    <input type="text" id="adresa" placeholder="Např: Pavoučí 10, Praha" v-model="adresa">
-                    <label for="psc">PSČ</label>
-                    <input type="tel" id="psc" placeholder="Např: 160 00" v-model="psc" @focusout="chekujUdaje('psc')">
-                    <label for="ico">IČO</label>
-                    <input type="email" id="ico" placeholder="Např: 12345678" v-model="ico" @focusout="chekujUdaje('ico')">
-                </div>
+            <div>
+                <label for="skola">Jméno školy</label>
+                <input type="text" id="skola" placeholder="Např: Gymnázium pana Pavouka" v-model="skola">
+            </div>
+            <div>
+                <h2>Kontaktní osoba</h2>
+                <label for="email">E-mail</label>
+                <input type="email" id="email" placeholder="Např: pavoukova@jakopavouk.cz" v-model="email" @focusout="chekujUdaje('email')">
+                <label for="tel">Telefonní číslo</label>
+                <input type="tel" id="tel" placeholder="Např: +420123456789" v-model="telefon" @focusout="chekujUdaje('telefon')">
             </div>
 
-            <button class="tlacitko" type="submit" @click="potvrdit">Potvrdit</button>
+            <button class="tlacitko" type="submit" @click="potvrdit">Odeslat</button>
         </form>
         <p v-else>
             Formulář odeslán! <br> Během pár hodin se vám ozveme.
@@ -126,7 +107,7 @@ function chekujUdaje(jaky: string) {
 #formular {
     flex-direction: column;
     height: auto;
-    gap: 15px;
+    gap: 8px;
 }
 
 form {
@@ -136,23 +117,17 @@ form {
     align-items: center;
 }
 
-form #flex {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    width: 100%;
-}
-
-#flex div {
-    display: flex;
-    flex-direction: column;
-}
-
-form h3 {
+form h2 {
     font-weight: 500;
     align-self: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+    margin-top: 5px;
     font-size: 1.2rem;
+}
+
+form>div {
+    display: flex;
+    flex-direction: column;
 }
 
 form input {
@@ -200,26 +175,12 @@ h1 {
         width: 101%;
     }
 
-    #flex div {
-        width: 40%;
-        align-items: center;
-    }
-
     form input {
         width: 97%;
     }
 }
 
 @media screen and (max-width: 800px) {
-    form #flex {
-        flex-direction: column;
-        gap: 25px;
-    }
-
-    #flex div {
-        width: 90%;
-    }
-
     form input {
         width: 98%;
     }

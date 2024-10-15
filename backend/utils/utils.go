@@ -135,11 +135,11 @@ func CPM(delkaTextu int, cas float64, preklepy int) float64 {
 	return cpm
 }
 
-// vrací 6ti místný string kód k třídě
+// vrací 4místný string kód k třídě
 func GenTridaKod() string {
 	var kod string
-	var znaky string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-	for i := 0; i < 6; i++ {
+	var znaky string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	for i := 0; i < 4; i++ {
 		cislo, err := cryptoRand.Int(cryptoRand.Reader, big.NewInt(int64(len(znaky))))
 		if err != nil {
 			cislo = big.NewInt(int64(mathRand.Intn(len(znaky)))) // kdyby se něco pokazilo?
