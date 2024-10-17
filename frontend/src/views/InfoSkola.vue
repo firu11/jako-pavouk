@@ -122,7 +122,7 @@ form h2 {
     align-self: center;
     margin-bottom: 10px;
     margin-top: 5px;
-    font-size: 1.2rem;
+    font-size: 19px;
 }
 
 form>div {
@@ -157,7 +157,7 @@ form input::placeholder {
 
 form label {
     align-self: flex-start;
-    font-size: 1.1em;
+    font-size: 18px;
     margin: 0 5px 5px 5px;
     display: inline-block;
 }

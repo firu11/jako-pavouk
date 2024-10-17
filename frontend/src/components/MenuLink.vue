@@ -45,7 +45,7 @@ a p {
     position: relative;
     left: -15px;
     transition: 0.3s;
-    font-size: 1.125rem;
+    font-size: 18px;
 }
 
 .router-link-active p {

@@ -577,8 +577,8 @@ defineExpose({ restart, aktivniPismeno })
     display: inline-flex;
     font-family: "Red Hat Mono", monospace;
     font-weight: 400;
-    font-size: 1.56rem;
-    line-height: 2.2rem;
+    font-size: 25px;
+    line-height: 35px;
     width: 17px;
     text-decoration: none;
     padding: 0 1px;
@@ -589,7 +589,7 @@ defineExpose({ restart, aktivniPismeno })
 }
 
 #nabidka h2 {
-    font-size: 1.2em;
+    font-size: 19px;
     font-weight: 300;
 }
 

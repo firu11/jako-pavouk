@@ -51,11 +51,11 @@ onMounted(() => {
     text-align: center;
     padding: 5px;
     border-radius: 6px;
-    font-size: 0.9rem;
+    font-size: 15px;
 
     position: absolute;
     z-index: 100;
-    line-height: 1rem;
+    line-height: 16px;
     pointer-events: none;
 
     transition: 0.1s opacity;

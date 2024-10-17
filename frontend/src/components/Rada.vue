@@ -72,14 +72,14 @@ a {
 }
 
 h2 {
-    font-size: 1.6rem;
+    font-size: 26px;
     margin-bottom: 12px;
     font-weight: 400;
     width: 100%;
 }
 
 p {
-    font-size: 1.15rem;
+    font-size: 18px;
     margin-bottom: 5px;
 }
 
