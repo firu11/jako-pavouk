@@ -142,7 +142,7 @@ useHead({
 }
 
 li {
-    font-size: 1.1rem;
+    font-size: 18px;
 }
 
 .mensi-padding li {
@@ -178,7 +178,7 @@ ul {
 }
 
 #npi img {
-    border-radius: 1000rem;
+    border-radius: 1000px;
     aspect-ratio: 1 / 1;
     width: 225px;
 }
@@ -193,11 +193,11 @@ ul {
     }
 
     img {
-        max-width: 20rem !important;
+        max-width: 320px !important;
     }
 
     #npi img {
-        max-width: 12rem !important;
+        max-width: 192px !important;
         height: 100%;
     }
 

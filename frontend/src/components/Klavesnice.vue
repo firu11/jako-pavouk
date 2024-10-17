@@ -53,11 +53,11 @@ const oznacenyPrst = computed(() => {
 })
 
 onMounted(() => {
-    prohoditKlavesnici(props.typ)
+    prohoditKlavesnici(props.typ!)
 })
 
 watch(() => props.typ, (ted) => {
-    prohoditKlavesnici(ted)
+    prohoditKlavesnici(ted!)
 })
 
 function prohoditKlavesnici(rozlozeni: string) {
@@ -250,8 +250,8 @@ function potrebujeShift(pismeno: string) {
 #zakladni-pozice {
     display: flex;
     gap: 5px;
-    font-size: 0.8em;
-    line-height: 1.3em;
+    font-size: 13px;
+    line-height: 21px;
     height: 0;
     position: relative;
     left: 92px;
@@ -320,8 +320,8 @@ function potrebujeShift(pismeno: string) {
     background-color: var(--tmave-fialova);
     padding: 10px;
     border-radius: 10px;
-    font-size: 0.8em;
-    line-height: 1.3em;
+    font-size: 13px;
+    line-height: 21px;
     width: 675px;
     margin-top: 25px;
     user-select: none;

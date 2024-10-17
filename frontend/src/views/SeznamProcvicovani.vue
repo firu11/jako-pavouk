@@ -69,8 +69,9 @@ function e1(e: KeyboardEvent) {
 
         if (o.index.value == 0) o.index.value = 2
         else o.mensi()
-        let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
-        window.scrollTo({ top: lekce?.offsetTop! - 500 })
+        let procvic: HTMLElement | null = document.querySelector(`[i="true"]`)
+        if (!procvic) return
+        window.scrollTo({ top: procvic.offsetTop - 500 })
 
         jede = true
         setTimeout(() => { jede = false }, ms)
@@ -81,22 +82,27 @@ function e1(e: KeyboardEvent) {
         if (o.index.value == 0) o.index.value = 2
         else o.vetsi()
 
-        let lekce: HTMLElement | null = document.querySelector(`[i="true"]`)
-        window.scrollTo({ top: lekce?.offsetTop! - 200 })
+        let procvic: HTMLElement | null = document.querySelector(`[i="true"]`)
+        if (!procvic) return
+        window.scrollTo({ top: procvic.offsetTop - 200 })
 
         jede = true
         setTimeout(() => { jede = false }, ms)
     } else if (e.key == "Enter") {
         e.preventDefault()
-        let cvicE: HTMLElement | null = document.querySelector(`[i="true"]`)
-        if (cvicE == null || o.bezOznaceni) {
+        let procvic: HTMLElement | null = document.querySelector(`[i="true"]`)
+        if (procvic == null || o.bezOznaceni) {
             if (jede) return
 
             o.bezOznaceni = true
             o.index.value = randomCvic
 
-            setTimeout(() => { cvicE = document.querySelector(`[i="true"]`); window.scrollTo({ top: cvicE?.offsetTop! - 300 }) }, 0) // idk proč to musim delaynout i o 0ms xddddd
-        } else cvicE?.click()
+            setTimeout(() => {
+                procvic = document.querySelector(`[i="true"]`)
+                if (!procvic) return
+                window.scrollTo({ top: procvic.offsetTop - 300 })
+            }, 0) // idk proč to musim delaynout i o 0ms xddddd
+        } else procvic?.click()
     } else if (e.key == "Tab") {
         e.preventDefault()
         napovedaKNavigaci()
@@ -106,8 +112,8 @@ function e1(e: KeyboardEvent) {
 function e2(e: KeyboardEvent) {
     if (e.key == "Enter") {
         e.preventDefault()
-        let cvicE: HTMLElement | null = document.querySelector(`[i="true"]`)
-        cvicE?.click()
+        let procvic: HTMLElement | null = document.querySelector(`[i="true"]`)
+        procvic?.click()
     }
 }
 
@@ -150,11 +156,11 @@ onUnmounted(() => {
             <span v-if="texty.size != 0 && testPsaniCPM != -1"><b>{{ naJednoDesetiny(testPsaniCPM) }}</b> CPM</span>
         </a>
 
-        <div v-if="texty.size != 0" v-for="k in sortKategorii(texty.keys())" style="width: 100%">
+        <div v-if="texty.size != 0" v-for="k in sortKategorii(texty.keys())" style="width: 100%" :key="k">
             <h2>{{ k }}</h2>
 
             <RouterLink v-if="!mobil" v-for="t in texty.get(k)" :to="`/procvic/${t.id}`" class="blok" :i="t.cislo == o.index.value"
-                :class="{ oznacene: t.cislo == o.index.value, nohover: o.index.value != 0 }">
+                :class="{ oznacene: t.cislo == o.index.value, nohover: o.index.value != 0 }" :key="t.id">
                 <h3>
                     <Tooltip :sirka="100" :zprava="`${t.obtiznost == 1 ? 'Jednoduchá' : (t.obtiznost == 2 ? 'Střední' : 'Těžká')} obtížnost`"
                         :xOffset="-38" :vzdalenost="5">
@@ -164,7 +170,7 @@ onUnmounted(() => {
                 </h3>
                 <span v-if="t.cpm != -1"><b>{{ naJednoDesetiny(t.cpm) }}</b> CPM</span>
             </RouterLink>
-            <div v-else v-for="t in texty.get(k)" class="blok" @click="mobilKlik">
+            <div v-else v-for="t in texty.get(k)" class="blok" @click="mobilKlik" :key="t.jmeno">
                 <h3>
                     <Tooltip :sirka="100" :zprava="`${t.obtiznost == 1 ? 'Jednoduchá' : (t.obtiznost == 2 ? 'Střední' : 'Těžká')} obtížnost`"
                         :xOffset="-28" :vzdalenost="5">
@@ -250,7 +256,7 @@ h2 {
 }
 
 .blok span {
-    font-size: 1.2rem;
+    font-size: 19px;
     display: flex;
     align-items: baseline;
     gap: 5px;
@@ -263,7 +269,7 @@ h2 {
 
 .blok span b {
     font-family: "Red Hat Mono";
-    font-size: 1.8rem;
+    font-size: 29px;
 }
 
 @media screen and (max-width: 1100px) {
@@ -292,18 +298,18 @@ h2 {
     }
 
     .blok span b {
-        font-size: 1.35rem;
+        font-size: 22px;
     }
 
     .blok span {
-        font-size: 0.8rem;
+        font-size: 13px;
         top: -2.5px;
         gap: 3px;
         height: 22px;
     }
 
     .blok h3 {
-        font-size: 1.3rem;
+        font-size: 21px;
     }
 }
 </style>

@@ -98,7 +98,7 @@ const ok = ref(false)
 }
 
 #napoveda h3 {
-    font-size: 1.4rem;
+    font-size: 22px;
     font-weight: 500;
 }
 
@@ -108,7 +108,7 @@ const ok = ref(false)
     display: flex;
     flex-direction: column;
     gap: 10px;
-    line-height: 1.5rem;
+    line-height: 24px;
 }
 
 

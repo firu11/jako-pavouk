@@ -140,7 +140,7 @@ h1 {
 
 @media screen and (max-width: 1100px) {
     h1 {
-        font-size: 1.7em;
+        font-size: 27px;
         vertical-align: sub;
     }
 }

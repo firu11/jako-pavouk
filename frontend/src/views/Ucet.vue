@@ -254,7 +254,7 @@ function zmenaJmena(e: Event) {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2em;
+    font-size: 32px;
     gap: 20%;
 }
 
@@ -262,7 +262,7 @@ function zmenaJmena(e: Event) {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.4em;
+    font-size: 22px;
     gap: 12%;
     opacity: 70%;
 }
@@ -283,10 +283,10 @@ function zmenaJmena(e: Event) {
 }
 
 #chyby h2 {
-    font-size: 1.6em;
+    font-size: 26px;
     margin-bottom: 6px;
     margin-top: 15px;
-    font-size: 1.2em;
+    font-size: 19px;
 }
 
 #chyby>div:first-child {
@@ -321,7 +321,7 @@ function zmenaJmena(e: Event) {
     border: none;
     border-radius: 5px;
     color: var(--bila);
-    font-size: 1em;
+    font-size: 16px;
     margin: 10px 0 0 0;
     background-color: var(--fialova);
     transition: 0.2s;
@@ -454,7 +454,7 @@ function zmenaJmena(e: Event) {
     color: var(--bila);
     padding: 10px;
     font-weight: normal;
-    font-size: 1.5em;
+    font-size: 24px;
 }
 
 #ucet input:focus {
@@ -517,12 +517,12 @@ function zmenaJmena(e: Event) {
         white-space: nowrap;
         text-overflow: ellipsis !important;
         width: 100%;
-        font-size: 1.3em;
+        font-size: 21px;
         text-align: start;
     }
 
     #ucet #nadpisy h1 {
-        font-size: 1.7em;
+        font-size: 27px;
         max-width: 100% !important;
     }
 

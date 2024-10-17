@@ -87,11 +87,11 @@ function zacit() {
 @media screen and (max-width: 1100px) {
     .tlacitko:nth-of-type(1) {
         transform: scale(1) !important;
-        margin: 1em 0 !important;
+        margin: 16px 0 !important;
     }
 
     .text:nth-of-type(1) p {
-        font-size: 1.2em !important;
+        font-size: 19px !important;
     }
 
     .bloky img {

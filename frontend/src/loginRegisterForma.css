@@ -10,7 +10,7 @@ form {
 
 form .nadpis {
     align-self: flex-start;
-    font-size: 1.1em;
+    font-size: 18px;
     margin: 0 5px 10px 5px;
     display: inline-block;
 }
@@ -51,7 +51,7 @@ form input::placeholder {
 }
 
 h2 {
-    font-size: 2em;
+    font-size: 32px;
 }
 
 a {

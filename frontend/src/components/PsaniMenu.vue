@@ -164,7 +164,7 @@ defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
     border: none;
     color: var(--bila);
     transition: 0.1s;
-    font-size: 1em;
+    font-size: 16px;
     border-radius: 5px;
     padding: 0 2px;
 }

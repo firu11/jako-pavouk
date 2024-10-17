@@ -67,7 +67,7 @@ function zamek() {
 }
 
 #kod>div {
-    font-size: 2rem;
+    font-size: 32px;
     display: flex;
     gap: 5px;
     justify-content: center;
@@ -75,9 +75,9 @@ function zamek() {
 
 #kod div span {
     font-weight: 500;
-    padding: 0 6px 0 calc(6px + 0.4rem);
+    padding: 0 6px 0 calc(6px + 6px);
     border-radius: 8px;
-    letter-spacing: 0.4rem;
+    letter-spacing: 6px;
 }
 
 #kod>div * {

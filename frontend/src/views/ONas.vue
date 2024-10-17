@@ -160,16 +160,16 @@ p {
     align-items: center;
     padding: 30px 24px;
     gap: 20px;
-    line-height: 1.5rem;
+    line-height: 24px;
 }
 
 #github {
-    width: 9em !important;
+    width: 144px !important;
 }
 
 #kofi,
 #github {
-    width: 12em;
+    width: 192px;
     height: auto;
     transition: 0.2s;
     cursor: pointer;

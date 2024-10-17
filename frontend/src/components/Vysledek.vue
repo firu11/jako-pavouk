@@ -248,7 +248,7 @@ function e1(e: KeyboardEvent) {
 
 <style scoped>
 li {
-    font-size: 1.1em;
+    font-size: 18px;
     opacity: 70%;
     height: 23.2px;
     display: flex;
@@ -256,7 +256,7 @@ li {
 }
 
 li:first-child {
-    font-size: 1.8em;
+    font-size: 29px;
     margin-bottom: 4px;
     opacity: 100%;
     height: 38.4px;
@@ -281,9 +281,9 @@ ul {
 }
 
 #chyby h2 {
-    font-size: 1.6em;
+    font-size: 26px;
     margin-bottom: 8px;
-    font-size: 1.2em;
+    font-size: 19px;
     font-family: 'Montserrat';
 }
 
@@ -331,7 +331,7 @@ ul {
 }
 
 .procento {
-    font-size: 0.6em;
+    font-size: 10px;
     position: relative;
     left: 4px;
 }

@@ -60,16 +60,16 @@ function dalsi() {
     border-radius: 1px;
     background-color: var(--bila);
     position: absolute;
-    left: 8.46rem;
+    left: 135px;
     top: 125px;
 }
 
 #box {
-    height: 8.2rem;
+    height: 130px;
     display: flex;
     position: relative;
     margin: 0;
-    margin-bottom: 2rem;
+    margin-bottom: 32px;
     direction: ltr;
 }
 
@@ -78,7 +78,7 @@ function dalsi() {
     line-height: 1.2;
     text-decoration: none;
     color: var(--bila);
-    font-size: 7.1rem;
+    font-size: 115px;
     font-weight: 600;
     max-width: 67px;
 }
@@ -89,20 +89,20 @@ function dalsi() {
 
 @media screen and (max-width: 1100px) {
     .pismeno {
-        font-size: 3.6rem;
+        font-size: 58px;
         max-width: 34px;
     }
 
     #cara {
         width: 34px;
         height: 4px;
-        left: 4.3rem;
+        left: 69px;
         top: 62px;
         border-radius: 1px;
     }
 
     #box {
-        height: 4rem;
+        height: 64px;
         margin-top: 50px;
     }
 
@@ -119,13 +119,13 @@ function dalsi() {
 
 @media screen and (max-width: 350px) {
     .pismeno {
-        font-size: 2.6rem;
+        font-size: 41px;
         max-width: 25px;
     }
     #cara {
         width: 23px;
         height: 3px;
-        left: 3.2rem;
+        left: 50px;
         top: 45px;
         border-radius: 1px;
     }
