@@ -165,7 +165,8 @@ function zmenaJmena(e: Event) {
         </div>
         <div class="blok">
             <img src="../assets/icony/kalendar.svg" alt="Kalendář">
-            <Tooltip zprava="Počítají se jak <b>cvičení</b> v kurzu, tak texty ze záložky <b>procvičování</b>." :sirka="200" :vzdalenost="25" style="width: 60%;">
+            <Tooltip zprava="Počítají se jak <b>cvičení</b> v kurzu, tak texty ze záložky <b>procvičování</b>." :sirka="200" :vzdalenost="25"
+                style="width: 60%;">
                 <span class="popis">
                     Počet dní v řadě:<br>
                     <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.daystreak)" :desetine-mista="0" />
@@ -224,9 +225,9 @@ function zmenaJmena(e: Event) {
     </div>
 
     <div id="tlacitka">
-        <button @click="odhlasit" class="tlacitko">Odhlásit</button>
-        <button v-if="!smazatPotvrzeni" @click="smazatPotvrzeni = true" class="cervene-tlacitko">Smazat účet</button>
-        <button v-else @click="postSmazat" class="cervene-tlacitko">Opravdu?</button>
+        <button @click="odhlasit" class="tlacitko">Odhlásit se</button>
+        <button v-if="!smazatPotvrzeni && role != 'student'" @click="smazatPotvrzeni = true" class="cervene-tlacitko">Smazat účet</button>
+        <button v-else-if="role != 'student'" @click="postSmazat" class="cervene-tlacitko">Opravdu?</button>
     </div>
 </template>
 

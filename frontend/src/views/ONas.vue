@@ -161,15 +161,16 @@ p {
     padding: 30px 24px;
     gap: 20px;
     line-height: 24px;
+    font-size: 19px;
 }
 
 #github {
-    width: 144px !important;
+    width: 160px !important;
 }
 
 #kofi,
 #github {
-    width: 192px;
+    width: 240px;
     height: auto;
     transition: 0.2s;
     cursor: pointer;
