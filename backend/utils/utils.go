@@ -18,10 +18,8 @@ import (
 
 	emailverifier "github.com/AfterShip/email-verifier"
 	"github.com/go-playground/validator/v10"
-	"github.com/gofiber/fiber/v2"
 )
 
-// validuje email
 var verifier = emailverifier.NewVerifier()
 
 func ValidaceEmailu(email string) error {
@@ -48,12 +46,9 @@ func ValidateStruct(s interface{}) error {
 	return err
 }
 
-/*
-Vraci id, error.
-id = 0 znamena ze se bud neco pokazilo nebo je autentizace nepovinna
-*/
+// id = 0 znamena ze se neco pokazilo
 func Autentizace(tokenHeader string) uint {
-	if len(tokenHeader) < 10 { // treba deset proste at tam neco je
+	if len(tokenHeader) < 7 {
 		return 0
 	}
 	var token string = tokenHeader[7:]
@@ -66,7 +61,6 @@ func Autentizace(tokenHeader string) uint {
 	}
 }
 
-// vrací průměr floatů z pole
 func Prumer(arr []float64) float64 {
 	var soucet float64 = 0
 	for _, v := range arr {
@@ -83,7 +77,7 @@ func DecodeURL(s string) (string, error) {
 	x, err := url.QueryUnescape(s)
 	if err != nil {
 		log.Print(err)
-		return "", fiber.ErrBadRequest
+		return "", err
 	}
 	return x, nil
 }
@@ -112,7 +106,7 @@ func CheckKod(kod1 string, kod2 string) bool {
 	return kodInt == kodInt2
 }
 
-// pošle mi na telefon notigikaci, chci vědět když se někdo zaregistruje :)
+// pošle mi na telefon notigikaci
 func MobilNotifikace(s string) {
 	http.Post(os.Getenv("MOBIL_NOTIFIKACE_URL"), "text/plain", strings.NewReader(s))
 }

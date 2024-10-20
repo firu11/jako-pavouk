@@ -7,6 +7,7 @@ backend/backend
 backend/backend.exe
 backend/samotny/texty/
 backend/samotny/knihy/
+backend_fiber
 
 frontend/public/seznam-wmt-BUnHTQ6XWvu0wBfMQUVc2QkzAKbmEEiS.txt
 frontend/dist
