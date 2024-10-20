@@ -3,15 +3,19 @@ package main
 import (
 	"backend/databaze"
 	"backend/utils"
+	"bytes"
+	"encoding/json"
+	"io"
 	"log"
 	"math"
+	"net/http"
 	"regexp"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"golang.org/x/time/rate"
 )
 
 var pocetZnaku float32 = 1500
@@ -24,11 +28,31 @@ const cifraCislaZaJmenem int = 4
 
 var MaxCisloZaJmeno int = int(math.Pow(10, float64(cifraCislaZaJmenem))) // 10_000
 
-// # Main - začátek programu
-//  1. načte .env proměnné
-//  2. připojí se k PostgreSQL databázi
-//  3. nakonfiguruje middleware
-//  4. spustí server
+var rateLimiter echo.MiddlewareFunc = middleware.RateLimiterWithConfig(middleware.RateLimiterConfig{
+	Skipper: middleware.DefaultSkipper,
+	Store: middleware.NewRateLimiterMemoryStoreWithConfig(
+		middleware.RateLimiterMemoryStoreConfig{Rate: rate.Limit(5), Burst: 1, ExpiresIn: time.Minute},
+	),
+	IdentifierExtractor: func(c echo.Context) (string, error) {
+		var body bodyPrihlaseni
+
+		// https://medium.com/@xoen/golang-read-from-an-io-readwriter-without-loosing-its-content-2c6911805361
+		// workaround aby jsem mohl potom v prihlašování číst znovu
+		var bodyBytes []byte
+		if c.Request().Body != nil {
+			bodyBytes, _ = io.ReadAll(c.Request().Body)
+		}
+		c.Request().Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+		if err := json.Unmarshal(bodyBytes, &body); err != nil {
+			return c.RealIP(), nil
+		}
+		return body.EmailNeboJmeno, nil
+	},
+	DenyHandler: func(c echo.Context, identifier string, err error) error {
+		return c.NoContent(http.StatusTeapot) //xdd
+	},
+})
+
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
@@ -38,45 +62,25 @@ func main() {
 	databaze.DBConnect()
 	inject()
 
-	app := fiber.New(fiber.Config{
-		AppName: "Jako Pavouk Backend",
-	})
+	e := echo.New()
 
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:5173, https://jakopavouk.cz/",
-		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:5173", "https://jakopavouk.cz/"},
+		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
 	}))
 
-	app.Use("/api/prihlaseni", limiter.New(limiter.Config{
-		Max:               5,
-		Expiration:        time.Minute,
-		LimiterMiddleware: limiter.SlidingWindow{},
-		KeyGenerator: func(c *fiber.Ctx) string {
-			var body bodyPrihlaseni
-			if err := c.BodyParser(&body); err != nil {
-				return c.IP()
-			}
-			return body.EmailNeboJmeno
-		},
-		LimitReached: func(c *fiber.Ctx) error {
-			return c.SendStatus(fiber.StatusTeapot) // troulin
-		},
-	}))
-
-	app.Use(func(c *fiber.Ctx) error {
-		c.Locals("uzivID", utils.Autentizace(c.Get("Authorization")))
-		return c.Next()
+	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			c.Set("uzivID", utils.Autentizace(c.Request().Header.Get("Authorization")))
+			return next(c)
+		}
 	})
 
-	SetupRouter(app)
+	SetupRouter(e)
 
-	err = app.Listen("127.0.0.1:44871")
-	if err != nil {
-		log.Fatal(err)
-	}
+	e.Logger.Fatal(e.Start("127.0.0.1:1323"))
 }
 
-// předá proměnné které chci mít všechny na jednom místě do dalších souborů
 func inject() {
 	utils.TokenTimeDuration = tokenTimeDuration
 	databaze.RegexJmeno = regexJmeno

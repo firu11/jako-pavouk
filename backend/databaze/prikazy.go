@@ -112,10 +112,6 @@ type (
 )
 
 // vybírá jméno pro uživatele který se zaregistroval přes google
-//
-// zkusí kombinace google jména a náhodného čísla, poté Pavouk a číslo
-//
-// číslo přidávám k jménu abych minimalizoval šanci, že takový uživatel již existuje a musím vytvářet nové jméno a znovu kontrolovat v db
 func volbaJmena(celeJmeno string) (string, error) {
 	celeJmeno = godiacritics.Normalize(celeJmeno)
 	var jmeno []string = strings.Fields(celeJmeno) // rozdělim na jmeno a prijimeni
@@ -896,37 +892,37 @@ func GetTridaByUziv(id uint) (Trida, error) {
 	return trida, err
 }
 
-func ZapsatStudenta(kod string, studentID uint, jmeno string) error {
+func ZapsatStudenta(kod string, studentID uint, jmeno string) (int, error) {
 	kod = strings.ToUpper(kod)
 
 	var id int
 	var smazana bool
 	err := DB.QueryRow(`SELECT s.trida_id, t.smazana FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id INNER JOIN trida t ON t.id = s.trida_id WHERE u.id = $1 AND NOT t.smazana;`, studentID).Scan(&id, &smazana)
 	if err == nil {
-		return errors.New("uz je ve tride")
+		return 0, errors.New("uz je ve tride")
 	}
 	if err != sql.ErrNoRows {
-		return err
+		return 0, err
 	}
 	if smazana {
-		return errors.New("trida je smazana")
+		return 0, errors.New("trida je smazana")
 	}
 
 	var role int
 	err = DB.QueryRow(`SELECT role FROM uzivatel WHERE id = $1`, studentID).Scan(&role)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if role == 2 {
-		return errors.New("jako ucitel nemuzete byt ve tride")
+		return 0, errors.New("jako ucitel nemuzete byt ve tride")
 	}
 
-	_, err = DB.Exec(`INSERT INTO student_a_trida (student_id, trida_id) VALUES ($1, (SELECT id FROM trida WHERE kod = $2 AND NOT zamknuta)) ON CONFLICT DO NOTHING;`, studentID, kod)
+	err = DB.QueryRow(`INSERT INTO student_a_trida (student_id, trida_id) VALUES ($1, (SELECT id FROM trida WHERE kod = $2 AND NOT zamknuta)) ON CONFLICT DO NOTHING RETURNING trida_id;`, studentID, kod).Scan(&id)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	_, err = DB.Exec(`UPDATE uzivatel SET skolni_jmeno = $1 WHERE id = $2;`, jmeno, studentID)
-	return err
+	return id, err
 }
 
 func PridatPraci(text string, cas int, tridaID uint) error {
@@ -988,14 +984,15 @@ func GetPrace(praceID, studentID uint) (string, int, error) {
 	return text, cas, err
 }
 
-func DokoncitPraci(praceID, studentID uint, neopravene int, cas float32, delkaTextu int, chybyPismenka map[string]int) error {
+func DokoncitPraci(praceID, studentID uint, neopravene int, cas float32, delkaTextu int, chybyPismenka map[string]int) (int, error) {
 	chybyPismenkaJSON, err := json.Marshal(chybyPismenka)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	_, err = DB.Exec(`INSERT INTO dokoncena_prace (prace_id, student_id, neopravene, cas, delka_textu, chyby_pismenka) VALUES ($1, $2, $3, $4, $5, $6);`, praceID, studentID, neopravene, cas, delkaTextu, chybyPismenkaJSON)
-	return err
+	var tridaID int
+	err = DB.QueryRow(`INSERT INTO dokoncena_prace (prace_id, student_id, neopravene, cas, delka_textu, chyby_pismenka) VALUES ($1, $2, $3, $4, $5, $6) RETURNING ( SELECT trida_id FROM prace WHERE id = $1 );`, praceID, studentID, neopravene, cas, delkaTextu, chybyPismenkaJSON).Scan(&tridaID)
+	return tridaID, err
 }
 
 type Cviceni2 struct {
