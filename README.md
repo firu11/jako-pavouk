@@ -9,7 +9,7 @@
 
 ## Co jsem použil?
 - **Frontend** je napsaný ve [Vue.js](https://vuejs.org/) s [typescriptem](https://www.typescriptlang.org/) + pure CSS
-- **Backend** používá programovací jazyk [Go](https://go.dev/) a framework [Fiber](https://gofiber.io/)
+- **Backend** používá programovací jazyk [Go](https://go.dev/) a framework [Echo](https://echo.labstack.com/)
 - **Databázi** jsem zvolil [PostgreSQL](https://www.postgresql.org/) hlavně kvůli popularitě a výkonu
 
 ## Zdroje textů
