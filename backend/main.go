@@ -31,7 +31,7 @@ var MaxCisloZaJmeno int = int(math.Pow(10, float64(cifraCislaZaJmenem))) // 10_0
 var rateLimiter echo.MiddlewareFunc = middleware.RateLimiterWithConfig(middleware.RateLimiterConfig{
 	Skipper: middleware.DefaultSkipper,
 	Store: middleware.NewRateLimiterMemoryStoreWithConfig(
-		middleware.RateLimiterMemoryStoreConfig{Rate: rate.Limit(5), Burst: 1, ExpiresIn: time.Minute},
+		middleware.RateLimiterMemoryStoreConfig{Rate: rate.Every(5 * time.Minute / 5), Burst: 5, ExpiresIn: 5 * time.Minute},
 	),
 	IdentifierExtractor: func(c echo.Context) (string, error) {
 		var body bodyPrihlaseni
