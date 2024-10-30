@@ -37,10 +37,10 @@ function zacit() {
     <h1 id="schovat">Psaní všemi deseti zdarma Jako Pavouk</h1> <!-- Pro SEO (nevim jestli funguje) -->
     <div class="bloky">
         <div class="text">
-            <p style="font-size: 1.3em; line-height: 1.5em;">Webová aplikace na výuku <br><b
+            <p style="font-size: 21px; line-height: 24px;">Webová aplikace na výuku <br><b
                     style="font-weight: 700;">psaní všemi deseti</b> zdarma.<br>Chceš se naučit psát jako pavouk?</p>
             <button v-if="!mobil" class="tlacitko" @click="zacit()"
-                style="transform: scale(1.25); margin-top: 2em;">Začít psát</button>
+                style="transform: scale(1.25); margin-top: 32px;">Začít psát</button>
         </div>
         <img src="../assets/pavoukStudent.svg" alt="Pavouk student" width="300" height="253" style="max-height: 230px;">
     </div>
@@ -71,9 +71,9 @@ function zacit() {
         <div class="text">
             <h2>Systém pro školy</h2>
             <p>
-                Tato funkce je právě v raném vývoji. Pokud už teď máte zájem o podobnou službu, neváhejte mě kontaktovat na e-mail v záložce "O nás".
+                Jste vyučující na škole, kde probíhá výuka psaní všemi deseti? Nebo snad ještě neprobíhá? Vyzkoušejte ve třídě organizovanou výuku psaní!
             </p>
-            <button class="tlacitko" @click="null" style="cursor: no-drop; margin-right: 15px;"><del>Číst dál</del></button> <!-- router.push('/info-skola') -->
+            <button class="tlacitko" @click="router.push('/skolni-system')" style="margin-right: 15px;">Číst dál</button>
             <button class="tlacitko" @click="router.push('/zapis')">Zapsat se</button>
         </div>
     </div>

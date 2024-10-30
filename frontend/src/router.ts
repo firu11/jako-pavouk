@@ -25,7 +25,7 @@ const router = createRouter({
             component: () => import("./views/Teorie.vue"),
         },
         {
-            path: "/info-skola",
+            path: "/skolni-system",
             component: () => import("./views/InfoSkola.vue"),
         },
         {

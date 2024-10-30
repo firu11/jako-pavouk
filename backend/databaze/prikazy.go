@@ -447,6 +447,7 @@ func GetUdaje(uzivID uint) (float32, []float64, int, map[string]int, error) {
 	}
 	defer rows.Close()
 
+	var soucetChyb int = 0
 	for rows.Next() {
 		var neopravene, delka int
 		var cas float64
@@ -462,17 +463,15 @@ func GetUdaje(uzivID uint) (float32, []float64, int, map[string]int, error) {
 		if err == nil {
 			for key, value := range chybyPismenkaRow {
 				chybyPismenka[key] += value //když to ještě neexistuje, default value je 0
+				soucetChyb += value
 			}
 		}
+		soucetChyb += neopravene
 		cpm = append(cpm, utils.CPM(delka, cas, neopravene))
 		delkaVsechTextu += delka
 	}
 
 	if delkaVsechTextu != 0 {
-		var soucetChyb int = 0
-		for _, hodnota := range chybyPismenka {
-			soucetChyb += hodnota
-		}
 		presnost = float32(delkaVsechTextu-soucetChyb) / float32(delkaVsechTextu) * 100
 		if presnost < 0 {
 			presnost = 0 // kvuli adamovi kterej big troulin a měl -10%

@@ -78,6 +78,11 @@ func main() {
 
 	SetupRouter(e)
 
+	err = utils.SetupEmaily()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	e.Logger.Fatal(e.Start("127.0.0.1:1323"))
 }
 
