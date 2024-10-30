@@ -553,7 +553,7 @@ defineExpose({ restart, aktivniPismeno })
     display: flex;
     flex-wrap: wrap;
     position: relative;
-    top: 0em;
+    top: 0;
 }
 
 /*  eslint-disable-next-line vue-scoped-css/no-unused-selector */

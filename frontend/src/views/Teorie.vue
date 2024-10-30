@@ -77,7 +77,7 @@ useHead({
             <ul class="mensi-padding" style="list-style: none;">
                 <li><b>Výběr lekce / cvičení:</b></li>
                 <li>
-                    <ul style="margin: 0 0 1.1rem 0.5rem; list-style: none;">
+                    <ul style="margin: 0 0 16px 8px; list-style: none;">
                         <li><span class="klavesa-v-textu">Enter</span> podržet - vybere to, kde jsem skončil</li>
                         <li><span class="klavesa-v-textu" style="margin-right: 5px;"><img src="../assets/icony/sipkaL.svg" alt="Šipka"
                                     class="klav-sipka"></span>

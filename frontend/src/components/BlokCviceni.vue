@@ -120,7 +120,7 @@ defineProps({
     align-self: center;
     font-size: 23px;
     height: 60px;
-    margin-bottom: 22px
+    margin-bottom: 22px;
 }
 
 .cvic-blok a {
@@ -130,8 +130,8 @@ defineProps({
 }
 
 h2 {
-    font-size: 2em;
-    font-weight: bolder;
+    font-size: 32px;
+    font-weight: 400;
 }
 
 @media screen and (max-width: 1100px) {
@@ -142,7 +142,7 @@ h2 {
         height: 180px;
         transition-duration: 0.2s;
         padding: 15px;
-        font-size: 0.8em;
+        font-size: 13px;
     }
 
     .play-vetsi {

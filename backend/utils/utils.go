@@ -164,6 +164,17 @@ func SmazatMezeruNaKonci(text []string) {
 	}
 }
 
+func SaveSkola(jmenoSkoly string, kontaktniEmail string, kontaktniTelefon string) error {
+	f, err := os.OpenFile("skoly.log.csv", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	_, err = f.Write([]byte(fmt.Sprintf("%s, %s, %s\n", jmenoSkoly, kontaktniEmail, kontaktniTelefon)))
+	return err
+}
+
 var uvozovka string = `"`
 var pomlcka string = `-`
 var tabulka = map[rune]string{

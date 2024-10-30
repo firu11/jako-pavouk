@@ -44,6 +44,12 @@ type (
 		Delka   float32 `json:"delka"`
 	}
 
+	bodyZapisSkoly struct {
+		JmenoSkoly       string `json:"jmeno_skoly"`
+		KontaktniEmail   string `json:"kontaktni_email"`
+		KontaktniTelefon string `json:"kontaktni_telefon"`
+	}
+
 	praceProStudenta struct {
 		ID       uint      `json:"id"`
 		TridaID  uint      `json:"-"`
@@ -80,6 +86,8 @@ func setupSkolniRouter(api *echo.Group) {
 	skolaApi.GET("/student/:id", student)
 	skolaApi.POST("/student", studentUprava)
 	skolaApi.POST("/zapis", zapis)
+
+	skolaApi.POST("/zapis-skoly", zapisSkoly)
 }
 
 var kanalyTrid = make(map[int]chan int)
@@ -110,6 +118,27 @@ func zaciStream(c echo.Context) error {
 			w.Flush()
 		}
 	}
+}
+
+func zapisSkoly(c echo.Context) error {
+	var body bodyZapisSkoly
+	if err := c.Bind(&body); err != nil {
+		log.Print(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+	if err := utils.ValidateStruct(&body); err != nil {
+		log.Print(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+
+	if err := utils.PoslatInterniEmail(body.JmenoSkoly, body.KontaktniEmail, body.KontaktniTelefon); err != nil {
+		log.Println(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+
+	utils.SaveSkola(body.JmenoSkoly, body.KontaktniEmail, body.KontaktniTelefon)
+
+	return c.NoContent(http.StatusOK)
 }
 
 func createTrida(c echo.Context) error {
@@ -246,7 +275,7 @@ func tridaStudent(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 
-	var vysledek []praceProStudenta
+	var vysledek []praceProStudenta = make([]praceProStudenta, 0)
 	for _, p := range prace {
 		cpm, ok := cpmka[p.ID]
 		if !ok || cpm < 0 {
