@@ -271,9 +271,11 @@ h2 {
     h2 {
         align-self: start;
     }
+
     #pokracovani {
         height: 48px;
     }
+
     #pokracovani>img {
         width: 26px;
         margin-right: 11px;
