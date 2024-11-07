@@ -1,13 +1,13 @@
 .vscode
-taskfile.yaml
+taskfile.yaml 
 # https://taskfile.dev/
 
 backend/.env
 backend/backend
 backend/backend.exe
-backend/samotny/texty/
-backend/samotny/knihy/
-backend_fiber
+
+scripts/script_texty/texty/
+scripts/script_texty/knihy/
 
 frontend/public/seznam-wmt-BUnHTQ6XWvu0wBfMQUVc2QkzAKbmEEiS.txt
 frontend/dist

@@ -68,7 +68,7 @@ function registr(e: Event) {
                 spatnyEmail.value = true
                 let err: string[] = e.response.data.error.split(" ")
                 if (err.slice(-3).join(" ") == "no such host") {
-                    pridatOznameni(`Špatný e-mail: Doména "${err[-4]}" není platná.`)
+                    pridatOznameni(`Špatný e-mail: Doména "${err[3].slice(0, -1)}" není platná.`)
                 } else {
                     pridatOznameni(e.response.data.error, 10000)
                 }

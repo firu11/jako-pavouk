@@ -91,6 +91,10 @@ const router = createRouter({
             component: () => import("./views/PrvniPsani.vue"),
         },
         {
+            path: "/schvalovani-textu",
+            component: () => import("./views/SchvalovaniTextu.vue"),
+        },
+        {
             path: "/:pathMatch(.*)*",
             component: () => import("./views/404.vue")
         }
