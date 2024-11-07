@@ -100,6 +100,7 @@ onMounted(() => {
     document.addEventListener("keypress", klik) // je depracated ale je O TOLIK LEPSI ZE HO BUDU POUZIVAT PROSTE https://stackoverflow.com/questions/52882144/replacement-for-deprecated-keypress-dom-event
     document.addEventListener("keydown", specialniKlik)
     document.addEventListener("mousemove", enableKurzor)
+    loadZvuk() //TODO test jestli to fixne loading zvuku až po prvnim kliknuti = delay
 })
 
 onUnmounted(() => {
@@ -179,8 +180,7 @@ function jeSHackem(key: string) {
 function klik(this: unknown, e: KeyboardEvent) {
     e.preventDefault() // ať to nescrolluje a nehazí nějaký stupid zkratky
     startTimer()
-    loadZvuk()
-
+    checkJestliPise()
 
     let hacek = jeSHackem(e.key)
     if (hacek) predchoziZnak = ""
@@ -223,7 +223,7 @@ function klik(this: unknown, e: KeyboardEvent) {
     if (textViditelny.value[textViditelny.value.length - 1] == props.text[props.text.length - 1] && !props.nacitamNovej) emit("prodlouzit")
 }
 
-function posunoutRadek() {
+async function posunoutRadek() {
     let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y
     let lastY = document.getElementById("p" + (aktivniPismeno.value.id - 1))?.getBoundingClientRect().y
     if (aktualniY! - lastY! > 30) {
@@ -391,6 +391,17 @@ function resetTlacitko() {
     restart()
 }
 
+let timeoutID: number
+const prestalPsat = ref(false)
+async function checkJestliPise() {
+    clearTimeout(timeoutID)
+    prestalPsat.value = false
+    timeoutID = setTimeout(() => {
+        prestalPsat.value = true
+        restart()
+    }, 4000) //4s
+}
+
 defineExpose({ restart, aktivniPismeno })
 </script>
 
@@ -408,6 +419,7 @@ defineExpose({ restart, aktivniPismeno })
                     <div class="slovo" v-for="s, i in textViditelny" :key="i">
                         <div v-for="p in s" :key="p.id" class="pismeno" :id="'p' + p.id"
                             :class="{ podtrzeni: p.id === aktivniPismeno.id, 'spatne-pismeno': p.spatne === 1 && aktivniPismeno.id > p.id, 'opravene-pismeno': p.spatne === 2 && aktivniPismeno.id > p.id, 'spravne-pismeno': (!p.spatne && aktivniPismeno.id > p.id) || !p.psat }">
+
                             {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp;") }} </div>
                         </div>
                     </div>
@@ -415,7 +427,7 @@ defineExpose({ restart, aktivniPismeno })
             </div>
 
             <Transition>
-                <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice"
+                <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice || prestalPsat"
                     :cekame="(aktivniPismeno.id == 0 || aktivniPismeno.id == -1) && cass == 0" />
             </Transition>
             <Transition>
@@ -430,16 +442,45 @@ defineExpose({ restart, aktivniPismeno })
                 <img v-else style="margin-left: 1px;" class="zvuk-icon" src="../assets/icony/zvukOff.svg" alt="Zvuky jsou vypnuté">
             </div>
         </div>
-
-        <audio> <!-- načteme soubory do cache, aby je měl howler rychle -->
-            <source src="/zvuky/klik1.ogg" type="audio/ogg">
-            <source src="/zvuky/klik2.ogg" type="audio/ogg">
-            <source src="/zvuky/klik3.ogg" type="audio/ogg">
-            <source src="/zvuky/miss.ogg" type="audio/ogg">
-        </audio>
+        <Transition>
+            <div id="nepise" v-if="prestalPsat">
+                <h3>Jsi tam ještě?</h3>
+                <p>
+                    Přestal jsi psát a tak jsme museli cvičení přerušit.
+                </p>
+                <button class="tlacitko" @click="prestalPsat = false">Jsem tu!</button>
+            </div>
+        </Transition>
 </template>
 
 <style scoped>
+#nepise {
+    background-color: var(--tmave-fialova);
+    padding: 20px;
+    border-radius: 10px;
+    position: absolute;
+    top: 403px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-direction: column;
+    box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.75);
+}
+
+#nepise h3 {
+    font-size: 26px;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+#nepise p {
+    font-size: 20px;
+}
+
+#nepise .tlacitko {
+    font-size: 20px;
+}
+
 .schovat {
     opacity: 0;
     cursor: auto !important;
