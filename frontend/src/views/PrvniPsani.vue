@@ -62,7 +62,7 @@ const ok = ref(false)
 </script>
 
 <template>
-    <h1 style="margin: 0">První krůčky {{ok}}</h1>
+    <h1 style="margin: 0">První krůčky</h1>
 
     <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="ok = true" :text :klavesnice="'qwertz'" :hide-klavesnice="!ok"
         :nacitamNovej="false" :cas="30" :delkaTextu />
