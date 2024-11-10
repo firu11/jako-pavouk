@@ -24,7 +24,7 @@ useHead({
 
 function zacit() {
     if (prihlasen.value) {
-        router.push("/lekce")
+        router.push("/kurz")
     } else {
         router.push("/prvni-psani")
     }

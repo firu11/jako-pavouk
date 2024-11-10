@@ -386,7 +386,12 @@ func student(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 	}
-	presnost, cpm, daystreak, chybyPismenka, err := databaze.GetUdaje(student.ID)
+	daystreak, err := databaze.GetDaystreak(id)
+	if err != nil {
+		log.Print(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+	presnost, cpm, chybyPismenka, _, err := databaze.GetUdaje(student.ID, 30)
 	if err != nil {
 		log.Print(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))

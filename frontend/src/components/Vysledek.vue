@@ -5,6 +5,7 @@ import { useRoute, useRouter } from "vue-router";
 import { getCisloPochvaly, getToken, MojeMapa, napovedaKNavigaci } from "../utils";
 import { levelyRychlosti } from "../stores";
 import Tooltip from "./Tooltip.vue";
+import AnimaceCisla from "../components/AnimaceCisla.vue";
 
 const emit = defineEmits(["restart"])
 
@@ -201,7 +202,7 @@ function e1(e: KeyboardEvent) {
             <Tooltip
                 zprava="Za neopravené chyby je adekvátní penalizace. Chybu opravíš pomocí klávesy <span class='klavesa-v-textu-mensi'>backspace</span> ."
                 :sirka="180" :vzdalenost="6">
-                <h2>{{ rychlost > 0 ? Math.round(rychlost * 10) / 10 : 0 }}</h2>
+                <AnimaceCisla class="cislo" :cislo="rychlost > 0 ? Math.round(rychlost * 10) / 10 : 0" :desetina-mista="0" />
             </Tooltip>
             <hr>
             <p class="jednotka">CPM / úhozů</p>
@@ -210,7 +211,8 @@ function e1(e: KeyboardEvent) {
         </div>
         <div class="blok">
             <Tooltip zprava="Přesnost zahrnuje chyby opravené i neopravené." :sirka="200" :vzdalenost="6">
-                <h2>{{ Math.round(presnost * 10) / 10 <= 0 ? 0 : Math.round(presnost * 10) / 10 }}<span class="procento">%</span></h2>
+                <AnimaceCisla class="cislo" :cislo="Math.round(presnost * 10) / 10 <= 0 ? 0 : Math.round(presnost * 10) / 10" />
+                <span class="procento">%</span>
             </Tooltip>
             <hr>
             <p v-if="preklepy == 1" class="jednotka">{{ preklepy }} neopravený</p>
@@ -222,11 +224,11 @@ function e1(e: KeyboardEvent) {
             <h3>Přesnost</h3>
         </div>
         <div class="blok">
-            <h2>{{ cas < 60 ? Math.round(cas * 10) / 10 : Math.round(cas / 60) }}</h2>
-                    <hr>
-                    <p class="jednotka">{{ cas < 60 ? "Sekund" : (cas == 60) ? "Minuta" : (cas <= 240) ? "Minuty" : "Minut" }}</p>
-                            <p class="jednotka">&zwnj;</p>
-                            <h3>Čas</h3>
+            <AnimaceCisla class="cislo" :cislo="cas < 60 ? Math.round(cas * 10) / 10 : Math.round(cas / 60)" :desetina-mista="0" />
+            <hr>
+            <p class="jednotka">{{ cas < 60 ? "Sekund" : (cas == 60) ? "Minuta" : (cas <= 240) ? "Minuty" : "Minut" }}</p>
+                    <p class="jednotka">&zwnj;</p>
+                    <h3>Čas</h3>
         </div>
     </div>
 
@@ -331,7 +333,7 @@ ul {
 }
 
 .procento {
-    font-size: 10px;
+    font-size: 24px;
     position: relative;
     left: 4px;
 }
@@ -348,7 +350,7 @@ ul {
     padding: 15px 15px 20px 15px;
 }
 
-.blok h2 {
+.blok .cislo {
     font-size: 40px;
     font-weight: 500;
     font-family: "Red Hat Mono";

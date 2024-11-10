@@ -399,7 +399,7 @@ async function checkJestliPise() {
     timeoutID = setTimeout(() => {
         prestalPsat.value = true
         restart()
-    }, 4000) //4s
+    }, 10000) // 10s
 }
 
 defineExpose({ restart, aktivniPismeno })
