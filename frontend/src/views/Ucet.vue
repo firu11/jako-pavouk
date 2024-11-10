@@ -337,7 +337,6 @@ function prepnoutStatistiky() {
 }
 
 #chyby h2 {
-    font-size: 17px !important;
     margin-bottom: 5px;
     margin-top: 12px;
     font-size: 19px;

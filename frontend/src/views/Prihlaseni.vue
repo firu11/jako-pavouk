@@ -72,7 +72,7 @@ const handleLoginSuccess = (response: { credential: string}) => {
     }).then(response => {
         localStorage.setItem(tokenJmeno, response.data.token)
         prihlasen.value = true
-        router.push("/ucet")
+        router.push("/klavesnice")
     }).catch(() => {
         pridatOznameni()
     })
