@@ -613,7 +613,22 @@ func prehled(c echo.Context) error {
 		log.Print(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
-	presnost, cpm, daystreak, chybyPismenka, err := databaze.GetUdaje(id)
+	daystreak, err := databaze.GetDaystreak(id)
+	if err != nil {
+		log.Print(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+	presnostDnes, cpmDnes, chybyPismenkaDnes, casDnes, err := databaze.GetUdaje(id, 1)
+	if err != nil {
+		log.Print(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+	presnostDvaTydny, cpmDvaTydny, chybyPismenkaDvaTydny, casDvaTydny, err := databaze.GetUdaje(id, 14)
+	if err != nil {
+		log.Print(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+	presnostCelkem, cpmCelkem, chybyPismenkaCelkem, casCelkem, err := databaze.GetUdaje(id, -1)
 	if err != nil {
 		log.Print(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
@@ -625,15 +640,30 @@ func prehled(c echo.Context) error {
 	}
 	trida, _ := databaze.GetTridaByUziv(uziv.ID)
 	return c.JSON(http.StatusOK, echo.Map{
-		"email":            uziv.Email,
-		"jmeno":            uziv.Jmeno,
-		"daystreak":        daystreak,
-		"uspesnost":        presnost,
-		"rychlost":         utils.Prumer(cpm),
-		"dokonceno":        dokonceno,
-		"nejcastejsiChyby": chybyPismenka,
-		"klavesnice":       uziv.Klavesnice,
-		"role":             utils.GetRole(uziv.Role, trida.ID),
+		"email":     uziv.Email,
+		"jmeno":     uziv.Jmeno,
+		"daystreak": daystreak,
+		"dokonceno": dokonceno,
+		"role":      utils.GetRole(uziv.Role, trida.ID),
+
+		"celkem": echo.Map{
+			"uspesnost":        presnostCelkem,
+			"rychlost":         utils.Prumer(cpmCelkem),
+			"cas":              casCelkem,
+			"nejcastejsiChyby": chybyPismenkaCelkem,
+		},
+		"14": echo.Map{
+			"uspesnost":        presnostDvaTydny,
+			"rychlost":         utils.Prumer(cpmDvaTydny),
+			"cas":              casDvaTydny,
+			"nejcastejsiChyby": chybyPismenkaDvaTydny,
+		},
+		"1": echo.Map{
+			"uspesnost":        presnostDnes,
+			"rychlost":         utils.Prumer(cpmDnes),
+			"cas":              casDnes,
+			"nejcastejsiChyby": chybyPismenkaDnes,
+		},
 	})
 }
 

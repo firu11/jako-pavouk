@@ -9,7 +9,7 @@ import { useRouter } from "vue-router";
 import { mobil, prihlasen } from "../stores";
 
 useHead({
-    title: "Lekce",
+    title: "Kurz",
     meta: [
         {
             name: "description",
@@ -19,7 +19,7 @@ useHead({
     link: [
         {
             rel: "canonical",
-            href: "https://jakopavouk.cz/lekce"
+            href: "https://jakopavouk.cz/kurz"
         }
     ]
 })
@@ -142,7 +142,7 @@ function pokracovatOdPosledniho() {
 </script>
 
 <template>
-    <h1>Lekce</h1>
+    <h1>Kurz</h1>
     <div id="seznam">
         <Rada :pocetDoko="nacitam ? -1 : dokoncene.length" />
         <button v-if="(dalsiCviceni || nacitam) && !mobil && prihlasen" id="pokracovani" @click="pokracovatOdPosledniho">

@@ -13,7 +13,7 @@ const router = createRouter({
             component: () => import("./views/ONas.vue")
         },
         {
-            path: "/lekce",
+            path: "/kurz",
             component: () => import("./views/SeznamLekci.vue")
         },
         {
@@ -67,7 +67,10 @@ const router = createRouter({
         {
             path: "/ucet",
             component: () => import("./views/Ucet.vue"),
-            meta: { requireAuth: true }
+        },
+        {
+            path: "/klavesnice",
+            component: () => import("./views/VyberKlavesnice.vue"),
         },
         {
             path: "/lekce/:pismena",
@@ -76,7 +79,6 @@ const router = createRouter({
         {
             path: "/lekce/:pismena/:id",
             component: () => import("./views/Cviceni.vue"),
-            meta: { requireAuth: true }
         },
         {
             path: "/procvic/:id",

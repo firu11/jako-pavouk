@@ -164,7 +164,7 @@ export function naJednoDesetiny(cpm: number): number {
 export function getCisloProcvic(id: string): number {
     const cislo = localStorage.getItem(cislaProcvicJmeno + id)
     if (cislo === null) {
-        setCisloProcvic(cislaProcvicJmeno + id, 2)
+        setCisloProcvic(id, 2)
         return 1
     }
     return Number(cislo)

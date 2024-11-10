@@ -58,7 +58,7 @@ onMounted(() => {
         <nav :class="{ 'mobil-hidden': !mobilMenu }" @click="mobilMenu = !mobilMenu">
             <MenuLink jmeno="Domů" cesta="/" />
             <MenuLink jmeno="Jak psát" cesta="/jak-psat" />
-            <MenuLink jmeno="Lekce" cesta="/lekce" />
+            <MenuLink jmeno="Kurz" cesta="/kurz" />
             <MenuLink jmeno="Procvičování" cesta="/procvic" />
             <MenuLink jmeno="Test psaní" cesta="/test-psani" />
             <MenuLink v-if="role == 'student'" jmeno="Škola" cesta="/trida" />

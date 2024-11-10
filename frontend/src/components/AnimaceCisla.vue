@@ -6,15 +6,18 @@ const props = defineProps({
         type: Number,
         required: true
     },
-    desetineMista: {
+    desetinaMista: {
         type: Number,
         default: 1
-    }
+    },
 })
 
-const zobrazeneCislo = ref("")
-const jedenFrame = 1000 / 60
+const zobrazeneCislo = ref("0")
+const jedenFrame = 1000 / 60 // fps
 const dobaTrvani = 1400
+let puvodniCislo = 0
+
+let counter = 0
 
 const celkemFramu = Math.ceil(dobaTrvani / jedenFrame)
 
@@ -22,6 +25,7 @@ onMounted(() => {
     animace()
     setTimeout(() => {
         watch(props, () => {
+            clearInterval(counter)
             animace()
         })
     }, 300)
@@ -30,16 +34,26 @@ onMounted(() => {
 function animace() {
     let frame = 0
 
-    const counter = setInterval(() => {
+    if (zobrazeneCislo.value != "") puvodniCislo = parseInt(zobrazeneCislo.value)
+
+    counter = setInterval(() => {
         frame++
 
         let t = frame / celkemFramu
-        zobrazeneCislo.value = (Math.sqrt(1 - Math.pow(t - 1, 4)) * props.cislo).toFixed(props.desetineMista)
+        zobrazeneCislo.value = transform(Math.sqrt(1 - Math.pow(t - 1, 6)), puvodniCislo, props.cislo).toFixed(props.desetinaMista)
 
         if (frame === celkemFramu) {
             clearInterval(counter)
+            puvodniCislo = props.cislo
         }
     }, jedenFrame)
+}
+
+function transform(x: number, a: number, b: number) {
+    if (a == b) return a
+    else if (a == 0) return b * x
+    else if (b == 0) return 0
+    else return a + (b - a) * x
 }
 
 </script>

@@ -6,6 +6,7 @@ import { onMounted, onUnmounted, ref } from "vue";
 import { mobil } from "../stores";
 import ObtiznostBar from "../components/ObtiznostBar.vue";
 import Tooltip from "../components/Tooltip.vue";
+import AnimaceCisla from "../components/AnimaceCisla.vue";
 
 useHead({
     title: "Procvičování",
@@ -46,6 +47,7 @@ onMounted(() => {
                 c++
             }
         })
+        console.log(response.data.testPsaniCPM)
         testPsaniCPM.value = response.data.testPsaniCPM
         o.setMax(response.data.texty.length + 1)
         randomCvic = Math.floor(Math.random() * response.data.texty.length) + 2
@@ -149,16 +151,22 @@ onUnmounted(() => {
         <RouterLink v-if="!mobil" :to="'/test-psani'" class="blok" :i="1 == o.index.value"
             :class="{ oznacene: 1 == o.index.value, nohover: o.index.value != 0 }" style="margin-top: 5px;">
             <h3>Test psaní</h3>
-            <span v-if="texty.size != 0 && testPsaniCPM != -1"><b>{{ naJednoDesetiny(testPsaniCPM) }}</b> CPM</span>
+            <span v-if="texty.size != 0 && testPsaniCPM != -1">
+                <AnimaceCisla class="cislo" :cislo="naJednoDesetiny(testPsaniCPM)" /> CPM
+            </span>
         </RouterLink>
         <a v-else href="/test-psani" class="blok" :i="1 == o.index.value" style="user-select: none; margin-top: 5px;" @click="mobilKlik">
             <h3>Test psaní</h3>
-            <span v-if="texty.size != 0 && testPsaniCPM != -1"><b>{{ naJednoDesetiny(testPsaniCPM) }}</b> CPM</span>
+            <span v-if="texty.size != 0 && testPsaniCPM != -1" >
+                <AnimaceCisla class="cislo" :cislo="naJednoDesetiny(testPsaniCPM)" /> CPM
+            </span>
         </a>
 
+        <!-- eslint-disable-next-line vue/no-use-v-if-with-v-for -->
         <div v-if="texty.size != 0" v-for="k in sortKategorii(texty.keys())" style="width: 100%" :key="k">
             <h2>{{ k }}</h2>
 
+            <!-- eslint-disable-next-line vue/no-use-v-if-with-v-for -->
             <RouterLink v-if="!mobil" v-for="t in texty.get(k)" :to="`/procvic/${t.id}`" class="blok" :i="t.cislo == o.index.value"
                 :class="{ oznacene: t.cislo == o.index.value, nohover: o.index.value != 0 }" :key="t.id">
                 <h3>
@@ -168,7 +176,9 @@ onUnmounted(() => {
                     </Tooltip>
                     {{ t.jmeno }}
                 </h3>
-                <span v-if="t.cpm != -1"><b>{{ naJednoDesetiny(t.cpm) }}</b> CPM</span>
+                <span v-if="t.cpm != -1">
+                    <AnimaceCisla class="cislo" :cislo="naJednoDesetiny(t.cpm)" /> CPM
+                </span>
             </RouterLink>
             <div v-else v-for="t in texty.get(k)" class="blok" @click="mobilKlik" :key="t.jmeno">
                 <h3>
@@ -255,7 +265,7 @@ h2 {
     line-height: 40px;
 }
 
-.blok span {
+.blok>span {
     font-size: 19px;
     display: flex;
     align-items: baseline;
@@ -267,9 +277,10 @@ h2 {
     top: -2px;
 }
 
-.blok span b {
+.blok>span .cislo {
     font-family: "Red Hat Mono";
     font-size: 29px;
+    font-weight: 500;
 }
 
 @media screen and (max-width: 1100px) {
@@ -297,7 +308,7 @@ h2 {
         cursor: pointer;
     }
 
-    .blok span b {
+    .blok>span .cislo {
         font-size: 22px;
     }
 

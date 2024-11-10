@@ -98,7 +98,7 @@ function overeniPost(e: Event) {
             .then(response => {
                 localStorage.setItem(tokenJmeno, response.data.token)
                 prihlasen.value = true
-                router.push("/ucet")
+                router.push("/klavesnice")
             }).catch(e => {
                 if (e.response.data.error.search("kod") != -1) {
                     spatnyKod.value = true
@@ -146,7 +146,7 @@ const handleLoginSuccess = (response: { credential: string}) => {
     }).then(response => {
         localStorage.setItem(tokenJmeno, response.data.token)
         prihlasen.value = true
-        router.push("/ucet")
+        router.push("/klavesnice")
     }).catch(() => {
         pridatOznameni()
     })
