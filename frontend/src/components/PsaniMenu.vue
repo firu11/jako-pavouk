@@ -5,10 +5,14 @@ import { saveNastaveni } from "../utils";
 
 defineEmits(["restart", "toggle", "toggleInterpunkce"])
 
-defineProps({
+const props = defineProps({
     vyberTextu: {
         type: Boolean,
         default: true
+    },
+    bezStinu: {
+        type: Boolean,
+        default: false
     },
 })
 
@@ -57,7 +61,7 @@ defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
 </script>
 <template>
     <div id="kontejneros">
-        <div id="psani-menu">
+        <div id="psani-menu" :class="{ 'bez-stinu': props.bezStinu }">
             <div v-if="!(prihlasen && !vyberTextu)" class="kontejner" style="gap: 20px;">
                 <input v-if="vyberTextu" v-model="typ" type="checkbox" id="toggle" class="toggle-checkbox"
                     @change="$emit('restart'); saveNastaveni(diakritika, velkaPismena, typ, delka, klavModel)" />
@@ -102,6 +106,10 @@ defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
     </div>
 </template>
 <style scoped>
+.bez-stinu {
+    box-shadow: none !important;
+}
+
 #delka {
     display: flex;
     align-items: center;

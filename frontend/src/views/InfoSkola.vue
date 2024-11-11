@@ -42,7 +42,7 @@ function chekujUdaje() {
     <h1>Systém pro školy</h1>
 
     <div class="bloky">
-        <video controls controlslist="nodownload" width="100%" poster="/OGnahled.png">
+        <video controls controlslist="nodownload" width="100%" poster="../assets/nahledVidea.png">
             <source src="/verze1.1.mov">
             Váš prohlížeč neumí přehrát toto video. <!-- to snad už ani nejde aby to někdo nepodporoval -->
             <a href="/verze1.1.mov" download="/verze1.1.mov">Tady</a> si ho můžete zkusit stáhnout.

@@ -11,12 +11,9 @@ const props = defineProps({
         type: String,
         reqired: true
     },
-    rozmazat: {
-        type: Boolean
-    },
-    cekame: {
-        type: Boolean
-    }
+    rozmazat: Boolean,
+    cekame: Boolean,
+    fullHide: Boolean
 })
 
 const cesta = useRoute().path.split("/")
@@ -193,9 +190,9 @@ function potrebujeShift(pismeno: string) {
 </script>
 
 <template>
-    <div>
+    <div :class="{ hide: fullHide }" id="wraper">
         <div id="klavesnice" :class="{ rozmazany: props.rozmazat, 'rozmazany-min': props.cekame && !props.rozmazat }">
-            <div class="radek" v-for="radek, i in schema" :key="i">
+            <div :class="{}" class="radek" v-for="radek, i in schema" :key="i">
                 <div v-for="tlacitko in radek" :key="tlacitko" class="klavesa"
                     :class="{ oznacenaKlavesa: oznacene(tlacitko) || (tlacitko === 'Shift' && shiftSviti), fjPodtrzeni: tlacitko === 'F' || tlacitko === 'J' }"
                     :style="{ backgroundColor: barva(tlacitko), flexGrow: delkaTlacitka(tlacitko) }">
@@ -247,6 +244,14 @@ function potrebujeShift(pismeno: string) {
 </template>
 
 <style scoped>
+#wraper {
+    transition: opacity 0.15s;
+}
+
+.hide {
+    opacity: 0;
+}
+
 #zakladni-pozice {
     display: flex;
     gap: 5px;

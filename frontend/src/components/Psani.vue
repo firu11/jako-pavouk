@@ -67,6 +67,8 @@ let indexPosunuti = -1
 const mistaPosunuti = ref([0, 0] as number[])
 const chybyPismenka = new MojeMapa()
 
+const fullHideKlavesnice = ref(false)
+
 let predchoziZnak = ""
 
 const zvukyZaply = ref(true)
@@ -101,6 +103,7 @@ onMounted(() => {
     document.addEventListener("keydown", specialniKlik)
     document.addEventListener("mousemove", enableKurzor)
     loadZvuk() //TODO test jestli to fixne loading zvuku až po prvnim kliknuti = delay
+    loadHideKlavesnci()
 })
 
 onUnmounted(() => {
@@ -402,7 +405,20 @@ async function checkJestliPise() {
     }, 10000) // 10s
 }
 
-defineExpose({ restart, aktivniPismeno })
+watch(fullHideKlavesnice, () => {
+    localStorage.setItem("pavouk_hide_klavesnice", JSON.stringify(fullHideKlavesnice.value))
+})
+
+function loadHideKlavesnci() {
+    let x = localStorage.getItem("pavouk_hide_klavesnice")
+    if (x == null) {
+        localStorage.setItem("pavouk_hide_klavesnice", JSON.stringify(fullHideKlavesnice.value))
+    } else {
+        fullHideKlavesnice.value = JSON.parse(x)
+    }
+}
+
+defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
 </script>
 
 <template>
@@ -428,12 +444,20 @@ defineExpose({ restart, aktivniPismeno })
 
             <Transition>
                 <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice || prestalPsat"
-                    :cekame="(aktivniPismeno.id == 0 || aktivniPismeno.id == -1) && cass == 0" />
+                    :cekame="(aktivniPismeno.id == 0 || aktivniPismeno.id == -1) && cass == 0" :full-hide="fullHideKlavesnice" />
             </Transition>
             <Transition>
                 <div v-if="klavesnice != '' && props.resetBtn" id="reset-btn" @click="resetTlacitko(); animace()"
                     :class="{ schovat: route.fullPath == '/prvni-psani' }">
-                    <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Nastavení">
+                    <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Restart">
+                </div>
+            </Transition>
+            <Transition>
+                <div v-if="klavesnice != '' && props.resetBtn" id="hide-btn" @click="fullHideKlavesnice = !fullHideKlavesnice"
+                    :class="{ schovat: route.fullPath == '/prvni-psani' }"
+                    :style="{ top: route.fullPath.split('/')[1] == 'lekce' ? '-140px' : '-70px' }">
+                    <img v-if="!fullHideKlavesnice" src="../assets/icony/oko.svg" alt="Schovat" width="34">
+                    <img v-else src="../assets/icony/okoSkrtnuty.svg" alt="Schovat" width="34">
                 </div>
             </Transition>
 
@@ -443,7 +467,7 @@ defineExpose({ restart, aktivniPismeno })
             </div>
         </div>
         <Transition>
-            <div id="nepise" v-if="prestalPsat">
+            <div id="nepise" v-if="prestalPsat" :style="{ boxShadow: fullHideKlavesnice ? 'none' : '0px 0px 10px 2px rgba(0, 0, 0, 0.75)' }">
                 <h3>Jsi tam ještě?</h3>
                 <p>
                     Přestal jsi psát a tak jsme museli cvičení přerušit.
@@ -454,6 +478,23 @@ defineExpose({ restart, aktivniPismeno })
 </template>
 
 <style scoped>
+#hide-btn {
+    position: relative;
+    top: 100px;
+    position: relative;
+    width: 55px;
+    height: 55px;
+    background-color: var(--tmave-fialova);
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    left: 385px;
+    cursor: pointer;
+    transition: background-color 0.1s;
+    user-select: none;
+}
+
 #nepise {
     background-color: var(--tmave-fialova);
     padding: 20px;
@@ -464,7 +505,6 @@ defineExpose({ restart, aktivniPismeno })
     gap: 6px;
     align-items: center;
     flex-direction: column;
-    box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.75);
 }
 
 #nepise h3 {
@@ -545,7 +585,8 @@ defineExpose({ restart, aktivniPismeno })
 }
 
 #reset-btn:hover,
-#zvuk-btn:hover {
+#zvuk-btn:hover,
+#hide-btn:hover {
     background-color: var(--fialova);
 }
 
