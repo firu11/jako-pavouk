@@ -124,4 +124,10 @@ async function prodlouzit() {
 </template>
 
 <style scoped>
+
+h2 {
+    margin-top: 5px;
+    color: rgb(194, 194, 194);
+}
+
 </style>

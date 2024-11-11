@@ -241,13 +241,17 @@ watch(a, () => {
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaNapsanehoTextu"
         :cas="menuRef == undefined ? 15 : menuRef.delka" :cislo="typ" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
 
-    <PsaniMenu :class="{ hide: konec || !hideKlavecnice }" @restart="restart(); psaniRef?.restart()" @toggle="toggleDiakritikaAVelkaPismena"
-        :vyberTextu="false" ref="menuRef" />
+    <PsaniMenu class="psaniMenu" :class="{ hide: konec || !hideKlavecnice }" @restart="restart(); psaniRef?.restart()" @toggle="toggleDiakritikaAVelkaPismena"
+        :vyberTextu="false" :bez-stinu="psaniRef?.fullHideKlavesnice" ref="menuRef" />
 
     <NastaveniBtn v-if="!konec && klavesnice != ''" @klik="hideKlavecnice = !hideKlavecnice" />
 </template>
 
 <style scoped>
+.psaniMenu {
+    transition: opacity 0.2s;
+}
+
 .hide {
     opacity: 0;
     user-select: none;

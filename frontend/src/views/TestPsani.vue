@@ -217,8 +217,8 @@ async function prodlouzit() {
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaNapsanehoTextu"
         :cas="menuRef == undefined ? 15 : menuRef.delka" :cislo="'test-psani'" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
 
-    <PsaniMenu class="psaniMenu" :class="{ hide: konec || !hideKlavecnice }" @restart="restart(); psaniRef.restart()" @toggle="toggleDiakritikaAVelkaPismena"
-        ref="menuRef" />
+    <PsaniMenu class="psaniMenu" :class="{ hide: konec || !hideKlavecnice }" @restart="restart(); psaniRef.restart()"
+        @toggle="toggleDiakritikaAVelkaPismena" :bez-stinu="psaniRef?.fullHideKlavesnice" ref="menuRef" />
 
     <NastaveniBtn v-if="!konec && klavesnice != ''" @klik="hideKlavecnice = !hideKlavecnice" />
 </template>
@@ -233,6 +233,7 @@ async function prodlouzit() {
     user-select: none;
     z-index: -1000;
 }
+
 h2 {
     margin-top: 5px;
     color: rgb(194, 194, 194);

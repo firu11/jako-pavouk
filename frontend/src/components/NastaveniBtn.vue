@@ -43,7 +43,7 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     left: 385px;
-    top: -140px;
+    top: -195px;
     cursor: pointer;
     transition: background-color 0.1s;
     user-select: none;
