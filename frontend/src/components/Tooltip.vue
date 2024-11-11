@@ -12,6 +12,10 @@ const props = defineProps({
     vzdalenost: {
         type: Number,
         default: 15
+    },
+    vzdalenostX: {
+        type: Number,
+        default: 0
     }
 })
 
@@ -24,12 +28,25 @@ const y = computed(() => {
 })
 
 onMounted(() => {
-    if (props.xOffset != 0) {
+    if (props.xOffset !== 0) {
         let rect = tip.value.getBoundingClientRect()
         tip.value.style.left = `${props.xOffset + rect.left}px`
         obsah.value.style.left = `${props.xOffset}px`
     }
+
+    if (props.vzdalenostX !== 0) {
+        tip.value.style.left = `${getPageTopLeft(tip.value).left + props.vzdalenostX}px`
+    }
 })
+
+function getPageTopLeft(el: Element) {
+    var rect = el.getBoundingClientRect()
+    var docEl = document.documentElement
+    return {
+        left: rect.left + (window.scrollX || docEl.scrollLeft || 0),
+        top: rect.top + (window.scrollY || docEl.scrollTop || 0)
+    }
+}
 
 </script>
 
@@ -38,7 +55,7 @@ onMounted(() => {
         <div id="obsah" ref="obsah">
             <slot />
         </div>
-        <div id="tooltip" :style="{ top: `${y}px`, maxWidth: `${props.sirka == null ? obsah.getBoundingClientRect().width * 2.2 : props.sirka}px` }"
+        <div id="tooltip" :style="{ top: `${y}px`, width: `${props.sirka == null ? obsah.getBoundingClientRect().width * 2.2 : props.sirka}px` }"
             v-html="zprava" ref="tip" />
     </div>
 </template>
@@ -63,6 +80,7 @@ onMounted(() => {
 
 #obsah:hover~#tooltip {
     opacity: 100%;
+    transition-delay: 0.4s;
 }
 
 #obsah {

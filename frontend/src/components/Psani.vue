@@ -6,6 +6,7 @@ import { Howl } from "howler";
 import { MojeMapa, pridatOznameni } from "../utils";
 import { useRoute } from "vue-router";
 import { useHead } from "unhead";
+import Tooltip from "../components/Tooltip.vue";
 
 useHead({
     meta: [
@@ -296,7 +297,7 @@ function specialniKlik(e: KeyboardEvent) {
             }
         }
         if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
-    } else if (e.key == "Enter") {
+    } else if (e.key == "Delete") {
         e.preventDefault()
         if (e.repeat) return
         resetTlacitko()
@@ -447,10 +448,12 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
                     :cekame="(aktivniPismeno.id == 0 || aktivniPismeno.id == -1) && cass == 0" :full-hide="fullHideKlavesnice" />
             </Transition>
             <Transition>
-                <div v-if="klavesnice != '' && props.resetBtn" id="reset-btn" @click="resetTlacitko(); animace()"
-                    :class="{ schovat: route.fullPath == '/prvni-psani' }">
-                    <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Restart">
-                </div>
+                <Tooltip zprava="Restart cvičení <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="120" :vzdalenostX="485" :vzdalenost="32">
+                    <div v-if="klavesnice != '' && props.resetBtn" id="reset-btn" @click="resetTlacitko(); animace()"
+                        :class="{ schovat: route.fullPath == '/prvni-psani' }">
+                        <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Restart">
+                    </div>
+                </Tooltip>
             </Transition>
             <Transition>
                 <div v-if="klavesnice != '' && props.resetBtn" id="hide-btn" @click="fullHideKlavesnice = !fullHideKlavesnice"
