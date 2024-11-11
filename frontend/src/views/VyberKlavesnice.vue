@@ -3,11 +3,12 @@ import axios from 'axios';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { checkTeapot, getToken, pridatOznameni } from '../utils';
 import { useRouter } from 'vue-router';
+import { mobil } from '../stores';
 
 const router = useRouter()
 const klavesnice = ref(false)
 const mameJi = ref(false)
-const rucne = ref(false)
+const rucne = ref(mobil)
 const img = ref()
 
 onMounted(() => {
@@ -76,7 +77,7 @@ function zoomOut() {
     </div>
 
     <p id="dole" v-if="!rucne && !mameJi" @click="vybratRucne">Vybrat rozložení ručně</p>
-    <p id="dole" v-else-if="!mameJi" @click="rucne = false">Zpět k normálnímu výběru</p>
+    <p id="dole" v-else-if="!mameJi" @click="rucne = false">Zpět k automatickému výběru</p>
 </template>
 <style scoped>
 #tlacitka {

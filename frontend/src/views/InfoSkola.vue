@@ -42,10 +42,10 @@ function chekujUdaje() {
     <h1>Systém pro školy</h1>
 
     <div class="bloky">
-        <video controls controlslist="nodownload" width="100%" poster="../assets/nahledVidea.png">
-            <source src="/verze1.1.mov">
+        <video controls controlslist="nodownload" width="100%" poster="../assets/jizBrzy.png">
+            <source src="">
             Váš prohlížeč neumí přehrát toto video. <!-- to snad už ani nejde aby to někdo nepodporoval -->
-            <a href="/verze1.1.mov" download="/verze1.1.mov">Tady</a> si ho můžete zkusit stáhnout.
+            <a href="" download="">Tady</a> si ho můžete zkusit stáhnout.
         </video>
     </div>
     <div class="specialni-blok bloky">
@@ -175,7 +175,6 @@ function chekujUdaje() {
     flex-direction: column;
     height: auto;
     gap: 8px;
-    height: 417px;
 }
 
 #formular>div {
