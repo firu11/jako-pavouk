@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
+import Tooltip from "../components/Tooltip.vue";
 
 onMounted(() => {
     document.addEventListener("keydown", e1)
@@ -41,9 +42,11 @@ function zpatky() {
 </script>
 
 <template>
-    <div @click="zpatky">
-        <img src="../assets/icony/sipkaL.svg" alt="Zpět">
-    </div>
+    <Tooltip zprava="Vrátit se zpět <span class='klavesa-v-textu-mensi'>Escape</span>" :sirka="110" :vzdalenost="-28">
+        <div @click="zpatky">
+            <img src="../assets/icony/sipkaL.svg" alt="Zpět">
+        </div>
+    </Tooltip>
 </template>
 
 <style scoped>
@@ -58,13 +61,14 @@ div img {
     height: 32px;
     width: 32px;
     cursor: pointer;
+    position: relative;
+    top: -3px;
 }
 
 @media screen and (max-width: 1100px) {
     div img {
         height: 35px;
-        position: relative;
-        top: -5px;
+        top: -7px;
     }
 }
 </style>

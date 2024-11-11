@@ -92,7 +92,7 @@ useHead({
                 <li><span class="klavesa-v-textu"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klav-sipka"
                             style="transform: scaleX(-1);"></span> - pokračuje na další cvičení
                 </li>
-                <li><span class="klavesa-v-textu">Enter</span> - opakuje cvičení</li>
+                <li><span class="klavesa-v-textu">Delete</span> - opakuje cvičení</li>
                 <li><span class="klavesa-v-textu">Esc</span> - zpět</li>
             </ul>
         </div>
