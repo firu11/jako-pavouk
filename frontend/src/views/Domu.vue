@@ -39,7 +39,7 @@ function zacit() {
         <div class="text">
             <p style="font-size: 21px; line-height: 24px;">Webová aplikace na výuku <br><b
                     style="font-weight: 700;">psaní všemi deseti</b> zdarma.<br>Chceš se naučit psát jako pavouk?</p>
-            <button v-if="!mobil" class="tlacitko" @click="zacit()"
+            <button v-if="!mobil" class="tlacitko velky" @click="zacit()"
                 style="transform: scale(1.25); margin-top: 32px;">Začít psát</button>
         </div>
         <img src="../assets/pavoukStudent.svg" alt="Pavouk student" width="300" height="253" style="max-height: 230px;">
@@ -73,8 +73,10 @@ function zacit() {
             <p>
                 Jste vyučující na škole, kde probíhá výuka psaní všemi deseti? Nebo snad ještě neprobíhá? Vyzkoušejte ve třídě organizovanou výuku psaní!
             </p>
-            <button class="tlacitko" @click="router.push('/skolni-system')" style="margin-right: 15px;">Číst dál</button>
-            <button class="tlacitko" @click="router.push('/zapis')">Zapsat se</button>
+            <div style="display: flex; gap: 20px; justify-content: center;">
+                <button class="tlacitko" @click="router.push('/skolni-system')">Číst dál</button>
+                <button class="tlacitko" @click="router.push('/zapis')">Zapsat se</button>
+            </div>
         </div>
     </div>
 </template>
@@ -85,11 +87,6 @@ function zacit() {
 }
 
 @media screen and (max-width: 1100px) {
-    .tlacitko:nth-of-type(1) {
-        transform: scale(1) !important;
-        margin: 16px 0 !important;
-    }
-
     .text:nth-of-type(1) p {
         font-size: 19px !important;
     }
@@ -97,5 +94,14 @@ function zacit() {
     .bloky img {
         width: 90% !important;
     }
+
+    .velky {
+        transform: scale(1.1) !important;
+        margin: 16px 0 !important;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    
 }
 </style>

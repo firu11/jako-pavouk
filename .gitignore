@@ -5,6 +5,7 @@ taskfile.yaml
 backend/.env
 backend/backend
 backend/backend.exe
+backend/skoly.log.csv
 
 scripts/script_texty/texty/
 scripts/script_texty/knihy/

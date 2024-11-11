@@ -356,8 +356,16 @@ function prepnoutStatistiky() {
 
 #tlacitka {
     display: inline-flex;
-    margin-top: 10px;
+    margin-top: 20px;
     gap: 20px;
+    max-width: 80vw;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.tlacitko,
+.cervene-tlacitko {
+    margin-top: 0;
 }
 
 .tlacitko {
@@ -587,8 +595,7 @@ function prepnoutStatistiky() {
     }
 
     #chyby #pismena>div:nth-child(2) {
-        gap: 0;
-        justify-content: space-between;
+        gap: 8%;
     }
 }
 
@@ -616,6 +623,7 @@ function prepnoutStatistiky() {
 
     #prepinac-tabu {
         transform: scale(0.8);
+        font-size: 17px;
     }
 
     #chyby {
