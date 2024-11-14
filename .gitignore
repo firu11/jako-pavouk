@@ -9,6 +9,7 @@ backend/skoly.log.csv
 
 scripts/script_texty/texty/
 scripts/script_texty/knihy/
+scripts/script_zpravy/*.txt
 
 frontend/public/seznam-wmt-BUnHTQ6XWvu0wBfMQUVc2QkzAKbmEEiS.txt
 frontend/dist

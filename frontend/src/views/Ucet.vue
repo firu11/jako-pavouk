@@ -3,7 +3,7 @@ import axios from "axios";
 import { prihlasen, role, tokenJmeno } from "../stores";
 import { useRouter } from "vue-router";
 import { onMounted, ref, useTemplateRef, watch } from "vue";
-import { checkTeapot, getToken, MojeMapa, pridatOznameni } from "../utils";
+import { getToken, MojeMapa, pridatOznameni } from "../utils";
 import { useHead } from "unhead";
 import Tooltip from "../components/Tooltip.vue";
 import AnimaceCisla from "../components/AnimaceCisla.vue";
@@ -67,11 +67,9 @@ async function getInfo() {
         role.value = resp.data.role
 
         prepnoutStatistiky()
-    }).catch(e => {
-        if (!checkTeapot(e)) {
-            router.push("/prihlaseni")
-            prihlasen.value = false
-        }
+    }).catch(() => {
+        router.push("/prihlaseni")
+        prihlasen.value = false
     })
     setTimeout(() => {
         let jmeno = document.getElementById("jmeno")
