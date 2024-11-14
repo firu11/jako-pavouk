@@ -145,7 +145,7 @@ onUnmounted(() => {
 })
 
 function e1(e: KeyboardEvent) {
-    if (e.key == "Enter") {
+    if (e.key == "Delete") {
         e.preventDefault()
         reset()
     } else if (e.key == "ArrowRight") {
@@ -161,8 +161,8 @@ function e1(e: KeyboardEvent) {
 <template>
     <div id="bloky" style="margin-top: 25px;">
         <div id="hodnoceni" class="blok" :style="{ width: cislo == 'prvni-psani' ? '400px' : '' }">
-            <Tooltip :zprava="`Pro získání 3 hvězd je potřeba dosánout rychlosti min ${levelyRychlosti[2]} CPM. Hodně štěstí!`" :vzdalenost="10"
-                :sirka="250">
+            <Tooltip :zprava="`Pro získání 3 hvězd je potřeba dosánout rychlosti <b>min. ${levelyRychlosti[2]} CPM</b>. Hodně štěstí!`"
+                :vzdalenost="10" :sirka="250">
                 <div id="hvezdy">
                     <img v-if="rychlost >= levelyRychlosti[0]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
                     <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
@@ -200,7 +200,7 @@ function e1(e: KeyboardEvent) {
     <div id="bloky">
         <div class="blok">
             <Tooltip
-                zprava="Za neopravené chyby je adekvátní penalizace. Chybu opravíš pomocí klávesy <span class='klavesa-v-textu-mensi'>backspace</span> ."
+                zprava="Za neopravené chyby je adekvátní penalizace. Chybu opravíš pomocí klávesy <span class='klavesa-v-textu-mensi'>Backspace</span>"
                 :sirka="180" :vzdalenost="6">
                 <AnimaceCisla class="cislo" :cislo="rychlost > 0 ? Math.round(rychlost * 10) / 10 : 0" :desetina-mista="0" />
             </Tooltip>
@@ -210,7 +210,7 @@ function e1(e: KeyboardEvent) {
             <h3>Rychlost</h3>
         </div>
         <div class="blok">
-            <Tooltip zprava="Přesnost zahrnuje chyby opravené i neopravené." :sirka="200" :vzdalenost="6">
+            <Tooltip zprava="Přesnost zahrnuje chyby <b>opravené</b> i <b>neopravené</b>" :sirka="200" :vzdalenost="6">
                 <AnimaceCisla class="cislo" :cislo="Math.round(presnost * 10) / 10 <= 0 ? 0 : Math.round(presnost * 10) / 10" />
                 <span class="procento">%</span>
             </Tooltip>
@@ -232,20 +232,22 @@ function e1(e: KeyboardEvent) {
         </div>
     </div>
 
-    <div v-if="props.pismena == 'pracepraceprace'" id="tlacitka-kontainer">
-        <button class="tlacitko" @click="router.push('/trida')">Zpět do třídy</button>
+    <div id="tlacitka-kontainer">
+        <span v-if="props.cislo == 'prvni-psani'">Líbí se ti aplikace?</span>
+        <button v-if="props.cislo == 'prvni-psani'" class="tlacitko" @click="router.push('/registrace')">Vytvořit účet</button>
+        <button v-if="props.pismena == 'pracepraceprace'" class="tlacitko" @click="router.push('/trida')">Zpět do třídy</button>
+
+        <Tooltip zprava="Také pomocí klávesy <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="130">
+            <button v-if="props.cislo != 'prvni-psani' && props.pismena != 'pracepraceprace'" class="tlacitko" @click="reset">Zkusit znovu</button>
+        </Tooltip>
+
+        <Tooltip
+            zprava="Také pomocí klávesy <span class='klavesa-v-textu-mensi'><img src='/src/assets/icony/sipkaL.svg' alt='Šipka' class='klav-sipka' style='transform: scaleX(-1) translateY(2px) translateX(-1px);'></span>"
+            :sirka="130">
+            <button v-if="props.cislo != 'prvni-psani' && props.cislo != 'test-psani'" class="tlacitko" @click="dalsi()">Pokračovat</button>
+        </Tooltip>
     </div>
-    <div v-else-if="props.cislo == 'prvni-psani'" id="tlacitka-kontainer" style="align-items: center;">
-        <span>Líbí se ti aplikace?</span>
-        <button class="tlacitko" @click="router.push('/registrace')">Vytvořit účet</button>
-    </div>
-    <div v-else-if="props.cislo == 'test-psani' || props.pismena == ''" id="tlacitka-kontainer">
-        <button class="tlacitko" @click="reset">Zkusit znovu</button>
-    </div>
-    <div v-else id="tlacitka-kontainer">
-        <button class="tlacitko" @click="reset">Zkusit znovu</button>
-        <button class="tlacitko" @click="dalsi()">Pokračovat</button>
-    </div>
+
 </template>
 
 <style scoped>
@@ -377,6 +379,7 @@ ul {
     display: inline-flex;
     gap: 20px;
     margin-top: 20px;
+    align-items: center;
 }
 
 #tlacitka-kontainer .tlacitko {
