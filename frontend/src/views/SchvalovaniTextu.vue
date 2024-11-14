@@ -1,38 +1,37 @@
 <script setup lang="ts">
-import { useTemplateRef } from 'vue';
+import { onMounted, ref, useTemplateRef } from 'vue';
 import TextZadani from './ucitel/TextZadani.vue';
+import axios from 'axios';
+import { getToken, pridatOznameni } from '../utils';
 
 const textovePole = useTemplateRef("textove-pole")
 
-function getZnakyASlova() {
-    if (textovePole.value == null) return "0 / 0"
-    let vys = ""
+const nazev = ref("")
 
-    vys += textovePole.value.text.length
-    if (textovePole.value.text.length == 0 || textovePole.value.text.length >= 5) vys += " znaků"
-    else if (textovePole.value.text.length == 1) vys += " znak"
-    else vys += " znaky"
+onMounted(() => {
+    get()
+})
 
-    vys += " / "
-    let slova = 0
-    if (textovePole.value.text.length != 0) slova = textovePole.value.text.trim().split(/[ \n]+/).length
-    vys += slova
-    if (slova == 0 || slova >= 5) vys += " slov"
-    else if (slova == 1) vys += " slovo"
-    else vys += " slova"
-
-    return vys
+function get() {
+    axios.get("/sus", {
+        headers: {
+            Authorization: `Bearer ${getToken()}`
+        }
+    }).then(resp => {
+        textovePole.value!.text = resp.data.text
+    }).catch(() => {
+        pridatOznameni()
+    })
 }
-
 </script>
 <template>
-    <h1>Schvalování textu</h1>
-
     <div id="kontejner">
         <TextZadani ref="textove-pole" />
 
-        <span>{{ getZnakyASlova() }} sus</span>
+        <textarea ref="textarea" placeholder="Název" v-model="nazev" id="nazev" />
     </div>
+
+    <button class="tlacitko">Potvrdit</button>
 </template>
 <style scoped>
 #kontejner {
@@ -40,7 +39,23 @@ function getZnakyASlova() {
     top: -60px;
     padding-top: 55px;
     width: 410px;
-    height: 80vh;
+    height: 86vh;
+}
+
+#nazev {
+    background-color: var(--tmave-fialova);
+    border: 0;
+    width: 100%;
+    font-size: 16px !important;
+    text-decoration: none;
+    color: var(--bila);
+    padding: 10px;
+    resize: none;
+    z-index: 2;
+    line-height: 21px;
+    font-family: "Red Hat Mono", monospace;
+    border-radius: 5px;
+    margin-top: 10px;
 }
 
 h1 {

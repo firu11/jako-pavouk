@@ -52,15 +52,14 @@ function zpatky() {
 <style scoped>
 div {
     height: 40px;
-    width: 40px;
-    margin-right: 10px;
-    padding: 4px;
+    width: 50px;
+    padding: 4px 14px 4px 4px;
+    cursor: pointer;
 }
 
 div img {
     height: 32px;
     width: 32px;
-    cursor: pointer;
     position: relative;
     top: -3px;
 }
