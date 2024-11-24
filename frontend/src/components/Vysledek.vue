@@ -147,9 +147,11 @@ onUnmounted(() => {
 function e1(e: KeyboardEvent) {
     if (e.key == "Delete") {
         e.preventDefault()
+        if (props.cislo == 'prvni-psani' || props.pismena == 'pracepraceprace') return
         reset()
     } else if (e.key == "ArrowRight") {
         e.preventDefault()
+        if (route.path.split('/')[1] != 'lekce') return
         dalsi()
     } else if (e.key == "Tab") {
         e.preventDefault()
@@ -244,7 +246,7 @@ function e1(e: KeyboardEvent) {
         <Tooltip
             zprava="Také pomocí klávesy <span class='klavesa-v-textu-mensi'><img src='/src/assets/icony/sipkaL.svg' alt='Šipka' class='klav-sipka' style='transform: scaleX(-1) translateY(2px) translateX(-1px);'></span>"
             :sirka="130">
-            <button v-if="props.cislo != 'prvni-psani' && props.cislo != 'test-psani'" class="tlacitko" @click="dalsi()">Pokračovat</button>
+            <button v-if="route.path.split('/')[1] == 'lekce'" class="tlacitko" @click="dalsi()">Pokračovat</button>
         </Tooltip>
     </div>
 

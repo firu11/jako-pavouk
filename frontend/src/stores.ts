@@ -1,5 +1,6 @@
 import { ref } from "vue";
 
+export const uziv = ref({} as {jmeno: string, email: string})
 export const prihlasen = ref(false)
 export const role = ref("basic")
 export const tokenJmeno = "pavouk_token"

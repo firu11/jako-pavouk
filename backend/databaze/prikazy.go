@@ -466,7 +466,7 @@ func GetDaystreak(uzivID uint) (int, error) {
 }
 
 /*                                    presnost,   cpm,    chybyPismenka,  cas*/
-func GetUdaje(uzivID uint, dny int) (float32, []float64, map[string]int, float64, error) {
+func GetUdaje(uzivID uint) (float32, []float64, map[string]int, float64, error) {
 	var presnost float32 = -1
 	var delkaVsechTextu int = 0
 	var cpm []float64
@@ -475,12 +475,7 @@ func GetUdaje(uzivID uint, dny int) (float32, []float64, map[string]int, float64
 
 	var rows *sql.Rows
 	var err error
-	if dny == -1 {
-		rows, err = DB.Query(`SELECT neopravene, delka_textu, cas, chyby_pismenka, datum FROM dokoncene WHERE uziv_id = $1 UNION SELECT neopravene, delka_textu, cas, chyby_pismenka, datum FROM dokoncene_procvic WHERE uziv_id = $1;`, uzivID)
-	} else {
-		rows, err = DB.Query(`SELECT neopravene, delka_textu, cas, chyby_pismenka, datum FROM dokoncene WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => $2) UNION SELECT neopravene, delka_textu, cas, chyby_pismenka, datum FROM dokoncene_procvic WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => $2);`, uzivID, dny)
-	}
-
+	rows, err = DB.Query(`SELECT neopravene, delka_textu, cas, chyby_pismenka, datum FROM dokoncene WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) UNION SELECT neopravene, delka_textu, cas, chyby_pismenka, datum FROM dokoncene_procvic WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13);`, uzivID)
 	if err != nil {
 		return presnost, cpm, chybyPismenka, casCelkem, err
 	}
@@ -518,11 +513,7 @@ func GetUdaje(uzivID uint, dny int) (float32, []float64, map[string]int, float64
 	}
 
 	// čas
-	if dny == -1 {
-		err = DB.QueryRow(`SELECT COALESCE(SUM(cas), 0) AS cas FROM ( SELECT cas FROM dokoncene WHERE uziv_id = $1 UNION ALL SELECT cas FROM dokoncene_procvic WHERE uziv_id = $1 );`, uzivID).Scan(&casCelkem)
-	} else {
-		err = DB.QueryRow(`SELECT COALESCE(SUM(cas), 0) AS cas FROM ( SELECT cas FROM dokoncene WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => $2) UNION ALL SELECT cas FROM dokoncene_procvic WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => $2) );`, uzivID, dny).Scan(&casCelkem)
-	}
+	err = DB.QueryRow(`SELECT COALESCE(SUM(cas), 0) AS cas FROM ( SELECT cas FROM dokoncene WHERE uziv_id = $1 UNION ALL SELECT cas FROM dokoncene_procvic WHERE uziv_id = $1 );`, uzivID).Scan(&casCelkem)
 	if err != nil {
 		return presnost, cpm, chybyPismenka, casCelkem, err
 	}

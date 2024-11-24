@@ -69,6 +69,14 @@ const router = createRouter({
             component: () => import("./views/Ucet.vue"),
         },
         {
+            path: "/nastaveni",
+            component: () => import("./views/Nastaveni.vue"),
+        },
+        {
+            path: "/statistiky",
+            component: () => import("./views/Statistiky.vue"),
+        },
+        {
             path: "/klavesnice",
             component: () => import("./views/VyberKlavesnice.vue"),
         },

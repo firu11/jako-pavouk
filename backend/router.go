@@ -84,7 +84,8 @@ func SetupRouter(c *echo.Echo) {
 	api.POST("/overeni-zmeny-hesla", overitZmenuHesla)
 	api.POST("/google", google)
 
-	api.GET("/ja", prehled)
+	api.GET("/nastaveni", nastaveni)
+	api.GET("/statistiky", statistiky)
 	api.POST("/ucet-zmena", upravaUctu)
 
 	api.GET("/token-expirace", testVyprseniTokenu)
@@ -491,7 +492,7 @@ func prihlaseni(c echo.Context) error {
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, chyba("Token se pokazil"))
 		} else {
-			return c.JSON(http.StatusOK, echo.Map{"token": token})
+			return c.JSON(http.StatusOK, echo.Map{"token": token, "jmeno": uziv.Jmeno, "email": uziv.Email})
 		}
 	}
 }
@@ -513,8 +514,10 @@ func google(c echo.Context) error {
 	}
 
 	var token string
+	var novy bool = false
 	uziv, err := databaze.GetUzivByEmail(email)
 	if err != nil { // neexistuje
+		novy = true
 		id, err := databaze.CreateUziv(email, "google", jmeno)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, chyba(err.Error()))
@@ -523,6 +526,11 @@ func google(c echo.Context) error {
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, chyba("Token se pokazil"))
 		}
+
+		uziv, err = databaze.GetUzivByEmail(email)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, chyba(""))
+		}
 	} else {
 		token, err = utils.GenerovatToken(email, uziv.ID)
 		if err != nil {
@@ -530,7 +538,7 @@ func google(c echo.Context) error {
 		}
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{"token": token})
+	return c.JSON(http.StatusOK, echo.Map{"token": token, "novy": novy, "jmeno": uziv.Jmeno, "email": uziv.Email})
 }
 
 func zmenaHesla(c echo.Context) error {
@@ -603,7 +611,7 @@ func overitZmenuHesla(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-func prehled(c echo.Context) error {
+func nastaveni(c echo.Context) error {
 	id := c.Get("uzivID").(uint)
 	if id == 0 {
 		return c.NoContent(http.StatusUnauthorized)
@@ -613,22 +621,27 @@ func prehled(c echo.Context) error {
 		log.Print(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
+	trida, _ := databaze.GetTridaByUziv(uziv.ID)
+	return c.JSON(http.StatusOK, echo.Map{
+		"id":         uziv.ID,
+		"email":      uziv.Email,
+		"jmeno":      uziv.Jmeno,
+		"role":       utils.GetRole(uziv.Role, trida.ID),
+		"klavesnice": uziv.Klavesnice,
+	})
+}
+
+func statistiky(c echo.Context) error {
+	id := c.Get("uzivID").(uint)
+	if id == 0 {
+		return c.NoContent(http.StatusUnauthorized)
+	}
 	daystreak, err := databaze.GetDaystreak(id)
 	if err != nil {
 		log.Print(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
-	presnostDnes, cpmDnes, chybyPismenkaDnes, casDnes, err := databaze.GetUdaje(id, 1)
-	if err != nil {
-		log.Print(err)
-		return c.JSON(http.StatusInternalServerError, chyba(""))
-	}
-	presnostDvaTydny, cpmDvaTydny, chybyPismenkaDvaTydny, casDvaTydny, err := databaze.GetUdaje(id, 14)
-	if err != nil {
-		log.Print(err)
-		return c.JSON(http.StatusInternalServerError, chyba(""))
-	}
-	presnostCelkem, cpmCelkem, chybyPismenkaCelkem, casCelkem, err := databaze.GetUdaje(id, -1)
+	presnost, cpm, chybyPismenka, cas, err := databaze.GetUdaje(id)
 	if err != nil {
 		log.Print(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
@@ -638,32 +651,13 @@ func prehled(c echo.Context) error {
 		log.Print(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
-	trida, _ := databaze.GetTridaByUziv(uziv.ID)
 	return c.JSON(http.StatusOK, echo.Map{
-		"email":     uziv.Email,
-		"jmeno":     uziv.Jmeno,
-		"daystreak": daystreak,
-		"dokonceno": dokonceno,
-		"role":      utils.GetRole(uziv.Role, trida.ID),
-
-		"celkem": echo.Map{
-			"uspesnost":        presnostCelkem,
-			"rychlost":         utils.Prumer(cpmCelkem),
-			"cas":              casCelkem,
-			"nejcastejsiChyby": chybyPismenkaCelkem,
-		},
-		"14": echo.Map{
-			"uspesnost":        presnostDvaTydny,
-			"rychlost":         utils.Prumer(cpmDvaTydny),
-			"cas":              casDvaTydny,
-			"nejcastejsiChyby": chybyPismenkaDvaTydny,
-		},
-		"1": echo.Map{
-			"uspesnost":        presnostDnes,
-			"rychlost":         utils.Prumer(cpmDnes),
-			"cas":              casDnes,
-			"nejcastejsiChyby": chybyPismenkaDnes,
-		},
+		"daystreak":        daystreak,
+		"postupVKurzu":     dokonceno,
+		"uspesnost":        presnost,
+		"rychlost":         utils.Prumer(cpm),
+		"cas":              cas,
+		"nejcastejsiChyby": chybyPismenka,
 	})
 }
 
@@ -685,7 +679,7 @@ func testVyprseniTokenu(c echo.Context) error {
 		jePotrebaVymenit = true
 	}
 	trida, _ := databaze.GetTridaByUziv(uziv.ID)
-	return c.JSON(http.StatusOK, echo.Map{"jePotrebaVymenit": jePotrebaVymenit, "role": utils.GetRole(uziv.Role, trida.ID)})
+	return c.JSON(http.StatusOK, echo.Map{"jmeno": uziv.Jmeno, "email": uziv.Email, "jePotrebaVymenit": jePotrebaVymenit, "role": utils.GetRole(uziv.Role, trida.ID)})
 }
 
 func navsteva(c echo.Context) error {

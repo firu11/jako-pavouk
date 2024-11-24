@@ -71,11 +71,10 @@ function zacit() {
         <div class="text">
             <h2>Systém pro školy</h2>
             <p>
-                Jste vyučující na škole, kde probíhá výuka psaní všemi deseti? Nebo snad ještě neprobíhá? Vyzkoušejte ve třídě organizovanou výuku psaní!
+                Jste vyučující na škole, kde probíhá výuka psaní všemi deseti? Nebo snad ještě neprobíhá? Vyzkoušejte si <b>organizovanou výuku</b> psaní!
             </p>
             <div style="display: flex; gap: 20px; justify-content: center;">
                 <button class="tlacitko" @click="router.push('/skolni-system')">Číst dál</button>
-                <button class="tlacitko" @click="router.push('/zapis')">Zapsat se</button>
             </div>
         </div>
     </div>

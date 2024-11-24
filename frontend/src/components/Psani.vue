@@ -437,37 +437,37 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
                         <div v-for="p in s" :key="p.id" class="pismeno" :id="'p' + p.id"
                             :class="{ podtrzeni: p.id === aktivniPismeno.id, 'spatne-pismeno': p.spatne === 1 && aktivniPismeno.id > p.id, 'opravene-pismeno': p.spatne === 2 && aktivniPismeno.id > p.id, 'spravne-pismeno': (!p.spatne && aktivniPismeno.id > p.id) || !p.psat }">
 
-                            {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp;") }} </div>
+                            {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp;") }} 
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <Transition>
-                <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice || prestalPsat"
-                    :cekame="(aktivniPismeno.id == 0 || aktivniPismeno.id == -1) && cass == 0" :full-hide="fullHideKlavesnice" />
-            </Transition>
-            <Transition>
-                <Tooltip zprava="Restart cvičení <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="120" :vzdalenostX="485" :vzdalenost="32">
-                    <div v-if="klavesnice != '' && props.resetBtn" id="reset-btn" @click="resetTlacitko(); animace()"
-                        :class="{ schovat: route.fullPath == '/prvni-psani' }">
-                        <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Restart">
-                    </div>
-                </Tooltip>
-            </Transition>
-            <Transition>
-                <div v-if="klavesnice != '' && props.resetBtn" id="hide-btn" @click="fullHideKlavesnice = !fullHideKlavesnice"
-                    :class="{ schovat: route.fullPath == '/prvni-psani' }"
-                    :style="{ top: route.fullPath.split('/')[1] == 'lekce' ? '-140px' : '-70px' }">
-                    <img v-if="!fullHideKlavesnice" src="../assets/icony/oko.svg" alt="Schovat" width="34">
-                    <img v-else src="../assets/icony/okoSkrtnuty.svg" alt="Schovat" width="34">
+        <Transition>
+            <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice || prestalPsat"
+                :cekame="(aktivniPismeno.id == 0 || aktivniPismeno.id == -1) && cass == 0" :full-hide="fullHideKlavesnice" />
+        </Transition>
+        <Transition>
+            <Tooltip zprava="Restart cvičení <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="120" :vzdalenostX="385" :vzdalenost="85">
+                <div v-if="klavesnice != '' && props.resetBtn" id="reset-btn" @click="resetTlacitko(); animace()"
+                    :class="{ schovat: route.fullPath == '/prvni-psani' }">
+                    <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Restart">
                 </div>
-            </Transition>
-
-            <div id="zvuk-btn" @click="toggleZvuk">
-                <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvuk-icon" src="../assets/icony/zvukOn.svg" alt="Zvuky jsou zapnuté">
-                <img v-else style="margin-left: 1px;" class="zvuk-icon" src="../assets/icony/zvukOff.svg" alt="Zvuky jsou vypnuté">
+            </Tooltip>
+        </Transition>
+        <Transition>
+            <div v-if="klavesnice != '' && props.resetBtn" id="hide-btn" @click="fullHideKlavesnice = !fullHideKlavesnice"
+                :class="{ schovat: route.fullPath == '/prvni-psani' }"
+                :style="{ top: route.fullPath.split('/')[1] == 'lekce' ? '-140px' : '-70px' }">
+                <img v-if="!fullHideKlavesnice" src="../assets/icony/oko.svg" alt="Schovat" width="34">
+                <img v-else src="../assets/icony/okoSkrtnuty.svg" alt="Schovat" width="34">
             </div>
+        </Transition>
+
+        <div id="zvuk-btn" @click="toggleZvuk">
+            <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvuk-icon" src="../assets/icony/zvukOn.svg" alt="Zvuky jsou zapnuté">
+            <img v-else style="margin-left: 1px;" class="zvuk-icon" src="../assets/icony/zvukOff.svg" alt="Zvuky jsou vypnuté">
         </div>
         <Transition>
             <div id="nepise" v-if="prestalPsat" :style="{ boxShadow: fullHideKlavesnice ? 'none' : '0px 0px 10px 2px rgba(0, 0, 0, 0.75)' }">
@@ -478,11 +478,11 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
                 <button class="tlacitko" @click="prestalPsat = false">Jsem tu!</button>
             </div>
         </Transition>
+    </div>
 </template>
 
 <style scoped>
 #hide-btn {
-    position: relative;
     top: 100px;
     position: relative;
     width: 55px;

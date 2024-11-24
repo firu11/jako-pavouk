@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import axios from 'axios';
 import { onMounted, onUnmounted, ref } from 'vue';
-import { checkTeapot, getToken, pridatOznameni } from '../utils';
-import { useRouter } from 'vue-router';
+import { pridatOznameni, postKlavesnice } from '../utils';
 import { mobil } from '../stores';
+import { useRoute, useRouter } from 'vue-router';
 
 const router = useRouter()
+const route = useRoute()
+
 const klavesnice = ref(false)
 const mameJi = ref(false)
 const rucne = ref(mobil)
@@ -19,15 +20,6 @@ onMounted(() => {
 onUnmounted(() => {
     document.removeEventListener("keypress", click)
 })
-
-function postKlavesnice() {
-    let k = klavesnice.value ? "qwerty" : "qwertz"
-    axios.post("/ucet-zmena", { "zmena": "klavesnice", "hodnota": k }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(() => {
-        router.push("/ucet")
-    }).catch(e => {
-        checkTeapot(e)
-    })
-}
 
 function click(e: KeyboardEvent) {
     if (e.key.toLowerCase() == "z") {
@@ -57,9 +49,14 @@ function zoomOut() {
     img.value.style.transform = "none"
 }
 
+function potvrdit() {
+    postKlavesnice(klavesnice.value)
+    router.push("/" + route.query["kam"])
+}
+
 </script>
 <template>
-    <h2>Výběr klávesnice</h2>
+    <h1>Výběr klávesnice</h1>
 
     <div id="popup">
         <div>
@@ -68,7 +65,7 @@ function zoomOut() {
 
         <p v-if="!mameJi && !rucne">Zmáčkni prosím toto tlačítko na své klávesnici.</p>
         <p v-else-if="mameJi">Super! Tvoje rozložení je <b>{{ klavesnice ? 'Qwerty' : 'Qwertz' }}.</b></p>
-        <button v-if="mameJi" class="tlacitko" @click="postKlavesnice" style="margin-top: -14px;">Pokračovat</button>
+        <button v-if="mameJi" class="tlacitko" @click="potvrdit" style="margin-top: -14px;">Pokračovat</button>
 
         <div v-if="rucne && !mameJi" id="tlacitka">
             <button class="tlacitko" @click="klavesnice = false; mameJi = true">Qwertz</button>
@@ -116,7 +113,7 @@ function zoomOut() {
     line-height: 40px;
 }
 
-h2 {
+h1 {
     margin: 40px 0 0 0;
     font-size: 32px;
 }
