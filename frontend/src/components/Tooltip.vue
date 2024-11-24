@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onUnmounted } from "vue";
 import { onMounted, ref } from "vue";
 
 const props = defineProps({
@@ -34,9 +34,12 @@ onMounted(() => {
         obsah.value.style.left = `${props.xOffset}px`
     }
 
-    if (props.vzdalenostX !== 0) {
-        tip.value.style.left = `${getPageTopLeft(tip.value).left + props.vzdalenostX}px`
-    }
+    recalc()
+    window.addEventListener('resize', recalc)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('resize', recalc)
 })
 
 function getPageTopLeft(el: Element) {
@@ -48,10 +51,24 @@ function getPageTopLeft(el: Element) {
     }
 }
 
+function recalc() {
+    if (props.vzdalenostX !== 0) {
+        tip.value.style.removeProperty('left')
+        tip.value.style.removeProperty('right')
+        let left = getPageTopLeft(tip.value).left + props.vzdalenostX
+
+        if (left + props.sirka! > document.body.clientWidth) {
+            tip.value.style.right = `0px`
+        }  else {
+            tip.value.style.left = `${left}px`
+        }
+    }
+}
+
 </script>
 
 <template>
-    <div style="display: flex; flex-direction: column; align-items: center;">
+    <div id="wrap">
         <div id="obsah" ref="obsah">
             <slot />
         </div>
@@ -74,7 +91,6 @@ function getPageTopLeft(el: Element) {
     z-index: 100;
     line-height: 16px;
     pointer-events: none;
-
     transition: 0.1s opacity;
 }
 
@@ -86,5 +102,11 @@ function getPageTopLeft(el: Element) {
 #obsah {
     position: relative;
     cursor: help;
+}
+
+#wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 </style>

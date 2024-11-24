@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import axios from "axios";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { checkTeapot, pridatOznameni } from "../utils";
 import { useHead } from "unhead";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 useHead({
     title: "Zapomenuté heslo"
 })
 
 const router = useRouter()
+
+const predvyplenyEmail = useRoute().query.email as string
 
 const heslo = ref("")
 const kod = ref("")
@@ -21,6 +23,12 @@ const spatnyHeslo = ref(false)
 const posilame = ref(false)
 
 const state = ref("email")
+
+onMounted(() => {
+    if (predvyplenyEmail != undefined) {
+        email.value = predvyplenyEmail
+    }
+})
 
 function zmena() { // pokud zacnu znova psat tak zrusim znaceni spatnyho inputu
     spatnyEmail.value = false

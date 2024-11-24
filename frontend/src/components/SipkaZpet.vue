@@ -24,7 +24,7 @@ function zpatky() {
         router.push("/procvic")
         return
     }
-    if (history.state.back == null) {
+    if (history.state.back != null) {
         history.back()
         return
     }

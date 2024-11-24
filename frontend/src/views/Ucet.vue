@@ -67,9 +67,6 @@ async function getInfo() {
         role.value = resp.data.role
 
         prepnoutStatistiky()
-    }).catch(() => {
-        router.push("/prihlaseni")
-        prihlasen.value = false
     })
     setTimeout(() => {
         let jmeno = document.getElementById("jmeno")
@@ -155,7 +152,7 @@ function prepnoutStatistiky() {
 
 <template>
     <div id="ucet">
-        <img src="../assets//pavoucekBezPozadi.svg" alt="uzivatel">
+        <img src="../assets/pavoucekBezPozadi.svg" alt="uzivatel">
         <div id="nadpisy">
             <h1 v-if="!uprava" id="jmeno">{{ info.jmeno }}
                 <img @click="uprava = true" id="upravit" src="../assets/icony/upravit.svg" alt="Upravit">

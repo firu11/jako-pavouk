@@ -2,7 +2,7 @@
 import axios from "axios";
 import { ref } from "vue";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
-import { prihlasen, tokenJmeno } from "../stores";
+import { prihlasen, tokenJmeno, uziv } from "../stores";
 import { pridatOznameni } from "../utils";
 import { useHead } from "unhead";
 
@@ -39,8 +39,8 @@ function registr(e: Event) {
     if (!jmeno.value) spatnyJmeno.value = true
 
     if (spatnyEmail.value || spatnyHeslo.value || spatnyJmeno.value) {
-        if (spatnyJmeno.value && jmeno.value.length > 12) pridatOznameni("Jméno je moc krátké.<br>(3-12 znaků)")
-        else if (spatnyJmeno.value && jmeno.value.length < 3) pridatOznameni("Jméno je moc dlouhé.<br>(3-12 znaků)")
+        if (spatnyJmeno.value && jmeno.value.length > 12) pridatOznameni("Jméno je moc dlouhé.<br>(3-12 znaků)")
+        else if (spatnyJmeno.value && jmeno.value.length < 3) pridatOznameni("Jméno je moc krátké.<br>(3-12 znaků)")
         else if (spatnyJmeno.value) pridatOznameni("Jméno může obsahovat jen velká a malá písmena, čísla a znaky _-+*!?")
         else if (spatnyEmail.value) pridatOznameni("Email není validní.")
         else if (spatnyHeslo.value) pridatOznameni("Heslo musí být 5-72 znaků dlouhé. Bez diakritiky.")
@@ -98,7 +98,7 @@ function overeniPost(e: Event) {
             .then(response => {
                 localStorage.setItem(tokenJmeno, response.data.token)
                 prihlasen.value = true
-                router.push("/klavesnice")
+                router.push("/klavesnice?kam=statistiky")
             }).catch(e => {
                 if (e.response.data.error.search("kod") != -1) {
                     spatnyKod.value = true
@@ -146,7 +146,12 @@ const handleLoginSuccess = (response: { credential: string}) => {
     }).then(response => {
         localStorage.setItem(tokenJmeno, response.data.token)
         prihlasen.value = true
-        router.push("/klavesnice")
+        
+        uziv.value.email = response.data.email
+        uziv.value.jmeno = response.data.jmeno
+
+        if (response.data.novy) router.push("/klavesnice?kam=statistiky")
+        else router.push("/statistiky")
     }).catch(() => {
         pridatOznameni()
     })

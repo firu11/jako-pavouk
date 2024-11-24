@@ -313,7 +313,7 @@ h2 {
 
     .blok span {
         font-size: 13px;
-        top: -2.5px;
+        top: -3.5px;
         gap: 3px;
         height: 22px;
     }

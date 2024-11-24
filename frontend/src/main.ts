@@ -18,3 +18,5 @@ app.use(vue3GoogleLogin, {
 app.use(router)
 setHeadInjectionHandler(() => head) // zmizí warning: "inject() can only be used inside setup() or functional components." https://github.com/unjs/unhead/discussions/375
 app.mount("#app")
+
+console.log("%cCo sem koukáš koloušku?", "color: white; font-size: x-large") // troulin

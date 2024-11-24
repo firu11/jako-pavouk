@@ -1,23 +1,26 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, useTemplateRef, watch } from "vue";
 import MenuLink from "./components/MenuLink.vue";
-import { mobil, prihlasen, role, tokenJmeno } from "./stores";
+import { mobil, prihlasen, role, tokenJmeno, uziv } from "./stores";
 import { jeToRobot, getToken, oznameni, pridatOznameni } from "./utils";
 import { useHead } from "unhead";
 import axios from "axios";
 import { useRouter } from "vue-router";
+import Tooltip from "./components/Tooltip.vue";
 
 useHead({
     titleTemplate: (title?: string) => title == "" || title == undefined ? "Psaní všemi deseti zdarma | Jako Pavouk" : `${title} | Jako Pavouk`
 })
 
-
 const router = useRouter()
 const mobilMenu = ref(false)
 
-onMounted(() => {
-    console.log("%cCo sem koukáš koloušku?", "color: white; font-size: x-large"); // troulin
+const jmenoSpan = useTemplateRef('jmenoSpan')
+const nadpisyDiv = useTemplateRef('nadpisyDiv')
 
+const odhlaseniPotvrzeni = ref(false)
+
+onMounted(() => {
     if (getToken()) {
         axios.get("/token-expirace", {
             headers: {
@@ -25,6 +28,8 @@ onMounted(() => {
             }
         }).then(response => {
             role.value = response.data.role
+            uziv.value.email = response.data.email
+            uziv.value.jmeno = response.data.jmeno
 
             if (response.data.jePotrebaVymenit) {
                 localStorage.removeItem(tokenJmeno)
@@ -49,28 +54,101 @@ onMounted(() => {
     })
 })
 
+async function upravitSirkuJmena() {
+    if (jmenoSpan.value == undefined || nadpisyDiv.value == undefined) {
+        setTimeout(upravitSirkuJmena, 10)
+        return
+    }
+
+    let velikost = 24
+    jmenoSpan.value.style.fontSize = `${velikost}px`
+    while (jmenoSpan.value.clientWidth! > nadpisyDiv.value.clientWidth) {
+        velikost -= 0.5
+        jmenoSpan.value.style.fontSize = `${velikost}px`
+        if (velikost <= 0) break
+    }
+    console.log("velikost jmena v px:", velikost)
+}
+
+function odhlasit() {
+    localStorage.removeItem(tokenJmeno)
+    role.value = "basic"
+    prihlasen.value = false
+    router.push("/prihlaseni")
+
+    uziv.value.email = ""
+    uziv.value.jmeno = ""
+}
+
+let timeoutID = 0
+function zrusitPotvrzeni() {
+    timeoutID = setTimeout(() => { odhlaseniPotvrzeni.value = false }, 1000)
+}
+
+function zrusitTimeout() {
+    clearTimeout(timeoutID)
+}
+
+watch(() => uziv.value.jmeno, () => {
+    setTimeout(upravitSirkuJmena, 1)
+})
+
 </script>
 
 <template>
-    <header>
-        <div id="menu-mobilni-btn" @click="mobilMenu = !mobilMenu"><img id="menuIcon" src="./assets/icony/menu.svg" alt="Menu" width="40" height="40">
-        </div>
-        <nav :class="{ 'mobil-hidden': !mobilMenu }" @click="mobilMenu = !mobilMenu">
+    <div id="menu-mobilni-btn" @click="mobilMenu = !mobilMenu">
+        <img id="menuIcon" src="./assets/icony/menu.svg" alt="Menu" width="40" height="40">
+    </div>
+    <header :class="{ 'mobil-hidden': !mobilMenu }">
+        <nav @click="mobilMenu=!mobilMenu">
             <MenuLink jmeno="Domů" cesta="/" />
             <MenuLink jmeno="Jak psát" cesta="/jak-psat" />
             <MenuLink jmeno="Kurz" cesta="/kurz" />
             <MenuLink jmeno="Procvičování" cesta="/procvic" />
-            <MenuLink jmeno="Test psaní" cesta="/test-psani" />
+            <MenuLink v-if="!mobil" jmeno="Test psaní" cesta="/test-psani" />
             <MenuLink v-if="role == 'student'" jmeno="Škola" cesta="/trida" />
             <MenuLink v-else-if="role == 'ucitel'" jmeno="Škola" cesta="/skola" />
             <MenuLink jmeno="O nás" cesta="/o-nas" />
-            <MenuLink v-if="!prihlasen" jmeno="Přihlásit se" cesta="/prihlaseni" />
-            <MenuLink v-else jmeno="Můj účet" cesta="/ucet" />
-        </nav>
+            </nav>
+            <div v-if="prihlasen && uziv.jmeno != ''" id="ucet" @click="mobilMenu = !mobilMenu">
+                <div id="kontejner">
+                    <div id="tlacitka">
+                        <Tooltip zprava="Nastavení účtu" :sirka="100" :vzdalenost="-36" :vzdalenostX="75">
+                            <div class="kulate-tlacitko" @click="router.push('/nastaveni')">
+                                <img src="./assets/icony/nastaveni.svg" alt="" width="22" height="22">
+                            </div>
+                        </Tooltip>
+                        <Tooltip zprava="Statitiky" :sirka="100" :vzdalenost="-29" :vzdalenostX="75">
+                            <div class="kulate-tlacitko" @click="router.push('/statistiky')">
+                                <img src="./assets/icony/statistiky.svg" alt="" width="22" height="22">
+                            </div>
+                        </Tooltip>
+                        <Tooltip v-if="!odhlaseniPotvrzeni" zprava="Odhlásit" :sirka="100" :vzdalenost="-29" :vzdalenostX="75">
+                            <div class="kulate-tlacitko" @click="odhlaseniPotvrzeni = true">
+                                <img src="./assets/icony/odhlasit.svg" alt="" width="22" height="22">
+                            </div>
+                        </Tooltip>
+                        <div v-else class="kulate-tlacitko" @click="odhlasit" @mouseleave="zrusitPotvrzeni" @mouseenter="zrusitTimeout">
+                            <img src="./assets/icony/right.svg" alt="" width="22" height="22">
+                        </div>
+                    </div>
+                    <img src="./assets/pavoucekBezPozadi.svg" alt="uzivatel" width="181" height="114">
+                </div>
+                <hr style="border: white solid 1px;">
+                <div id="nadpisy" ref="nadpisyDiv">
+                    <span id="jmeno" ref="jmenoSpan">{{ uziv.jmeno }}</span>
+                    <span id="email">{{ uziv.email }}</span>
+                </div>
+            </div>
+            <div v-else id="ucet" class="neprihlasen" @click="mobilMenu = !mobilMenu">
+                <img src="./assets/pavoucekBezPozadi.svg" alt="uzivatel" width="181" height="114">
+                <span>Nepřihlášný pavouk</span>
+                <MenuLink jmeno="Přihlásit se" cesta="/prihlaseni" />
+            </div>
     </header>
-    <div id="view">
+    <main id="view">
         <RouterView :key="$route.fullPath" />
-    </div>
+    </main>
 
     <div id="alerty">
         <TransitionGroup name="list">
@@ -84,6 +162,84 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.neprihlasen {
+    padding: 15px 0 0 0 !important;
+    align-items: center;
+}
+
+.neprihlasen span {
+    font-size: 18px;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
+.neprihlasen a {
+    width: 100%;
+}
+
+#ucet {
+    padding: 15px 17px;
+    margin-top: auto;
+    background-color: var(--tmave-fialova);
+    border-radius: 10px;
+    aspect-ratio: 1/1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform ease-in-out 0.3s;
+    width: var(--sirka-menu);
+}
+
+#ucet #nadpisy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+#ucet #jmeno {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+#ucet #email {
+    max-width: 100%;
+    font-size: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#ucet #tlacitka {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+#ucet #tlacitka .kulate-tlacitko {
+    border-radius: 4px;
+    padding: 5px;
+    width: 32px;
+    height: 32px;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+#ucet #tlacitka .kulate-tlacitko:hover {
+    background-color: var(--fialova);
+}
+
+#kontejner {
+    display: flex;
+    width: 100%;
+    align-items: center;
+}
+
+#kontejner>img {
+    max-width: calc(100% - 15px);
+    margin-right: -15px;
+    user-select: none;
+}
+
 /* na tu animaci oznameni */
 .list-move {
     transition: all 0.2s ease;
@@ -138,17 +294,26 @@ onMounted(() => {
     width: 24px;
 }
 
-nav {
+header {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
     position: fixed;
-    left: 10px;
-    top: 10px;
+    padding: 10px;
+    left: 0;
+    gap: 10px;
+    z-index: 1000 !important;
+    transition: transform ease-in-out 0.3s;
+}
+
+nav {
+    flex-grow: 10;
     width: var(--sirka-menu);
-    height: calc(100vh - 20px);
-    flex-shrink: 0;
     border-radius: 10px;
     background-color: var(--tmave-fialova);
-    transition: transform ease-in-out 0.3s;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 #menu-mobilni-btn {
@@ -175,12 +340,8 @@ nav {
         z-index: 1000;
     }
 
-    nav {
-        border-radius: 10px;
-        background-color: var(--tmave-fialova);
-        display: flex;
-        flex-direction: column;
-        z-index: 10;
+    nav,
+    #ucet {
         box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.75);
     }
 

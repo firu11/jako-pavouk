@@ -109,16 +109,20 @@ export class MojeMapa extends Map<string, number> {
         }
     }
     top(n: number) {
-        const nejvetsi = new Map<string, number>();
+        const nejvetsi = [] as {znak: string, pocet: number}[]
+        const pouzity = new Map<string, number>()
         for (let i = 0; i < n; i++) {
             const nej: { znak: string, pocet: number } = { znak: "", pocet: 0 }
             this.forEach((pocet, znak) => {
-                if (pocet > nej.pocet && nejvetsi.get(znak) == undefined) {
+                if (pocet > nej.pocet && pouzity.get(znak) == undefined) {
                     nej.znak = znak
                     nej.pocet = pocet
                 }
             })
-            if (nej.znak != "") nejvetsi.set(nej.znak, nej.pocet)
+            if (nej.znak != "") {
+                nejvetsi.push(nej)
+                pouzity.set(nej.znak, 1)
+            }
         }
         return nejvetsi
     }
@@ -172,4 +176,11 @@ export function getCisloProcvic(id: string): number {
 
 export function setCisloProcvic(id: string, cislo: number) {
     localStorage.setItem(cislaProcvicJmeno + id, String(cislo))
+}
+
+export function postKlavesnice(klavesnice: boolean) {
+    const k = klavesnice ? "qwerty" : "qwertz"
+    axios.post("/ucet-zmena", { "zmena": "klavesnice", "hodnota": k }, { headers: { Authorization: `Bearer ${getToken()}` } }).catch(e => {
+        checkTeapot(e)
+    })
 }

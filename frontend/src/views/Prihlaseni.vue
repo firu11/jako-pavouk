@@ -2,7 +2,7 @@
 import axios from "axios";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { prihlasen, tokenJmeno } from "../stores";
+import { prihlasen, tokenJmeno, uziv } from "../stores";
 import { pridatOznameni } from "../utils";
 import { useHead } from "unhead";
 
@@ -40,7 +40,11 @@ function login(e: Event) {
     }).then(response => {
         localStorage.setItem(tokenJmeno, response.data.token)
         prihlasen.value = true
-        router.push("/ucet")
+
+        uziv.value.email = response.data.email
+        uziv.value.jmeno = response.data.jmeno
+        
+        router.push("/statistiky")
     }).catch(e => {
         if (e.response.status == 400 || e.response.status == 401) {
             if (e.response.data.error.search("Email") !== -1) {
@@ -66,13 +70,18 @@ function zmena() { // pokud zacnu znova psat tak zrusim znaceni spatnyho inputu
     spatnyHeslo.value = false
 }
 
-const handleLoginSuccess = (response: { credential: string}) => {
+const handleLoginSuccess = (response: { credential: string }) => {
     axios.post("/google", {
         "access_token": response.credential,
     }).then(response => {
         localStorage.setItem(tokenJmeno, response.data.token)
         prihlasen.value = true
-        router.push("/klavesnice")
+
+        uziv.value.email = response.data.email
+        uziv.value.jmeno = response.data.jmeno
+
+        if (response.data.novy) router.push("/klavesnice?kam=statistiky")
+        else router.push("/statistiky")
     }).catch(() => {
         pridatOznameni()
     })
@@ -83,17 +92,15 @@ const handleLoginSuccess = (response: { credential: string}) => {
     <h2>Přihlášení</h2>
     <form>
         <h3 class="nadpis">Email nebo jméno:</h3>
-        <input :class="{ 'spatnej-input': spatnyEmail }" :oninput="zmena" type="text" v-model="email"
-            placeholder="Např: pan@pavouk.cz" inputmode="email">
+        <input :class="{ 'spatnej-input': spatnyEmail }" :oninput="zmena" type="text" v-model="email" placeholder="Např: pan@pavouk.cz"
+            inputmode="email">
         <h3 class="nadpis">Heslo:</h3>
-        <input :class="{ 'spatnej-input': spatnyHeslo }" :oninput="zmena" type="password" v-model="heslo"
-            placeholder='Rozhodně ne "Pavouk123"'>
+        <input :class="{ 'spatnej-input': spatnyHeslo }" :oninput="zmena" type="password" v-model="heslo" placeholder='Rozhodně ne "Pavouk123"'>
         <button type="submit" class="tlacitko" @click="login">Přihlásit</button>
 
         <hr id="predel">
 
-        <GoogleLogin id="google" :callback="handleLoginSuccess" :error="pridatOznameni"
-            :buttonConfig="{ text: 'continue_with' }" />
+        <GoogleLogin id="google" :callback="handleLoginSuccess" :error="pridatOznameni" :buttonConfig="{ text: 'continue_with' }" />
     </form>
     <p>Nemáš ještě účet?
         <router-link to="/registrace">Registrace</router-link>
