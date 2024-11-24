@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -90,7 +91,7 @@ func setupSkolniRouter(api *echo.Group) {
 	skolaApi.POST("/zapis-skoly", zapisSkoly)
 }
 
-var kanalyTrid = make(map[int]chan int)
+var kanalyTrid sync.Map
 
 func zaciStream(c echo.Context) error {
 	tridaID, err := strconv.ParseInt(c.Param("id"), 10, 8)
@@ -102,18 +103,21 @@ func zaciStream(c echo.Context) error {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
-
-	kanalyTrid[int(tridaID)] = make(chan int)
+	kanalyTrid.Store(int(tridaID), make(chan int))
 
 	fmt.Fprint(w, "Jedemee\n\n")
 	w.Flush()
 
 	for {
+		ch, ok := kanalyTrid.Load(int(tridaID))
+		if !ok {
+			return nil
+		}
 		select {
 		case <-c.Request().Context().Done():
-			delete(kanalyTrid, int(tridaID))
+			kanalyTrid.Delete(int(tridaID))
 			return nil
-		case <-kanalyTrid[int(tridaID)]:
+		case <-ch.(chan int):
 			fmt.Fprint(w, "data: Nový žák\n\n")
 			w.Flush()
 		}
@@ -496,10 +500,10 @@ func zapis(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 
-	ch, ok := kanalyTrid[tridaID]
+	ch, ok := kanalyTrid.Load(tridaID)
 	if ok {
 		select {
-		case ch <- 1:
+		case ch.(chan int) <- 1:
 		default:
 		}
 	}
@@ -709,10 +713,10 @@ func dokoncitPraci(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 	}
 
-	ch, ok := kanalyTrid[tridaID]
+	ch, ok := kanalyTrid.Load(tridaID)
 	if ok {
 		select {
-		case ch <- 1:
+		case ch.(chan int) <- 1:
 		default:
 		}
 	}
