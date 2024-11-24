@@ -465,7 +465,7 @@ func GetDaystreak(uzivID uint) (int, error) {
 	return daystreak, nil
 }
 
-/*                                    presnost,   cpm,    chybyPismenka,  cas*/
+/*                          presnost,   cpm,    chybyPismenka,  cas*/
 func GetUdaje(uzivID uint) (float32, []float64, map[string]int, float64, error) {
 	var presnost float32 = -1
 	var delkaVsechTextu int = 0
@@ -519,6 +519,35 @@ func GetUdaje(uzivID uint) (float32, []float64, map[string]int, float64, error) 
 	}
 
 	return presnost, cpm, chybyPismenka, casCelkem, nil
+}
+
+func GetUdajeProGraf(uzivID uint) ([13]float32, [13]float32, error) {
+	var rychlosti [13]float32
+	var presnosti [13]float32
+
+	var rows *sql.Rows
+	var err error
+	rows, err = DB.Query(`WITH dny AS ( SELECT CURRENT_DATE - gs.n AS datum FROM generate_series(0, 12, 1) AS gs (n) ), vsechny_zaznamy AS ( SELECT neopravene, delka_textu, cas, datum, ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ) AS opravene FROM dokoncene WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) UNION SELECT neopravene, delka_textu, cas, datum, ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ) AS opravene FROM dokoncene_procvic WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) ), vypocteny_dny AS ( SELECT datum::date, GREATEST( ( ( SUM(delka_textu) - 10 * SUM(neopravene) ) / SUM(cas) ) * 60, 0 ) AS rychlost, COALESCE( ( ( SUM(delka_textu) - SUM(neopravene) - COALESCE(SUM(opravene), 0) ) / SUM(delka_textu)::FLOAT ) * 100, -1 ) AS presnost FROM vsechny_zaznamy GROUP BY datum::date ) SELECT dny.datum, COALESCE(vypocteny_dny.rychlost, -1) AS rychlost, COALESCE(vypocteny_dny.presnost, -1) AS presnost FROM dny LEFT JOIN vypocteny_dny ON dny.datum = vypocteny_dny.datum ORDER BY dny.datum;`, uzivID)
+	if err != nil {
+		return rychlosti, presnosti, err
+	}
+	defer rows.Close()
+
+	for i := range 13 {
+		rows.Next()
+
+		var rychlost, presnost float32
+		var datum date.Date
+		err := rows.Scan(&datum, &rychlost, &presnost)
+		if err != nil {
+			return rychlosti, presnosti, err
+		}
+
+		rychlosti[i] = rychlost
+		presnosti[i] = presnost
+	}
+	/* log.Println(rychlosti, presnosti) */
+	return rychlosti, presnosti, nil
 }
 
 func DokonceneProcento(uzivID uint) (float32, error) {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useHead } from "unhead";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, useTemplateRef } from "vue";
 import { role } from "../stores";
 import { getToken, MojeMapa } from "../utils";
 import axios from "axios";
@@ -13,9 +13,12 @@ useHead({
     title: "Statistiky"
 })
 
-const info = ref({ rychlost: -1, cas: 0, uspesnost: -1, postupVKurzu: 0, daystreak: 0, nejcastejsiChyby: new Map<string, number>() })
-
+const info = ref({ rychlost: -1, cas: 0, cas1: 0, cas14: 0, napsanychPismen: 0, napsanychPismen1: 0, napsanychPismen14: 0, uspesnost: -1, postupVKurzu: 0, daystreak: 0, nejcastejsiChyby: new Map<string, number>(), rychlosti: [] as number[], presnosti: [] as number[] })
 const nejcastejsiChyby = ref([] as { znak: string, pocet: number }[])
+const cas = ref(0)
+const napsanychPismen = ref(0)
+
+const prepinacTabu = useTemplateRef("prepinac-tabu")
 
 async function getInfo() {
     axios.get("/statistiky", {
@@ -25,21 +28,25 @@ async function getInfo() {
     }).then(resp => {
         info.value = resp.data
         nejcastejsiChyby.value = new MojeMapa(Object.entries(info.value.nejcastejsiChyby)).top(6)
+
+        // prvne smazeme co půjde ze zacatku
+        while (true) {
+            if (info.value.rychlosti.length > 5 && info.value.rychlosti[0] == -1 && info.value.presnosti[0] == -1) {
+                info.value.rychlosti.shift()
+                info.value.presnosti.shift()
+            } else break
+        }
+
+        // nastavíme -1cky na NaN aby byla v grafu díra
+        for (let i = 0; i < info.value.rychlosti.length; i++) {
+            if (info.value.rychlosti[i] == -1) info.value.rychlosti[i] = NaN
+            else info.value.rychlosti[i] = zaokrouhlit(info.value.rychlosti[i])
+            if (info.value.presnosti[i] == -1) info.value.presnosti[i] = NaN
+            else info.value.presnosti[i] = zaokrouhlit(info.value.presnosti[i])
+        }
+
+        prepnoutStatistiky()
     })
-    setTimeout(() => {
-        let jmeno = document.getElementById("jmeno")
-        let velikost = 2
-        while (jmeno!.clientWidth > 300) { // hnus ale potřebuju to zmenšit natolik aby se to tam vešlo
-            jmeno!.style.fontSize = `${velikost}em`
-            velikost -= 0.2
-        }
-        let email = document.getElementById("email")
-        velikost = 1.5
-        while (email!.clientWidth > 300) { // hnus ale potřebuju to zmenšit natolik aby se to tam vešlo
-            email!.style.fontSize = `${velikost}em`
-            velikost -= 0.1
-        }
-    }, 1)
 }
 
 function zaokrouhlit(cislo: number | null) {
@@ -48,31 +55,20 @@ function zaokrouhlit(cislo: number | null) {
     }
     return Math.round(cislo * 10) / 10
 }
-/* 
+
 function prepnoutStatistiky() {
     if (prepinacTabu.value?.tab == "dnes") {
-        rychlost.value = info.value[1].rychlost
-        uspesnost.value = info.value[1].uspesnost
-        cas.value = info.value[1].cas
-        pismenaChyby.value = Array.from(info.value[1].nejcastejsiChyby, ([name, value]) => ({ pismeno: name as string, pocet: value as number }))
-        pismenaChyby.value.sort((a, b) => b.pocet - a.pocet)
-
+        cas.value = info.value["cas1"]
+        napsanychPismen.value = info.value["napsanychPismen1"]
     } else if (prepinacTabu.value?.tab == "dva tydny") {
-        rychlost.value = info.value[14].rychlost
-        uspesnost.value = info.value[14].uspesnost
-        cas.value = info.value[14].cas
-        pismenaChyby.value = Array.from(info.value[14].nejcastejsiChyby, ([name, value]) => ({ pismeno: name as string, pocet: value as number }))
-        pismenaChyby.value.sort((a, b) => b.pocet - a.pocet)
-
+        cas.value = info.value["cas14"]
+        napsanychPismen.value = info.value["napsanychPismen14"]
     } else if (prepinacTabu.value?.tab == "celkem") {
-        rychlost.value = info.value["celkem"].rychlost
-        uspesnost.value = info.value["celkem"].uspesnost
-        cas.value = info.value["celkem"].cas
-        pismenaChyby.value = Array.from(info.value["celkem"].nejcastejsiChyby, ([name, value]) => ({ pismeno: name as string, pocet: value as number }))
-        pismenaChyby.value.sort((a, b) => b.pocet - a.pocet)
+        cas.value = info.value["cas"]
+        napsanychPismen.value = info.value["napsanychPismen"]
     }
+    console.log("prepinam")
 }
-*/
 
 onMounted(() => {
     getInfo()
@@ -153,42 +149,35 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-        <GrafStatistiky id="graf" />
+        <GrafStatistiky id="graf" :presnosti="info.presnosti" :rychlosti="info.rychlosti" />
     </div>
 
     <div id="bloky">
         <PrepinacTabu id="prepinac-tabu" :taby="[['celkem', 'Celkem'], ['dva tydny', 'Dva týdny'], ['dnes', 'Dnes']]" default-tab="celkem"
-            ref="prepinac-tabu" />
+            ref="prepinac-tabu" @zmena="prepnoutStatistiky" />
         <div class="blok">
             <img src="../assets/icony/cas.svg" alt="Čas" width="68">
             <span class="popis">
                 Čas strávený psaním: <br>
-                <span v-if="info.cas >= 3600">
-                    <AnimaceCisla class="cislo" :cislo="(info.cas - (info.cas % 3600)) / 3600" :desetina-mista="0" /> h
+                <span v-if="cas >= 3600">
+                    <AnimaceCisla class="cislo" :cislo="(cas - (cas % 3600)) / 3600" :desetina-mista="0" /> h
                 </span>
-                <span v-if="(info.cas % 3600) / 60 >= 1">
-                    <AnimaceCisla class="cislo" :cislo="((info.cas % 3600) - (info.cas % 60)) / 60" :desetina-mista="0" /> min
+                <span v-if="(cas % 3600) / 60 >= 1">
+                    <AnimaceCisla class="cislo" :cislo="((cas % 3600) - (cas % 60)) / 60" :desetina-mista="0" /> min
                 </span>
-                <span v-if="info.cas % 60 >= 1 && info.cas < 3660">
-                    <AnimaceCisla class="cislo" :cislo="info.cas % 60" :desetina-mista="0" /> s
+                <span v-if="cas % 60 >= 1 && cas < 3660">
+                    <AnimaceCisla class="cislo" :cislo="cas % 60" :desetina-mista="0" /> s
                 </span>
-                <span v-if="info.cas == 0" class="nic">Zatím nic</span>
+                <span v-if="cas == 0" class="nic">Zatím nic</span>
             </span>
         </div>
         <div class="blok">
             <img src="../assets/icony/cas.svg" alt="Čas" width="68">
             <span class="popis">
                 Napsaných písmen: <br>
-                <span v-if="info.cas >= 3600">
-                    <AnimaceCisla class="cislo" :cislo="(info.cas - (info.cas % 3600)) / 3600" :desetina-mista="0" /> h
+                <span>
+                    <AnimaceCisla class="cislo" :cislo="napsanychPismen" :desetina-mista="0" /> h
                 </span>
-                <span v-if="(info.cas % 3600) / 60 >= 1">
-                    <AnimaceCisla class="cislo" :cislo="((info.cas % 3600) - (info.cas % 60)) / 60" :desetina-mista="0" /> min
-                </span>
-                <span v-if="info.cas % 60 >= 1 && info.cas < 3660">
-                    <AnimaceCisla class="cislo" :cislo="info.cas % 60" :desetina-mista="0" /> s
-                </span>
-                <span v-if="info.cas == 0" class="nic">Zatím nic</span>
             </span>
         </div>
     </div>
@@ -214,7 +203,7 @@ onMounted(() => {
     grid-column-start: 1;
     grid-column-end: 3;
     justify-self: center;
-    margin: 30px 0 0 0;
+    margin: 40px 0 0 0;
     background-color: var(--tmave-fialova);
 }
 
@@ -373,8 +362,9 @@ onMounted(() => {
 }
 
 #graf {
-    height: 190px;
+    height: 200px;
     width: 660px;
+    overflow: hidden;
 }
 
 #nacitani-pozadi {

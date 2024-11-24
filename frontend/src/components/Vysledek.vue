@@ -183,13 +183,13 @@ function e1(e: KeyboardEvent) {
             <hr>
             <div v-if="nejcastejsiChyby.size !== 0">
                 <ol>
-                    <li v-for="znak in nejcastejsiChybyTop3" :key="znak">
-                        <span :style="{ fontSize: znak[0] == ' ' ? '10px' : 'auto' }">{{ znak[0] == " " ? "┗━┛" : znak[0] }}</span>
+                    <li v-for="znak in nejcastejsiChybyTop3" :key="znak.znak">
+                        <span :style="{ fontSize: znak.znak  == ' ' ? '10px' : 'auto' }">{{ znak.znak  == " " ? "┗━┛" : znak.znak }}</span>
                     </li>
                 </ol>
                 <ul>
                     <li v-for="znak in nejcastejsiChybyTop3" :key="znak">
-                        <span v-if="znak[1] > 0">{{ znak[1] }}</span>
+                        <span v-if="znak.pocet > 0">{{ znak.pocet }}</span>
                     </li>
                 </ul>
             </div>
