@@ -1,13 +1,50 @@
 <script setup lang="ts">
 import { Chart, ChartConfiguration, CategoryScale, LinearScale, LineController, PointElement, LineElement, Tooltip } from "chart.js";
-import { onMounted, useTemplateRef } from "vue";
+import { computed, onMounted, ref, useTemplateRef, watch } from "vue";
 
+const props = defineProps({
+    presnosti: {
+        type: Array<number>,
+        default: [NaN, NaN, NaN, NaN, NaN]
+    },
+    rychlosti: {
+        type: Array<number>,
+        default: [NaN, NaN, NaN, NaN, NaN]
+    }
+})
 
-
+let chart: Chart
 const canvas = useTemplateRef<HTMLCanvasElement>("canvas")
+const neniCo = ref(false)
+
+const dny = computed(() => {
+    let delka = props.rychlosti.length == 0 ? 13 : props.rychlosti.length
+
+    const arr: string[] = []
+    for (let i = delka - 1; i > 0; i--) {
+        const d = new Date()
+        d.setDate(d.getDate() - i)
+        arr.push(`${d.getDate()}.${d.getMonth() + 1}.`)
+    }
+    arr.push("Dnes")
+    return arr
+})
+
+watch(props, function () {
+    if (props.presnosti.every(v => isNaN(v))) {
+        neniCo.value = true
+        return
+    }
+
+    chart.data.labels = dny.value
+    chart.data.datasets[0].data = props.rychlosti
+    chart.data.datasets[1].data = props.presnosti
+
+    chart.update()
+})
 
 onMounted(() => {
-    const color = '#948aa3'
+    const color = "#948aa3"
 
     Chart.register(CategoryScale, LinearScale, LineController, PointElement, LineElement, Tooltip)
     Chart.defaults.font = {
@@ -18,57 +55,63 @@ onMounted(() => {
     if (canvas.value == null) return
 
     const options: ChartConfiguration = {
-        type: 'line',
+        type: "line",
         data: {
-            labels: ['10.11.', '11.11.', '12.11.', '13.11.', '14.11.', '15.11.', '16.11.', '17.11.', '18.11.', '19.11.', '20.11.', '21.11.', 'Dnes'],
+            labels: dny.value,
             datasets: [{
-                label: 'Rychlost (CPM)',
-                yAxisID: 'rychlost',
-                data: [176, 192, 199, 202, 212, 232, 235, 220, 254, 199, 202, 212, 232],
+                label: "Rychlost (CPM)",
+                yAxisID: "rychlost",
+                data: props.presnosti,
                 borderWidth: 6,
                 tension: 0,
-                borderColor: '#FFF6',
-                pointBorderColor: 'white',
-                pointBackgroundColor: 'white',
+                borderColor: "#FFF6",
+                pointBorderColor: "white",
+                pointBackgroundColor: "white",
                 pointRadius: 4,
+                spanGaps: true,
             },
             {
-                label: 'Přesnost',
-                yAxisID: 'presnost',
-                data: [84, 84, 84, 84, 100, 84, 78, 84, 80, 84, 84, 99, 98],
+                label: "Přesnost",
+                yAxisID: "presnost",
+                data: props.presnosti,
                 borderWidth: 6,
                 tension: 0,
-                borderColor: '#86487999',
-                pointBorderColor: '#864879',
-                pointBackgroundColor: '#864879',
+                borderColor: "#86487999",
+                pointBorderColor: "#864879",
+                pointBackgroundColor: "#864879",
                 pointRadius: 4,
+                spanGaps: true
             }]
         },
         options: {
             onHover: (_, activeElements) => {
                 if (activeElements?.length > 0) {
-                    canvas.value!.style.cursor = 'pointer'
+                    canvas.value!.style.cursor = "pointer"
                 } else {
-                    canvas.value!.style.cursor = 'auto'
+                    canvas.value!.style.cursor = "auto"
                 }
             },
+            locale: "cs-CZ",
             maintainAspectRatio: false,
             layout: {
-                padding: 10
+                padding: {
+                    left: 10,
+                    right: 10,
+                    top: 5,
+                }
             },
             scales: {
                 x: {
                     grid: {
                         display: false,
-                        color: 'transparent'
+                        color: "transparent"
                     },
                     ticks: {
                         color: color,
-                        maxTicksLimit: 7,
                     }
                 },
                 rychlost: {
-                    position: 'left',
+                    position: "left",
                     grid: {
                         color: color,
                         lineWidth: 2,
@@ -84,8 +127,8 @@ onMounted(() => {
                     },
                     title: {
                         display: true,
-                        text: 'Rychlost (CPM)',
-                        color: '#FFFD',
+                        text: "Rychlost (CPM)",
+                        color: "#FFFD",
                         padding: 4,
                         font: {
                             weight: 500
@@ -93,9 +136,9 @@ onMounted(() => {
                     }
                 },
                 presnost: {
-                    position: 'right',
+                    position: "right",
                     grid: {
-                        color: 'transparent',
+                        color: "transparent",
                         lineWidth: 2,
                         drawOnChartArea: false,
                     },
@@ -110,8 +153,8 @@ onMounted(() => {
                     },
                     title: {
                         display: true,
-                        text: 'Přesnost (%)',
-                        color: '#b657a3',
+                        text: "Přesnost (%)",
+                        color: "#b657a3",
                         padding: 4,
                         font: {
                             size: 21,
@@ -125,11 +168,11 @@ onMounted(() => {
                     display: false
                 },
                 tooltip: {
-                    position: 'nearest',
+                    position: "nearest",
                     displayColors: false,
-                    titleAlign: 'center',
-                    bodyAlign: 'center',
-                    backgroundColor: '#000',
+                    titleAlign: "center",
+                    bodyAlign: "center",
+                    backgroundColor: "#000",
                     caretSize: 0,
                     caretPadding: 10,
                     titleFont: {
@@ -137,28 +180,37 @@ onMounted(() => {
                     },
                     callbacks: {
                         label: function (tooltipItem) {
-                            if (tooltipItem.datasetIndex == 0) return tooltipItem.formattedValue + ' CPM'
-                            else return tooltipItem.formattedValue + ' %'
+                            if (tooltipItem.datasetIndex == 0) return tooltipItem.formattedValue + " CPM"
+                            else return tooltipItem.formattedValue + " %"
                         }
                     },
-                    
+
                 },
             },
         },
     }
-    new Chart(canvas.value, options)
+    chart = new Chart(canvas.value, options)
 })
 
 </script>
 <template>
     <div>
         <canvas ref="canvas" />
+        <span v-if="neniCo">Zatím tu není co zobrazit.</span>
     </div>
 </template>
 <style scoped>
 div {
     background-color: #3f3351;
     border-radius: 10px;
-    padding: 6px 2px 0px 2px;
+    padding: 12px 2px 0px 2px;
+    position: relative;
+}
+
+span {
+    position: absolute;
+    top: 43%;
+    left: 32%;
+    font-size: 20px;
 }
 </style>

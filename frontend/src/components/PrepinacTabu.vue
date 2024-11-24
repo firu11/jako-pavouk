@@ -10,6 +10,7 @@ const props = defineProps({
     },
     defaultTab: String
 })
+const emit = defineEmits(["zmena"])
 
 const tab = ref(props.defaultTab)
 const index = computed(() => {
@@ -19,7 +20,6 @@ const index = computed(() => {
     return 0
 })
 
-
 defineExpose({ tab })
 
 </script>
@@ -27,7 +27,7 @@ defineExpose({ tab })
     <div id="prepinac-tabu">
         <label v-for="x, i in taby" :key="i" :class="{ oznaceny: tab == x[0] }">
             {{ x[1] }}
-            <input type="radio" :value="x[0]" v-model="tab">
+            <input type="radio" :value="x[0]" v-model="tab" @change="emit('zmena')">
         </label>
 
         <span :style="{ transform: `translateX(${100 * index}px)` }"></span>

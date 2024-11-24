@@ -651,6 +651,11 @@ func statistiky(c echo.Context) error {
 		log.Print(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
+	rychlosti, presnosti, err := databaze.GetUdajeProGraf(id)
+	if err != nil {
+		log.Print(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"daystreak":        daystreak,
 		"postupVKurzu":     dokonceno,
@@ -658,6 +663,8 @@ func statistiky(c echo.Context) error {
 		"rychlost":         utils.Prumer(cpm),
 		"cas":              cas,
 		"nejcastejsiChyby": chybyPismenka,
+		"rychlosti":        rychlosti,
+		"presnosti":        presnosti,
 	})
 }
 
