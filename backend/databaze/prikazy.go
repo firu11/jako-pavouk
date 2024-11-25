@@ -320,7 +320,7 @@ func GetRychlostiProcvic(uzivID uint) (map[int]float32, error) {
 	var rows *sql.Rows
 	var err error
 
-	rows, err = DB.Query(`WITH sus AS (SELECT * FROM (SELECT ROW_NUMBER() OVER (PARTITION BY typ_textu ORDER BY datum DESC) AS r, d.* FROM dokoncene_procvic d WHERE uziv_id = $1) AS idk WHERE idk.r <= $2) SELECT typ_textu, AVG(GREATEST(((delka_textu - 10 * neopravene) / cas) * 60, 0)) AS cpm FROM sus GROUP BY typ_textu;`, uzivID, poslednich)
+	rows, err = DB.Query(`WITH sus AS ( SELECT * FROM ( SELECT ROW_NUMBER() OVER ( PARTITION BY typ_textu ORDER BY datum DESC ) AS r, d.* FROM dokoncene_procvic d WHERE uziv_id = $1 ) AS idk WHERE idk.r <= $2 ) SELECT typ_textu, AVG( GREATEST( ( (delka_textu - 10 * neopravene) / cas::NUMERIC ) * 60, 0 ) ) AS cpm FROM sus GROUP BY typ_textu;`, uzivID, poslednich)
 	if err != nil {
 		return rychlosti, err
 	}

@@ -13,10 +13,11 @@ useHead({
 
 const router = useRouter()
 
-const smazatPotvrzeni = ref(false)
 const info = ref({ id: -1, role: "basic", klavesnice: "", jmeno: "...", email: "...@..." })
 const klavesniceUprava = ref(false)
 const jmenoUprava = ref("")
+
+const dialog = useTemplateRef("dialog")
 
 onMounted(() => {
     if (!getToken()) {
@@ -48,6 +49,7 @@ function postSmazat(e: Event) {
         prihlasen.value = false
         localStorage.removeItem("pavouk_token")
         router.push("/prihlaseni")
+        pridatOznameni("Účet byl úspěšně smazán. Pavoučí rodina by však ráda věděla proč odcházíš...")
     }).catch(e => {
         console.log(e)
         pridatOznameni()
@@ -79,13 +81,14 @@ function zmenaJmena(e: Event) {
     }
 }
 
-let timeoutID = 0
-function zrusitPotvrzeni() {
-    timeoutID = setTimeout(() => { smazatPotvrzeni.value = false }, 800)
+function otevritDialog(e: Event) {
+    e.preventDefault()
+    dialog.value?.showModal()
 }
 
-function zrusitTimeout() {
-    clearTimeout(timeoutID)
+function zavritDialog(e: Event) {
+    e.preventDefault()
+    dialog.value?.close()
 }
 
 const jmenoInput = useTemplateRef("jmenoInput")
@@ -130,21 +133,48 @@ const jmenoInput = useTemplateRef("jmenoInput")
         <form>
             <div>
                 <h3>Školní systém:</h3>
-                <button type="button" @click="router.push('/zapis')" class="tlacitko">Zapsat se</button>
+                <button type="button" :disabled="role == 'student'" @click="router.push('/zapis')" class="tlacitko">Zapsat se</button>
             </div>
         </form>
 
         <form>
             <div>
                 <h3>Smazání účtu:</h3>
-                <button v-if="!smazatPotvrzeni && role != 'student'" @click="smazatPotvrzeni = true" class="cervene-tlacitko">Smazat účet</button>
-                <button v-else-if="role != 'student'" @click="postSmazat" class="cervene-tlacitko" @mouseleave="zrusitPotvrzeni"
-                    @mouseenter="zrusitTimeout">Opravdu?</button>
+                <button :disabled="role == 'student'" @click="otevritDialog" class="cervene-tlacitko">Smazat účet</button>
+
+                <dialog ref="dialog">
+                    <div id="dialog-kontejner">
+                        <h2>Chceš opravdu účet smazat?</h2>
+                        <div>
+                            <button class="cervene-tlacitko" @click="postSmazat">Opravdu smazat</button>
+                            <button class="tlacitko" @click="zavritDialog">Zrušit</button>
+                        </div>
+                    </div>
+                </dialog>
             </div>
         </form>
     </div>
 </template>
 <style scoped>
+#dialog-kontejner {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1em;
+}
+
+dialog {
+    height: 140px;
+    margin-top: -70px;
+}
+
+dialog>div>div {
+    display: flex;
+    gap: 1em;
+}
+
 .cervene-tlacitko {
     min-width: 150px;
 }

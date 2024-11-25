@@ -420,6 +420,27 @@ select option {
     margin-bottom: 0;
 }
 
+dialog {
+    background-color: var(--tmave-fialova);
+    color: var(--bila);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    z-index: 100000000;
+    position: fixed;
+    top: 50%;
+    left: calc(50% + var(--sirka-menu) / 2 + 0.4%);
+    width: 400px;
+    margin-left: -200px;
+    height: 200px;
+    margin-top: -100px;
+}
+
+dialog::backdrop {
+    background-color: black;
+    opacity: 0.5;
+}
+
 video {
     border-radius: 8px;
     background-color: var(--tmave-fialova) !important;
@@ -477,6 +498,10 @@ video {
 
     p {
         font-size: 17px;
+    }
+
+    dialog {
+        left: 50%;
     }
 }
 
