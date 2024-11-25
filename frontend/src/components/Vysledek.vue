@@ -202,7 +202,7 @@ function e1(e: KeyboardEvent) {
     <div id="bloky">
         <div class="blok">
             <Tooltip
-                zprava="Za neopravené chyby je adekvátní penalizace. Chybu opravíš pomocí klávesy <span class='klavesa-v-textu-mensi'>Backspace</span>"
+                zprava="Za <b>neopravené</b> chyby je adekvátní <b>penalizace</b>. Chybu opravíš pomocí klávesy <span class='klavesa-v-textu-mensi'>Backspace</span>"
                 :sirka="180" :vzdalenost="6">
                 <AnimaceCisla class="cislo" :cislo="rychlost > 0 ? Math.round(rychlost * 10) / 10 : 0" :desetina-mista="0" />
             </Tooltip>

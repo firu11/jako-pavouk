@@ -118,9 +118,12 @@ onMounted(() => {
                     },
                     ticks: {
                         count: 4,
-                        precision: -1,
                         color: color,
                         padding: 6,
+                        callback: function (value) {
+                            if (typeof value == 'string') return value
+                            return value.toFixed(0)
+                        }
                     },
                     border: {
                         display: false
@@ -144,9 +147,12 @@ onMounted(() => {
                     },
                     ticks: {
                         count: 4,
-                        precision: 0,
                         color: color,
                         padding: 4,
+                        callback: function (value) {
+                            if (typeof value == 'string') return value
+                            return value.toFixed(1)
+                        }
                     },
                     border: {
                         display: false

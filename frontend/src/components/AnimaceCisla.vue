@@ -9,7 +9,7 @@ const props = defineProps({
     desetinaMista: {
         type: Number,
         default: 1
-    },
+    }
 })
 
 const zobrazeneCislo = ref("0")

@@ -3,7 +3,6 @@
 package databaze
 
 import (
-	"backend/utils"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -410,7 +409,7 @@ func GetUzivByJmeno(jmeno string) (Uzivatel, error) {
 
 func GetVsechnyJmenaUziv() ([]string, error) {
 	var uzivatele []string
-	rows, err := DB.Query(`SELECT jmeno FROM uzivatel WHERE NOT smazany;;`)
+	rows, err := DB.Query(`SELECT jmeno FROM uzivatel WHERE NOT smazany;`)
 	if err != nil {
 		return uzivatele, err
 	}
@@ -465,60 +464,26 @@ func GetDaystreak(uzivID uint) (int, error) {
 	return daystreak, nil
 }
 
-/*                          presnost,   cpm,    chybyPismenka,  cas*/
-func GetUdaje(uzivID uint) (float32, []float64, map[string]int, float64, error) {
+/*                          presnost,  cpm,  chybyPismenka,  cas, napsanychPismen */
+func GetUdaje(uzivID uint) (float32, float32, map[string]int, [3]int, [3]int, error) {
 	var presnost float32 = -1
-	var delkaVsechTextu int = 0
-	var cpm []float64
-	var chybyPismenka map[string]int = make(map[string]int)
-	var casCelkem float64
+	var rychlost float32 = -1
+	var chybyPismenkaJsonb []byte
+	var chybyPismenka map[string]int
 
-	var rows *sql.Rows
-	var err error
-	rows, err = DB.Query(`SELECT neopravene, delka_textu, cas, chyby_pismenka, datum FROM dokoncene WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) UNION SELECT neopravene, delka_textu, cas, chyby_pismenka, datum FROM dokoncene_procvic WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13);`, uzivID)
+	var cas [3]int
+	var napsanychPismen [3]int
+
+	err := DB.QueryRow(`WITH vsechny_za_dva_tydny AS ( SELECT neopravene, delka_textu, cas, datum, ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ) AS opravene, chyby_pismenka FROM dokoncene WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) UNION SELECT neopravene, delka_textu, cas, datum, ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ) AS opravene, chyby_pismenka FROM dokoncene_procvic WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) ), soucty_pismenek AS ( SELECT key AS pismeno, SUM(value::NUMERIC) AS soucet FROM vsechny_za_dva_tydny, jsonb_each_text(chyby_pismenka) GROUP BY key ), vsechny AS ( SELECT delka_textu, cas, datum::date FROM dokoncene WHERE uziv_id = $1 UNION SELECT delka_textu, cas, datum::date FROM dokoncene_procvic WHERE uziv_id = $1 ), soucty_dnes AS ( SELECT SUM(cas) AS cas_dnes, SUM(delka_textu) AS napsanych_pismen_dnes FROM vsechny WHERE datum = CURRENT_DATE ), soucty_dva_tydny AS ( SELECT SUM(cas) AS cas_dva_tydny, SUM(delka_textu) AS napsanych_pismen_dva_tydny FROM vsechny WHERE datum > CURRENT_DATE - MAKE_INTERVAL(days => 14) ), soucty_celkem AS ( SELECT SUM(cas) AS cas_celkem, SUM(delka_textu) AS napsanych_pismen_celkem FROM vsechny ) SELECT GREATEST( ( ( SUM(delka_textu) - 10 * SUM(neopravene) ) / SUM(cas)::NUMERIC ) * 60, 0 ) AS rychlost, COALESCE( ( ( SUM(delka_textu) - SUM(neopravene) - COALESCE(SUM(opravene), 0) ) / SUM(delka_textu)::NUMERIC ) * 100, -1 ) AS presnost, jsonb_object_agg(pismeno, soucet), COALESCE(max(cas_dnes), 0) AS cas_dnes, COALESCE(max(cas_dva_tydny), 0) AS cas_dva_tydny, COALESCE(max(cas_celkem), 0) AS cas_celkem, COALESCE(max(napsanych_pismen_dnes), 0) AS napsanych_pismen_dnes, COALESCE( max(napsanych_pismen_dva_tydny), 0 ) AS napsanych_pismen_dva_tydny, COALESCE( max(napsanych_pismen_celkem), 0 ) AS napsanych_pismen_celkem FROM soucty_pismenek, vsechny_za_dva_tydny, soucty_dnes, soucty_dva_tydny, soucty_celkem;`, uzivID).Scan(&rychlost, &presnost, &chybyPismenkaJsonb, &cas[0], &cas[1], &cas[2], &napsanychPismen[0], &napsanychPismen[1], &napsanychPismen[2])
 	if err != nil {
-		return presnost, cpm, chybyPismenka, casCelkem, err
+		return presnost, rychlost, chybyPismenka, cas, napsanychPismen, err
 	}
-	defer rows.Close()
-
-	var soucetChyb int = 0
-	for rows.Next() {
-		var neopravene, delka int
-		var cas float64
-		var chybyPismenkaRowByte []byte
-		var datumNezajima date.Date
-		err := rows.Scan(&neopravene, &delka, &cas, &chybyPismenkaRowByte, &datumNezajima)
-		if err != nil {
-			return presnost, cpm, chybyPismenka, casCelkem, err
-		}
-
-		var chybyPismenkaRow map[string]int
-		err = json.Unmarshal(chybyPismenkaRowByte, &chybyPismenkaRow)
-		if err == nil {
-			for key, value := range chybyPismenkaRow {
-				chybyPismenka[key] += value // když to ještě neexistuje, default value je 0
-				soucetChyb += value
-			}
-		}
-		soucetChyb += neopravene
-		cpm = append(cpm, utils.CPM(delka, cas, neopravene))
-		delkaVsechTextu += delka
-	}
-
-	if delkaVsechTextu != 0 {
-		presnost = float32(delkaVsechTextu-soucetChyb) / float32(delkaVsechTextu) * 100
-		if presnost < 0 {
-			presnost = 0 // kvuli adamovi kterej big troulin a měl -10%
-		}
-	}
-
-	// čas
-	err = DB.QueryRow(`SELECT COALESCE(SUM(cas), 0) AS cas FROM ( SELECT cas FROM dokoncene WHERE uziv_id = $1 UNION ALL SELECT cas FROM dokoncene_procvic WHERE uziv_id = $1 );`, uzivID).Scan(&casCelkem)
+	err = json.Unmarshal(chybyPismenkaJsonb, &chybyPismenka)
 	if err != nil {
-		return presnost, cpm, chybyPismenka, casCelkem, err
+		return presnost, rychlost, chybyPismenka, cas, napsanychPismen, err
 	}
 
-	return presnost, cpm, chybyPismenka, casCelkem, nil
+	return presnost, rychlost, chybyPismenka, cas, napsanychPismen, nil
 }
 
 func GetUdajeProGraf(uzivID uint) ([13]float32, [13]float32, error) {
@@ -527,7 +492,7 @@ func GetUdajeProGraf(uzivID uint) ([13]float32, [13]float32, error) {
 
 	var rows *sql.Rows
 	var err error
-	rows, err = DB.Query(`WITH dny AS ( SELECT CURRENT_DATE - gs.n AS datum FROM generate_series(0, 12, 1) AS gs (n) ), vsechny_zaznamy AS ( SELECT neopravene, delka_textu, cas, datum, ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ) AS opravene FROM dokoncene WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) UNION SELECT neopravene, delka_textu, cas, datum, ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ) AS opravene FROM dokoncene_procvic WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) ), vypocteny_dny AS ( SELECT datum::date, GREATEST( ( ( SUM(delka_textu) - 10 * SUM(neopravene) ) / SUM(cas) ) * 60, 0 ) AS rychlost, COALESCE( ( ( SUM(delka_textu) - SUM(neopravene) - COALESCE(SUM(opravene), 0) ) / SUM(delka_textu)::FLOAT ) * 100, -1 ) AS presnost FROM vsechny_zaznamy GROUP BY datum::date ) SELECT dny.datum, COALESCE(vypocteny_dny.rychlost, -1) AS rychlost, COALESCE(vypocteny_dny.presnost, -1) AS presnost FROM dny LEFT JOIN vypocteny_dny ON dny.datum = vypocteny_dny.datum ORDER BY dny.datum;`, uzivID)
+	rows, err = DB.Query(`WITH dny AS ( SELECT CURRENT_DATE - gs.n AS datum FROM generate_series(0, 12, 1) AS gs (n) ), vsechny_zaznamy AS ( SELECT neopravene, delka_textu, cas, datum, ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ) AS opravene FROM dokoncene WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) UNION SELECT neopravene, delka_textu, cas, datum, ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ) AS opravene FROM dokoncene_procvic WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) ), vypocteny_dny AS ( SELECT datum::date, GREATEST( ( ( SUM(delka_textu) - 10 * SUM(neopravene) ) / SUM(cas)::NUMERIC ) * 60, 0 ) AS rychlost, COALESCE( ( ( SUM(delka_textu) - SUM(neopravene) - COALESCE(SUM(opravene), 0) ) / SUM(delka_textu)::NUMERIC ) * 100, -1 ) AS presnost FROM vsechny_zaznamy GROUP BY datum::date ) SELECT dny.datum, COALESCE(vypocteny_dny.rychlost, -1) AS rychlost, COALESCE(vypocteny_dny.presnost, -1) AS presnost FROM dny LEFT JOIN vypocteny_dny ON dny.datum = vypocteny_dny.datum ORDER BY dny.datum;`, uzivID)
 	if err != nil {
 		return rychlosti, presnosti, err
 	}
@@ -546,7 +511,6 @@ func GetUdajeProGraf(uzivID uint) ([13]float32, [13]float32, error) {
 		rychlosti[i] = rychlost
 		presnosti[i] = presnost
 	}
-	/* log.Println(rychlosti, presnosti) */
 	return rychlosti, presnosti, nil
 }
 
@@ -572,7 +536,7 @@ func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
 	return uzivID, nil
 }
 
-func PridatDokonceneCvic(cvicID, uzivID uint, neopravene int, cas float32, delkaTextu int, chybyPismenka map[string]int) error {
+func PridatDokonceneCvic(cvicID, uzivID uint, neopravene int, cas int, delkaTextu int, chybyPismenka map[string]int) error {
 	chybyPismenkaJSON, err := json.Marshal(chybyPismenka)
 	if err != nil {
 		return errors.New("konverze mapy chyb na json se nepovedla")
@@ -581,7 +545,7 @@ func PridatDokonceneCvic(cvicID, uzivID uint, neopravene int, cas float32, delka
 	return err
 }
 
-func PridatDokonceneProcvic(procvicID, uzivID uint, neopravene int, cas float32, delkaTextu int, chybyPismenka map[string]int) error {
+func PridatDokonceneProcvic(procvicID, uzivID uint, neopravene int, cas int, delkaTextu int, chybyPismenka map[string]int) error {
 	chybyPismenkaJSON, err := json.Marshal(chybyPismenka)
 
 	// pokud je procvic 0 neboli je to test psaní, vložim NULL
@@ -1022,7 +986,7 @@ func GetPrace(praceID, studentID uint) (string, int, error) {
 	return text, cas, err
 }
 
-func DokoncitPraci(praceID, studentID uint, neopravene int, cas float32, delkaTextu int, chybyPismenka map[string]int) (int, error) {
+func DokoncitPraci(praceID, studentID uint, neopravene int, cas int, delkaTextu int, chybyPismenka map[string]int) (int, error) {
 	chybyPismenkaJSON, err := json.Marshal(chybyPismenka)
 	if err != nil {
 		return 0, err

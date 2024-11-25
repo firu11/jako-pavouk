@@ -19,7 +19,7 @@ import (
 type (
 	bodyDokoncit struct {
 		Preklepy         int            `json:"neopravenePreklepy" validate:"min=0"` //sus reqired nebere nulu takze min=0 asi ok
-		Cas              float32        `json:"cas" validate:"required"`
+		Cas              int            `json:"cas" validate:"required"`
 		DelkaTextu       int            `json:"delkaTextu" validate:"required"`
 		NejcastejsiChyby map[string]int `json:"nejcastejsiChyby" validate:"required"`
 	}
@@ -641,7 +641,7 @@ func statistiky(c echo.Context) error {
 		log.Print(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
-	presnost, cpm, chybyPismenka, cas, err := databaze.GetUdaje(id)
+	presnost, rychlost, chybyPismenka, cas, napsanychPismen, err := databaze.GetUdaje(id)
 	if err != nil {
 		log.Print(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
@@ -660,9 +660,10 @@ func statistiky(c echo.Context) error {
 		"daystreak":        daystreak,
 		"postupVKurzu":     dokonceno,
 		"uspesnost":        presnost,
-		"rychlost":         utils.Prumer(cpm),
+		"rychlost":         rychlost,
 		"cas":              cas,
 		"nejcastejsiChyby": chybyPismenka,
+		"napsanychPismen":  napsanychPismen,
 		"rychlosti":        rychlosti,
 		"presnosti":        presnosti,
 	})

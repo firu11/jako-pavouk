@@ -13,7 +13,7 @@ useHead({
     title: "Statistiky"
 })
 
-const info = ref({ rychlost: -1, cas: 0, cas1: 0, cas14: 0, napsanychPismen: 0, napsanychPismen1: 0, napsanychPismen14: 0, uspesnost: -1, postupVKurzu: 0, daystreak: 0, nejcastejsiChyby: new Map<string, number>(), rychlosti: [] as number[], presnosti: [] as number[] })
+const info = ref({ rychlost: -1, cas: [] as number[], napsanychPismen: [] as number[], uspesnost: -1, postupVKurzu: 0, daystreak: 0, nejcastejsiChyby: new Map<string, number>(), rychlosti: [] as number[], presnosti: [] as number[] })
 const nejcastejsiChyby = ref([] as { znak: string, pocet: number }[])
 const cas = ref(0)
 const napsanychPismen = ref(0)
@@ -58,14 +58,14 @@ function zaokrouhlit(cislo: number | null) {
 
 function prepnoutStatistiky() {
     if (prepinacTabu.value?.tab == "dnes") {
-        cas.value = info.value["cas1"]
-        napsanychPismen.value = info.value["napsanychPismen1"]
+        cas.value = info.value.cas[0]
+        napsanychPismen.value = info.value.napsanychPismen[0]
     } else if (prepinacTabu.value?.tab == "dva tydny") {
-        cas.value = info.value["cas14"]
-        napsanychPismen.value = info.value["napsanychPismen14"]
+        cas.value = info.value.cas[1]
+        napsanychPismen.value = info.value.napsanychPismen[1]
     } else if (prepinacTabu.value?.tab == "celkem") {
-        cas.value = info.value["cas"]
-        napsanychPismen.value = info.value["napsanychPismen"]
+        cas.value = info.value.cas[2]
+        napsanychPismen.value = info.value.napsanychPismen[2]
     }
     console.log("prepinam")
 }
@@ -172,17 +172,27 @@ onMounted(() => {
             </span>
         </div>
         <div class="blok">
-            <img src="../assets/icony/cas.svg" alt="Čas" width="68">
+            <div id="fake-obrazek">
+                aA
+            </div>
             <span class="popis">
                 Napsaných písmen: <br>
-                <span>
-                    <AnimaceCisla class="cislo" :cislo="napsanychPismen" :desetina-mista="0" /> h
+                <span v-if="napsanychPismen != 0">
+                    <AnimaceCisla class="cislo" :cislo="napsanychPismen >= 10000 ? napsanychPismen / 1000 : napsanychPismen" :desetina-mista="0" />
+                    <span v-if="napsanychPismen >= 10000"> tis.</span>
                 </span>
+                <span v-else class="nic">Zatím nic</span>
             </span>
         </div>
     </div>
 </template>
 <style scoped>
+.blok>#fake-obrazek {
+    font-size: 55px;
+    font-weight: 700;
+    user-select: none;
+}
+
 #graf {
     grid-column-start: 1;
     grid-column-end: 3;
@@ -209,6 +219,7 @@ onMounted(() => {
 
 .nic {
     font-weight: 600;
+    line-height: 49px;
 }
 
 #pismena {
