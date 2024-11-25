@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useHead } from "unhead";
-import { Oznacene, checkTeapot, getToken, napovedaKNavigaci, pridatOznameni, naJednoDesetiny } from "../utils";
+import { Oznacene, checkTeapot, getToken, napovedaKNavigaci, pridatOznameni } from "../utils";
 import axios from "axios";
 import { onMounted, onUnmounted, ref } from "vue";
 import { mobil } from "../stores";
@@ -151,13 +151,13 @@ onUnmounted(() => {
             :class="{ oznacene: 1 == o.index.value, nohover: o.index.value != 0 }" style="margin-top: 5px;">
             <h3>Test psaní</h3>
             <span v-if="texty.size != 0 && testPsaniCPM != -1">
-                <AnimaceCisla class="cislo" :cislo="naJednoDesetiny(testPsaniCPM)" /> CPM
+                <AnimaceCisla class="cislo" :cislo="testPsaniCPM" /> CPM
             </span>
         </RouterLink>
         <a v-else href="/test-psani" class="blok" :i="1 == o.index.value" style="user-select: none; margin-top: 5px;" @click="mobilKlik">
             <h3>Test psaní</h3>
             <span v-if="texty.size != 0 && testPsaniCPM != -1" >
-                <AnimaceCisla class="cislo" :cislo="naJednoDesetiny(testPsaniCPM)" /> CPM
+                <AnimaceCisla class="cislo" :cislo="testPsaniCPM" /> CPM
             </span>
         </a>
 
@@ -176,7 +176,7 @@ onUnmounted(() => {
                     {{ t.jmeno }}
                 </h3>
                 <span v-if="t.cpm != -1">
-                    <AnimaceCisla class="cislo" :cislo="naJednoDesetiny(t.cpm)" /> CPM
+                    <AnimaceCisla class="cislo" :cislo="t.cpm" /> CPM
                 </span>
             </RouterLink>
             <div v-else v-for="t in texty.get(k)" class="blok" @click="mobilKlik" :key="t.jmeno">
