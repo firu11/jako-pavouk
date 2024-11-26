@@ -67,7 +67,6 @@ function prepnoutStatistiky() {
         cas.value = info.value.cas[2]
         napsanychPismen.value = info.value.napsanychPismen[2]
     }
-    console.log("prepinam")
 }
 
 onMounted(() => {
