@@ -215,8 +215,10 @@ div {
 
 span {
     position: absolute;
-    top: 43%;
-    left: 32%;
+    top: 34%;
+    left: 31%;
     font-size: 20px;
+    background-color: var(--tmave-fialova);
+    padding: 4px;
 }
 </style>
