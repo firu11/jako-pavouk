@@ -42,15 +42,15 @@ function chekujUdaje() {
     <h1>Systém pro školy</h1>
 
     <div class="bloky">
-        <video controls controlslist="nodownload" width="100%" poster="../assets/jizBrzy.png">
-            <source src="">
-            Váš prohlížeč neumí přehrát toto video. <!-- to snad už ani nejde aby to někdo nepodporoval -->
-            <a href="" download="">Tady</a> si ho můžete zkusit stáhnout.
+        <video controls controlslist="nodownload" width="100%">
+            <source src="/skolni_system.mp4">
+            Váš prohlížeč neumí přehrát toto video.
+            <a href="/skolni_system.mp4" download="/skolni_system.mp4">Tady</a> si ho můžete zkusit stáhnout.
         </video>
     </div>
     <div class="specialni-blok bloky">
         <div class="obrazek">
-            <img src="../assets/seznamZaku.svg" alt="Seznam žáků"> <!-- #svgView(viewBox(0, 0, 210, 177)) -->
+            <img src="../assets/seznamZaku.svg" alt="Seznam žáků">
         </div>
         <div class="text">
             <h2>Řazení žáků do tříd</h2>
