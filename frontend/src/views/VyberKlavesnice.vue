@@ -25,9 +25,11 @@ function click(e: KeyboardEvent) {
     if (e.key.toLowerCase() == "z") {
         klavesnice.value = false
         mameJi.value = true
+        document.removeEventListener("keypress", click)
     } else if (e.key.toLowerCase() == "y") {
         klavesnice.value = true
         mameJi.value = true
+        document.removeEventListener("keypress", click)
     } else {
         pridatOznameni("Asi mačkáš špatné tlačítko")
     }
@@ -73,8 +75,8 @@ function potvrdit() {
         </div>
     </div>
 
-    <p id="dole" v-if="!rucne && !mameJi" @click="vybratRucne">Vybrat rozložení ručně</p>
-    <p id="dole" v-else-if="!mameJi" @click="rucne = false">Zpět k automatickému výběru</p>
+    <p id="dole" v-if="!rucne && !mameJi && route.query['kam'] != 'nastaveni'" @click="vybratRucne">Vybrat rozložení ručně</p>
+    <p id="dole" v-else-if="!mameJi && route.query['kam'] != 'nastaveni'" @click="rucne = false">Zpět k automatickému výběru</p>
 </template>
 <style scoped>
 #tlacitka {
