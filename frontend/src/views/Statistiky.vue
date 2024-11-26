@@ -57,13 +57,13 @@ function zaokrouhlit(cislo: number | null) {
 }
 
 function prepnoutStatistiky() {
-    if (prepinacTabu.value?.tab == "dnes") {
+    if (prepinacTabu.value?.tab == "dnes" && info.value.cas[0] !== undefined && info.value.napsanychPismen[0] !== undefined) {
         cas.value = info.value.cas[0]
         napsanychPismen.value = info.value.napsanychPismen[0]
-    } else if (prepinacTabu.value?.tab == "dva tydny") {
+    } else if (prepinacTabu.value?.tab == "dva tydny" && info.value.cas[1] !== undefined && info.value.napsanychPismen[1] !== undefined) {
         cas.value = info.value.cas[1]
         napsanychPismen.value = info.value.napsanychPismen[1]
-    } else if (prepinacTabu.value?.tab == "celkem") {
+    } else if (prepinacTabu.value?.tab == "celkem" && info.value.cas[2] !== undefined && info.value.napsanychPismen[2] !== undefined) {
         cas.value = info.value.cas[2]
         napsanychPismen.value = info.value.napsanychPismen[2]
     }
