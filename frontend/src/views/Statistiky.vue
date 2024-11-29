@@ -2,16 +2,20 @@
 import { useHead } from "unhead";
 import { onMounted, ref, useTemplateRef } from "vue";
 import { role } from "../stores";
-import { getToken, MojeMapa } from "../utils";
+import { getToken, MojeMapa, pridatOznameni } from "../utils";
+import { prihlasen } from "../stores";
 import axios from "axios";
 import PrepinacTabu from "../components/PrepinacTabu.vue";
 import Tooltip from "../components/Tooltip.vue";
 import AnimaceCisla from "../components/AnimaceCisla.vue";
 import GrafStatistiky from "../components/GrafStatistiky.vue";
+import { useRouter } from "vue-router";
 
 useHead({
     title: "Statistiky"
 })
+
+const router = useRouter()
 
 const info = ref({ rychlost: -1, cas: [] as number[], napsanychPismen: [] as number[], uspesnost: -1, postupVKurzu: 0, daystreak: 0, nejcastejsiChyby: new Map<string, number>(), rychlosti: [] as number[], presnosti: [] as number[] })
 const nejcastejsiChyby = ref([] as { znak: string, pocet: number }[])
@@ -70,6 +74,11 @@ function prepnoutStatistiky() {
 }
 
 onMounted(() => {
+    if (!prihlasen.value) {
+        pridatOznameni("Nejsi přihlášený!")
+        router.push("/")
+        return
+    }
     getInfo()
 })
 </script>
@@ -101,7 +110,7 @@ onMounted(() => {
             <img src="../assets/icony/rychlost.svg" alt="Rychlost" width="68">
             <Tooltip
                 :zprava="`Za <b>neopravené</b> chyby je adekvátní penalizace. <br>${zaokrouhlit(info.rychlost)} CPM = ${info.rychlost == -1 ? '?' : zaokrouhlit(info.rychlost / 5)} WPM <br>(<b>CPM</b> = úhozů za minutu, <b>WPM</b> = slov za minutu)`"
-                :sirka="200" style="width: 60%;">
+                :sirka="200" style="width: 60%;" :vzdalenost="2">
                 <span v-if="info.rychlost == -1" class="popis">Rychlost:<br><span class="nic">Zatím nic</span></span>
                 <span v-else class="popis">
                     Rychlost:<br>
@@ -112,8 +121,8 @@ onMounted(() => {
         <div class="blok" id="chyby">
             <div id="presnost">
                 <img src="../assets/icony/terc.svg" alt="Přesnost">
-                <Tooltip zprava="Přesnost zahrunuje chyby <b>opravené</b> i <b>neopravené</b>. (Státní zkouška počítá pouze neopravené.)"
-                    :sirka="210">
+                <Tooltip zprava="Přesnost zahrunuje chyby <b>opravené</b> i <b>neopravené</b>. (Státní zkouška počítá pouze neopravené.)" :sirka="210"
+                    :vzdalenost="2">
                     <span v-if="info.uspesnost == -1" class="popis">Přesnost:<br><span class="nic">Zatím nic</span></span>
                     <span v-else class="popis">
                         Přesnost:<br>

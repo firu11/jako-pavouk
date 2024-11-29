@@ -18,8 +18,6 @@ const mobilMenu = ref(false)
 const jmenoSpan = useTemplateRef('jmenoSpan')
 const nadpisyDiv = useTemplateRef('nadpisyDiv')
 
-const odhlaseniPotvrzeni = ref(false)
-
 onMounted(() => {
     if (getToken()) {
         axios.get("/token-expirace", {
@@ -70,7 +68,8 @@ async function upravitSirkuJmena() {
     console.log("velikost jmena v px:", velikost)
 }
 
-function odhlasit() {
+function odhlasit(e: Event) {
+    zavritDialog(e)
     localStorage.removeItem(tokenJmeno)
     role.value = "basic"
     prihlasen.value = false
@@ -80,13 +79,15 @@ function odhlasit() {
     uziv.value.jmeno = ""
 }
 
-let timeoutID = 0
-function zrusitPotvrzeni() {
-    timeoutID = setTimeout(() => { odhlaseniPotvrzeni.value = false }, 1000)
+const dialog1 = useTemplateRef("dialog1")
+function otevritDialog(e: Event) {
+    e.preventDefault()
+    dialog1.value?.showModal()
 }
 
-function zrusitTimeout() {
-    clearTimeout(timeoutID)
+function zavritDialog(e: Event) {
+    e.preventDefault()
+    dialog1.value?.close()
 }
 
 watch(() => uziv.value.jmeno, () => {
@@ -100,7 +101,7 @@ watch(() => uziv.value.jmeno, () => {
         <img id="menuIcon" src="./assets/icony/menu.svg" alt="Menu" width="40" height="40">
     </div>
     <header :class="{ 'mobil-hidden': !mobilMenu }">
-        <nav @click="mobilMenu=!mobilMenu">
+        <nav @click="mobilMenu = !mobilMenu">
             <MenuLink jmeno="Domů" cesta="/" />
             <MenuLink jmeno="Jak psát" cesta="/jak-psat" />
             <MenuLink jmeno="Kurz" cesta="/kurz" />
@@ -109,42 +110,39 @@ watch(() => uziv.value.jmeno, () => {
             <MenuLink v-if="role == 'student'" jmeno="Škola" cesta="/trida" />
             <MenuLink v-else-if="role == 'ucitel'" jmeno="Škola" cesta="/skola" />
             <MenuLink jmeno="O nás" cesta="/o-nas" />
-            </nav>
-            <div v-if="prihlasen && uziv.jmeno != ''" id="ucet" @click="mobilMenu = !mobilMenu">
-                <div id="kontejner">
-                    <div id="tlacitka">
-                        <Tooltip zprava="Nastavení účtu" :sirka="100" :vzdalenost="-36" :vzdalenostX="75">
-                            <div class="kulate-tlacitko" @click="router.push('/nastaveni')">
-                                <img src="./assets/icony/nastaveni.svg" alt="" width="22" height="22">
-                            </div>
-                        </Tooltip>
-                        <Tooltip zprava="Statitiky" :sirka="100" :vzdalenost="-29" :vzdalenostX="75">
-                            <div class="kulate-tlacitko" @click="router.push('/statistiky')">
-                                <img src="./assets/icony/statistiky.svg" alt="" width="22" height="22">
-                            </div>
-                        </Tooltip>
-                        <Tooltip v-if="!odhlaseniPotvrzeni" zprava="Odhlásit" :sirka="100" :vzdalenost="-29" :vzdalenostX="75">
-                            <div class="kulate-tlacitko" @click="odhlaseniPotvrzeni = true">
-                                <img src="./assets/icony/odhlasit.svg" alt="" width="22" height="22">
-                            </div>
-                        </Tooltip>
-                        <div v-else class="kulate-tlacitko" @click="odhlasit" @mouseleave="zrusitPotvrzeni" @mouseenter="zrusitTimeout">
-                            <img src="./assets/icony/right.svg" alt="" width="22" height="22">
+        </nav>
+        <div v-if="prihlasen && uziv.jmeno != ''" id="ucet" @click="mobilMenu = !mobilMenu">
+            <div id="kontejner">
+                <div id="tlacitka">
+                    <Tooltip zprava="Nastavení účtu" :sirka="100" :vzdalenost="-36" :vzdalenostX="75">
+                        <div class="kulate-tlacitko" @click="router.push('/nastaveni')">
+                            <img src="./assets/icony/nastaveni.svg" alt="" width="22" height="22">
                         </div>
-                    </div>
-                    <img src="./assets/pavoucekBezPozadi.svg" alt="uzivatel" width="181" height="114">
+                    </Tooltip>
+                    <Tooltip zprava="Statitiky" :sirka="100" :vzdalenost="-29" :vzdalenostX="75">
+                        <div class="kulate-tlacitko" @click="router.push('/statistiky')">
+                            <img src="./assets/icony/statistiky.svg" alt="" width="22" height="22">
+                        </div>
+                    </Tooltip>
+                    <Tooltip zprava="Odhlásit" :sirka="100" :vzdalenost="-29" :vzdalenostX="75">
+                        <div class="kulate-tlacitko" @click="otevritDialog">
+                            <img src="./assets/icony/odhlasit.svg" alt="" width="22" height="22">
+                        </div>
+                    </Tooltip>
                 </div>
-                <hr style="border: white solid 1px;">
-                <div id="nadpisy" ref="nadpisyDiv">
-                    <span id="jmeno" ref="jmenoSpan">{{ uziv.jmeno }}</span>
-                    <span id="email">{{ uziv.email }}</span>
-                </div>
-            </div>
-            <div v-else id="ucet" class="neprihlasen" @click="mobilMenu = !mobilMenu">
                 <img src="./assets/pavoucekBezPozadi.svg" alt="uzivatel" width="181" height="114">
-                <span>Nepřihlášný pavouk</span>
-                <MenuLink jmeno="Přihlásit se" cesta="/prihlaseni" />
             </div>
+            <hr style="border: white solid 1px;">
+            <div id="nadpisy" ref="nadpisyDiv">
+                <span id="jmeno" ref="jmenoSpan">{{ uziv.jmeno }}</span>
+                <span id="email">{{ uziv.email }}</span>
+            </div>
+        </div>
+        <div v-else id="ucet" class="neprihlasen" @click="mobilMenu = !mobilMenu">
+            <img src="./assets/pavoucekBezPozadi.svg" alt="uzivatel" width="181" height="114">
+            <span>Nepřihlášný pavouk</span>
+            <MenuLink jmeno="Přihlásit se" cesta="/prihlaseni" />
+        </div>
     </header>
     <main id="view">
         <RouterView :key="$route.fullPath" />
@@ -159,9 +157,44 @@ watch(() => uziv.value.jmeno, () => {
             </div>
         </TransitionGroup>
     </div>
+
+    <dialog ref="dialog1">
+        <div id="dialog-kontejner">
+            <h2>Opravdu se chceš odhlásit?</h2>
+            <div>
+                <button class="cervene-tlacitko" @click="odhlasit">Odhlásit se</button>
+                <button class="tlacitko" @click="zavritDialog">Zrušit</button>
+            </div>
+        </div>
+    </dialog>
 </template>
 
 <style scoped>
+#dialog-kontejner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2em;
+}
+
+#dialog-kontejner>div {
+    display: flex;
+    justify-content: center;
+    gap: 1em;
+}
+
+dialog {
+    width: 410px;
+    height: 140px;
+    margin-left: -205px;
+    margin-top: -70px;
+    padding: 1.4em;
+}
+
+#dialog-kontejner>div button {
+    margin: 0;
+}
+
 .neprihlasen {
     padding: 15px 0 0 0 !important;
     align-items: center;
@@ -297,7 +330,7 @@ watch(() => uziv.value.jmeno, () => {
 header {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100%;
     position: fixed;
     padding: 10px;
     left: 0;
@@ -355,6 +388,22 @@ nav {
         flex-direction: column;
         align-items: center;
         justify-content: center;
+    }
+
+    dialog {
+        width: min(80%, 400px);
+        margin-top: -70px;
+    }
+
+    #dialog-kontejner>div button {
+        width: 120px;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    dialog {
+        margin-left: -40%;
+        height: 170px;
     }
 }
 </style>

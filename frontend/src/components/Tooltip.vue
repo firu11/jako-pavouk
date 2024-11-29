@@ -58,8 +58,8 @@ function recalc() {
         let left = getPageTopLeft(tip.value).left + props.vzdalenostX
 
         if (left + props.sirka! > document.body.clientWidth) {
-            tip.value.style.right = `0px`
-        }  else {
+            tip.value.style.right = `12px`
+        } else {
             tip.value.style.left = `${left}px`
         }
     }

@@ -20,9 +20,10 @@ const jmenoUprava = ref("")
 const dialog = useTemplateRef("dialog")
 
 onMounted(() => {
-    if (!getToken()) {
-        pridatOznameni("Nejsi přihlášený")
-        router.push("/prihlaseni")
+    if (!prihlasen.value) {
+        pridatOznameni("Nejsi přihlášený!")
+        router.push("/")
+        return
     }
     get()
 })
