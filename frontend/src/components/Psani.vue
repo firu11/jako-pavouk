@@ -95,7 +95,6 @@ const aktivniPismeno = computed(() => {
 watch(props.text, () => {
     if (!aktivniPismeno.value.psat && aktivniPismeno.value.id == 0) {
         counter.value++
-        console.log("sus")
     }
 })
 
@@ -247,6 +246,7 @@ async function posunoutRadek() {
 
 function specialniKlik(e: KeyboardEvent) {
     capslockCheck(e)
+
     if (e.key === "Dead" && e.code === "Equal") { // kvůli macos :)
         e.preventDefault()
         if (e.shiftKey) predchoziZnak = "ˇ"
@@ -299,7 +299,10 @@ function specialniKlik(e: KeyboardEvent) {
         if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
     } else if (e.key == "Delete") {
         e.preventDefault()
+
+        if (route.fullPath.split("/")[1] == "prace" || route.fullPath == "/prvni-psani") return
         if (e.repeat) return
+        
         resetTlacitko()
         animace()
     }
@@ -470,7 +473,7 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
             <img v-else style="margin-left: 1px;" class="zvuk-icon" src="../assets/icony/zvukOff.svg" alt="Zvuky jsou vypnuté">
         </div>
         <Transition>
-            <div id="nepise" v-if="prestalPsat" :style="{ boxShadow: fullHideKlavesnice ? 'none' : '0px 0px 10px 2px rgba(0, 0, 0, 0.75)' }">
+            <div id="nepise" v-if="prestalPsat" :style="{ boxShadow: fullHideKlavesnice ? 'none' : '0px 0px 10px 2px rgba(0, 0, 0, 0.75)', top: (route.fullPath == '/prvni-psani' || route.fullPath.split('/')[1] == 'prace') ? '370px' : '403px' }">
                 <h3>Jsi tam ještě?</h3>
                 <p>
                     Přestal jsi psát a tak jsme museli cvičení přerušit.
@@ -503,7 +506,6 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
     padding: 20px;
     border-radius: 10px;
     position: absolute;
-    top: 403px;
     display: flex;
     gap: 6px;
     align-items: center;
