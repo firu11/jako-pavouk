@@ -347,6 +347,7 @@ function restart() {
     opravene.value = 0
 }
 
+
 async function loadZvuk() {
     let tmp = localStorage.getItem("pavouk_zvuk")
     if (tmp == null) {
