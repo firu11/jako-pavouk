@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, useTemplateRef, watch } from "vue";
 import { onUnmounted } from "vue";
 import Klavesnice from "../components/Klavesnice.vue";
 import { Howl } from "howler";
@@ -63,14 +63,12 @@ const preklepy = ref(0)
 const opravene = ref(0)
 const timerZacatek = ref(0)
 const cass = ref(0)
-const textElem = ref<HTMLInputElement>()
+const textElem = useTemplateRef("textElem")
 let indexPosunuti = -1
 const mistaPosunuti = ref([0, 0] as number[])
 const chybyPismenka = new MojeMapa()
 
 const fullHideKlavesnice = ref(false)
-
-let predchoziZnak = ""
 
 const zvukyZaply = ref(true)
 const zvuky: Howl[] = []
@@ -78,7 +76,11 @@ const zvuky: Howl[] = []
 const capslock = ref(false)
 let interval: number
 
-const celyPsani = ref()
+const celyPsani = useTemplateRef("celyPsani")
+const input = useTemplateRef("input")
+
+let inputPredchoziDelka = 0
+const unfocused = ref(false)
 
 let counterSpatneSvislaCara = 0
 
@@ -99,21 +101,24 @@ watch(props.text, () => {
 })
 
 onMounted(() => {
-    document.addEventListener("keypress", klik) // je depracated ale je O TOLIK LEPSI ZE HO BUDU POUZIVAT PROSTE https://stackoverflow.com/questions/52882144/replacement-for-deprecated-keypress-dom-event
     document.addEventListener("keydown", specialniKlik)
     document.addEventListener("mousemove", enableKurzor)
-    loadZvuk() //TODO test jestli to fixne loading zvuku až po prvnim kliknuti = delay
+    loadZvuk()
     loadHideKlavesnci()
+
+    input.value?.focus()
+    document.addEventListener("click", checkFocus)
 })
 
 onUnmounted(() => {
-    document.removeEventListener("keypress", klik)
     document.removeEventListener("keydown", specialniKlik)
     document.removeEventListener("mousemove", enableKurzor)
+    clearTimeout(timeoutID)
+    document.removeEventListener("click", checkFocus)
 })
 
 function enableKurzor() {
-    celyPsani.value.classList.remove("bez-kurzoru")
+    celyPsani.value?.classList.remove("bez-kurzoru")
 }
 
 function capslockCheck(e: KeyboardEvent) { // TODO chtelo by to checknout hned po nacteni stranky ale nevim jestli to jde (spíš ne)
@@ -133,6 +138,7 @@ function nextPismeno() {
     if (!aktivniPismeno.value.psat) {
         nextPismeno()
     }
+    checkJestliPise()
     emit("pise")
 }
 
@@ -152,59 +158,43 @@ function backPismeno() {
     if (!aktivniPismeno.value.psat) {
         backPismeno()
     }
+    checkJestliPise()
     emit("pise")
 }
 
-function jeSHackem(key: string) {
-    let velkym = aktivniPismeno.value.znak.toLocaleUpperCase() === aktivniPismeno.value.znak
-    if (predchoziZnak === "ˇ") {
-        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ď" && (!velkym && key === "d" || velkym && key === "D")) return true
-        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ň" && (!velkym && key === "n" || velkym && key === "N")) return true
-        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ť" && (!velkym && key === "t" || velkym && key === "T")) return true
-        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ž" && (!velkym && key === "z" || velkym && key === "Z")) return true
-        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ř" && (!velkym && key === "r" || velkym && key === "R")) return true
-        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "č" && (!velkym && key === "c" || velkym && key === "C")) return true
-        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "š" && (!velkym && key === "s" || velkym && key === "S")) return true
-        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ě" && (!velkym && key === "e" || velkym && key === "E")) return true
-    } else if (predchoziZnak === "´") {
-        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ó" && (!velkym && key === "o" || velkym && key === "O")) return true
-        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "é" && (!velkym && key === "e" || velkym && key === "E")) return true
-        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "í" && (!velkym && key === "i" || velkym && key === "I")) return true
-        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "á" && (!velkym && key === "a" || velkym && key === "A")) return true
-        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ý" && (!velkym && key === "y" || velkym && key === "Y")) return true
-        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ú" && (!velkym && key === "u" || velkym && key === "U")) return true
-    } else if (predchoziZnak === "°") {
-        if (aktivniPismeno.value.znak.toLocaleLowerCase() === "ů" && (!velkym && key === "u" || velkym && key === "U")) return true
-    } else {
-        return false
-    }
-}
-
-function klik(this: unknown, e: KeyboardEvent) {
+function klik(e: Event) {
     e.preventDefault() // ať to nescrolluje a nehazí nějaký stupid zkratky
     startTimer()
-    checkJestliPise()
 
-    let hacek = jeSHackem(e.key)
-    if (hacek) predchoziZnak = ""
+    if (!(e instanceof InputEvent)) return // typescript je sus, nemůžu dát do parametru rovnou InputEvent https://github.com/microsoft/TypeScript/issues/39925
 
-    if (e.key === aktivniPismeno.value.znak || hacek) {
-        if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
-        if (aktivniPismeno.value.spatne === 1) {
-            aktivniPismeno.value.spatne = 2
+    if (e.inputType == "insertText") {
+        if (e.data === aktivniPismeno.value.znak) {
+            if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
+            if (aktivniPismeno.value.spatne === 1) {
+                aktivniPismeno.value.spatne = 2
+            }
+            nextPismeno()
+            counterSpatneSvislaCara = 0
+        } else {
+            if (zvukyZaply.value) zvuky[3].play()
+            aktivniPismeno.value.spatne = 1
+            chybyPismenka.put(aktivniPismeno.value.znak)
+
+            if (aktivniPismeno.value.znak === "|") {
+                counterSpatneSvislaCara++
+                if (counterSpatneSvislaCara >= 2) pridatOznameni(`Znak "|" je lehce problematický a jeho poloha se může lišit. Pokud máte dvouřádkový Enter, je označená klávesa posunutá vlevo od něj. Pokud jen nefunguje zvýrazněná klávesa, pravděpodobně se znak schovává vpravo od levého Shiftu. S pozdravem, Firu`, 15_000)
+            }
+            nextPismeno()
         }
-        nextPismeno()
-        counterSpatneSvislaCara = 0
-    } else {
-        if (zvukyZaply.value) zvuky[3].play()
-        aktivniPismeno.value.spatne = 1
-        chybyPismenka.put(aktivniPismeno.value.znak)
-
-        if (aktivniPismeno.value.znak === "|") {
-            counterSpatneSvislaCara++
-            if (counterSpatneSvislaCara >= 2) pridatOznameni(`Znak "|" je lehce problematický a jeho poloha se může lišit. Pokud máte dvouřádkový Enter, je označená klávesa posunutá vlevo od něj. Pokud jen nefunguje zvýrazněná klávesa, pravděpodobně se znak schovává vpravo od levého Shiftu. S pozdravem, Firu`, 15_000)
+    } else if (e.inputType == "deleteContentBackward") {
+        backPismeno()
+        vratitRadek()
+    } else if (e.inputType == "deleteWordBackward") { // tak dáme celé slovo pryč (Ctrl + Backspace zkratka)
+        for (let i = 0; i < inputPredchoziDelka - input.value!.value.length; i++) {
+            backPismeno()
         }
-        nextPismeno()
+        vratitRadek()
     }
 
     posunoutRadek()
@@ -214,15 +204,14 @@ function klik(this: unknown, e: KeyboardEvent) {
 
         clearInterval(interval)
         calcCas() // naposledy
-        document.removeEventListener("keypress", klik)
         document.removeEventListener("keydown", specialniKlik)
+        document.removeEventListener("click", checkFocus)
         emit("konec", opravene.value, preklepy.value, chybyPismenka)
         restart()
     }
 
-    predchoziZnak = ""
-    celyPsani.value.classList.add("bez-kurzoru")
-
+    inputPredchoziDelka = input.value!.value.length
+    celyPsani.value?.classList.add("bez-kurzoru")
     if (textViditelny.value[textViditelny.value.length - 1] == props.text[props.text.length - 1] && !props.nacitamNovej) emit("prodlouzit")
 }
 
@@ -244,67 +233,38 @@ async function posunoutRadek() {
     }
 }
 
+async function vratitRadek() {
+    let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y
+    let lastY = document.getElementById("p" + (aktivniPismeno.value.id + 1))?.getBoundingClientRect().y
+    if (lastY! - aktualniY! > 30) {
+        indexPosunuti--
+        textElem.value!.classList.add("animace")
+        textElem.value!.style.top = "0rem"
+        setTimeout(() => {
+            textElem.value!.classList.remove("animace")
+            mistaPosunuti.value.pop()
+            if (indexPosunuti > 0) textElem.value!.style.top = "-2.35rem" // posunuti dolu
+        }, 200)
+    }
+}
+
 function specialniKlik(e: KeyboardEvent) {
     capslockCheck(e)
-
-    if (e.key === "Dead" && e.code === "Equal") { // kvůli macos :)
+    if (e.key.slice(0, 5) == "Arrow") { // vypnout sipky
         e.preventDefault()
-        if (e.shiftKey) predchoziZnak = "ˇ"
-        else predchoziZnak = "´"
-    } else if (e.key === "Dead" && e.code === "Backquote") {
-        e.preventDefault()
-        if (e.shiftKey) predchoziZnak = "°"
-    } else if (e.key === "Backspace" || e.code === "Backspace" || e.keyCode == 8) {
-        e.preventDefault()
-        if (aktivniPismeno.value.id == 0 || props.nacitamNovej) return
-        if (e.ctrlKey) { // tak dáme celé slovo pryč (Ctrl + Backspace zkratka)
-            let lastY = document.getElementById("p" + (aktivniPismeno.value.id))?.getBoundingClientRect().y
-            if (aktivniPismeno.value.znak == " ") backPismeno()
-            if (counter.value == 0) backPismeno(); backPismeno()
-            while (aktivniPismeno.value.znak != " ") {
-                if (aktivniPismeno.value.id !== 0) {
-                    backPismeno()
-                } else {
-                    break
-                }
-            }
-            if (aktivniPismeno.value.id !== 0) nextPismeno()
-            let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y
-            if (lastY! - aktualniY! > 30) {
-                indexPosunuti--
-                textElem.value!.classList.add("animace")
-                textElem.value!.style.top = "0rem"
-                setTimeout(() => {
-                    textElem.value!.classList.remove("animace")
-                    mistaPosunuti.value.pop()
-                    if (indexPosunuti > 0) textElem.value!.style.top = "-2.35rem" // posunuti dolu
-                }, 200)
-            }
-        }
-        else {
-            backPismeno()
-            let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y
-            let lastY = document.getElementById("p" + (aktivniPismeno.value.id + 1))?.getBoundingClientRect().y
-            if (lastY! - aktualniY! > 30) {
-                indexPosunuti--
-                textElem.value!.classList.add("animace")
-                textElem.value!.style.top = "0rem"
-                setTimeout(() => {
-                    textElem.value!.classList.remove("animace")
-                    mistaPosunuti.value.pop()
-                    if (indexPosunuti > 0) textElem.value!.style.top = "-2.35rem" // posunuti dolu
-                }, 200)
-            }
-        }
-        if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
+        return
     } else if (e.key == "Delete") {
         e.preventDefault()
 
         if (route.fullPath.split("/")[1] == "prace" || route.fullPath == "/prvni-psani") return
         if (e.repeat) return
-        
+
         resetTlacitko()
         animace()
+    } else if (e.code == "Space" && unfocused.value) {
+        e.preventDefault()
+        input.value?.focus()
+        unfocused.value = false
     }
 }
 
@@ -321,8 +281,8 @@ function calcCas() {
 
     if (props.cas - cass.value <= 0) {
         clearInterval(interval)
-        document.removeEventListener("keypress", klik)
         document.removeEventListener("keydown", specialniKlik)
+        document.removeEventListener("click", checkFocus)
         emit("konec", opravene.value, preklepy.value, chybyPismenka, aktivniPismeno.value.id)
         restart()
     }
@@ -341,10 +301,13 @@ function restart() {
     counterSlov.value = 0
     preklepy.value = 0
     indexPosunuti = -1
-    textElem.value!.style.top = "0rem" // reset posunuti
     mistaPosunuti.value = [0, 0]
     chybyPismenka.clear()
     opravene.value = 0
+    input.value!.value = '' // nemusi byt
+    clearTimeout(timeoutID)
+
+    if (textElem.value?.hasAttribute("style")) textElem.value.style.top = "0rem" // reset posunuti
 }
 
 
@@ -423,69 +386,95 @@ function loadHideKlavesnci() {
     }
 }
 
+function checkFocus() {
+    unfocused.value = document.activeElement !== input.value
+}
+
 defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
 </script>
 
 <template>
     <div id="flex" ref="celyPsani">
-        <div id="nabidka">
+        <div id="nabidka" :class="{ unfocused: unfocused }">
             <h2 id="cas">{{ casFormat }}</h2>
             <h2 :style="{ visibility: capslock ? 'visible' : 'hidden' }" id="capslock">CapsLock</h2>
             <h2 id="preklepy">Překlepy: {{ preklepy }}</h2>
         </div>
 
-        <div id="ramecek">
+        <div id="ramecek" @click="input?.focus()" :class="{ unfocused: unfocused }">
             <div id="fade">
                 <div id="text" ref="textElem" data-nosnippet>
                     <div class="slovo" v-for="s, i in textViditelny" :key="i">
                         <div v-for="p in s" :key="p.id" class="pismeno" :id="'p' + p.id"
                             :class="{ podtrzeni: p.id === aktivniPismeno.id, 'spatne-pismeno': p.spatne === 1 && aktivniPismeno.id > p.id, 'opravene-pismeno': p.spatne === 2 && aktivniPismeno.id > p.id, 'spravne-pismeno': (!p.spatne && aktivniPismeno.id > p.id) || !p.psat }">
 
-                            {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp;") }} 
+                            {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp;") }} </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+            <span class="unfocused" :style="{ display: unfocused ? 'block' : 'none' }" @click="input?.focus()">Klikni sem nebo zmáčkni <span
+                    class="klavesa-v-textu">Mezerník</span> !</span>
 
-        <Transition>
-            <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice || prestalPsat"
-                :cekame="(aktivniPismeno.id == 0 || aktivniPismeno.id == -1) && cass == 0" :full-hide="fullHideKlavesnice" />
-        </Transition>
-        <Transition>
-            <Tooltip zprava="Restart cvičení <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="120" :vzdalenostX="385" :vzdalenost="85">
-                <div v-if="klavesnice != '' && props.resetBtn" id="reset-btn" @click="resetTlacitko(); animace()"
-                    :class="{ schovat: route.fullPath == '/prvni-psani' }">
-                    <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Restart">
+            <input type="text" ref="input" id="input" @input="klik">
+
+            <Transition>
+                <Klavesnice v-if="klavesnice != ''" :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice || prestalPsat"
+                    :cekame="(aktivniPismeno.id == 0 || aktivniPismeno.id == -1) && cass == 0" :full-hide="fullHideKlavesnice" />
+            </Transition>
+            <Transition>
+                <Tooltip zprava="Restart cvičení <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="120" :vzdalenostX="385" :vzdalenost="85">
+                    <div v-if="klavesnice != '' && props.resetBtn" id="reset-btn" @click="resetTlacitko(); animace()"
+                        :class="{ schovat: route.fullPath == '/prvni-psani' }">
+                        <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Restart">
+                    </div>
+                </Tooltip>
+            </Transition>
+            <Transition>
+                <div v-if="klavesnice != '' && props.resetBtn" id="hide-btn" @click="fullHideKlavesnice = !fullHideKlavesnice"
+                    :class="{ schovat: route.fullPath == '/prvni-psani' }"
+                    :style="{ top: route.fullPath.split('/')[1] == 'lekce' ? '-140px' : '-70px' }">
+                    <img v-if="!fullHideKlavesnice" src="../assets/icony/oko.svg" alt="Schovat" width="34">
+                    <img v-else src="../assets/icony/okoSkrtnuty.svg" alt="Schovat" width="34">
                 </div>
-            </Tooltip>
-        </Transition>
-        <Transition>
-            <div v-if="klavesnice != '' && props.resetBtn" id="hide-btn" @click="fullHideKlavesnice = !fullHideKlavesnice"
-                :class="{ schovat: route.fullPath == '/prvni-psani' }"
-                :style="{ top: route.fullPath.split('/')[1] == 'lekce' ? '-140px' : '-70px' }">
-                <img v-if="!fullHideKlavesnice" src="../assets/icony/oko.svg" alt="Schovat" width="34">
-                <img v-else src="../assets/icony/okoSkrtnuty.svg" alt="Schovat" width="34">
-            </div>
-        </Transition>
+            </Transition>
 
-        <div id="zvuk-btn" @click="toggleZvuk">
-            <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvuk-icon" src="../assets/icony/zvukOn.svg" alt="Zvuky jsou zapnuté">
-            <img v-else style="margin-left: 1px;" class="zvuk-icon" src="../assets/icony/zvukOff.svg" alt="Zvuky jsou vypnuté">
-        </div>
-        <Transition>
-            <div id="nepise" v-if="prestalPsat" :style="{ boxShadow: fullHideKlavesnice ? 'none' : '0px 0px 10px 2px rgba(0, 0, 0, 0.75)', top: (route.fullPath == '/prvni-psani' || route.fullPath.split('/')[1] == 'prace') ? '370px' : '403px' }">
-                <h3>Jsi tam ještě?</h3>
-                <p>
-                    Přestal jsi psát a tak jsme museli cvičení přerušit.
-                </p>
-                <button class="tlacitko" @click="prestalPsat = false">Jsem tu!</button>
+            <div id="zvuk-btn" @click="toggleZvuk">
+                <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvuk-icon" src="../assets/icony/zvukOn.svg" alt="Zvuky jsou zapnuté">
+                <img v-else style="margin-left: 1px;" class="zvuk-icon" src="../assets/icony/zvukOff.svg" alt="Zvuky jsou vypnuté">
             </div>
-        </Transition>
-    </div>
+            <Transition>
+                <div id="nepise" v-if="prestalPsat"
+                    :style="{ boxShadow: fullHideKlavesnice ? 'none' : '0px 0px 10px 2px rgba(0, 0, 0, 0.75)', top: (route.fullPath == '/prvni-psani' || route.fullPath.split('/')[1] == 'prace') ? '370px' : '403px' }">
+                    <h3>Jsi tam ještě?</h3>
+                    <p>
+                        Přestal jsi psát a tak jsme museli cvičení přerušit.
+                    </p>
+                    <button class="tlacitko" @click="prestalPsat = false">Jsem tu!</button>
+                </div>
+            </Transition>
+        </div>
 </template>
 
 <style scoped>
+.klavesa-v-textu {
+    padding: 3px 5px 2px 5px;
+    font-size: 20px;
+}
+
+span.unfocused {
+    position: absolute;
+    top: 235px;
+    font-size: 1.6em;
+    font-weight: 600;
+    user-select: none;
+}
+
+#input {
+    position: absolute;
+    opacity: 0;
+}
+
 #hide-btn {
     top: 100px;
     position: relative;
@@ -605,6 +594,11 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
 #nabidka {
     margin: 20px 0 6px 0;
     width: var(--sirka-textoveho-pole);
+    transition: filter 0.15s;
+}
+
+#nabidka.unfocused {
+    filter: blur(2px);
 }
 
 #cas {
@@ -635,6 +629,11 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
     width: var(--sirka-textoveho-pole);
     overflow: hidden;
     user-select: none;
+    transition: filter 0.15s;
+}
+
+#ramecek.unfocused {
+    filter: blur(5px) brightness(0.8) opacity(0.8);
 }
 
 #text {
