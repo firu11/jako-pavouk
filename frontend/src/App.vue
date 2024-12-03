@@ -49,6 +49,12 @@ onMounted(() => {
 
     window.addEventListener("resize", function () {
         mobil.value = document.body.clientWidth <= 900
+
+        if (mobil.value) {
+            window.addEventListener("scroll", function () {
+                mobilMenu.value = false
+            })
+        }
     })
 })
 
@@ -90,7 +96,7 @@ function zavritDialog(e: Event) {
     dialog1.value?.close()
 }
 
-watch(() => uziv.value.jmeno, () => {
+watch(() => uziv.value.jmeno, function () {
     setTimeout(upravitSirkuJmena, 1)
 })
 
@@ -130,7 +136,7 @@ watch(() => uziv.value.jmeno, () => {
                         </div>
                     </Tooltip>
                 </div>
-                <img src="./assets/pavoucekBezPozadi.svg" alt="uzivatel" width="181" height="114">
+                <img id="pavouk" src="./assets/pavoucekBezPozadi.svg" alt="uzivatel" width="181" height="114">
             </div>
             <hr style="border: white solid 1px;">
             <div id="nadpisy" ref="nadpisyDiv">
@@ -139,7 +145,7 @@ watch(() => uziv.value.jmeno, () => {
             </div>
         </div>
         <div v-else id="ucet" class="neprihlasen" @click="mobilMenu = !mobilMenu">
-            <img src="./assets/pavoucekBezPozadi.svg" alt="uzivatel" width="181" height="114">
+            <img id="pavouk" src="./assets/pavoucekBezPozadi.svg" alt="uzivatel" width="181" height="114">
             <span>Nepřihlášný pavouk</span>
             <MenuLink jmeno="Přihlásit se" cesta="/prihlaseni" />
         </div>
@@ -261,16 +267,16 @@ dialog {
     background-color: var(--fialova);
 }
 
+#ucet #pavouk {
+    max-width: calc(100% - 15px);
+    margin-right: -15px;
+    user-select: none;
+}
+
 #kontejner {
     display: flex;
     width: 100%;
     align-items: center;
-}
-
-#kontejner>img {
-    max-width: calc(100% - 15px);
-    margin-right: -15px;
-    user-select: none;
 }
 
 /* na tu animaci oznameni */
@@ -330,7 +336,8 @@ dialog {
 header {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 100vh;
+    height: 100dvh;
     position: fixed;
     padding: 10px;
     left: 0;

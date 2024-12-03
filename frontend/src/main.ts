@@ -1,10 +1,10 @@
 import { createApp } from "vue";
-import "./style.css"
-import App from "./App.vue"
-import router from "./router.ts"
-import axios from "axios"
-import { createHead, setHeadInjectionHandler } from "@unhead/vue"
-import vue3GoogleLogin from "vue3-google-login"
+import "./style.css";
+import App from "./App.vue";
+import router from "./router.ts";
+import axios from "axios";
+import { createHead, setHeadInjectionHandler } from "@unhead/vue";
+import vue3GoogleLogin from "vue3-google-login";
 
 const app = createApp(App)
 const head = createHead()

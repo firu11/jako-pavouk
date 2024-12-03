@@ -174,7 +174,6 @@ function klik(e: Event) {
             if (aktivniPismeno.value.spatne === 1) {
                 aktivniPismeno.value.spatne = 2
             }
-            nextPismeno()
             counterSpatneSvislaCara = 0
         } else {
             if (zvukyZaply.value) zvuky[3].play()
@@ -185,19 +184,18 @@ function klik(e: Event) {
                 counterSpatneSvislaCara++
                 if (counterSpatneSvislaCara >= 2) pridatOznameni(`Znak "|" je lehce problematický a jeho poloha se může lišit. Pokud máte dvouřádkový Enter, je označená klávesa posunutá vlevo od něj. Pokud jen nefunguje zvýrazněná klávesa, pravděpodobně se znak schovává vpravo od levého Shiftu. S pozdravem, Firu`, 15_000)
             }
-            nextPismeno()
         }
+        nextPismeno()
+        posunoutRadek()
     } else if (e.inputType == "deleteContentBackward") {
         backPismeno()
         vratitRadek()
     } else if (e.inputType == "deleteWordBackward") { // tak dáme celé slovo pryč (Ctrl + Backspace zkratka)
         for (let i = 0; i < inputPredchoziDelka - input.value!.value.length; i++) {
             backPismeno()
+            vratitRadek()
         }
-        vratitRadek()
     }
-
-    posunoutRadek()
 
     if (aktivniPismeno.value.id === -1) { // konec
         console.log("skončeno předčasně velký špatný")
@@ -218,7 +216,8 @@ function klik(e: Event) {
 async function posunoutRadek() {
     let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y
     let lastY = document.getElementById("p" + (aktivniPismeno.value.id - 1))?.getBoundingClientRect().y
-    if (aktualniY! - lastY! > 30) {
+    if (lastY == undefined || aktualniY == undefined) return
+    if (aktualniY - lastY > 30) {
         textElem.value!.classList.add("animace")
         indexPosunuti++
         if (indexPosunuti == 1) textElem.value!.style.top = "-2.35rem" // posunuti dolu
@@ -236,7 +235,8 @@ async function posunoutRadek() {
 async function vratitRadek() {
     let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y
     let lastY = document.getElementById("p" + (aktivniPismeno.value.id + 1))?.getBoundingClientRect().y
-    if (lastY! - aktualniY! > 30) {
+    if (lastY == undefined || aktualniY == undefined) return
+    if (lastY - aktualniY > 30) {
         indexPosunuti--
         textElem.value!.classList.add("animace")
         textElem.value!.style.top = "0rem"
@@ -306,6 +306,13 @@ function restart() {
     opravene.value = 0
     input.value!.value = '' // nemusi byt
     clearTimeout(timeoutID)
+
+    for (let i = 0; i < props.text.length; i++) {
+        for (let j = 0; j < props.text[i].length; j++) {
+            // eslint-disable-next-line vue/no-mutating-props
+            props.text[i][j].spatne = 0;
+        }
+    }
 
     if (textElem.value?.hasAttribute("style")) textElem.value.style.top = "0rem" // reset posunuti
 }
@@ -413,8 +420,8 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
                     </div>
                 </div>
             </div>
-            <span class="unfocused" :style="{ display: unfocused ? 'block' : 'none' }" @click="input?.focus()">Klikni sem nebo zmáčkni <span
-                    class="klavesa-v-textu">Mezerník</span> !</span>
+            <span class="unfocused" :style="{ display: unfocused ? 'block' : 'none', top: route.fullPath == '/prvni-psani' ? '200px' : '235px' }"
+                @click="input?.focus()">Klikni sem nebo zmáčkni <span class="klavesa-v-textu">Mezerník</span> !</span>
 
             <input type="text" ref="input" id="input" @input="klik">
 
@@ -423,7 +430,8 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
                     :cekame="(aktivniPismeno.id == 0 || aktivniPismeno.id == -1) && cass == 0" :full-hide="fullHideKlavesnice" />
             </Transition>
             <Transition>
-                <Tooltip zprava="Restart cvičení <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="120" :vzdalenostX="385" :vzdalenost="85">
+                <Tooltip zprava="Restart cvičení <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="120" :vzdalenost="85" :xOffset="385"
+                    :yOffset="-154">
                     <div v-if="klavesnice != '' && props.resetBtn" id="reset-btn" @click="resetTlacitko(); animace()"
                         :class="{ schovat: route.fullPath == '/prvni-psani' }">
                         <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Restart">
@@ -450,7 +458,7 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
                     <p>
                         Přestal jsi psát a tak jsme museli cvičení přerušit.
                     </p>
-                    <button class="tlacitko" @click="prestalPsat = false">Jsem tu!</button>
+                    <button class="tlacitko" @click="prestalPsat = false; input?.focus()">Jsem tu!</button>
                 </div>
             </Transition>
         </div>
@@ -464,7 +472,6 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
 
 span.unfocused {
     position: absolute;
-    top: 235px;
     font-size: 1.6em;
     font-weight: 600;
     user-select: none;
@@ -473,6 +480,7 @@ span.unfocused {
 #input {
     position: absolute;
     opacity: 0;
+    cursor: default;
 }
 
 #hide-btn {
@@ -565,8 +573,8 @@ span.unfocused {
     display: flex;
     align-items: center;
     justify-content: center;
-    left: 385px;
-    top: -154px;
+    /* left: 385px; */
+    /* top: -154px; */
     cursor: pointer;
     transition: background-color 0.1s;
     user-select: none;

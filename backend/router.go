@@ -492,7 +492,8 @@ func prihlaseni(c echo.Context) error {
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, chyba("Token se pokazil"))
 		} else {
-			return c.JSON(http.StatusOK, echo.Map{"token": token, "jmeno": uziv.Jmeno, "email": uziv.Email})
+			trida, _ := databaze.GetTridaByUziv(uziv.ID)
+			return c.JSON(http.StatusOK, echo.Map{"token": token, "jmeno": uziv.Jmeno, "email": uziv.Email, "role": utils.GetRole(uziv.Role, trida.ID)})
 		}
 	}
 }
@@ -538,7 +539,8 @@ func google(c echo.Context) error {
 		}
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{"token": token, "novy": novy, "jmeno": uziv.Jmeno, "email": uziv.Email})
+	trida, _ := databaze.GetTridaByUziv(uziv.ID)
+	return c.JSON(http.StatusOK, echo.Map{"token": token, "novy": novy, "jmeno": uziv.Jmeno, "email": uziv.Email, "role": utils.GetRole(uziv.Role, trida.ID)})
 }
 
 func zmenaHesla(c echo.Context) error {

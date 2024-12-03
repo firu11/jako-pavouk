@@ -20,8 +20,8 @@ defineProps({
 </script>
 
 <template>
-    <router-link v-if="prihlasen && typ !== '...' && !mobil" class="cvic-blok"
-        :class="{ dokoncenyBlok: dokonceno, oznacene: oznacene }" :to="'/lekce/' + pismena + '/' + index">
+    <router-link v-if="prihlasen && typ !== '...' && !mobil" class="cvic-blok" :class="{ dokoncenyBlok: dokonceno, oznacene: oznacene }"
+        :to="'/lekce/' + pismena + '/' + index">
         <h2>{{ index }}</h2>
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>
@@ -50,17 +50,16 @@ defineProps({
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>
         <h3 v-else-if="typ === 'naucena'">Probraná písmenka</h3>
-        <h3 v-else-if="typ === 'slova'">Se slovy</h3>
+        <h3 v-else-if="typ === 'slova' || typ === 'programator'">Se slovy</h3>
         <h3 v-else>...</h3>
         <img class="play-vetsi" src="../assets/icony/start.svg" alt="Začít lekci">
     </a>
-    <a v-else class="cvic-blok" :class="{ dokoncenyBlok: dokonceno }"
-        @click="pridatOznameni('Psaní na telefonech zatím neučíme...')">
+    <a v-else class="cvic-blok" :class="{ dokoncenyBlok: dokonceno }" @click="pridatOznameni('Psaní na telefonech zatím neučíme...')">
         <h2>{{ index }}</h2>
         <hr>
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>
         <h3 v-else-if="typ === 'naucena'">Probraná písmenka</h3>
-        <h3 v-else-if="typ === 'slova'">Se slovy</h3>
+        <h3 v-else-if="typ === 'slova' || typ === 'programator'">Se slovy</h3>
         <h3 v-else>...</h3>
         <div v-if="dokonceno" id="hvezdy">
             <img v-if="rychlost >= levelyRychlosti[0]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">

@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { computed, onUnmounted } from "vue";
-import { onMounted, ref } from "vue";
+import { computed, onUnmounted, useTemplateRef, watch } from "vue";
+import { onMounted } from "vue";
 
 const props = defineProps({
     zprava: String,
     sirka: Number,
     xOffset: {
+        type: Number,
+        default: 0
+    },
+    yOffset: {
         type: Number,
         default: 0
     },
@@ -19,21 +23,15 @@ const props = defineProps({
     }
 })
 
-const obsah = ref({} as HTMLElement)
-const tip = ref({} as HTMLElement)
+const obsah = useTemplateRef("obsah")
+const tip = useTemplateRef("tip")
 
 const y = computed(() => {
-    if (typeof obsah.value.getBoundingClientRect !== 'function') return props.vzdalenost + document.documentElement.scrollTop
-    return obsah.value.getBoundingClientRect().bottom + props.vzdalenost + document.documentElement.scrollTop
+    if (obsah.value == null || typeof obsah.value.getBoundingClientRect !== 'function') return props.vzdalenost + document.documentElement.scrollTop
+    return obsah.value.getBoundingClientRect().bottom + props.vzdalenost + document.documentElement.scrollTop - props.yOffset
 })
 
 onMounted(() => {
-    if (props.xOffset !== 0) {
-        let rect = tip.value.getBoundingClientRect()
-        tip.value.style.left = `${props.xOffset + rect.left}px`
-        obsah.value.style.left = `${props.xOffset}px`
-    }
-
     recalc()
     window.addEventListener('resize', recalc)
 })
@@ -52,27 +50,34 @@ function getPageTopLeft(el: Element) {
 }
 
 function recalc() {
-    if (props.vzdalenostX !== 0) {
-        tip.value.style.removeProperty('left')
-        tip.value.style.removeProperty('right')
-        let left = getPageTopLeft(tip.value).left + props.vzdalenostX
+    if (tip.value == null) return
+    tip.value.style.removeProperty("left")
+    tip.value.style.removeProperty("right")
 
-        if (left + props.sirka! > document.body.clientWidth) {
-            tip.value.style.right = `12px`
+    let left = getPageTopLeft(tip.value).left + props.vzdalenostX + props.xOffset
+    if (left + props.sirka! > document.body.clientWidth) {
+        tip.value.style.right = `12px`
+    } else {
+        if (obsah.value == null || typeof obsah.value.getBoundingClientRect !== 'function') {
+            tip.value.style.left = `${props.vzdalenostX + document.documentElement.scrollLeft}px`
+        } else if (props.xOffset == 0 && props.vzdalenostX == 0) {
+            return // nevim co to dělá no nic
         } else {
-            tip.value.style.left = `${left}px`
+            tip.value.style.left = `${obsah.value.getBoundingClientRect().left + obsah.value.getBoundingClientRect().width / 2 - props.sirka! / 2 + props.vzdalenostX}px`
         }
     }
 }
+
+watch(obsah, recalc)
 
 </script>
 
 <template>
     <div id="wrap">
-        <div id="obsah" ref="obsah">
+        <div id="obsah" ref="obsah" :style="{ top: `${props.yOffset}px`, left: `${props.xOffset}px` }">
             <slot />
         </div>
-        <div id="tooltip" :style="{ top: `${y}px`, width: `${props.sirka == null ? obsah.getBoundingClientRect().width * 2.2 : props.sirka}px` }"
+        <div id="tooltip" :style="{ top: `${y}px`, width: `${props.sirka == null ? obsah!.getBoundingClientRect().width * 2.2 : props.sirka}px` }"
             v-html="zprava" ref="tip" />
     </div>
 </template>
