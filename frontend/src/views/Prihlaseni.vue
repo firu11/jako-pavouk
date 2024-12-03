@@ -43,7 +43,7 @@ function login(e: Event) {
 
         uziv.value.email = response.data.email
         uziv.value.jmeno = response.data.jmeno
-        role.value = response
+        role.value = response.data.role
         
         router.push("/statistiky")
     }).catch(e => {
@@ -80,6 +80,7 @@ const handleLoginSuccess = (response: { credential: string }) => {
 
         uziv.value.email = response.data.email
         uziv.value.jmeno = response.data.jmeno
+        role.value = response.data.role
 
         if (response.data.novy) router.push("/klavesnice?kam=statistiky")
         else router.push("/statistiky")
