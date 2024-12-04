@@ -71,7 +71,7 @@ async function upravitSirkuJmena() {
         jmenoSpan.value.style.fontSize = `${velikost}px`
         if (velikost <= 0) break
     }
-    console.log("velikost jmena v px:", velikost)
+    //console.log("velikost jmena v px:", velikost)
 }
 
 function odhlasit(e: Event) {

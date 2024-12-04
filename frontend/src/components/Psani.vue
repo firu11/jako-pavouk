@@ -167,8 +167,9 @@ function klik(e: Event) {
     startTimer()
 
     if (!(e instanceof InputEvent)) return // typescript je sus, nemůžu dát do parametru rovnou InputEvent https://github.com/microsoft/TypeScript/issues/39925
-
-    if (e.inputType == "insertText") {
+    
+    //                                  kvůli linuxu ->
+    if (e.inputType == "insertText" || (e.inputType == "insertCompositionText" && !e.isComposing)) {
         if (e.data === aktivniPismeno.value.znak) {
             if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
             if (aktivniPismeno.value.spatne === 1) {
@@ -304,7 +305,7 @@ function restart() {
     mistaPosunuti.value = [0, 0]
     chybyPismenka.clear()
     opravene.value = 0
-    input.value!.value = '' // nemusi byt
+    if (input.value != null) input.value.value = '' // nemusi byt asi
     clearTimeout(timeoutID)
 
     for (let i = 0; i < props.text.length; i++) {
@@ -397,7 +398,11 @@ function checkFocus() {
     unfocused.value = document.activeElement !== input.value
 }
 
-defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
+function focusInput() {
+    input.value?.focus()
+}
+
+defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
 </script>
 
 <template>
@@ -420,7 +425,8 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
                     </div>
                 </div>
             </div>
-            <span class="unfocused" :style="{ display: unfocused ? 'block' : 'none', top: route.fullPath == '/prvni-psani' ? '200px' : '235px' }"
+            <span class="unfocused"
+                :style="{ display: unfocused ? 'block' : 'none', top: (route.fullPath == '/prvni-psani' || route.fullPath.split('/')[1] == 'prace') ? '200px' : '235px' }"
                 @click="input?.focus()">Klikni sem nebo zmáčkni <span class="klavesa-v-textu">Mezerník</span> !</span>
 
             <input type="text" ref="input" id="input" @input="klik">
@@ -430,16 +436,15 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
                     :cekame="(aktivniPismeno.id == 0 || aktivniPismeno.id == -1) && cass == 0" :full-hide="fullHideKlavesnice" />
             </Transition>
             <Transition>
-                <Tooltip zprava="Restart cvičení <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="120" :vzdalenost="85" :xOffset="385"
-                    :yOffset="-154">
-                    <div v-if="klavesnice != '' && props.resetBtn" id="reset-btn" @click="resetTlacitko(); animace()"
-                        :class="{ schovat: route.fullPath == '/prvni-psani' }">
+                <Tooltip v-if="klavesnice != '' && props.resetBtn" zprava="Restart cvičení <span class='klavesa-v-textu-mensi'>Delete</span>"
+                    :sirka="120" :vzdalenost="-55" :xOffset="385" :yOffset="-154">
+                    <div id="reset-btn" @click="resetTlacitko(); animace(); input?.focus();" :class="{ schovat: route.fullPath == '/prvni-psani' }">
                         <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Restart">
                     </div>
                 </Tooltip>
             </Transition>
             <Transition>
-                <div v-if="klavesnice != '' && props.resetBtn" id="hide-btn" @click="fullHideKlavesnice = !fullHideKlavesnice"
+                <div v-if="klavesnice != '' && props.resetBtn" id="hide-btn" @click="fullHideKlavesnice = !fullHideKlavesnice; input?.focus()"
                     :class="{ schovat: route.fullPath == '/prvni-psani' }"
                     :style="{ top: route.fullPath.split('/')[1] == 'lekce' ? '-140px' : '-70px' }">
                     <img v-if="!fullHideKlavesnice" src="../assets/icony/oko.svg" alt="Schovat" width="34">
@@ -447,7 +452,7 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice })
                 </div>
             </Transition>
 
-            <div id="zvuk-btn" @click="toggleZvuk">
+            <div id="zvuk-btn" @click="toggleZvuk(); input?.focus()">
                 <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvuk-icon" src="../assets/icony/zvukOn.svg" alt="Zvuky jsou zapnuté">
                 <img v-else style="margin-left: 1px;" class="zvuk-icon" src="../assets/icony/zvukOff.svg" alt="Zvuky jsou vypnuté">
             </div>
@@ -479,7 +484,7 @@ span.unfocused {
 
 #input {
     position: absolute;
-    opacity: 0;
+    opacity: 1;
     cursor: default;
 }
 

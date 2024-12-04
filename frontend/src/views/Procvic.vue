@@ -225,6 +225,10 @@ watch(a, () => {
     }
 })
 
+function refocus() {
+    psaniRef.value.focusInput()
+}
+
 </script>
 
 <template>
@@ -241,10 +245,10 @@ watch(a, () => {
     <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaNapsanehoTextu"
         :cas="menuRef == undefined ? 15 : menuRef.delka" :cislo="typ" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
 
-    <PsaniMenu class="psaniMenu" :class="{ hide: konec || !hideKlavecnice }" @restart="restart(); psaniRef?.restart()" @toggle="toggleDiakritikaAVelkaPismena"
-        :vyberTextu="false" :bez-stinu="psaniRef?.fullHideKlavesnice" ref="menuRef" />
+    <PsaniMenu class="psaniMenu" :class="{ hide: konec || !hideKlavecnice }" @restart="restart(); psaniRef?.restart()"
+        @toggle="toggleDiakritikaAVelkaPismena" @click="refocus" :vyberTextu="false" :bez-stinu="psaniRef?.fullHideKlavesnice" ref="menuRef" />
 
-    <NastaveniBtn v-if="!konec && klavesnice != ''" @klik="hideKlavecnice = !hideKlavecnice" />
+    <NastaveniBtn v-if="!konec && klavesnice != ''" @klik="hideKlavecnice = !hideKlavecnice; refocus(); psaniRef?.restart()" />
 </template>
 
 <style scoped>

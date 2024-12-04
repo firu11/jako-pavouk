@@ -201,6 +201,11 @@ async function prodlouzit() {
         nacitamNovej.value = false
     })
 }
+
+function refocus() {
+    psaniRef.value.focusInput()
+}
+
 </script>
 
 <template>
@@ -218,9 +223,9 @@ async function prodlouzit() {
         :cas="menuRef == undefined ? 15 : menuRef.delka" :cislo="'test-psani'" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
 
     <PsaniMenu class="psaniMenu" :class="{ hide: konec || !hideKlavecnice }" @restart="restart(); psaniRef.restart()"
-        @toggle="toggleDiakritikaAVelkaPismena" :bez-stinu="psaniRef?.fullHideKlavesnice" ref="menuRef" />
+        @toggle="toggleDiakritikaAVelkaPismena" @click="refocus" :bez-stinu="psaniRef?.fullHideKlavesnice" ref="menuRef" />
 
-    <NastaveniBtn v-if="!konec && klavesnice != ''" @klik="hideKlavecnice = !hideKlavecnice" />
+    <NastaveniBtn v-if="!konec && klavesnice != ''" @klik="hideKlavecnice = !hideKlavecnice; refocus(); psaniRef?.restart()" />
 </template>
 
 <style scoped>
