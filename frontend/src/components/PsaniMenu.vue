@@ -3,7 +3,7 @@ import { onMounted, ref } from "vue";
 import { nastaveniJmeno, prihlasen } from "../stores";
 import { saveNastaveni } from "../utils";
 
-defineEmits(["restart", "toggle", "toggleInterpunkce"])
+const emit = defineEmits(["restart", "toggle", "refocus"])
 
 const props = defineProps({
     vyberTextu: {
@@ -54,6 +54,7 @@ function disabledBtn(e: KeyboardEvent) {
 function d(x: number) {
     delka.value = x
     saveNastaveni(diakritika.value, velkaPismena.value, typ.value, delka.value, klavModel.value)
+    emit("refocus")
 }
 
 defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
@@ -64,7 +65,7 @@ defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
         <div id="psani-menu" :class="{ 'bez-stinu': props.bezStinu }">
             <div v-if="!(prihlasen && !vyberTextu)" class="kontejner" style="gap: 20px;">
                 <input v-if="vyberTextu" v-model="typ" type="checkbox" id="toggle" class="toggle-checkbox"
-                    @change="$emit('restart'); saveNastaveni(diakritika, velkaPismena, typ, delka, klavModel)" />
+                    @change="emit('restart'); saveNastaveni(diakritika, velkaPismena, typ, delka, klavModel)" />
                 <label v-if="vyberTextu" for="toggle" class="toggle-contejner">
                     <div>Slova</div>
                     <div>Věty</div>
@@ -93,12 +94,12 @@ defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
 
             <div class="kontejner">
                 <label for="toggle2" class="kontejner">
-                    <input v-model="velkaPismena" @change="$emit('toggle')" type="checkbox" id="toggle2" class="radio" />
+                    <input v-model="velkaPismena" @change="emit('toggle')" type="checkbox" id="toggle2" class="radio" />
                     Velká písmena
                 </label>
 
                 <label for="toggle3" class="kontejner">
-                    <input v-model="diakritika" @change="$emit('toggle')" type="checkbox" id="toggle3" class="radio" />
+                    <input v-model="diakritika" @change="emit('toggle')" type="checkbox" id="toggle3" class="radio" />
                     Diakritika
                 </label>
             </div>
