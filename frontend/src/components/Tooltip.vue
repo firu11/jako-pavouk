@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onUnmounted, useTemplateRef, watch } from "vue";
+import { onUnmounted, ref, useTemplateRef, watch } from "vue";
 import { onMounted } from "vue";
 
 const props = defineProps({
@@ -25,14 +25,12 @@ const props = defineProps({
 
 const obsah = useTemplateRef("obsah")
 const tip = useTemplateRef("tip")
-
-const y = computed(() => {
-    if (obsah.value == null || typeof obsah.value.getBoundingClientRect !== 'function') return props.vzdalenost + document.documentElement.scrollTop
-    return obsah.value.getBoundingClientRect().bottom + props.vzdalenost + document.documentElement.scrollTop - props.yOffset
-})
+const y = ref(props.vzdalenost + document.documentElement.scrollTop)
 
 onMounted(() => {
     recalc()
+    recalcTipY()
+    setTimeout(recalcTipY, 100)
     window.addEventListener('resize', recalc)
 })
 
@@ -47,6 +45,11 @@ function getPageTopLeft(el: Element) {
         left: rect.left + (window.scrollX || docEl.scrollLeft || 0),
         top: rect.top + (window.scrollY || docEl.scrollTop || 0)
     }
+}
+
+function recalcTipY() {
+    if (obsah.value == null) return
+    y.value = obsah.value.getBoundingClientRect().bottom + props.vzdalenost
 }
 
 function recalc() {

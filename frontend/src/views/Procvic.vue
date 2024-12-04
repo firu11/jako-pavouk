@@ -226,7 +226,7 @@ watch(a, () => {
 })
 
 function refocus() {
-    psaniRef.value.focusInput()
+    psaniRef.value?.focusInput()
 }
 
 </script>
