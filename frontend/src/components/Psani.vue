@@ -167,7 +167,8 @@ function klik(e: Event) {
     startTimer()
 
     if (!(e instanceof InputEvent)) return // typescript je sus, nemůžu dát do parametru rovnou InputEvent https://github.com/microsoft/TypeScript/issues/39925
-    
+    if (e.data == "") return
+
     //                                  kvůli linuxu ->
     if (e.inputType == "insertText" || (e.inputType == "insertCompositionText" && !e.isComposing)) {
         if (e.data === aktivniPismeno.value.znak) {
@@ -437,7 +438,7 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
             </Transition>
             <Transition>
                 <Tooltip v-if="klavesnice != '' && props.resetBtn" zprava="Restart cvičení <span class='klavesa-v-textu-mensi'>Delete</span>"
-                    :sirka="120" :vzdalenost="-55" :xOffset="385" :yOffset="-154">
+                    :sirka="120" :vzdalenost="6" :xOffset="385" :yOffset="-154">
                     <div id="reset-btn" @click="resetTlacitko(); animace(); input?.focus();" :class="{ schovat: route.fullPath == '/prvni-psani' }">
                         <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Restart">
                     </div>
@@ -484,7 +485,7 @@ span.unfocused {
 
 #input {
     position: absolute;
-    opacity: 1;
+    opacity: 0;
     cursor: default;
 }
 

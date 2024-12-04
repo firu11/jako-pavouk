@@ -65,10 +65,6 @@ const router = createRouter({
             component: () => import("./views/ZapomenuteHeslo.vue")
         },
         {
-            path: "/ucet",
-            component: () => import("./views/Ucet.vue"),
-        },
-        {
             path: "/nastaveni",
             component: () => import("./views/Nastaveni.vue"),
         },
