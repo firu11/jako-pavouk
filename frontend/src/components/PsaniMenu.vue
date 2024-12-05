@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import { nastaveniJmeno, prihlasen } from "../stores";
 import { saveNastaveni } from "../utils";
 
@@ -45,7 +45,19 @@ onMounted(() => {
         delka.value = obj.delka ? obj.delka : 60
         klavModel.value = obj.klavesnice
     }
+
+    document.addEventListener("keydown", disableTab)
 })
+
+onUnmounted(() => {
+    document.removeEventListener("keydown", disableTab)
+})
+
+function disableTab(e: KeyboardEvent) {
+    if (e.which == 9) {
+        e.preventDefault();
+    }
+}
 
 function disabledBtn(e: KeyboardEvent) {
     e.preventDefault()
