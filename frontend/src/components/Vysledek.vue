@@ -184,7 +184,7 @@ function e1(e: KeyboardEvent) {
             <div v-if="nejcastejsiChyby.size !== 0">
                 <ol>
                     <li v-for="znak in nejcastejsiChybyTop3" :key="znak.znak">
-                        <span :style="{ fontSize: znak.znak  == ' ' ? '10px' : 'auto' }">{{ znak.znak  == " " ? "┗━┛" : znak.znak }}</span>
+                        <span :style="{ fontSize: znak.znak == ' ' ? '10px' : 'auto' }">{{ znak.znak == " " ? "┗━┛" : znak.znak }}</span>
                     </li>
                 </ol>
                 <ul>
@@ -239,14 +239,15 @@ function e1(e: KeyboardEvent) {
         <button v-if="props.cislo == 'prvni-psani'" class="tlacitko" @click="router.push('/registrace')">Vytvořit účet</button>
         <button v-if="props.pismena == 'pracepraceprace'" class="tlacitko" @click="router.push('/trida')">Zpět do třídy</button>
 
-        <Tooltip zprava="Také pomocí klávesy <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="130">
-            <button v-if="props.cislo != 'prvni-psani' && props.pismena != 'pracepraceprace'" class="tlacitko" @click="reset">Zkusit znovu</button>
+        <Tooltip v-if="props.cislo != 'prvni-psani' && props.pismena != 'pracepraceprace'"
+            zprava="Také pomocí klávesy <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="130">
+            <button class="tlacitko" @click="reset">Zkusit znovu</button>
         </Tooltip>
 
-        <Tooltip
+        <Tooltip v-if="route.path.split('/')[1] == 'lekce'"
             zprava="Také pomocí klávesy <span class='klavesa-v-textu-mensi'><img src='/src/assets/icony/sipkaL.svg' alt='Šipka' class='klav-sipka' style='transform: scaleX(-1) translateY(2px) translateX(-1px);'></span>"
             :sirka="130">
-            <button v-if="route.path.split('/')[1] == 'lekce'" class="tlacitko" @click="dalsi()">Pokračovat</button>
+            <button class="tlacitko" @click="dalsi()">Pokračovat</button>
         </Tooltip>
     </div>
 

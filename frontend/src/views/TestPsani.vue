@@ -117,7 +117,7 @@ let textBezDiakritiky = [] as { id: number, znak: string, spatne: number, psat: 
 let textMalym = [] as { id: number, znak: string, spatne: number, psat: boolean }[][]
 let textOboje = [] as { id: number, znak: string, spatne: number, psat: boolean }[][]
 
-function toggleDiakritikaAVelkaPismena() {
+async function toggleDiakritikaAVelkaPismena() {
     if (!menuRef.value.diakritika && !menuRef.value.velkaPismena) {
         text.value = clone(textOboje)
     } else if (!menuRef.value.diakritika) {
