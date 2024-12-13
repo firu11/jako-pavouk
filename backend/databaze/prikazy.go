@@ -1,5 +1,3 @@
-// V tomto souboru jsou příkazy do databáze které buď SELECTujou data z databáze, nebo data v databázi upravují.
-// Největší dokumentace je jméno funkcí samotných.
 package databaze
 
 import (
@@ -110,7 +108,6 @@ type (
 	}
 )
 
-// vybírá jméno pro uživatele který se zaregistroval přes google
 func volbaJmena(celeJmeno string) (string, error) {
 	celeJmeno = godiacritics.Normalize(celeJmeno)
 	var jmeno []string = strings.Fields(celeJmeno) // rozdělim na jmeno a prijimeni
@@ -149,7 +146,6 @@ func volbaJmena(celeJmeno string) (string, error) {
 	return "", errors.New("konec sveta nenašel jsem jméno")
 }
 
-// z googlu vrací email, jmeno, error
 func GoogleTokenNaData(token string) (string, string, error) {
 	res, err := http.Get(fmt.Sprintf("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%v", token))
 	if err != nil {
