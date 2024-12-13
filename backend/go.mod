@@ -2,7 +2,7 @@ module backend
 
 go 1.23.4
 
-require golang.org/x/text v0.20.0 // indirect
+require golang.org/x/text v0.21.0 // indirect
 
 require (
 	github.com/joho/godotenv v1.5.1
@@ -34,7 +34,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/rickb777/date v1.21.1
-	golang.org/x/crypto v0.29.0
+	golang.org/x/crypto v0.31.0
 	golang.org/x/sys v0.28.0 // indirect
 	gopkg.in/Regis24GmbH/go-diacritics.v2 v2.0.3
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
