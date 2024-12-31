@@ -50,7 +50,7 @@ function postSmazat(e: Event) {
         prihlasen.value = false
         localStorage.removeItem("pavouk_token")
         router.push("/prihlaseni")
-        pridatOznameni("Účet byl úspěšně smazán. Pavoučí rodina by však ráda věděla proč odcházíš...")
+        pridatOznameni("Účet byl úspěšně smazán. Pavoučí rodina by však ráda věděla, proč odcházíš...", 15000)
     }).catch(e => {
         console.log(e)
         pridatOznameni()
