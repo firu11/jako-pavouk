@@ -72,6 +72,7 @@ form img {
     display: inline-block;
     align-self: flex-end;
     margin-right: 10px;
+    cursor: help;
 }
 
 .info {

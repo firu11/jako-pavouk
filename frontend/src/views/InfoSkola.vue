@@ -84,7 +84,7 @@ function chekujUdaje() {
             <h2>Cena, platba a zkušební období</h2>
             <p>
                 <b>Zdarma</b> můžete po dobu <b>jednoho měsíce</b> vyzkoušet systém s libovolným počtem žáků.
-                Po jeho uplinutí je cena na žáka jednorázová. Od <b>99Kč</b> za nového žáka.
+                Po jeho uplynutí je cena na žáka jednorázová. Od <b>99Kč</b> za nového žáka.
                 Fakturace probíhá <b>jednou ročně bankovním převodem</b>.
             </p>
         </div>
