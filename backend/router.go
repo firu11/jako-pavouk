@@ -3,6 +3,7 @@ package main
 import (
 	"backend/databaze"
 	"backend/utils"
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -173,7 +174,9 @@ func getVsechnyLekce(c echo.Context) error {
 
 		lekcePismena, cisloCvic, err := databaze.GetDalsiCviceni(id)
 		if err != nil {
-			log.Println(err)
+			if err != sql.ErrNoRows {
+				log.Println(err)
+			}
 			return c.JSON(http.StatusOK, echo.Map{"lekce": lekce, "dokoncene": dokoncene, "dalsi_cviceni": ""})
 		}
 		return c.JSON(http.StatusOK, echo.Map{"lekce": lekce, "dokoncene": dokoncene, "dalsi_cviceni": fmt.Sprintf("/%s/%d", lekcePismena, cisloCvic)})
