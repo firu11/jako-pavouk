@@ -140,7 +140,9 @@ func zapisSkoly(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 
-	utils.SaveSkola(body.JmenoSkoly, body.KontaktniEmail, body.KontaktniTelefon)
+	if err := utils.SaveSkola(body.JmenoSkoly, body.KontaktniEmail, body.KontaktniTelefon); err != nil {
+		log.Println(err)
+	}
 
 	return c.NoContent(http.StatusOK)
 }
