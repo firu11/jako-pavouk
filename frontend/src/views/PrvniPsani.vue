@@ -89,7 +89,7 @@ const ok = ref(false)
     border-radius: 10px;
     position: relative;
     top: -243px;
-    max-width: 470px;
+    max-width: 475px;
     display: flex;
     gap: 12px;
     align-items: center;

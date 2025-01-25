@@ -36,15 +36,15 @@ type (
 	}
 
 	Uzivatel struct {
-		ID          uint      `json:"id" db:"id"`
-		Email       string    `json:"email" db:"email"`
-		Jmeno       string    `json:"jmeno" db:"jmeno"`
-		Heslo       string    `json:"heslo" db:"heslo"`
-		Klavesnice  string    `json:"klavesnice" db:"klavesnice"`
-		Datum       date.Date `json:"datum" db:"datum"`
-		Role        int       `json:"role" db:"role"`
-		SkolniJmeno string    `json:"skolni_jmeno" db:"skolni_jmeno"`
-		Smazany     bool      `json:"smazany" db:"smazany"`
+		ID              uint      `json:"id" db:"id"`
+		Email           string    `json:"email" db:"email"`
+		Jmeno           string    `json:"jmeno" db:"jmeno"`
+		Heslo           string    `json:"heslo" db:"heslo"`
+		Klavesnice      string    `json:"klavesnice" db:"klavesnice"`
+		Datum           date.Date `json:"datum" db:"datum"`
+		Role            int       `json:"role" db:"role"`
+		UcitelVeSkoleID int       `json:"" db:"skola_id"`
+		SkolniJmeno     string    `json:"skolni_jmeno" db:"skolni_jmeno"`
 	}
 
 	NeoUziv struct {
@@ -86,6 +86,26 @@ type (
 		Zamknuta   bool   `json:"zamknuta" db:"zamknuta"`
 		Smazana    bool   `json:"smazana" db:"smazana"`
 		Klavesnice string `json:"klavesnice" db:"klavesnice"`
+	}
+
+	Skola struct {
+		ID          uint      `json:"id" db:"id"`
+		Jmeno       string    `json:"jmeno" db:"jmeno"`
+		DenZalozeni date.Date `json:"den_zalozeni" db:"den_zalozeni"`
+		Aktivni     bool      `json:"aktivni" db:"aktivni"`
+		// kontaktni_email
+		// kontaktni_telefon
+	}
+
+	Ucitel struct {
+		ID      uint `json:"id" db:"id"`
+		SkolaID uint `json:"skola_id" db:"skola_id"`
+
+		UzivID uint   `json:"uziv_id" db:"uziv_id"`
+		Email  string `json:"email" db:"email"`
+
+		PocetTrid int `json:"pocet_trid" db:"pocet_trid"`
+		PocetZaku int `json:"pocet_zaku" db:"pocet_zaku"`
 	}
 
 	Prace struct {
@@ -375,7 +395,7 @@ func GetCviceniVLekciByPismena(uzivID uint, pismena string) ([]Cviceni, error) {
 
 func GetUzivByID(uzivID uint) (Uzivatel, error) {
 	var uziv Uzivatel
-	row, err := DB.Query(`SELECT * FROM uzivatel WHERE id = $1 AND NOT smazany;`, uzivID)
+	row, err := DB.Query(`SELECT uz.*, COALESCE(u.skola_id, 0) AS skola_id FROM uzivatel uz FULL OUTER JOIN ucitel u ON u.uziv_id = uz.id WHERE uz.id = $1 AND NOT uz.smazany;`, uzivID)
 	if err != nil {
 		return uziv, err
 	}
@@ -385,7 +405,7 @@ func GetUzivByID(uzivID uint) (Uzivatel, error) {
 
 func GetUzivByEmail(email string) (Uzivatel, error) {
 	var uziv Uzivatel
-	row, err := DB.Query(`SELECT * FROM uzivatel WHERE email = $1 AND NOT smazany;`, email)
+	row, err := DB.Query(`SELECT uz.*, COALESCE(u.skola_id, 0) AS skola_id FROM uzivatel uz FULL OUTER JOIN ucitel u ON u.uziv_id = uz.id WHERE uz.email = $1 AND NOT uz.smazany;`, email)
 	if err != nil {
 		return uziv, err
 	}
@@ -395,7 +415,7 @@ func GetUzivByEmail(email string) (Uzivatel, error) {
 
 func GetUzivByJmeno(jmeno string) (Uzivatel, error) {
 	var uziv Uzivatel
-	row, err := DB.Query(`SELECT * FROM uzivatel WHERE jmeno = $1 AND NOT smazany;`, jmeno)
+	row, err := DB.Query(`SELECT uz.*, COALESCE(u.skola_id, 0) AS skola_id FROM uzivatel uz FULL OUTER JOIN ucitel u ON u.uziv_id = uz.id WHERE uz.jmeno = $1 AND NOT uz.smazany;`, jmeno)
 	if err != nil {
 		return uziv, err
 	}
@@ -448,7 +468,6 @@ func GetDaystreak(uzivID uint) (int, error) {
 			if daystreak == 0 {
 				daystreak++
 			}
-			continue
 		} else if posledni.AddDate(0, 0, -1) == d {
 			daystreak++
 			posledni = d
@@ -470,7 +489,7 @@ func GetUdaje(uzivID uint) (float32, float32, map[string]int, [3]int, [3]int, er
 	var cas [3]int
 	var napsanychPismen [3]int
 
-	err := DB.QueryRow(`WITH vsechny_za_dva_tydny AS ( SELECT neopravene, delka_textu, cas, datum, ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ) AS opravene, chyby_pismenka FROM dokoncene WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) UNION SELECT neopravene, delka_textu, cas, datum, ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ) AS opravene, chyby_pismenka FROM dokoncene_procvic WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) ), soucty_pismenek AS ( SELECT key AS pismeno, SUM(value::NUMERIC) AS soucet FROM vsechny_za_dva_tydny, jsonb_each_text(chyby_pismenka) GROUP BY key ), vsechny AS ( SELECT delka_textu, cas, datum::date FROM dokoncene WHERE uziv_id = $1 UNION SELECT delka_textu, cas, datum::date FROM dokoncene_procvic WHERE uziv_id = $1 ), soucty_dnes AS ( SELECT SUM(cas) AS cas_dnes, SUM(delka_textu) AS napsanych_pismen_dnes FROM vsechny WHERE datum = CURRENT_DATE ), soucty_dva_tydny AS ( SELECT SUM(cas) AS cas_dva_tydny, SUM(delka_textu) AS napsanych_pismen_dva_tydny FROM vsechny WHERE datum > CURRENT_DATE - MAKE_INTERVAL(days => 14) ), soucty_celkem AS ( SELECT SUM(cas) AS cas_celkem, SUM(delka_textu) AS napsanych_pismen_celkem FROM vsechny ) SELECT GREATEST( ( ( SUM(delka_textu) - 10 * SUM(neopravene) ) / SUM(cas)::NUMERIC ) * 60, 0 ) AS rychlost, COALESCE( ( ( SUM(delka_textu) - SUM(neopravene) - COALESCE(SUM(opravene), 0) ) / SUM(delka_textu)::NUMERIC ) * 100, -1 ) AS presnost, COALESCE(jsonb_object_agg(pismeno, soucet), '{}'::jsonb), COALESCE(max(cas_dnes), 0) AS cas_dnes, COALESCE(max(cas_dva_tydny), 0) AS cas_dva_tydny, COALESCE(max(cas_celkem), 0) AS cas_celkem, COALESCE(max(napsanych_pismen_dnes), 0) AS napsanych_pismen_dnes, COALESCE( max(napsanych_pismen_dva_tydny), 0 ) AS napsanych_pismen_dva_tydny, COALESCE( max(napsanych_pismen_celkem), 0 ) AS napsanych_pismen_celkem FROM soucty_pismenek, vsechny_za_dva_tydny, soucty_dnes, soucty_dva_tydny, soucty_celkem;`, uzivID).Scan(&rychlost, &presnost, &chybyPismenkaJsonb, &cas[0], &cas[1], &cas[2], &napsanychPismen[0], &napsanychPismen[1], &napsanychPismen[2])
+	err := DB.QueryRow(`WITH default_hodnoty AS ( SELECT 0 AS neopravene, 0 AS delka_textu, 0 AS cas, CURRENT_DATE AS datum, 0 AS opravene, '{}'::jsonb AS chyby_pismenka ), vsechny_za_dva_tydny AS ( SELECT neopravene, delka_textu, cas, datum, ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ) AS opravene, chyby_pismenka FROM dokoncene WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) UNION ALL SELECT neopravene, delka_textu, cas, datum, ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ) AS opravene, chyby_pismenka FROM dokoncene_procvic WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) UNION ALL SELECT * FROM default_hodnoty ), soucty_pismenek AS ( SELECT key AS pismeno, SUM(value::NUMERIC) AS soucet FROM vsechny_za_dva_tydny, jsonb_each_text(chyby_pismenka) GROUP BY key UNION ALL SELECT '' AS pismeno, 0 AS soucet WHERE NOT EXISTS ( SELECT 1 FROM vsechny_za_dva_tydny, jsonb_each_text(chyby_pismenka) ) ), vsechny AS ( SELECT delka_textu, cas, datum::date FROM dokoncene WHERE uziv_id = $1 UNION SELECT delka_textu, cas, datum::date FROM dokoncene_procvic WHERE uziv_id = $1 ), soucty_dnes AS ( SELECT SUM(cas) AS cas_dnes, SUM(delka_textu) AS napsanych_pismen_dnes FROM vsechny WHERE datum = CURRENT_DATE ), soucty_dva_tydny AS ( SELECT SUM(cas) AS cas_dva_tydny, SUM(delka_textu) AS napsanych_pismen_dva_tydny FROM vsechny WHERE datum > CURRENT_DATE - MAKE_INTERVAL(days => 14) ), soucty_celkem AS ( SELECT SUM(cas) AS cas_celkem, SUM(delka_textu) AS napsanych_pismen_celkem FROM vsechny ) SELECT GREATEST( ( (SUM(delka_textu) - 10 * SUM(neopravene)) / GREATEST(SUM(cas)::NUMERIC, 1) ) * 60, 0 ) AS rychlost, COALESCE( ( ( SUM(delka_textu) - SUM(neopravene) - COALESCE(SUM(opravene), 0) ) / GREATEST(SUM(delka_textu)::NUMERIC, 1) ) * 100, -1 ) AS presnost, COALESCE(jsonb_object_agg(pismeno, soucet), '{}'::jsonb) AS chyby_pismenka, COALESCE(max(cas_dnes), 0) AS cas_dnes, COALESCE(max(cas_dva_tydny), 0) AS cas_dva_tydny, COALESCE(max(cas_celkem), 0) AS cas_celkem, COALESCE(max(napsanych_pismen_dnes), 0) AS napsanych_pismen_dnes, COALESCE(max(napsanych_pismen_dva_tydny), 0) AS napsanych_pismen_dva_tydny, COALESCE(max(napsanych_pismen_celkem), 0) AS napsanych_pismen_celkem FROM soucty_pismenek, vsechny_za_dva_tydny, soucty_dnes, soucty_dva_tydny, soucty_celkem;`, uzivID).Scan(&rychlost, &presnost, &chybyPismenkaJsonb, &cas[0], &cas[1], &cas[2], &napsanychPismen[0], &napsanychPismen[1], &napsanychPismen[2])
 	if err != nil {
 		return presnost, rychlost, chybyPismenka, cas, napsanychPismen, err
 	}
@@ -769,13 +788,13 @@ func NovaNavsteva() error {
 }
 
 func CreateTrida(jmeno string, ucitelID uint, kod string) error {
-	_, err := DB.Exec(`INSERT INTO trida (jmeno, ucitel_id, kod) VALUES ($1, $2, $3);`, jmeno, ucitelID, kod)
+	_, err := DB.Exec(`INSERT INTO trida (jmeno, ucitel_id, kod) VALUES ($1, (SELECT id FROM ucitel WHERE uziv_id = $2), $3)`, jmeno, ucitelID, kod)
 	return err
 }
 
 func GetTrida(id uint) (Trida, error) {
 	var trida Trida
-	row, err := DB.Query(`SELECT * FROM trida WHERE id = $1;`, id)
+	row, err := DB.Query(`SELECT t.id, t.jmeno, u.uziv_id AS ucitel_id, t.kod, t.zamknuta, t.smazana, t.klavesnice FROM trida t INNER JOIN ucitel u ON u.id = t.ucitel_id WHERE t.id = $1;`, id)
 	if err != nil {
 		return trida, err
 	}
@@ -805,7 +824,7 @@ type TridaInfo struct {
 func GetTridy(ucitelID uint) ([]TridaInfo, error) {
 	var tridy []TridaInfo = []TridaInfo{}
 
-	rows, err := DB.Query(`SELECT id, jmeno, kod, zamknuta, (SELECT COUNT(*) FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id WHERE s.trida_id = trida.id AND NOT u.smazany) as pocet_studentu,  (SELECT COUNT(*) FROM prace WHERE prace.trida_id = trida.id AND NOT prace.smazana) as pocet_praci FROM trida WHERE ucitel_id = $1 AND smazana = FALSE;`, ucitelID)
+	rows, err := DB.Query(`SELECT t.id, t.jmeno, t.kod, t.zamknuta, ( SELECT COUNT(*) FROM uzivatel uz INNER JOIN student_a_trida s ON s.student_id = uz.id WHERE s.trida_id = t.id AND NOT uz.smazany ) as pocet_studentu, ( SELECT COUNT(*) FROM prace p WHERE p.trida_id = t.id AND NOT p.smazana ) as pocet_praci FROM trida t INNER JOIN ucitel u ON u.id = t.ucitel_id WHERE NOT t.smazana AND u.uziv_id = $1;`, ucitelID)
 	if err != nil {
 		return tridy, err
 	}
@@ -824,9 +843,7 @@ type Student struct {
 func GetStudentyZeTridy(tridaID uint) ([]Student, error) {
 	var zaci []Student = []Student{}
 
-	// super ultra šílený query by LLM
-	// předtím jsem pro každého studenta posílal query samostatně (30 žáků | 900ms -> 80ms)
-	rows, err := DB.Query(`WITH cpm_data AS (SELECT datum, (((delka_textu - 10 * neopravene)::float / cas) * 60) AS cpm, uziv_id FROM dokoncene UNION ALL SELECT datum, (((delka_textu - 10 * neopravene) / cas)::float * 60) AS cpm, uziv_id FROM dokoncene_procvic), cpm_filtered AS (SELECT uziv_id, datum, CASE WHEN cpm < 0 THEN 0 ELSE cpm END AS cpm, ROW_NUMBER() OVER (PARTITION BY uziv_id ORDER BY datum DESC) AS rn FROM cpm_data), latest_15_cpm AS (SELECT uziv_id, datum, cpm FROM cpm_filtered WHERE rn <= 15), cpm AS (SELECT uziv_id, AVG(cpm) AS cpm FROM latest_15_cpm GROUP BY uziv_id) SELECT u.id, u.skolni_jmeno, u.email, COALESCE(mc.cpm, 0) as cpm FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id INNER JOIN trida t ON t.id = s.trida_id FULL OUTER JOIN latest_15_cpm l15 ON l15.uziv_id = u.id FULL OUTER JOIN cpm mc ON mc.uziv_id = u.id WHERE s.trida_id = $1 AND t.smazana = FALSE AND NOT u.smazany GROUP BY u.id, u.skolni_jmeno, u.email, mc.cpm;`, tridaID)
+	rows, err := DB.Query(`WITH cpm_data AS ( SELECT datum, delka_textu, neopravene, cas, uziv_id FROM dokoncene WHERE datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) UNION ALL SELECT datum, delka_textu, neopravene, cas, uziv_id FROM dokoncene_procvic WHERE datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) ), cpm AS ( SELECT uziv_id, GREATEST( ( (SUM(delka_textu) - 10 * SUM(neopravene)) / SUM(cas)::NUMERIC ) * 60, 0 ) AS cpm FROM cpm_data GROUP BY uziv_id ) SELECT u.id, u.skolni_jmeno, u.email, COALESCE(mc.cpm, 0) as cpm FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id INNER JOIN trida t ON t.id = s.trida_id FULL OUTER JOIN cpm mc ON mc.uziv_id = u.id WHERE s.trida_id = $1 AND t.smazana = FALSE AND NOT u.smazany GROUP BY u.id, u.skolni_jmeno, u.email, mc.cpm;`, tridaID)
 	if err != nil {
 		return zaci, err
 	}
@@ -1025,4 +1042,40 @@ func GetTextZLekce(typ, lekcePismena string) (string, error) {
 	rows, _ := DB.Query(`SELECT typ, string_agg( pismena::VARCHAR, ', ' ORDER BY id ) FROM ( SELECT DISTINCT c.typ, l.pismena, l.id FROM cviceni c INNER JOIN lekce l ON l.id = c.lekce_id ) GROUP BY typ;`)
 	defer rows.Close()
 	return "", nil
+}
+
+func CreateSkola(jmeno, email, telefon string) (uint, error) {
+	var skolaID uint
+	err := DB.QueryRow(`INSERT INTO skola (jmeno, kontaktni_email, kontaktni_telefon) VALUES ($1, $2, $3);`, jmeno, email, telefon).Scan(&skolaID)
+	return skolaID, err
+}
+
+func GetSkolaByUcitel(uzivID uint) (Skola, error) {
+	var skola Skola
+	rows, err := DB.Query(`SELECT s.* FROM skola s INNER JOIN ucitel u ON u.skola_id = s.id INNER JOIN uzivatel uz ON uz.id = u.uziv_id WHERE uz.id = $1;`, uzivID)
+	if err != nil {
+		return skola, err
+	}
+	err = scan.Row(&skola, rows)
+	return skola, err
+}
+
+func GetUcitele(skolaID uint) ([]Ucitel, error) {
+	var ucitele []Ucitel
+	rows, err := DB.Query(`WITH studenti AS ( SELECT * FROM student_a_trida sat INNER JOIN uzivatel uz ON sat.student_id = uz.id WHERE NOT uz.smazany ), studenti_ucitele AS ( SELECT u.id, COUNT(s.student_id) AS pocet_studentu FROM trida t LEFT JOIN studenti s ON s.trida_id = t.id INNER JOIN ucitel u ON u.id = t.ucitel_id WHERE NOT t.smazana GROUP BY u.id ), staty AS ( SELECT ucitel_id, COUNT(*) AS pocet_trid FROM trida WHERE NOT smazana GROUP BY ucitel_id ) SELECT uz.email, pocet_trid, u.id, uz.id AS uziv_id, u.skola_id, SUM(stu.pocet_studentu) AS pocet_zaku FROM ucitel u INNER JOIN uzivatel uz ON uz.id = u.uziv_id LEFT JOIN staty s ON s.ucitel_id = u.id LEFT JOIN studenti_ucitele stu ON stu.id = u.id WHERE u.skola_id = $1 GROUP BY uz.email, pocet_trid, u.id, uz.id, u.skola_id;`, skolaID)
+	if err != nil {
+		return ucitele, err
+	}
+	err = scan.Rows(&ucitele, rows)
+	return ucitele, err
+}
+
+func CreateUcitel(skolaID, uzivID uint) error {
+	_, err := DB.Exec(`INSERT INTO ucitel (uziv_id, skola_id) VALUES ($1, $2);`, uzivID, skolaID)
+	return err
+}
+
+func RemoveUcitelByID(ucitelID uint) error {
+	_, err := DB.Exec(`DELETE FROM ucitel WHERE id = $1;`, ucitelID)
+	return err
 }

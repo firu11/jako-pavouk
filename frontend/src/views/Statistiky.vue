@@ -3,19 +3,15 @@ import { useHead } from "unhead";
 import { onMounted, ref, useTemplateRef } from "vue";
 import { role } from "../stores";
 import { getToken, MojeMapa, pridatOznameni } from "../utils";
-import { prihlasen } from "../stores";
 import axios from "axios";
 import PrepinacTabu from "../components/PrepinacTabu.vue";
 import Tooltip from "../components/Tooltip.vue";
 import AnimaceCisla from "../components/AnimaceCisla.vue";
 import GrafStatistiky from "../components/GrafStatistiky.vue";
-import { useRouter } from "vue-router";
 
 useHead({
     title: "Statistiky"
 })
-
-const router = useRouter()
 
 const info = ref({ rychlost: -1, cas: [] as number[], napsanychPismen: [] as number[], uspesnost: -1, postupVKurzu: 0, daystreak: 0, nejcastejsiChyby: new Map<string, number>(), rychlosti: [] as number[], presnosti: [] as number[] })
 const nejcastejsiChyby = ref([] as { znak: string, pocet: number }[])
@@ -50,6 +46,8 @@ async function getInfo() {
         }
 
         prepnoutStatistiky()
+    }).catch(() => {
+        pridatOznameni()
     })
 }
 
@@ -74,11 +72,7 @@ function prepnoutStatistiky() {
 }
 
 onMounted(() => {
-    if (!prihlasen.value) {
-        pridatOznameni("Nejsi přihlášený!")
-        router.push("/")
-        return
-    }
+    
     getInfo()
 })
 </script>

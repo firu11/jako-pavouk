@@ -65,7 +65,7 @@ func PoslatInterniEmail(jmenoSkoly string, kontaktniEmail string, kontaktniTelef
 	m.SetHeader("From", fmt.Sprintf("Jako Pavouk <%v>", os.Getenv("EMAIL_FROM")))
 	m.SetHeader("To", os.Getenv("EMAIL_MUJ"))
 	m.SetHeader("Subject", "Nová škola")
-	m.SetBody("text/plain", fmt.Sprintf("Někdo se chce zapsat se školou! \n\n %s\n%s\n%s", jmenoSkoly, kontaktniEmail, kontaktniTelefon))
+	m.SetBody("text/plain", fmt.Sprintf("Někdo se zapsal se školou! \n\n %s\n%s\n%s", jmenoSkoly, kontaktniEmail, kontaktniTelefon))
 
 	if err := dialer.DialAndSend(m); err != nil {
 		log.Print("NEFUNGUJE MAIL GG WOOHOO", err)

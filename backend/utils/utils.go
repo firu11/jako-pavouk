@@ -142,16 +142,12 @@ func GenTridaKod() string {
 	return kod
 }
 
-func GetRole(uzivRole int, trida_id uint) string {
-	if uzivRole == 2 {
+func GetRole(skolaID int, tridaID uint) string {
+	if skolaID != 0 {
 		return "ucitel"
 	}
-	if uzivRole == 1 {
-		if trida_id != 0 {
-			return "student"
-		} else {
-			return "basic"
-		}
+	if tridaID != 0 {
+		return "student"
 	}
 	return "basic"
 }
