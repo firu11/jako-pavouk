@@ -44,11 +44,14 @@ type (
 		ZLekce  string  `json:"z_lekce"`
 		Delka   float32 `json:"delka"`
 	}
-
 	bodyZapisSkoly struct {
 		JmenoSkoly       string `json:"jmeno_skoly"`
-		KontaktniEmail   string `json:"kontaktni_email"`
+		KontaktniEmail   string `json:"kontaktni_email" validate:"email"`
 		KontaktniTelefon string `json:"kontaktni_telefon"`
+	}
+	bodyUpravaUcitele struct {
+		Akce  string `json:"akce" validate:"oneof='smazat' 'pridat'"`
+		Email string `json:"email" validate:"required_if=Akce 'pridat',email"`
 	}
 
 	praceProStudenta struct {
@@ -88,6 +91,8 @@ func setupSkolniRouter(api *echo.Group) {
 	skolaApi.POST("/student", studentUprava)
 	skolaApi.POST("/zapis", zapis)
 
+	skolaApi.GET("/ucitele", ucitele)
+	skolaApi.POST("/upravit-ucitele", upravaUcitele)
 	skolaApi.POST("/zapis-skoly", zapisSkoly)
 }
 
@@ -125,6 +130,10 @@ func zaciStream(c echo.Context) error {
 }
 
 func zapisSkoly(c echo.Context) error {
+	id := c.Get("uzivID").(uint)
+	if id == 0 {
+		return c.NoContent(http.StatusUnauthorized)
+	}
 	var body bodyZapisSkoly
 	if err := c.Bind(&body); err != nil {
 		log.Print(err)
@@ -144,7 +153,75 @@ func zapisSkoly(c echo.Context) error {
 		log.Println(err)
 	}
 
+	skolaID, err := databaze.CreateSkola(body.JmenoSkoly, body.KontaktniEmail, body.KontaktniTelefon)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+
+	if err = databaze.CreateUcitel(skolaID, id); err != nil {
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+
 	return c.NoContent(http.StatusOK)
+}
+
+func ucitele(c echo.Context) error {
+	id := c.Get("uzivID").(uint)
+	if id == 0 {
+		return c.NoContent(http.StatusUnauthorized)
+	}
+
+	skola, err := databaze.GetSkolaByUcitel(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
+	}
+
+	ucitele, err := databaze.GetUcitele(skola.ID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, ucitele)
+}
+
+func upravaUcitele(c echo.Context) error {
+	id := c.Get("uzivID").(uint)
+	if id == 0 {
+		return c.NoContent(http.StatusUnauthorized)
+	}
+	var body bodyUpravaUcitele
+	if err := c.Bind(&body); err != nil {
+		log.Print(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+	if err := utils.ValidateStruct(&body); err != nil {
+		log.Print(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+
+	if body.Akce == "smazat" {
+		//databaze.RemoveUcitelByID()
+	} else if body.Akce == "pridat" {
+		uziv, err := databaze.GetUzivByEmail(body.Email)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return c.JSON(http.StatusInternalServerError, chyba("Špatný e-mail učitele."))
+			} else {
+				return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
+			}
+		}
+
+		skola, err := databaze.GetSkolaByUcitel(id)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
+		}
+
+		if err = databaze.CreateUcitel(skola.ID, uziv.ID); err != nil {
+			return c.JSON(http.StatusInternalServerError, chyba(""))
+		}
+	}
+
+	return c.JSON(http.StatusInternalServerError, chyba(""))
 }
 
 func createTrida(c echo.Context) error {
@@ -156,7 +233,7 @@ func createTrida(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
-	if uziv.Role != 2 {
+	if uziv.UcitelVeSkoleID == 0 {
 		return c.JSON(http.StatusBadRequest, chyba("Tridu muze vytvaret pouze ucitel"))
 	}
 
@@ -191,7 +268,7 @@ func tridy(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
-	if uziv.Role != 2 {
+	if uziv.UcitelVeSkoleID == 0 {
 		return c.JSON(http.StatusUnauthorized, chyba("Tridy muze videt pouze ucitel"))
 	}
 
@@ -222,7 +299,7 @@ func trida(c echo.Context) error {
 		log.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
-	if uziv.Role != 2 {
+	if uziv.UcitelVeSkoleID == 0 {
 		return c.JSON(http.StatusBadRequest, chyba("Tridy muze videt pouze ucitel"))
 	}
 
@@ -327,7 +404,7 @@ func zmenaTridy(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
-	if uziv.Role != 2 {
+	if uziv.UcitelVeSkoleID == 0 {
 		return c.JSON(http.StatusBadRequest, chyba("Tridy muze upravovat pouze ucitel"))
 	}
 
@@ -380,7 +457,7 @@ func student(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
-	if uziv.Role != 2 {
+	if uziv.UcitelVeSkoleID == 0 {
 		return c.JSON(http.StatusBadRequest, chyba("Tohle muze pouze ucitel"))
 	}
 
@@ -437,7 +514,7 @@ func studentUprava(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
-	if uziv.Role != 2 {
+	if uziv.UcitelVeSkoleID == 0 {
 		return c.JSON(http.StatusBadRequest, chyba("Tohle muze pouze ucitel"))
 	}
 
@@ -522,7 +599,7 @@ func pridatPraci(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
-	if uziv.Role != 2 {
+	if uziv.UcitelVeSkoleID == 0 {
 		return c.JSON(http.StatusBadRequest, chyba("Tohle muze pouze ucitel"))
 	}
 
@@ -552,7 +629,7 @@ func smazatPraci(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
-	if uziv.Role != 2 {
+	if uziv.UcitelVeSkoleID == 0 {
 		return c.JSON(http.StatusBadRequest, chyba("Tohle muze pouze ucitel"))
 	}
 
@@ -577,7 +654,7 @@ func getText(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
-	if uziv.Role != 2 {
+	if uziv.UcitelVeSkoleID == 0 {
 		return c.JSON(http.StatusBadRequest, chyba("Tohle muze pouze ucitel"))
 	}
 

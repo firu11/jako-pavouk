@@ -496,7 +496,7 @@ func prihlaseni(c echo.Context) error {
 			return c.JSON(http.StatusInternalServerError, chyba("Token se pokazil"))
 		} else {
 			trida, _ := databaze.GetTridaByUziv(uziv.ID)
-			return c.JSON(http.StatusOK, echo.Map{"token": token, "jmeno": uziv.Jmeno, "email": uziv.Email, "role": utils.GetRole(uziv.Role, trida.ID)})
+			return c.JSON(http.StatusOK, echo.Map{"token": token, "jmeno": uziv.Jmeno, "email": uziv.Email, "role": utils.GetRole(uziv.UcitelVeSkoleID, trida.ID)})
 		}
 	}
 }
@@ -543,7 +543,7 @@ func google(c echo.Context) error {
 	}
 
 	trida, _ := databaze.GetTridaByUziv(uziv.ID)
-	return c.JSON(http.StatusOK, echo.Map{"token": token, "novy": novy, "jmeno": uziv.Jmeno, "email": uziv.Email, "role": utils.GetRole(uziv.Role, trida.ID)})
+	return c.JSON(http.StatusOK, echo.Map{"token": token, "novy": novy, "jmeno": uziv.Jmeno, "email": uziv.Email, "role": utils.GetRole(uziv.UcitelVeSkoleID, trida.ID)})
 }
 
 func zmenaHesla(c echo.Context) error {
@@ -631,7 +631,7 @@ func nastaveni(c echo.Context) error {
 		"id":         uziv.ID,
 		"email":      uziv.Email,
 		"jmeno":      uziv.Jmeno,
-		"role":       utils.GetRole(uziv.Role, trida.ID),
+		"role":       utils.GetRole(uziv.UcitelVeSkoleID, trida.ID),
 		"klavesnice": uziv.Klavesnice,
 	})
 }
@@ -643,17 +643,17 @@ func statistiky(c echo.Context) error {
 	}
 	daystreak, err := databaze.GetDaystreak(id)
 	if err != nil {
-		log.Print(err)
+		log.Print(err, 1)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	presnost, rychlost, chybyPismenka, cas, napsanychPismen, err := databaze.GetUdaje(id)
 	if err != nil {
-		log.Print(err)
+		log.Print(err, 2)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	dokonceno, err := databaze.DokonceneProcento(id)
 	if err != nil {
-		log.Print(err)
+		log.Print(err, 3)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	rychlosti, presnosti, err := databaze.GetUdajeProGraf(id)
@@ -692,7 +692,7 @@ func testVyprseniTokenu(c echo.Context) error {
 		jePotrebaVymenit = true
 	}
 	trida, _ := databaze.GetTridaByUziv(uziv.ID)
-	return c.JSON(http.StatusOK, echo.Map{"jmeno": uziv.Jmeno, "email": uziv.Email, "jePotrebaVymenit": jePotrebaVymenit, "role": utils.GetRole(uziv.Role, trida.ID)})
+	return c.JSON(http.StatusOK, echo.Map{"jmeno": uziv.Jmeno, "email": uziv.Email, "jePotrebaVymenit": jePotrebaVymenit, "role": utils.GetRole(uziv.UcitelVeSkoleID, trida.ID)})
 }
 
 func navsteva(c echo.Context) error {
