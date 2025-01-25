@@ -77,9 +77,9 @@ function smazatUcitele(e: Event) {
     <dialog ref="dialog1">
         <div id="dialog-kontejner">
             <h2>Opravdu chcete odstranit tohoto učitele?</h2>
-            <h3></h3>
+            <h3>{{ email }}</h3>
             <div>
-                <button class="cervene-tlacitko" @click="smazatUcitele">Smazat</button>
+                <button class="cervene-tlacitko" @click="smazatUcitele">Odstranit</button>
                 <button class="tlacitko" @click="zavritDialog">Zrušit</button>
             </div>
         </div>
@@ -89,14 +89,14 @@ function smazatUcitele(e: Event) {
 #seznam {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 14px;
     width: 500px;
 }
 
 #seznam>div {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
 }
 
 #seznam>div>button {
@@ -111,6 +111,12 @@ function smazatUcitele(e: Event) {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    transition: 0.2s;
+}
+
+#seznam>div>button:hover {
+    background-color: var(--fialova);
 }
 
 .blok {
@@ -126,7 +132,7 @@ function smazatUcitele(e: Event) {
 }
 
 .blok>h3 {
-    width: 312px;
+    width: 306px;
     text-align: left;
     font-weight: 500;
     overflow: hidden;
@@ -137,5 +143,21 @@ function smazatUcitele(e: Event) {
     display: flex;
     flex-direction: column;
     text-align: left;
+}
+
+dialog {
+    padding-top: 1em;
+}
+
+#dialog-kontejner>div {
+    display: flex;
+    justify-content: center;
+    gap: 1em;
+}
+
+#dialog-kontejner>h3 {
+    font-weight: 500;
+    font-size: 1.4em;
+    margin: 0.6em;
 }
 </style>

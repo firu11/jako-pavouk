@@ -395,7 +395,7 @@ func GetCviceniVLekciByPismena(uzivID uint, pismena string) ([]Cviceni, error) {
 
 func GetUzivByID(uzivID uint) (Uzivatel, error) {
 	var uziv Uzivatel
-	row, err := DB.Query(`SELECT uz.*, COALESCE(u.skola_id, 0) AS skola_id FROM uzivatel uz FULL OUTER JOIN ucitel u ON u.uziv_id = uz.id WHERE uz.id = $1 AND NOT uz.smazany;`, uzivID)
+	row, err := DB.Query(`SELECT uz.*, CASE WHEN u.smazany THEN 0 ELSE COALESCE(u.skola_id, 0) END AS skola_id FROM uzivatel uz INNER JOIN ucitel u ON u.uziv_id = uz.id WHERE uz.id = $1 AND NOT uz.smazany;`, uzivID)
 	if err != nil {
 		return uziv, err
 	}
@@ -405,7 +405,7 @@ func GetUzivByID(uzivID uint) (Uzivatel, error) {
 
 func GetUzivByEmail(email string) (Uzivatel, error) {
 	var uziv Uzivatel
-	row, err := DB.Query(`SELECT uz.*, COALESCE(u.skola_id, 0) AS skola_id FROM uzivatel uz FULL OUTER JOIN ucitel u ON u.uziv_id = uz.id WHERE uz.email = $1 AND NOT uz.smazany;`, email)
+	row, err := DB.Query(`SELECT uz.*, CASE WHEN u.smazany THEN 0 ELSE COALESCE(u.skola_id, 0) END AS skola_id FROM uzivatel uz INNER JOIN ucitel u ON u.uziv_id = uz.id WHERE uz.email = $1 AND NOT uz.smazany;`, email)
 	if err != nil {
 		return uziv, err
 	}
@@ -415,7 +415,7 @@ func GetUzivByEmail(email string) (Uzivatel, error) {
 
 func GetUzivByJmeno(jmeno string) (Uzivatel, error) {
 	var uziv Uzivatel
-	row, err := DB.Query(`SELECT uz.*, COALESCE(u.skola_id, 0) AS skola_id FROM uzivatel uz FULL OUTER JOIN ucitel u ON u.uziv_id = uz.id WHERE uz.jmeno = $1 AND NOT uz.smazany;`, jmeno)
+	row, err := DB.Query(`SELECT uz.*, CASE WHEN u.smazany THEN 0 ELSE COALESCE(u.skola_id, 0) END AS skola_id FROM uzivatel uz INNER JOIN ucitel u ON u.uziv_id = uz.id WHERE uz.jmeno = $1 AND NOT uz.smazany;`, jmeno)
 	if err != nil {
 		return uziv, err
 	}
@@ -824,7 +824,7 @@ type TridaInfo struct {
 func GetTridy(ucitelID uint) ([]TridaInfo, error) {
 	var tridy []TridaInfo = []TridaInfo{}
 
-	rows, err := DB.Query(`SELECT t.id, t.jmeno, t.kod, t.zamknuta, ( SELECT COUNT(*) FROM uzivatel uz INNER JOIN student_a_trida s ON s.student_id = uz.id WHERE s.trida_id = t.id AND NOT uz.smazany ) as pocet_studentu, ( SELECT COUNT(*) FROM prace p WHERE p.trida_id = t.id AND NOT p.smazana ) as pocet_praci FROM trida t INNER JOIN ucitel u ON u.id = t.ucitel_id WHERE NOT t.smazana AND u.uziv_id = $1;`, ucitelID)
+	rows, err := DB.Query(`SELECT t.id, t.jmeno, t.kod, t.zamknuta, ( SELECT COUNT(*) FROM uzivatel uz INNER JOIN student_a_trida s ON s.student_id = uz.id WHERE s.trida_id = t.id AND NOT uz.smazany ) as pocet_studentu, ( SELECT COUNT(*) FROM prace p WHERE p.trida_id = t.id AND NOT p.smazana ) as pocet_praci FROM trida t INNER JOIN ucitel u ON u.id = t.ucitel_id WHERE NOT t.smazana AND NOT u.smazany AND u.uziv_id = $1;`, ucitelID)
 	if err != nil {
 		return tridy, err
 	}
@@ -1062,7 +1062,7 @@ func GetSkolaByUcitel(uzivID uint) (Skola, error) {
 
 func GetUcitele(skolaID uint) ([]Ucitel, error) {
 	var ucitele []Ucitel
-	rows, err := DB.Query(`WITH studenti AS ( SELECT * FROM student_a_trida sat INNER JOIN uzivatel uz ON sat.student_id = uz.id WHERE NOT uz.smazany ), studenti_ucitele AS ( SELECT u.id, COUNT(s.student_id) AS pocet_studentu FROM trida t LEFT JOIN studenti s ON s.trida_id = t.id INNER JOIN ucitel u ON u.id = t.ucitel_id WHERE NOT t.smazana GROUP BY u.id ), staty AS ( SELECT ucitel_id, COUNT(*) AS pocet_trid FROM trida WHERE NOT smazana GROUP BY ucitel_id ) SELECT uz.email, pocet_trid, u.id, uz.id AS uziv_id, u.skola_id, SUM(stu.pocet_studentu) AS pocet_zaku FROM ucitel u INNER JOIN uzivatel uz ON uz.id = u.uziv_id LEFT JOIN staty s ON s.ucitel_id = u.id LEFT JOIN studenti_ucitele stu ON stu.id = u.id WHERE u.skola_id = $1 GROUP BY uz.email, pocet_trid, u.id, uz.id, u.skola_id;`, skolaID)
+	rows, err := DB.Query(`WITH studenti AS ( SELECT * FROM student_a_trida sat INNER JOIN uzivatel uz ON sat.student_id = uz.id WHERE NOT uz.smazany ), studenti_ucitele AS ( SELECT u.id, COUNT(s.student_id) AS pocet_studentu FROM trida t LEFT JOIN studenti s ON s.trida_id = t.id INNER JOIN ucitel u ON u.id = t.ucitel_id WHERE NOT t.smazana GROUP BY u.id ), staty AS ( SELECT ucitel_id, COUNT(*) AS pocet_trid FROM trida WHERE NOT smazana GROUP BY ucitel_id ) SELECT uz.email, COALESCE(pocet_trid, 0), u.id, uz.id AS uziv_id, COALESCE(SUM(stu.pocet_studentu), 0) AS pocet_zaku FROM ucitel u INNER JOIN uzivatel uz ON uz.id = u.uziv_id LEFT JOIN staty s ON s.ucitel_id = u.id LEFT JOIN studenti_ucitele stu ON stu.id = u.id WHERE u.skola_id = $1 AND NOT u.smazany GROUP BY uz.email, pocet_trid, u.id, uz.id ORDER BY u.id;`, skolaID)
 	if err != nil {
 		return ucitele, err
 	}
@@ -1071,11 +1071,11 @@ func GetUcitele(skolaID uint) ([]Ucitel, error) {
 }
 
 func CreateUcitel(skolaID, uzivID uint) error {
-	_, err := DB.Exec(`INSERT INTO ucitel (uziv_id, skola_id) VALUES ($1, $2);`, uzivID, skolaID)
+	_, err := DB.Exec(`INSERT INTO ucitel (uziv_id, skola_id) VALUES ($1, $2) ON CONFLICT DO UPDATE SET smazany = false;`, uzivID, skolaID)
 	return err
 }
 
-func RemoveUcitelByID(ucitelID uint) error {
-	_, err := DB.Exec(`DELETE FROM ucitel WHERE id = $1;`, ucitelID)
+func RemoveUcitelByEmail(email string) error {
+	_, err := DB.Exec(`UPDATE ucitel SET smazany = true WHERE uziv_id = ( SELECT id FROM uzivatel WHERE email = $1 );`, email)
 	return err
 }

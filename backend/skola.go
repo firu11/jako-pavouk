@@ -200,7 +200,11 @@ func upravaUcitele(c echo.Context) error {
 	}
 
 	if body.Akce == "smazat" {
-		//databaze.RemoveUcitelByID()
+		if err := databaze.RemoveUcitelByEmail(body.Email); err != nil {
+			return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
+		}
+
+		return c.NoContent(http.StatusOK)
 	} else if body.Akce == "pridat" {
 		uziv, err := databaze.GetUzivByEmail(body.Email)
 		if err != nil {
@@ -219,9 +223,12 @@ func upravaUcitele(c echo.Context) error {
 		if err = databaze.CreateUcitel(skola.ID, uziv.ID); err != nil {
 			return c.JSON(http.StatusInternalServerError, chyba(""))
 		}
-	}
 
-	return c.JSON(http.StatusInternalServerError, chyba(""))
+		return c.NoContent(http.StatusOK)
+
+	} else {
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
 }
 
 func createTrida(c echo.Context) error {
