@@ -8,9 +8,19 @@ const props = defineProps({
             return [["sus", "Nějaký tab"]]
         }
     },
-    defaultTab: String
+    defaultTab: String,
+    sirka: {
+        type: String,
+        default: "100px"
+    }
 })
 const emit = defineEmits(["zmena"])
+
+const sirkaCislo = computed(() => {
+    let x = parseInt(props.sirka)
+    if (x > 0) return x
+    return 100
+})
 
 const tab = ref(props.defaultTab)
 const index = computed(() => {
@@ -30,7 +40,7 @@ defineExpose({ tab })
             <input type="radio" :value="x[0]" v-model="tab" @change="emit('zmena')">
         </label>
 
-        <span :style="{ transform: `translateX(${100 * index}px)` }"></span>
+        <span :style="{ transform: `translateX(${sirkaCislo * index}px)` }"></span>
     </div>
 </template>
 <style scoped>
@@ -49,7 +59,7 @@ defineExpose({ tab })
 
 #prepinac-tabu label {
     padding: 5px;
-    width: 100px;
+    width: v-bind(sirka);
     z-index: 1;
     cursor: pointer;
     color: #c5c5c5;
@@ -65,7 +75,7 @@ defineExpose({ tab })
 #prepinac-tabu span {
     position: absolute;
     background-color: var(--fialova);
-    width: 100px;
+    width: v-bind(sirka);
     height: 30px;
     border-radius: 100px;
     transition: 0.15s ease-out;
