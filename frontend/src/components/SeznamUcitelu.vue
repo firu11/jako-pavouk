@@ -159,5 +159,8 @@ dialog {
     font-weight: 500;
     font-size: 1.4em;
     margin: 0.6em;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 </style>

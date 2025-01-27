@@ -195,29 +195,28 @@ func upravaUcitele(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	if err := utils.ValidateStruct(&body); err != nil {
-		log.Print(err)
-		return c.JSON(http.StatusInternalServerError, chyba(""))
+		return c.JSON(http.StatusInternalServerError, chyba("Toto není e-mail."))
 	}
 
 	if body.Akce == "smazat" {
 		if err := databaze.RemoveUcitelByEmail(body.Email); err != nil {
 			return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 		}
-
 		return c.NoContent(http.StatusOK)
+
 	} else if body.Akce == "pridat" {
 		uziv, err := databaze.GetUzivByEmail(body.Email)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return c.JSON(http.StatusInternalServerError, chyba("Špatný e-mail učitele."))
+				return c.JSON(http.StatusInternalServerError, chyba("Účet s tímto e-mailem na JakoPavouk neexistuje."))
 			} else {
-				return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
+				return c.JSON(http.StatusInternalServerError, chyba(""))
 			}
 		}
 
 		skola, err := databaze.GetSkolaByUcitel(id)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
+			return c.JSON(http.StatusInternalServerError, chyba(""))
 		}
 
 		if err = databaze.CreateUcitel(skola.ID, uziv.ID); err != nil {
@@ -279,6 +278,10 @@ func tridy(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, chyba("Tridy muze videt pouze ucitel"))
 	}
 
+	skola, err := databaze.GetSkolaByUcitel(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
+	}
 	tridy, err := databaze.GetTridy(id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
@@ -293,7 +296,7 @@ func tridy(c echo.Context) error {
 		}
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{"tridy": output})
+	return c.JSON(http.StatusOK, echo.Map{"tridy": output, "skola": skola})
 }
 
 func trida(c echo.Context) error {

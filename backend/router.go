@@ -97,7 +97,7 @@ func SetupRouter(c *echo.Echo) {
 
 func chyba(msg string) echo.Map {
 	if msg == "" {
-		msg = "Neco se pokazilo"
+		msg = "Neco se pokazilo."
 	}
 	return echo.Map{"error": msg}
 }
