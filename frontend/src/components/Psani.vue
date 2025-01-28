@@ -439,7 +439,7 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
                 <div v-show="klavesnice != ''">
                     <Klavesnice :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice || prestalPsat"
                         :cekame="(aktivniPismeno.id == 0 || aktivniPismeno.id == -1) && cass == 0" :full-hide="fullHideKlavesnice" />
-                    <Tooltip v-if="props.resetBtn" zprava="Restart cvičení <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="120"
+                    <Tooltip v-if="props.resetBtn && props.text.length != 0" zprava="Restart cvičení <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="120"
                         :vzdalenost="6" :xOffset="385" :yOffset="-154">
                         <div id="reset-btn" @click="resetTlacitko(); animace(); input?.focus();"
                             :class="{ schovat: route.fullPath == '/prvni-psani' }">

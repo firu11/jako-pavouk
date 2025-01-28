@@ -3,7 +3,7 @@ import { useHead } from "unhead";
 import { ref } from "vue";
 import { getToken, pridatOznameni } from "../utils";
 import axios from "axios";
-import { role } from "../stores";
+import { prihlasen, role } from "../stores";
 
 useHead({
     title: "Systém pro školy"
@@ -14,6 +14,7 @@ const telefon = ref("+420")
 const skola = ref("")
 
 const odeslano = ref(false)
+const odesilame = ref(false)
 
 function potvrdit(e: Event) {
     e.preventDefault()
@@ -22,6 +23,7 @@ function potvrdit(e: Event) {
         pridatOznameni("Vyplň prosím všechna pole!")
         return
     }
+    odesilame.value = true
     axios.post("/skola/zapis-skoly", {
         "jmeno_skoly": skola.value,
         "kontaktni_email": email.value,
@@ -35,6 +37,8 @@ function potvrdit(e: Event) {
         role.value = "ucitel"
     }).catch(e => {
         pridatOznameni(e.response.data.error)
+    }).finally(() => {
+        odesilame.value = false
     })
 }
 
@@ -106,7 +110,12 @@ function chekujUdaje() {
                 <img src="../assets/pavoukSkola.svg" alt="Pavouk a škola">
                 <p>Po odeslání tohoto formuláře si budete moct systém okamžitě vyzkoušet!</p>
             </div>
-            <form v-if="!odeslano" @submit="potvrdit">
+            <div v-if="!odeslano && !prihlasen">
+                <p>
+                    Před vyplněním formuláře se prosím přihlašte, a nebo pokud účet ještě nemáte, založte si ho prosím.
+                </p>
+            </div>
+            <form v-if="!odeslano && prihlasen" @submit="potvrdit">
                 <div>
                     <label for="skola">Jméno školy</label>
                     <input type="text" id="skola" placeholder="Např: Gymnázium pana Pavouka" v-model="skola">
@@ -119,9 +128,9 @@ function chekujUdaje() {
                     <input type="tel" id="tel" placeholder="Např: +420123456789" v-model="telefon">
                 </div>
 
-                <button class="tlacitko" type="submit">Odeslat</button>
+                <button class="tlacitko" type="submit" :disabled="odesilame">Odeslat</button>
             </form>
-            <div v-else>
+            <div v-if="odeslano">
                 <p>
                     Díky za registraci školy! <br> Vlevo v navigaci se vám objevila záložka jménem "Škola". Začněte tam!
                 </p>
