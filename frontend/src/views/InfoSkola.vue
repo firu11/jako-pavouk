@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useHead } from "unhead";
 import { ref } from "vue";
-import { pridatOznameni } from "../utils";
+import { getToken, pridatOznameni } from "../utils";
 import axios from "axios";
+import { role } from "../stores";
 
 useHead({
     title: "Systém pro školy"
@@ -16,7 +17,7 @@ const odeslano = ref(false)
 
 function potvrdit(e: Event) {
     e.preventDefault()
-    if (chekujUdaje() == false) return
+    if (chekujUdaje() == false || role.value == "student") return
     if (email.value.length == 0 || telefon.value.length <= 4 || skola.value.length == 0) {
         pridatOznameni("Vyplň prosím všechna pole!")
         return
@@ -25,8 +26,16 @@ function potvrdit(e: Event) {
         "jmeno_skoly": skola.value,
         "kontaktni_email": email.value,
         "kontaktni_telefon": telefon.value
+    }, {
+        headers: {
+            Authorization: `Bearer ${getToken()}`
+        }
+    }).then(() => {
+        odeslano.value = true
+        role.value = "ucitel"
+    }).catch(e => {
+        pridatOznameni(e.response.data.error)
     })
-    odeslano.value = true
 }
 
 function chekujUdaje() {
@@ -92,25 +101,31 @@ function chekujUdaje() {
     <div class="bloky" id="formular">
         <h2>Formulář pro zařazení školy</h2>
         <hr id="predel">
-        <form v-if="!odeslano" @submit="potvrdit">
-            <div>
-                <label for="skola">Jméno školy</label>
-                <input type="text" id="skola" placeholder="Např: Gymnázium pana Pavouka" v-model="skola">
+        <div class="container">
+            <div id="ilustrace">
+                <img src="../assets/pavoukSkola.svg" alt="Pavouk a škola">
+                <p>Po odeslání tohoto formuláře si budete moct systém okamžitě vyzkoušet!</p>
             </div>
-            <div>
-                <h2>Kontaktní osoba</h2>
-                <label for="email">E-mail</label>
-                <input type="email" id="email" placeholder="Např: pavoukova@jakopavouk.cz" v-model="email">
-                <label for="tel">Telefonní číslo</label>
-                <input type="tel" id="tel" placeholder="Např: +420123456789" v-model="telefon">
-            </div>
+            <form v-if="!odeslano" @submit="potvrdit">
+                <div>
+                    <label for="skola">Jméno školy</label>
+                    <input type="text" id="skola" placeholder="Např: Gymnázium pana Pavouka" v-model="skola">
+                </div>
+                <div>
+                    <h2>Kontaktní osoba</h2>
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" placeholder="Např: pavoukova@jakopavouk.cz" v-model="email">
+                    <label for="tel">Telefonní číslo</label>
+                    <input type="tel" id="tel" placeholder="Např: +420123456789" v-model="telefon">
+                </div>
 
-            <button class="tlacitko" type="submit">Odeslat</button>
-        </form>
-        <div v-else>
-            <p>
-                Formulář odeslán! <br> Během pár hodin se vám ozveme.
-            </p>
+                <button class="tlacitko" type="submit">Odeslat</button>
+            </form>
+            <div v-else>
+                <p>
+                    Díky za registraci školy! <br> Vlevo v navigaci se vám objevila záložka jménem "Škola". Začněte tam!
+                </p>
+            </div>
         </div>
     </div>
 </template>
@@ -180,7 +195,25 @@ function chekujUdaje() {
 #formular>div {
     display: flex;
     align-items: center;
-    height: 100%;
+}
+
+#formular>div #ilustrace {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+}
+
+#formular>div #ilustrace>img {
+    width: 240px;
+}
+
+#formular>div>div:not(#ilustrace) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 320px;
 }
 
 form {

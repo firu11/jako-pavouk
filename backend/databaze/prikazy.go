@@ -1046,7 +1046,7 @@ func GetTextZLekce(typ, lekcePismena string) (string, error) {
 
 func CreateSkola(jmeno, email, telefon string) (uint, error) {
 	var skolaID uint
-	err := DB.QueryRow(`INSERT INTO skola (jmeno, kontaktni_email, kontaktni_telefon) VALUES ($1, $2, $3);`, jmeno, email, telefon).Scan(&skolaID)
+	err := DB.QueryRow(`INSERT INTO skola (jmeno, kontaktni_email, kontaktni_telefon) VALUES ($1, $2, $3) RETURNING id;`, jmeno, email, telefon).Scan(&skolaID)
 	return skolaID, err
 }
 
@@ -1071,7 +1071,7 @@ func GetUcitele(skolaID uint) ([]Ucitel, error) {
 }
 
 func CreateUcitel(skolaID, uzivID uint) error {
-	_, err := DB.Exec(`INSERT INTO ucitel (uziv_id, skola_id) VALUES ($1, $2) ON CONFLICT DO UPDATE SET smazany = false;`, uzivID, skolaID)
+	_, err := DB.Exec(`INSERT INTO ucitel (uziv_id, skola_id) VALUES ($1, $2) ON CONFLICT (uziv_id, skola_id) DO UPDATE SET smazany = false;`, uzivID, skolaID)
 	return err
 }
 
