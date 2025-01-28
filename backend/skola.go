@@ -144,6 +144,11 @@ func zapisSkoly(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 
+	_, err := databaze.GetSkolaByUcitel(id)
+	if err != sql.ErrNoRows {
+		return c.JSON(http.StatusInternalServerError, chyba("Už jsi ve škole"))
+	}
+
 	if err := utils.PoslatInterniEmail(body.JmenoSkoly, body.KontaktniEmail, body.KontaktniTelefon); err != nil {
 		log.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
@@ -155,10 +160,12 @@ func zapisSkoly(c echo.Context) error {
 
 	skolaID, err := databaze.CreateSkola(body.JmenoSkoly, body.KontaktniEmail, body.KontaktniTelefon)
 	if err != nil {
+		log.Println(1, err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 
 	if err = databaze.CreateUcitel(skolaID, id); err != nil {
+		log.Println(2, err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 
@@ -479,7 +486,7 @@ func student(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 	}
-	daystreak, err := databaze.GetDaystreak(id)
+	daystreak, err := databaze.GetDaystreak(uint(studentID))
 	if err != nil {
 		log.Print(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
