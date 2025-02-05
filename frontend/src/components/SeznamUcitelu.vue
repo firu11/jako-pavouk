@@ -23,7 +23,7 @@ function get() {
 const dialog1 = useTemplateRef("dialog1")
 function otevritDialog(e: Event) {
     e.preventDefault()
-    
+
     let button = e.currentTarget as Element
     let mailos = button.getAttribute("data-email")
     if (mailos === null) return
@@ -122,7 +122,7 @@ function smazatUcitele(e: Event) {
 .blok {
     background-color: var(--tmave-fialova);
     border-radius: 10px;
-    width: 460px;
+    width: 90%;
     height: 55px;
     padding: 0.2em 0.5em 0.2em 1em;
 
@@ -162,5 +162,37 @@ dialog {
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+@media screen and (max-width: 660px) {
+    #seznam {
+        min-width: 350px;
+        width: 90vw;
+    }
+
+    .blok {
+        width: calc(100% - 8px - 45px);
+        justify-content: space-between;
+    }
+
+    .blok .stats {
+        max-width: 25%;
+    }
+
+    .blok .stats span {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+}
+
+@media screen and (max-width: 380px) {
+    #seznam>div>button {
+        display: none;
+    }
+
+    .blok {
+        width: 100%;
+    }
 }
 </style>
