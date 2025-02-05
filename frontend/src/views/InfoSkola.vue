@@ -127,7 +127,6 @@ function chekujUdaje() {
                     <label for="tel">Telefonní číslo</label>
                     <input type="tel" id="tel" placeholder="Např: +420123456789" v-model="telefon">
                 </div>
-
                 <button class="tlacitko" type="submit" :disabled="odesilame">Odeslat</button>
             </form>
             <div v-if="odeslano">
@@ -283,6 +282,19 @@ h1 {
 }
 
 @media screen and (max-width: 1100px) {
+    .container {
+        flex-direction: column;
+        gap: 2em;
+    }
+
+    #formular>div #ilustrace>img {
+        display: none;
+    }
+
+    #formular>div #ilustrace>p {
+        max-width: 90%;
+    }
+
     form input {
         width: 100%;
     }
