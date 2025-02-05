@@ -369,7 +369,7 @@ select option {
     gap: 10px;
 }
 
-#nastaveni *:first-child {
+#nastaveni #kod {
     align-self: center !important;
 }
 
@@ -507,6 +507,12 @@ video {
 
 @media screen and (max-width: 460px) {
     #nastaveni>form>div {
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 10px 20%;
+    }
+
+    #nastaveni>form:not(:first-of-type)>div {
         flex-wrap: wrap;
         justify-content: center;
         gap: 10px 20%;
