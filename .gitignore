@@ -1,6 +1,7 @@
 .vscode
 taskfile.yaml 
 # https://taskfile.dev/
+.DS_Store
 
 backend/.env
 backend/backend

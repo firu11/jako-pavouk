@@ -224,7 +224,7 @@ func getCviceni(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, chyba("Cviceni neexistuje"))
 	}
 
-	text, err := generovatTextCviceni(pismena, vsechnyCviceni[cislo-1].Typ, id, 0, pocetZnaku)
+	text, _ := generovatTextCviceni(pismena, vsechnyCviceni[cislo-1].Typ, id, 0, pocetZnaku)
 
 	u, err := databaze.GetUzivByID(id)
 	if err != nil {
