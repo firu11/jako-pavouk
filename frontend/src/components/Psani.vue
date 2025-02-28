@@ -435,7 +435,7 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
                 :style="{ display: unfocused ? 'block' : 'none', top: (route.fullPath == '/prvni-psani' || route.fullPath.split('/')[1] == 'prace') ? '200px' : '235px' }"
                 @click="input?.focus()">Klikni sem nebo zmáčkni <span class="klavesa-v-textu">Mezerník</span> !</span>
 
-            <input type="text" autocomplete="off" ref="input" id="input" @input="klik">
+            <input type="text" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off" ref="input" id="input" @input="klik">
 
             <Transition>
                 <div v-show="klavesnice != ''">
