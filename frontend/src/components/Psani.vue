@@ -118,6 +118,13 @@ onUnmounted(() => {
     document.removeEventListener("click", checkFocus)
 })
 
+function filterKlik(e: Event) {
+    const ev = e as InputEvent
+    if (ev.inputType === "deleteSoftLineBackward" || ev.inputType === "deleteHardLineBackward" || ev.inputType === "historyUndo") {
+        e.preventDefault()
+    }
+}
+
 function enableKurzor() {
     celyPsani.value?.classList.remove("bez-kurzoru")
 }
@@ -169,8 +176,37 @@ function klik(e: Event) {
 
     if (!(e instanceof InputEvent)) return // typescript je sus, nemůžu dát do parametru rovnou InputEvent https://github.com/microsoft/TypeScript/issues/39925
     if (e.data == "") return
-    //                                kvůli macos ->                             kvůli linuxu ->
-    if (e.inputType == "insertText" || e.inputType == "insertFromComposition" || (e.inputType == "insertCompositionText" && !e.isComposing)) {
+
+    /* 
+    windows chrome i firefox:
+    zmáčknu x = insertText, x, isComposing=false
+    zmáčknu háček = nic
+    zmáčknu e = insertText, ě, isComposing=false
+
+    linux firefox:
+    zmáčknu x = insertText, x, isComposing=false
+    zmáčknu háček = insertCompositionText, ˇ, isComposing=true
+    zmáčknu e = insertText, ě, isComposing=false
+
+    linux/macos chrome:
+    zmáčknu x = insertText, x, isComposing=false
+    zmáčknu háček = insertCompositionText, ˇ, isComposing=true
+    zmáčknu e = insertCompositionText, ě, isComposing=true
+
+    macos firefox:
+    zmáčknu x = insertText, x, isComposing=false
+    zmáčknu háček = insertCompositionText, ˇ, isComposing=true
+    zmáčknu e = insertCompositionText, ě, isComposing=false
+
+    macos safari:
+    zmáčknu x = insertText, x, isComposing=false
+    zmáčknu háček = insertCompositionText, ˇ, isComposing=true
+                  + deleteCompositionText, null, isComposing=true
+    zmáčknu e = insertFromComposition, ě, isComposing=true
+    */
+    console.log(e.inputType, e.data, e.isComposing)
+    //                      windows oba + linux firefox ->                    kvůli safari ->                                              kvůli linuxu/macos chrome + macos firefox ->
+    if (e.data != null && ((e.inputType == "insertText" && !e.isComposing) || (e.inputType == "insertFromComposition" && e.isComposing) || (e.inputType == "insertCompositionText" && !["ˇ", "'", "°", "´"].includes(e.data)))) {
         if (e.data === aktivniPismeno.value.znak) {
             if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
             if (aktivniPismeno.value.spatne === 1) {
@@ -435,14 +471,15 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
                 :style="{ display: unfocused ? 'block' : 'none', top: (route.fullPath == '/prvni-psani' || route.fullPath.split('/')[1] == 'prace') ? '200px' : '235px' }"
                 @click="input?.focus()">Klikni sem nebo zmáčkni <span class="klavesa-v-textu">Mezerník</span> !</span>
 
-            <input type="text" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off" ref="input" id="input" @input="klik">
+            <input type="text" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off" ref="input" id="input" @input="klik" @beforeinput="filterKlik">
 
             <Transition>
                 <div v-show="klavesnice != ''">
                     <Klavesnice :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice || prestalPsat"
                         :cekame="(aktivniPismeno.id == 0 || aktivniPismeno.id == -1) && cass == 0" :full-hide="fullHideKlavesnice" />
-                    <Tooltip v-if="props.resetBtn && (props.text.length != 0 || nacitamePodruhy)" zprava="Restart cvičení <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="120"
-                        :vzdalenost="6" :xOffset="385" :yOffset="-154">
+                    <Tooltip v-if="props.resetBtn && (props.text.length != 0 || nacitamePodruhy)"
+                        zprava="Restart cvičení <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="120" :vzdalenost="6" :xOffset="385"
+                        :yOffset="-154">
                         <div id="reset-btn" @click="resetTlacitko(); animace(); input?.focus();"
                             :class="{ schovat: route.fullPath == '/prvni-psani' }">
                             <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Restart">
@@ -489,7 +526,6 @@ span.unfocused {
 
 #input {
     position: absolute;
-    opacity: 0;
     cursor: default;
 }
 
