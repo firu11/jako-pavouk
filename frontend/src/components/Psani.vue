@@ -204,7 +204,6 @@ function klik(e: Event) {
                   + deleteCompositionText, null, isComposing=true
     zmáčknu e = insertFromComposition, ě, isComposing=true
     */
-    console.log(e.inputType, e.data, e.isComposing)
     //                      windows oba + linux firefox ->                    kvůli safari ->                                              kvůli linuxu/macos chrome + macos firefox ->
     if (e.data != null && ((e.inputType == "insertText" && !e.isComposing) || (e.inputType == "insertFromComposition" && e.isComposing) || (e.inputType == "insertCompositionText" && !["ˇ", "'", "°", "´"].includes(e.data)))) {
         if (e.data === aktivniPismeno.value.znak) {
@@ -527,6 +526,7 @@ span.unfocused {
 #input {
     position: absolute;
     cursor: default;
+    opacity: 0;
 }
 
 #hide-btn {
