@@ -69,6 +69,7 @@ const mistaPosunuti = ref([0, 0] as number[])
 const chybyPismenka = new MojeMapa()
 
 const fullHideKlavesnice = ref(false)
+const hideCasomira = ref(false)
 
 const zvukyZaply = ref(true)
 const zvuky: Howl[] = []
@@ -106,6 +107,7 @@ onMounted(() => {
     document.addEventListener("mousemove", enableKurzor)
     loadZvuk()
     loadHideKlavesnci()
+    loadHideCasomira()
 
     input.value?.focus()
     document.addEventListener("click", checkFocus)
@@ -431,6 +433,21 @@ async function loadHideKlavesnci() {
     }
 }
 
+async function loadHideCasomira() {
+    let x = localStorage.getItem("pavouk_hide_casomira")
+    if (x == null) {
+        localStorage.setItem("pavouk_hide_casomira", JSON.stringify(hideCasomira.value))
+    } else {
+        hideCasomira.value = JSON.parse(x)
+    }
+}
+
+async function toggleHideCasomira() {
+    hideCasomira.value = !hideCasomira.value
+    localStorage.setItem("pavouk_hide_casomira", JSON.stringify(hideCasomira.value))
+    focusInput()
+}
+
 function checkFocus() {
     unfocused.value = document.activeElement !== input.value
 }
@@ -445,7 +462,13 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
 <template>
     <div id="flex" ref="celyPsani">
         <div id="nabidka" :class="{ unfocused: unfocused }">
-            <h2 id="cas">{{ casFormat }}</h2>
+            <h2 id="cas" :style="{ color: hideCasomira ? 'gray' : 'var(--bila)', opacity: (cass >= 3 && hideCasomira) ? '0' : '1' }">
+                {{ casFormat+"" }}
+                <button @click="toggleHideCasomira" id="hideCasomiru" title="Můžeš schovat časomíru po začátku, aby tě nerozptylovala při psaní.">
+                    <img v-show="hideCasomira" src="../assets/icony/okoSkrtnuty.svg" alt="Zobrazit" width="16" height="13">
+                    <img v-show="!hideCasomira" src="../assets/icony/oko.svg" alt="Schovat" width="16" height="13">
+                </button>
+            </h2>
             <h2 :style="{ visibility: capslock ? 'visible' : 'hidden' }" id="capslock">CapsLock</h2>
             <h2 id="preklepy">Překlepy: {{ preklepy }}</h2>
         </div>
@@ -511,6 +534,27 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
 </template>
 
 <style scoped>
+#hideCasomiru {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    width: 17px;
+    height: 14px;
+}
+
+#hideCasomiru img {
+    opacity: 0.4;
+    transition: opacity 0.3s;
+}
+
+#hideCasomiru img:hover {
+    opacity: 1;
+}
+
 .klavesa-v-textu {
     padding: 3px 5px 2px 5px;
     font-size: 20px;
@@ -658,6 +702,7 @@ span.unfocused {
     width: 150px;
     display: block;
     text-align: left;
+    transition: opacity 1s;
 }
 
 #preklepy {
