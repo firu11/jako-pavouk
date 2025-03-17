@@ -120,7 +120,7 @@ function presmerovat(e: Event) {
         <img src="../assets/pavoucekBezPozadi.svg" alt="Pavouk">
         <h3>Heslo úspěšně změněno!</h3>
         <h3><br>Tentokrát si heslo<br> prosím pamatuj. Díky!</h3>
-        <button style="margin-top: 25px;" class="tlacitko" @click="presmerovat">Přihlásit</button>
+        <button v-if="predvyplenyEmail === undefined" style="margin-top: 25px;" class="tlacitko" @click="presmerovat">Přihlásit</button>
     </form>
 
     <p v-if="state !== 'konec'">
