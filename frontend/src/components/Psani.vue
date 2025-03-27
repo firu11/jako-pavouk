@@ -63,6 +63,7 @@ const preklepy = ref(0)
 const opravene = ref(0)
 const timerZacatek = ref(0)
 const cass = ref(0)
+const preruseneCasy: number[] = []
 const textElem = useTemplateRef("textElem")
 let indexPosunuti = -1
 const mistaPosunuti = ref([0, 0] as number[])
@@ -316,7 +317,11 @@ function startTimer() {
 }
 
 function calcCas() {
-    cass.value = (Date.now() - timerZacatek.value) / 1000
+    let sum: number = 0
+    for (let i = 0; i < preruseneCasy.length; i++) {
+        sum += preruseneCasy[i]
+    }
+    cass.value = ((Date.now() - timerZacatek.value) / 1000) + sum
 
     if (props.cas - cass.value <= 0) {
         clearInterval(interval)
@@ -416,7 +421,10 @@ async function checkJestliPise() {
     prestalPsat.value = false
     timeoutID = setTimeout(() => {
         prestalPsat.value = true
-        restart()
+        calcCas()
+        preruseneCasy.push(cass.value)
+        clearInterval(interval)
+        timerZacatek.value = 0
     }, 10000) // 10s
 }
 
@@ -522,12 +530,11 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
             </Transition>
             <Transition>
                 <div id="nepise" v-if="prestalPsat"
-                    :style="{ boxShadow: fullHideKlavesnice ? 'none' : '0px 0px 10px 2px rgba(0, 0, 0, 0.75)', top: (route.fullPath == '/prvni-psani' || route.fullPath.split('/')[1] == 'prace') ? '370px' : '403px' }">
+                    :style="{ boxShadow: fullHideKlavesnice ? 'none' : '0px 0px 10px 2px rgba(0, 0, 0, 0.75)', top: (route.fullPath == '/prvni-psani' || route.fullPath.split('/')[1] == 'prace') ? '383px' : '418px' }">
                     <h3>Jsi tam ještě?</h3>
                     <p>
-                        Přestal jsi psát a tak jsme museli cvičení přerušit.
+                        Přestal/a jsi psát a tak jsme museli cvičení pozastavit. Pokračuj až budeš připravený/á!
                     </p>
-                    <button class="tlacitko" @click="prestalPsat = false; input?.focus()">Jsem tu!</button>
                 </div>
             </Transition>
         </div>
@@ -598,6 +605,7 @@ span.unfocused {
     gap: 6px;
     align-items: center;
     flex-direction: column;
+    max-width: 480px;
 }
 
 #nepise h3 {
@@ -607,10 +615,6 @@ span.unfocused {
 }
 
 #nepise p {
-    font-size: 20px;
-}
-
-#nepise .tlacitko {
     font-size: 20px;
 }
 
