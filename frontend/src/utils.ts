@@ -109,7 +109,7 @@ export class MojeMapa extends Map<string, number> {
         }
     }
     top(n: number) {
-        const nejvetsi = [] as {znak: string, pocet: number}[]
+        const nejvetsi = [] as { znak: string, pocet: number }[]
         const pouzity = new Map<string, number>()
         for (let i = 0; i < n; i++) {
             const nej: { znak: string, pocet: number } = { znak: "", pocet: 0 }
@@ -183,4 +183,20 @@ export function postKlavesnice(klavesnice: boolean) {
     axios.post("/ucet-zmena", { "zmena": "klavesnice", "hodnota": k }, { headers: { Authorization: `Bearer ${getToken()}` } }).catch(e => {
         checkTeapot(e)
     })
+}
+
+export function getOS() {
+    const userAgent = window.navigator.userAgent
+
+    if (/macOS|Macintosh|MacIntel|MacPPC|Mac68K|darwin/.test(userAgent)) {
+        return "macos"
+    } else if (/Win32|Win64|Windows|WinCE/.test(userAgent)) {
+        return "windows"
+    } else if (/Linux/.test(userAgent)) {
+        return "linux"
+    } else if (/iPhone|iPad|iPod/.test(userAgent)) {
+        return "ios"
+    } else if (/Android/.test(userAgent)) {
+        return "android"
+    }
 }

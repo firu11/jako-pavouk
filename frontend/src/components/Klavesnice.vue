@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import { getOS } from "../utils.ts";
 
 const props = defineProps({
     aktivniPismeno: {
@@ -51,6 +52,7 @@ const oznacenyPrst = computed(() => {
 
 onMounted(() => {
     prohoditKlavesnici(props.typ!)
+    console.log(getOS())
 })
 
 watch(() => props.typ, (ted) => {
