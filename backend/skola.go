@@ -81,6 +81,7 @@ func setupSkolniRouter(api *echo.Group) {
 
 	skolaApi.POST("/pridat-praci", pridatPraci)
 	skolaApi.GET("/get-praci/:id", getPraci)
+	skolaApi.GET("/get-statistiky-prace/:id", getStatistikyPrace)
 	skolaApi.POST("/dokoncit-praci/:id", dokoncitPraci)
 	skolaApi.DELETE("/smazat-praci/:id", smazatPraci)
 
@@ -780,6 +781,34 @@ func getPraci(c echo.Context) error {
 	utils.SmazatMezeruNaKonci(vyslednyText)
 
 	return c.JSON(http.StatusOK, echo.Map{"text": vyslednyText, "cas": cas, "klavesnice": uziv.Klavesnice})
+}
+
+func getStatistikyPrace(c echo.Context) error {
+	id := c.Get("uzivID").(uint)
+	if id == 0 {
+		return c.NoContent(http.StatusUnauthorized)
+	}
+	uziv, err := databaze.GetUzivByID(id)
+	if err != nil {
+		log.Println(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+	if uziv.UcitelVeSkoleID == 0 {
+		return c.JSON(http.StatusBadRequest, chyba("Toto muze videt pouze ucitel"))
+	}
+
+	praceID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+
+	studenti, err := databaze.GetStudentyZPrace(uint(praceID))
+	if err != nil {
+		log.Print(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{"studenti": studenti})
 }
 
 func dokoncitPraci(c echo.Context) error {

@@ -425,7 +425,7 @@ async function checkJestliPise() {
         preruseneCasy.push(cass.value)
         clearInterval(interval)
         timerZacatek.value = 0
-    }, 10000) // 10s
+    }, 6000) // 6s
 }
 
 watch(fullHideKlavesnice, () => {
