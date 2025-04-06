@@ -834,16 +834,29 @@ func GetTridy(ucitelID uint) ([]TridaInfo, error) {
 }
 
 type Student struct {
-	ID    uint    `json:"id" db:"id"`
-	Jmeno string  `json:"jmeno" db:"skolni_jmeno"`
-	Email string  `json:"email" db:"email"`
-	CPM   float64 `json:"cpm" db:"cpm"`
+	ID       uint    `json:"id" db:"id"`
+	Jmeno    string  `json:"jmeno" db:"skolni_jmeno"`
+	Email    string  `json:"email" db:"email"`
+	CPM      float64 `json:"cpm" db:"cpm"`
+	Presnost float64 `json:"presnost" db:"presnost"`
 }
 
 func GetStudentyZeTridy(tridaID uint) ([]Student, error) {
 	var zaci []Student = []Student{}
 
 	rows, err := DB.Query(`WITH cpm_data AS ( SELECT datum, delka_textu, neopravene, cas, uziv_id FROM dokoncene WHERE datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) UNION ALL SELECT datum, delka_textu, neopravene, cas, uziv_id FROM dokoncene_procvic WHERE datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) ), cpm AS ( SELECT uziv_id, GREATEST( ( (SUM(delka_textu) - 10 * SUM(neopravene)) / SUM(cas)::NUMERIC ) * 60, 0 ) AS cpm FROM cpm_data GROUP BY uziv_id ) SELECT u.id, u.skolni_jmeno, u.email, COALESCE(mc.cpm, 0) as cpm FROM uzivatel u INNER JOIN student_a_trida s ON s.student_id = u.id INNER JOIN trida t ON t.id = s.trida_id FULL OUTER JOIN cpm mc ON mc.uziv_id = u.id WHERE s.trida_id = $1 AND t.smazana = FALSE AND NOT u.smazany GROUP BY u.id, u.skolni_jmeno, u.email, mc.cpm;`, tridaID)
+	if err != nil {
+		return zaci, err
+	}
+
+	err = scan.Rows(&zaci, rows)
+	return zaci, err
+}
+
+func GetStudentyZPrace(praceID uint) ([]Student, error) {
+	var zaci []Student = []Student{}
+
+	rows, err := DB.Query(`WITH studenti_ze_tridy AS ( SELECT u.id, u.skolni_jmeno, u.email FROM student_a_trida sat JOIN uzivatel u ON u.id = sat.student_id WHERE sat.trida_id = ( SELECT trida_id FROM prace WHERE id = $1 ) AND NOT u.smazany ), vysledky_teto_prace AS ( SELECT student_id as id, GREATEST( ( (delka_textu - 10 * neopravene) / cas::NUMERIC ) * 60, 0 ) AS cpm, COALESCE( ( ( delka_textu - neopravene - COALESCE( ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ), 0 ) ) / GREATEST(delka_textu::NUMERIC, 1) ) * 100, -1 ) AS presnost FROM dokoncena_prace WHERE prace_id = $1 ) SELECT id, skolni_jmeno, email, COALESCE(cpm, -1) as cpm, COALESCE(presnost, -1) as presnost FROM studenti_ze_tridy LEFT JOIN vysledky_teto_prace USING(id);`, praceID)
 	if err != nil {
 		return zaci, err
 	}
