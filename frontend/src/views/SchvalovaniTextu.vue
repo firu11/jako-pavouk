@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, useTemplateRef } from 'vue';
-import TextZadani from './ucitel/TextZadani.vue';
+import TextZadani from '../components/ucitel/TextZadani.vue';
 import axios from 'axios';
 import { getToken, pridatOznameni } from '../utils';
 
