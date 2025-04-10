@@ -7,6 +7,7 @@ import { MojeMapa, pridatOznameni } from "../utils";
 import { useRoute } from "vue-router";
 import { useHead } from "unhead";
 import Tooltip from "../components/Tooltip.vue";
+import { os } from "../stores";
 
 useHead({
     meta: [
@@ -112,6 +113,8 @@ onMounted(() => {
 
     input.value?.focus()
     document.addEventListener("click", checkFocus)
+
+    if (os.value === "macos") document.addEventListener("keyup", macosZaseZabilSCapsLockem)
 })
 
 onUnmounted(() => {
@@ -119,7 +122,12 @@ onUnmounted(() => {
     document.removeEventListener("mousemove", enableKurzor)
     clearTimeout(timeoutID)
     document.removeEventListener("click", checkFocus)
+    if (os.value === "macos") document.removeEventListener("keyup", macosZaseZabilSCapsLockem)
 })
+
+function macosZaseZabilSCapsLockem(e: KeyboardEvent) {
+    if (e.key === "CapsLock") capslock.value = false
+}
 
 function filterKlik(e: Event) {
     const ev = e as InputEvent
@@ -140,7 +148,7 @@ function nextPismeno() {
     if (aktivniPismeno.value.spatne === 1) preklepy.value++
 
     if (props.text[counterSlov.value].length - 1 === counter.value) { // posledni pismeno ve slovu
-        counterSlov.value++
+        counterSlov.value = Math.min(counterSlov.value + 1, props.text.length)
         counter.value = 0
     } else {
         counter.value++
@@ -154,8 +162,10 @@ function nextPismeno() {
 }
 
 function backPismeno() {
+    if (counterSlov.value === 0 && counter.value === 0) return // pokud jsme na začátku tak pass
+
     if (counter.value === 0) { // prvni pismeno ve slovu
-        counterSlov.value--
+        counterSlov.value = Math.max(counterSlov.value - 1, 0)
         counter.value = props.text[counterSlov.value].length - 1
     } else {
         counter.value--
@@ -207,8 +217,8 @@ function klik(e: Event) {
                   + deleteCompositionText, null, isComposing=true
     zmáčknu e = insertFromComposition, ě, isComposing=true
     */
-    //                      windows oba + linux firefox ->                    kvůli safari ->                                              kvůli linuxu/macos chrome + macos firefox ->
-    if (e.data != null && ((e.inputType == "insertText" && !e.isComposing) || (e.inputType == "insertFromComposition" && e.isComposing) || (e.inputType == "insertCompositionText" && !["ˇ", "'", "°", "´"].includes(e.data)))) {
+    //                      windows oba + linux firefox ->                    kvůli safari ->                                              kvůli linuxu/macos chrome + macos firefox ->                      v-- ubuntu chce zabít asi tohle není kolečko nad u ale "ring obove" charakter. debugoval jsem to 2h ;(
+    if (e.data != null && ((e.inputType == "insertText" && !e.isComposing) || (e.inputType == "insertFromComposition" && e.isComposing) || (e.inputType == "insertCompositionText" && !["ˇ", "'", "°", "´", "˚"].includes(e.data)))) {
         if (e.data === aktivniPismeno.value.znak) {
             if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play()
             if (aktivniPismeno.value.spatne === 1) {
@@ -220,9 +230,9 @@ function klik(e: Event) {
             aktivniPismeno.value.spatne = 1
             chybyPismenka.put(aktivniPismeno.value.znak)
 
-            if (aktivniPismeno.value.znak === "|") {
+            if (aktivniPismeno.value.znak === "|" && os.value !== "macos") {
                 counterSpatneSvislaCara++
-                if (counterSpatneSvislaCara >= 2) pridatOznameni(`Znak "|" je lehce problematický a jeho poloha se může lišit. Pokud máte dvouřádkový Enter, je označená klávesa posunutá vlevo od něj. Pokud jen nefunguje zvýrazněná klávesa, pravděpodobně se znak schovává vpravo od levého Shiftu. S pozdravem, Firu`, 15_000)
+                if (counterSpatneSvislaCara % 2 == 0) pridatOznameni(`Znak "|" je lehce problematický a jeho poloha se může lišit.<br>Pokud máte dvouřádkový Enter, je označená klávesa posunutá vlevo od něj.<br>Pokud jen nefunguje zvýrazněná klávesa, pravděpodobně se znak schovává vedle levého Shiftu.<br>S pozdravem, Firu.`, 15_000, "svisla-cara")
             }
         }
         nextPismeno()
@@ -324,6 +334,7 @@ function calcCas() {
     cass.value = ((Date.now() - timerZacatek.value) / 1000) + sum
 
     if (props.cas - cass.value <= 0) {
+        console.log("Normální konec:", cass.value, "s")
         clearInterval(interval)
         document.removeEventListener("keydown", specialniKlik)
         document.removeEventListener("click", checkFocus)
@@ -410,6 +421,8 @@ const rotace = computed(() => {
 function resetTlacitko() {
     if (props.nacitamNovej) return
     nacitamePodruhy.value = true
+    prestalPsat.value = false
+    preruseneCasy.splice(0, preruseneCasy.length)
     emit("restart")
     restart()
 }
@@ -425,7 +438,7 @@ async function checkJestliPise() {
         preruseneCasy.push(cass.value)
         clearInterval(interval)
         timerZacatek.value = 0
-    }, 6000) // 6s
+    }, 10_000) // 10s
 }
 
 watch(fullHideKlavesnice, () => {
@@ -471,7 +484,7 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
     <div id="flex" ref="celyPsani">
         <div id="nabidka" :class="{ unfocused: unfocused }">
             <h2 id="cas" :style="{ color: hideCasomira ? 'gray' : 'var(--bila)', opacity: (cass >= 3 && hideCasomira) ? '0' : '1' }">
-                {{ casFormat+"" }}
+                {{ casFormat + "" }}
                 <button @click="toggleHideCasomira" id="hideCasomiru" title="Můžeš schovat časomíru po začátku, aby tě nerozptylovala při psaní.">
                     <img v-show="hideCasomira" src="../assets/icony/okoSkrtnuty.svg" alt="Zobrazit" width="16" height="13">
                     <img v-show="!hideCasomira" src="../assets/icony/oko.svg" alt="Schovat" width="16" height="13">
@@ -491,7 +504,6 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
                             'opravene-pismeno': p.spatne === 2 && aktivniPismeno.id > p.id,
                             'spravne-pismeno': (!p.spatne && aktivniPismeno.id > p.id) || !p.psat
                         }">
-
                             {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp;") }} </div>
                         </div>
                     </div>
@@ -501,7 +513,8 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
                 :style="{ display: unfocused ? 'block' : 'none', top: (route.fullPath == '/prvni-psani' || route.fullPath.split('/')[1] == 'prace') ? '200px' : '235px' }"
                 @click="input?.focus()">Klikni sem nebo zmáčkni <span class="klavesa-v-textu">Mezerník</span> !</span>
 
-            <input type="text" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off" ref="input" id="input" @input="klik" @beforeinput="filterKlik">
+            <input type="text" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off" ref="input" id="input" @input="klik"
+                @beforeinput="filterKlik">
 
             <Transition>
                 <div v-show="klavesnice != ''">
@@ -578,6 +591,8 @@ span.unfocused {
     position: absolute;
     cursor: default;
     opacity: 0;
+    width: 10px;
+    margin-right: 170px;
 }
 
 #hide-btn {

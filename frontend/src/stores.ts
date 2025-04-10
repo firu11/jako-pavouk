@@ -1,4 +1,5 @@
 import { ref } from "vue";
+import { getOS } from "./utils";
 
 export const uziv = ref({} as {jmeno: string, email: string})
 export const prihlasen = ref(false)
@@ -26,5 +27,6 @@ export function getCas(key: string) {
 }
 
 export const mobil = ref(document.body.clientWidth <= 900)
+export const os = ref(getOS())
 
 export const okZnaky = /([^A-Za-z0-9ěščřžýáíéůúťďňóĚŠČŘŽÝÁÍÉŮÚŤĎŇÓ ,.!?;:_=+\-*/%()[\]{}<>"])/
