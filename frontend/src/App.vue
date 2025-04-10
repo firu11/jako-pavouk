@@ -159,6 +159,7 @@ watch(() => uziv.value.jmeno, function () {
             <div v-for="(o, i) in oznameni" class="alert" :key="i">
                 <img v-if="o.typ == 'vykricnik'" src="./assets/icony/alert.svg" alt="Vykřičník">
                 <img v-else-if="o.typ == 'copy'" src="./assets/icony/copy.svg" alt="Zkopírováno">
+                <img v-else-if="o.typ == 'svisla-cara'" src="./assets/icony/info.svg" alt="Oznámení" id="svisla-cara-info">
                 <span v-html="o.text"></span>
             </div>
         </TransitionGroup>
@@ -331,6 +332,10 @@ dialog {
 
 .alert img {
     width: 24px;
+}
+
+.alert:has(#svisla-cara-info) {
+    max-width: min(85%, 450px);
 }
 
 header {
