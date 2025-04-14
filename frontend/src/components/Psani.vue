@@ -322,7 +322,7 @@ function startTimer() {
     if (timerZacatek.value === 0) {
         timerZacatek.value = Date.now()
         calcCas()
-        interval = setInterval(calcCas, 200)
+        interval = setInterval(calcCas, 100)
     }
 }
 
@@ -331,10 +331,10 @@ function calcCas() {
     for (let i = 0; i < preruseneCasy.length; i++) {
         sum += preruseneCasy[i]
     }
-    cass.value = ((Date.now() - timerZacatek.value) / 1000) + sum
+    cass.value = ((Date.now() - timerZacatek.value) / 1000) - sum / 1000
+    if (prestalPsat.value) cass.value -= (Date.now() - prestalPsatCas) / 1000
 
     if (props.cas - cass.value <= 0) {
-        console.log("Normální konec:", cass.value, "s")
         clearInterval(interval)
         document.removeEventListener("keydown", specialniKlik)
         document.removeEventListener("click", checkFocus)
@@ -428,16 +428,18 @@ function resetTlacitko() {
 }
 
 let timeoutID: number
+let prestalPsatCas: number = 0
 const prestalPsat = ref(false)
 async function checkJestliPise() {
     clearTimeout(timeoutID)
-    prestalPsat.value = false
+    if (prestalPsat.value) {
+        prestalPsat.value = false
+        preruseneCasy.push(Date.now() - prestalPsatCas)
+    }
     timeoutID = setTimeout(() => {
         prestalPsat.value = true
+        prestalPsatCas = Date.now()
         calcCas()
-        preruseneCasy.push(cass.value)
-        clearInterval(interval)
-        timerZacatek.value = 0
     }, 10_000) // 10s
 }
 
