@@ -145,7 +145,8 @@ func zapisSkoly(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 
-	_, err := databaze.GetSkolaByUcitel(id)
+	skola, err := databaze.GetSkolaByUcitel(id)
+	log.Println(skola.ID, skola.Jmeno, id)
 	if err != sql.ErrNoRows {
 		return c.JSON(http.StatusInternalServerError, chyba("Už jsi ve škole"))
 	}

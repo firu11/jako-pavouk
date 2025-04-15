@@ -1065,7 +1065,7 @@ func CreateSkola(jmeno, email, telefon string) (uint, error) {
 
 func GetSkolaByUcitel(uzivID uint) (Skola, error) {
 	var skola Skola
-	rows, err := DB.Query(`SELECT s.* FROM skola s INNER JOIN ucitel u ON u.skola_id = s.id INNER JOIN uzivatel uz ON uz.id = u.uziv_id WHERE uz.id = $1;`, uzivID)
+	rows, err := DB.Query(`SELECT s.* FROM skola s INNER JOIN ucitel u ON u.skola_id = s.id INNER JOIN uzivatel uz ON uz.id = u.uziv_id WHERE uz.id = $1 AND NOT u.smazany AND NOT uz.smazany;`, uzivID)
 	if err != nil {
 		return skola, err
 	}
@@ -1084,7 +1084,7 @@ func GetUcitele(skolaID uint) ([]Ucitel, error) {
 }
 
 func CreateUcitel(skolaID, uzivID uint) error {
-	_, err := DB.Exec(`INSERT INTO ucitel (uziv_id, skola_id) VALUES ($1, $2) ON CONFLICT (uziv_id, skola_id) DO UPDATE SET smazany = false;`, uzivID, skolaID)
+	_, err := DB.Exec(`INSERT INTO ucitel (uziv_id, skola_id) VALUES ($1, $2) ON CONFLICT (uziv_id) DO UPDATE SET smazany = false, skola_id = EXCLUDED.skola_id;`, uzivID, skolaID)
 	return err
 }
 
