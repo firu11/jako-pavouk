@@ -103,6 +103,10 @@ function overeniPost(e: Event) {
             .then(response => {
                 localStorage.setItem(tokenJmeno, response.data.token)
                 prihlasen.value = true
+
+                uziv.value.email = response.data.email
+                uziv.value.jmeno = response.data.jmeno
+
                 router.push("/klavesnice?kam=statistiky")
             }).catch(e => {
                 if (e.response.data.error.search("kod") != -1) {
