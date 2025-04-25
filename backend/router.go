@@ -412,7 +412,7 @@ func overitEmail(c echo.Context) error {
 	}
 	go databaze.OdebratOvereni(cekajiciUziv.Email)
 	go databaze.SmazatPoLimitu()
-	return c.JSON(http.StatusOK, echo.Map{"token": token})
+	return c.JSON(http.StatusOK, echo.Map{"token": token, "jmeno": cekajiciUziv.Jmeno, "email": cekajiciUziv.Email})
 }
 
 func registrace(c echo.Context) error {
