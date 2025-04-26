@@ -52,7 +52,7 @@ func PoslatOverovaciEmail(email string, kod string) error {
 	m.Embed("./pavoucekDoEmailu.png")
 
 	if err := dialer.DialAndSend(m); err != nil {
-		log.Print("NEFUNGUJE MAIL GG WOOHOO", err)
+		log.Print("NEFUNGUJE MAIL GG WOOHOO", email, err)
 		MobilNotifikace("NEFUNGUJE MAIL " + err.Error())
 		return err
 	}
