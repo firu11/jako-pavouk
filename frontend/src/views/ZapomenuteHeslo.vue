@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import axios from "axios";
 import { onMounted, ref } from "vue";
-import { checkTeapot, pridatOznameni } from "../utils";
+import { pridatOznameni } from "../utils";
 import { useHead } from "unhead";
 import { useRoute, useRouter } from "vue-router";
 
@@ -52,10 +52,8 @@ function poslatEmail(e: Event) {
             pridatOznameni("Tenhle email ještě neznáme")
             return
         }
-        if (!checkTeapot(e)) {
-            pridatOznameni()
-            console.log(e)
-        }
+        pridatOznameni()
+        console.log(e)
     })
 }
 
@@ -77,10 +75,7 @@ function overitZmenu(e: Event) {
         console.log(e)
         if (e.response.data.error.toLowerCase().search("kod") != -1) spatnyKod.value = true
         else if (e.response.data.error.toLowerCase().search("heslo") != -1) spatnyHeslo.value = true
-        else if (!checkTeapot(e)) {
-            pridatOznameni()
-            console.log(e)
-        }
+        pridatOznameni()
     })
 }
 
@@ -102,15 +97,15 @@ function presmerovat(e: Event) {
     <form v-if="state === 'email'">
         <h3 style="margin-bottom: 20px;">Na e-mail ti bude zaslán <br> ověřovací kód pro obnovení hesla.</h3>
         <h3 class="nadpis">Zadej e-mail:</h3>
-        <input :class="{ 'spatnej-input': spatnyEmail }" :oninput="zmena" type="text" v-model="email"
-            placeholder="Např: pepa@zdepa.cz" inputmode="email">
+        <input :class="{ 'spatnej-input': spatnyEmail }" :oninput="zmena" type="text" v-model="email" placeholder="Např: pepa@zdepa.cz"
+            inputmode="email">
         <button type="submit" class="tlacitko" @click="poslatEmail" :disabled="posilame">{{ posilame ? ". . ." : "Poslat e-mail" }}</button>
     </form>
     <form v-else-if="state === 'kod'">
         <h3 style="margin-bottom: 20px;">Zkontroluj prosím svou<br> e-mailovou schránku.</h3>
         <h3 class="nadpis">Kód z e-mailu:</h3>
-        <input style="margin-bottom: 20px;" :class="{ 'spatnej-input': spatnyKod }" @:input="chekujUdaje('kod')" type="text"
-            inputmode="numeric" v-model.trim="kod" placeholder="Např: 12345">
+        <input style="margin-bottom: 20px;" :class="{ 'spatnej-input': spatnyKod }" @:input="chekujUdaje('kod')" type="text" inputmode="numeric"
+            v-model.trim="kod" placeholder="Např: 12345">
         <h3 class="nadpis">Nové heslo:</h3>
         <input :class="{ 'spatnej-input': spatnyHeslo }" @:input="chekujUdaje('heslo')" type="password" v-model="heslo"
             placeholder="Rozhodně ne 'Pepa123'">

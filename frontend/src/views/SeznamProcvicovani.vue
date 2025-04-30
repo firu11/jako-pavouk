@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useHead } from "unhead";
-import { Oznacene, checkTeapot, getToken, napovedaKNavigaci, pridatOznameni } from "../utils";
+import { Oznacene, getToken, napovedaKNavigaci, pridatOznameni } from "../utils";
 import axios from "axios";
 import { onMounted, onUnmounted, ref } from "vue";
 import { mobil } from "../stores";

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from "axios";
-import { checkTeapot, getToken, pridatOznameni } from "../utils";
+import { getToken, pridatOznameni } from "../utils";
 import { ref } from "vue";
 import Tooltip from "./Tooltip.vue"
 
@@ -30,10 +30,8 @@ function zamek() {
             Authorization: `Bearer ${getToken()}`
         }
     }).catch(e => {
-        if (!checkTeapot(e)) {
-            console.log(e)
-            pridatOznameni("Chyba serveru")
-        }
+        console.log(e)
+        pridatOznameni("Chyba serveru")
         zamknuta.value = !zamknuta.value
     })
 }
@@ -50,7 +48,8 @@ function zamek() {
                 <img v-else src="../assets/icony/zamekClosed.svg" alt="Zamčená třída" @click="zamek()">
             </Tooltip>
         </div>
-        <a :class="{ 'zamknuty-kod': zamknuta }" :href="'https://jakopavouk.cz/zapis/' + props.kod" target="_blank">jakopavouk.cz/zapis/{{ props.kod }}</a>
+        <a :class="{ 'zamknuty-kod': zamknuta }" :href="'https://jakopavouk.cz/zapis/' + props.kod" target="_blank">jakopavouk.cz/zapis/{{ props.kod
+            }}</a>
     </div>
 </template>
 <style scoped>

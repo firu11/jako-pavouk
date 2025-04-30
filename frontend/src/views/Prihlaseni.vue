@@ -3,7 +3,7 @@ import axios from "axios";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { prihlasen, tokenJmeno, uziv, role } from "../stores";
-import { pridatOznameni } from "../utils";
+import { checkTeapot, pridatOznameni } from "../utils";
 import { useHead } from "unhead";
 
 useHead({
@@ -44,9 +44,10 @@ function login(e: Event) {
         uziv.value.email = response.data.email
         uziv.value.jmeno = response.data.jmeno
         role.value = response.data.role
-        
+
         router.push("/statistiky")
     }).catch(e => {
+        if (checkTeapot(e)) return
         if (e.response.status == 400 || e.response.status == 401) {
             if (e.response.data.error.search("Email") !== -1) {
                 spatnyEmail.value = true

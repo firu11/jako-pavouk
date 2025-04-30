@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { checkTeapot, clone, getToken, MojeMapa, pridatOznameni, saveNastaveni } from "../utils";
+import { clone, getToken, MojeMapa, pridatOznameni, saveNastaveni } from "../utils";
 import { computed, onMounted, ref, toRaw } from "vue";
 import axios from "axios";
 import Vysledek from "../components/Vysledek.vue";

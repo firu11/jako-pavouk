@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
-import { checkTeapot, clone, getCisloProcvic, getToken, MojeMapa, pridatOznameni, saveNastaveni, setCisloProcvic } from "../utils";
+import { clone, getCisloProcvic, getToken, MojeMapa, pridatOznameni, saveNastaveni, setCisloProcvic } from "../utils";
 import SipkaZpet from "../components/SipkaZpet.vue";
 import { computed, onMounted, ref, toRaw, watch } from "vue";
 import axios from "axios";
@@ -75,10 +75,8 @@ function get() {
         })
     }).catch(e => {
         console.log(e)
-        if (!checkTeapot(e)) {
-            pridatOznameni()
-            router.back()
-        }
+        pridatOznameni()
+        router.back()
 
     }).finally(() => {
         nacitamNovej.value = false
@@ -200,10 +198,8 @@ async function prodlouzit() {
             })
         })
     }).catch(e => {
-        if (!checkTeapot(e)) {
-            console.log(e)
-            pridatOznameni()
-        }
+        console.log(e)
+        pridatOznameni()
     }).finally(() => {
         nacitamNovej.value = false
     })
