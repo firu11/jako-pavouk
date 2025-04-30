@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
-import { checkTeapot, format, getToken, MojeMapa, pridatOznameni } from "../utils";
+import { format, getToken, MojeMapa, pridatOznameni } from "../utils";
 import SipkaZpet from "../components/SipkaZpet.vue";
 import { onMounted, ref } from "vue";
 import axios from "axios";
@@ -52,10 +52,9 @@ function get() {
         klavesnice.value = response.data.klavesnice
         typTextu.value = response.data.typ
     }).catch(e => {
-        if (!checkTeapot(e)) {
-            pridatOznameni()
-            router.back()
-        }
+        console.log(e)
+        pridatOznameni()
+        router.back()
     }).finally(() => {
         nacitamNovej.value = false
     })
@@ -98,10 +97,8 @@ async function prodlouzit() {
             })
         })
     }).catch(e => {
-        if (!checkTeapot(e)) {
-            console.log(e)
-            pridatOznameni()
-        }
+        console.log(e)
+        pridatOznameni()
     }).finally(() => {
         nacitamNovej.value = false
     })

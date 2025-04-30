@@ -3,7 +3,7 @@ import axios from "axios";
 import BlokLekce from "../components/BlokLekce.vue";
 import Rada from "../components/Rada.vue"
 import { onMounted, onUnmounted, ref } from "vue";
-import { Oznacene, checkTeapot, getToken, pridatOznameni, napovedaKNavigaci } from "../utils";
+import { Oznacene, getToken, pridatOznameni, napovedaKNavigaci } from "../utils";
 import { useHead } from "unhead";
 import { useRouter } from "vue-router";
 import { mobil, prihlasen } from "../stores";
@@ -57,10 +57,8 @@ onMounted(() => {
                 }
             }
         }).catch(e => {
-            if (!checkTeapot(e)) {
-                pridatOznameni()
-                console.log(e)
-            }
+            pridatOznameni()
+            console.log(e)
         }).finally(() => {
             nacitam.value = false
         })
