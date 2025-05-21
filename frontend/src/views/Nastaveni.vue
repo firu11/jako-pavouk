@@ -119,7 +119,7 @@ const jmenoInput = useTemplateRef("jmenoInput")
             <RouterLink to="/klavesnice?kam=nastaveni">Nevím, jakou mám klávesnici.</RouterLink>
 
             <span>
-                Klávesnice ovlivňuje nejen <b>grafickou klácesnici</b> pod textem, ale i kurz samotný. Od první lekce horní řady se totiž lyší množina
+                Klávesnice ovlivňuje nejen <b>grafickou klávesnici</b> pod textem, ale i kurz samotný. Od první lekce horní řady se totiž liší množina
                 již naučených písmen podle toho, jestli už umíme <b>z</b> nebo <b>y</b>.
             </span>
         </form>

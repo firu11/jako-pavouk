@@ -146,7 +146,7 @@ watch(() => uziv.value.jmeno, function () {
         </div>
         <div v-else id="ucet" class="neprihlasen" @click="mobilMenu = !mobilMenu">
             <img id="pavouk" src="./assets/pavoucekBezPozadi.svg" alt="uzivatel" width="181" height="114">
-            <span>Nepřihlášný pavouk</span>
+            <span>Nepřihlášený pavouk</span>
             <MenuLink jmeno="Přihlásit se" cesta="/prihlaseni" />
         </div>
     </header>

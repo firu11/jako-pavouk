@@ -7,7 +7,7 @@ export const role = ref("basic")
 export const tokenJmeno = "pavouk_token"
 export const nastaveniJmeno = "pavouk_nastaveni_psani"
 export const cislaProcvicJmeno = "pavouk_procvic_"
-export const levelyRychlosti = [60, 100, 140]
+export const levelyRychlosti = [60, 90, 120]
 export const levelyPresnosti = [92.5, 97.5] // jen pro message uzivateli, ne pro hvezdy
 export const maxPismenNaRadek = 629 / 19 // sirka ramecku / sirka pismene
 
