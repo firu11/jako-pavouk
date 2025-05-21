@@ -45,8 +45,10 @@ var rateLimiter echo.MiddlewareFunc = middleware.RateLimiterWithConfig(middlewar
 		c.Request().Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 
 		if err := json.Unmarshal(bodyBytes, &body); err != nil || body.EmailNeboJmeno == "" {
+			log.Println("dotaz prihlaseni: " + c.RealIP())
 			return c.RealIP(), nil
 		}
+		log.Println("dotaz prihlaseni: " + body.EmailNeboJmeno)
 		return body.EmailNeboJmeno, nil
 	},
 	DenyHandler: func(c echo.Context, identifier string, err error) error {
