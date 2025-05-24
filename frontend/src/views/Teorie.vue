@@ -49,6 +49,21 @@ useHead({
         </div>
     </div>
     <div class="bloky">
+        <div class="text">
+            <h2>Nastavení textu v sekci procvičování</h2>
+            <p>
+                Chceš si procvičit rychlost, ale ještě nezvládáš psát <b>háčky a čárky</b>? Nebo by ti vyhovoval <b>delší čas</b> na psaní? Všechno si
+                můžeš snadno upravit podle sebe!
+                <br><br>
+                Stačí kliknout na tlačítko nastavení, které najdeš hned vedle digitální klávesnice vpravo.
+            </p>
+        </div>
+        <img src="../assets/nastaveni.svg" alt="Nastavení textu" width="300" height="233">
+    </div>
+    <div class="bloky">
+        <a id="npi" href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target=”_blank” rel="nofollow">
+            <img src="../assets/npi.webp" alt="Národní pedagogický institut" width="225" height="225">
+        </a>
         <div class="text" style="display: flex; flex-direction: column; text-align: center;">
             <h2>Státní zkouška</h2>
             <ol>
@@ -66,12 +81,8 @@ useHead({
                 <span>*(CPM = úhozů za minutu)</span>
             </div>
         </div>
-        <a id="npi" href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target=”_blank” rel="nofollow">
-            <img src="../assets/npi.webp" alt="Národní pedagogický institut" width="225" height="225">
-        </a>
     </div>
     <div class="bloky" id="pohyb">
-        <img src="../assets/sipky.svg" alt="Pavouk s klávesnicí" width="345" height="244">
         <div class="text">
             <h2>Pohyb po Pavoukovi</h2>
             <ul class="mensi-padding" style="list-style: none;">
@@ -82,7 +93,8 @@ useHead({
                         <li><span class="klavesa-v-textu" style="margin-right: 5px;"><img src="../assets/icony/sipkaL.svg" alt="Šipka"
                                     class="klav-sipka"></span>
                             <span class="klavesa-v-textu"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klav-sipka"
-                                    style="transform: scaleX(-1);"></span> - přesný výběr,
+                                    style="transform: scaleX(-1);">
+                            </span> - přesný výběr,
                             <span class="klavesa-v-textu" style="margin-left: 5px;">Enter</span>
                             - potvrzení
                         </li>
@@ -96,6 +108,7 @@ useHead({
                 <li><span class="klavesa-v-textu">Esc</span> - zpět</li>
             </ul>
         </div>
+        <img src="../assets/sipky.svg" alt="Pavouk s klávesnicí" width="345" height="244">
     </div>
 </template>
 

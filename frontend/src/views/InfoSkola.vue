@@ -71,7 +71,7 @@ function chekujUdaje() {
                 <p>
                     Studenti se do tříd připojují pomocí <b>4-místného kódu</b>, který se s třídou automaticky vytvoří. <br>
                     Vyučujícímu jsou ke každému žákovi dostupné <b>statistiky</b> a výsledky jeho předchozích prací. <br>
-                    Studenty lze také <b>přesouvat mezi třídami</b>, nebo je třeba odebrat z dané třídy.
+                    Studenty lze také <b>přesouvat mezi třídami</b>, nebo je z tříd odebírat.
                 </p>
             </div>
         </div>
@@ -96,7 +96,7 @@ function chekujUdaje() {
         <div class="text">
             <h2>Cena, platba a zkušební období</h2>
             <p>
-                <b>Zdarma</b> můžete po dobu <b>jednoho měsíce</b> vyzkoušet systém s libovolným počtem žáků.
+                <b>Zdarma</b> můžete po dobu <b>tří měsíců</b> vyzkoušet systém s libovolným počtem žáků.
                 Po jeho uplynutí je cena na žáka jednorázová. Od <b>99Kč</b> za nového žáka.
                 Fakturace probíhá <b>jednou ročně bankovním převodem</b>.
             </p>

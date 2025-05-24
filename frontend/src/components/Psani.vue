@@ -479,6 +479,15 @@ function focusInput() {
     input.value?.focus()
 }
 
+function napoveda() {
+    let x = localStorage.getItem("pavouk_tutorial")
+    return x == null
+}
+
+function chapeNapovedu() {
+    localStorage.setItem("pavouk_tutorial", "done")
+}
+
 defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
 </script>
 
@@ -553,9 +562,37 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
                 </div>
             </Transition>
         </div>
+        <div id="guide" v-if="napoveda()">
+            <p>Restart psaní <br><br></p>
+            <p>Nastavení délky, velkých písmen atd.</p>
+            <p>Schování grafické klávesnice</p>
+            <button class="tlacitko" @click="chapeNapovedu">Chápu</button>
+        </div>
 </template>
 
 <style scoped>
+#guide {
+    position: absolute;
+    right: calc(50% - 664px);
+    top: 386px;
+    display: flex;
+    width: 130px;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+}
+
+#guide p {
+    font-size: 0.9em;
+}
+
+#guide .tlacitko {
+    margin-top: -0.4em;
+    width: 90px;
+    height: 30px;
+    font-size: 0.85em;
+}
+
 #hideCasomiru {
     background-color: transparent;
     border: none;

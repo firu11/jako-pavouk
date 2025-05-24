@@ -37,10 +37,9 @@ function zacit() {
     <h1 id="schovat">Psaní všemi deseti zdarma Jako Pavouk</h1> <!-- Pro SEO (nevim jestli funguje) -->
     <div class="bloky">
         <div class="text">
-            <p style="font-size: 21px; line-height: 24px;">Webová aplikace na výuku <br><b
-                    style="font-weight: 700;">psaní všemi deseti</b> zdarma.<br>Chceš se naučit psát jako pavouk?</p>
-            <button v-if="!mobil" class="tlacitko velky" @click="zacit()"
-                style="transform: scale(1.25); margin-top: 32px;">Začít psát</button>
+            <p style="font-size: 21px; line-height: 24px;">Webová aplikace na výuku <br><b style="font-weight: 700;">psaní všemi deseti</b>
+                zdarma.<br>Chceš se naučit psát jako pavouk?</p>
+            <button v-if="!mobil" class="tlacitko velky" @click="zacit()" style="transform: scale(1.25); margin-top: 32px;">Začít psát</button>
         </div>
         <img src="../assets/pavoukStudent.svg" alt="Pavouk student" width="300" height="253" style="max-height: 230px;">
     </div>
@@ -67,16 +66,28 @@ function zacit() {
         <img src="../assets/pavoukNaZlate.svg" width="290" height="182" alt="Bohatý pavouk" style="width: 290px;">
     </div>
     <div class="bloky">
-        <img src="../assets/pavoukSkola.svg" width="290" height="182" alt="Bohatý pavouk" style="width: 290px;">
+        <img src="../assets/systemy.svg" width="290" height="182" alt="Bohatý pavouk" style="width: 290px; padding: 30px 20px 20px 20px;">
+        <div class="text">
+            <h2>Na každém zařízení</h2>
+            <p>
+                Aplikace funguje na <b>Windows</b>, <b>Linux</b> i <b>MacOS</b>.
+                Už nemáš <b>žádné výmluvy</b>, proč se nenaučit psát jako pavouk.
+                Jen psaní na telefonech zatím neučíme...
+            </p>
+        </div>
+    </div>
+    <div class="bloky">
         <div class="text">
             <h2>Systém pro školy</h2>
             <p>
-                Jste vyučující na škole, kde probíhá výuka psaní všemi deseti? Nebo snad ještě neprobíhá? Vyzkoušejte si <b>organizovanou výuku</b> psaní!
+                Jste vyučující na škole, kde probíhá výuka psaní všemi deseti? Nebo snad ještě neprobíhá?
+                Vyzkoušejte si <b>organizovanou výuku</b> psaní!
             </p>
             <div style="display: flex; gap: 20px; justify-content: center;">
                 <button class="tlacitko" @click="router.push('/skolni-system')">Číst dál</button>
             </div>
         </div>
+        <img src="../assets/pavoukSkola.svg" width="290" height="182" alt="Bohatý pavouk" style="width: 290px;">
     </div>
 </template>
 
@@ -100,7 +111,5 @@ function zacit() {
     }
 }
 
-@media screen and (max-width: 600px) {
-    
-}
+@media screen and (max-width: 600px) {}
 </style>
