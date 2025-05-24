@@ -480,6 +480,7 @@ function focusInput() {
 }
 
 function napoveda() {
+    if (route.path !== "/test-psani" && !/\/procvic\/\d+/.test(route.path) ) return false
     let x = localStorage.getItem("pavouk_tutorial")
     return x == null
 }
