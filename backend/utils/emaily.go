@@ -52,7 +52,7 @@ func PoslatOverovaciEmail(email string, kod string) error {
 	m.Embed("./pavoucekDoEmailu.png")
 
 	if err := dialer.DialAndSend(m); err != nil {
-		log.Print("NEFUNGUJE MAIL GG WOOHOO", email, err)
+		log.Println("NEFUNGUJE MAIL GG WOOHOO: ", email, err)
 		MobilNotifikace("NEFUNGUJE MAIL " + err.Error())
 		return err
 	}
@@ -68,7 +68,7 @@ func PoslatInterniEmail(jmenoSkoly string, kontaktniEmail string, kontaktniTelef
 	m.SetBody("text/plain", fmt.Sprintf("Někdo se zapsal se školou! \n\n %s\n%s\n%s", jmenoSkoly, kontaktniEmail, kontaktniTelefon))
 
 	if err := dialer.DialAndSend(m); err != nil {
-		log.Print("NEFUNGUJE MAIL GG WOOHOO", err)
+		log.Println("NEFUNGUJE NOVÁ ŠKOLA MAIL GG WOOHOO: ", err)
 		MobilNotifikace("NEFUNGUJE MAIL " + err.Error())
 		return err
 	}

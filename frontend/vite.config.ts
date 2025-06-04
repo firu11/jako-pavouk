@@ -5,5 +5,8 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
     plugins: [
         vue(),
-    ]
+    ],
+    build: {
+        assetsInlineLimit: 0 // ⬅ disables automatic inlining
+    }
 })
