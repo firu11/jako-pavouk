@@ -563,7 +563,6 @@ func zmenaHesla(c echo.Context) error {
 
 	kod := utils.GenKod()
 	if err := utils.PoslatOverovaciEmail(body.Email, kod); err != nil {
-		log.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 

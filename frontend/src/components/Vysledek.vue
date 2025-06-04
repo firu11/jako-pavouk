@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from "axios";
-import { onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { getCisloPochvaly, getToken, MojeMapa, napovedaKNavigaci } from "../utils";
 import { levelyRychlosti } from "../stores";
@@ -158,6 +158,13 @@ function e1(e: KeyboardEvent) {
         napovedaKNavigaci()
     }
 }
+
+const sipkaL = new URL('../assets/icony/sipkaL.svg', import.meta.url).href;
+const zprava = computed(() => {
+    return `Také pomocí klávesy <span class='klavesa-v-textu-mensi'>
+        <img src='${sipkaL}' alt='Šipka' class='klav-sipka' style='transform: scaleX(-1) translateY(2px) translateX(-1px);'>
+    </span>`
+})
 </script>
 
 <template>
@@ -245,7 +252,7 @@ function e1(e: KeyboardEvent) {
         </Tooltip>
 
         <Tooltip v-if="route.path.split('/')[1] == 'lekce'"
-            zprava="Také pomocí klávesy <span class='klavesa-v-textu-mensi'><img src='/src/assets/icony/sipkaL.svg' alt='Šipka' class='klav-sipka' style='transform: scaleX(-1) translateY(2px) translateX(-1px);'></span>"
+            :zprava="zprava"
             :sirka="130">
             <button class="tlacitko" @click="dalsi()">Pokračovat</button>
         </Tooltip>
