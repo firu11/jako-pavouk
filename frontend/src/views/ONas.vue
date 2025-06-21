@@ -79,7 +79,7 @@ function copyEmail() {
             <span>&#46;</span>
             <span style="display: none;">proste to nedelej</span>
             <span style="unicode-bidi:bidi-override; direction: rtl;">kuovapokaj</span>
-            <span style="display: none;">nebudete mi websrapovat email vy smradlavý smrdi</span>
+            <span style="display: none;">nebudete mi websrapovat email vy smradlavý smradi</span>
             <span>&#64;</span>
             <span style="display: none;">ani to nezkoušej</span>
             <span style="unicode-bidi:bidi-override; direction: rtl;">urif</span>
