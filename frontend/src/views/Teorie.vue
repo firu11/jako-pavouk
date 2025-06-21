@@ -48,7 +48,7 @@ useHead({
             </p>
         </div>
     </div>
-    <div class="bloky">
+    <div class="bloky" id="nastaveni-p">
         <div class="text">
             <h2>Nastavení textu v sekci procvičování</h2>
             <p>
@@ -113,6 +113,10 @@ useHead({
 </template>
 
 <style scoped>
+#nastaveni-p.bloky img {
+    padding: 2em;
+}
+
 .bloky {
     height: 350px;
 }
@@ -237,6 +241,10 @@ ul {
 
     #pohyb .text {
         width: auto;
+    }
+
+    #nastaveni-p.bloky img {
+        padding: 0.7em 2em;
     }
 }
 </style>
