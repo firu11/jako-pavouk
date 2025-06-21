@@ -97,8 +97,8 @@ function zacit() {
 }
 
 @media screen and (max-width: 1100px) {
-    .text:nth-of-type(1) p {
-        font-size: 19px !important;
+    .text p, .text ul li {
+        font-size: 18px !important;
     }
 
     .bloky img {
