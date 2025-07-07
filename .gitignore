@@ -1,5 +1,6 @@
 .vscode
-taskfile.yaml 
+.zed
+taskfile.yaml
 # https://taskfile.dev/
 .DS_Store
 

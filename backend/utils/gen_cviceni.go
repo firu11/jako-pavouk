@@ -1,8 +1,7 @@
-package main
+package utils
 
 import (
 	"backend/databaze"
-	"backend/utils"
 	"errors"
 	"fmt"
 	"log"
@@ -13,7 +12,9 @@ import (
 	"unicode/utf8"
 )
 
-func generovatTextCviceni(pismena string, typ string, uzivID uint, tridaID uint, pocetZnaku float32) ([]string, error) {
+var PocetPismenVeSlovu int
+
+func GenerovatTextCviceni(pismena string, typ string, uzivID uint, tridaID uint, pocetZnaku float32) ([]string, error) {
 	var text []string
 	var err error
 
@@ -26,15 +27,15 @@ func generovatTextCviceni(pismena string, typ string, uzivID uint, tridaID uint,
 		var pocetPismenek int = len(pismenaRuny)
 
 		for _, v := range pismenaRuny {
-			zakladni := utils.PismenaPobliz[v]
+			zakladni := PismenaPobliz[v]
 			if zakladni != 0 {
 				pismenaRuny = append(pismenaRuny, zakladni)
 			}
 		}
 
 		var slovo strings.Builder
-		for i := 0; i < int(pocetZnaku/float32(pocetPismenVeSlovu+1)); i++ {
-			for j := 0; j < pocetPismenVeSlovu/2; j++ {
+		for i := 0; i < int(pocetZnaku/float32(PocetPismenVeSlovu+1)); i++ {
+			for j := 0; j < PocetPismenVeSlovu/2; j++ {
 				r := rand.Intn(len(pismenaRuny))
 				slovo.WriteRune(pismenaRuny[r])
 
@@ -73,8 +74,8 @@ func generovatTextCviceni(pismena string, typ string, uzivID uint, tridaID uint,
 		}
 
 		var slovo strings.Builder
-		for i := 0; i < int(pocetZnaku/float32(pocetPismenVeSlovu+1)); i++ {
-			for j := 0; j < pocetPismenVeSlovu; j++ {
+		for i := 0; i < int(pocetZnaku/float32(PocetPismenVeSlovu+1)); i++ {
+			for j := 0; j < PocetPismenVeSlovu; j++ {
 				r := rand.Intn(utf8.RuneCountInString(naucenaPismena)) // utf-8 jsou sus
 				slovo.WriteRune([]rune(naucenaPismena)[r])
 			}

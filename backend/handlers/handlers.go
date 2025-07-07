@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"backend/databaze"
@@ -15,92 +15,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"zgo.at/isbot"
 )
-
-// struct body requestu
-type (
-	bodyDokoncit struct {
-		Preklepy         int            `json:"neopravenePreklepy" validate:"min=0"` //sus reqired nebere nulu takze min=0 asi ok
-		Cas              int            `json:"cas" validate:"required"`
-		DelkaTextu       int            `json:"delkaTextu" validate:"required"`
-		NejcastejsiChyby map[string]int `json:"nejcastejsiChyby" validate:"required"`
-	}
-
-	bodyPoslatEmail struct {
-		Email string `json:"email" validate:"required,email"`
-		Kod   string `json:"kod" validate:"required,len=5"`
-	}
-
-	bodyRegistrace struct {
-		Email string `json:"email" validate:"required,email"`
-		Jmeno string `json:"jmeno" validate:"required,min=3,max=16"`
-		Heslo string `json:"heslo" validate:"required,ascii,min=5,max=72"`
-	}
-
-	bodyPrihlaseni struct {
-		EmailNeboJmeno string `json:"email" validate:"required"`
-		Heslo          string `json:"heslo" validate:"required,ascii,min=5,max=72"`
-	}
-
-	bodyUprava struct {
-		Zmena   string `json:"zmena"`
-		Hodnota string `json:"hodnota"`
-	}
-
-	bodyZmenaHesla struct {
-		Email string `json:"email" validate:"required,email"`
-	}
-
-	bodyOvereniZmenaHesla struct {
-		Email string `json:"email" validate:"required,email"`
-		Kod   string `json:"kod" validate:"required,len=5"`
-		Heslo string `json:"heslo" validate:"required,ascii,min=5,max=72"`
-	}
-
-	bodyGoogle struct {
-		AccessToken string `json:"access_token"`
-	}
-
-	bodyTestPsani struct {
-		Typ string `json:"typ" validate:"required"`
-	}
-)
-
-// vytvoří skupinu /api a v ní všechny endpointy
-func SetupRouter(c *echo.Echo) {
-	api := c.Group("/api")
-
-	api.GET("/lekce", getVsechnyLekce)
-	api.GET("/lekce/:pismena", getCviceniVLekci)
-	api.GET("/cvic/:pismena/:cislo", getCviceni)
-	api.POST("/dokonceno/:pismena/:cislo", dokoncitCvic)
-	api.POST("/dokonceno-procvic/:cislo", dokoncitProcvic)
-	api.GET("/procvic", getVsechnyProcvic)
-	api.GET("/procvic/:cisloProcvic/:neCislo", getProcvic)
-	api.POST("/test-psani", testPsani)
-
-	api.POST("/overit-email", overitEmail)
-	api.POST("/registrace", registrace)
-	api.POST("/prihlaseni", prihlaseni, rateLimiter)
-	api.POST("/zmena-hesla", zmenaHesla)
-	api.POST("/overeni-zmeny-hesla", overitZmenuHesla)
-	api.POST("/google", google)
-
-	api.GET("/nastaveni", nastaveni)
-	api.GET("/statistiky", statistiky)
-	api.POST("/ucet-zmena", upravaUctu)
-
-	api.GET("/token-expirace", testVyprseniTokenu)
-	api.POST("/navsteva", navsteva)
-
-	setupSkolniRouter(api)
-}
-
-func chyba(msg string) echo.Map {
-	if msg == "" {
-		msg = "Neco se pokazilo."
-	}
-	return echo.Map{"error": msg}
-}
 
 func testPsani(c echo.Context) error {
 	id := c.Get("uzivID").(uint)
@@ -119,7 +33,7 @@ func testPsani(c echo.Context) error {
 	switch body.Typ {
 	case "slova":
 		var err error
-		text, err = databaze.GetVsechnySlova(int(pocetZnaku / 7.5)) // cca 8.5 znaku na slovo
+		text, err = databaze.GetVsechnySlova(int(PocetZnaku / 7.5)) // cca 8.5 znaku na slovo
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 		}
@@ -134,11 +48,11 @@ func testPsani(c echo.Context) error {
 		}
 
 	case "vety":
-		vety, err := databaze.GetVsechnyVety(int(pocetZnaku / 85)) // cca 85 znaku na vetu
+		vety, err := databaze.GetVsechnyVety(int(PocetZnaku / 85)) // cca 85 znaku na vetu
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 		}
-		for i := 0; i < len(vety); i++ {
+		for i := range vety {
 			slova := strings.Split(vety[i], " ")
 			for _, v := range slova {
 				text = append(text, v+" ")
@@ -224,7 +138,7 @@ func getCviceni(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, chyba("Cviceni neexistuje"))
 	}
 
-	text, _ := generovatTextCviceni(pismena, vsechnyCviceni[cislo-1].Typ, id, 0, pocetZnaku)
+	text, _ := utils.GenerovatTextCviceni(pismena, vsechnyCviceni[cislo-1].Typ, id, 0, PocetZnaku)
 
 	u, err := databaze.GetUzivByID(id)
 	if err != nil {
@@ -319,7 +233,7 @@ func getVsechnyProcvic(c echo.Context) error {
 	}
 
 	if id == 0 {
-		for i := 0; i < len(texty); i++ {
+		for i := range texty {
 			texty[i].CPM = -1
 		}
 		return c.JSON(http.StatusOK, echo.Map{"texty": texty, "testPsaniCPM": -1})
@@ -330,7 +244,7 @@ func getVsechnyProcvic(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 	}
 
-	for i := 0; i < len(texty); i++ {
+	for i := range texty {
 		r := rychlosti[int(texty[i].ID)-1]
 		if r == 0 {
 			texty[i].CPM = -1
@@ -434,7 +348,7 @@ func registrace(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, chyba("Uzivatel s timto emailem jiz existuje"))
 	}
 
-	if !regexJmeno.MatchString(body.Jmeno) {
+	if !RegexJmeno.MatchString(body.Jmeno) {
 		return c.JSON(http.StatusBadRequest, chyba("Invalidni jmeno"))
 	}
 	if _, err := databaze.GetUzivByJmeno(body.Jmeno); err == nil { // uz existuje
@@ -718,7 +632,7 @@ func upravaUctu(c echo.Context) error {
 	} else if body.Zmena == "klavesnice" {
 		databaze.ZmenitKlavesnici(id, strings.ToLower(body.Hodnota))
 	} else if body.Zmena == "jmeno" {
-		if !regexJmeno.MatchString(body.Hodnota) {
+		if !RegexJmeno.MatchString(body.Hodnota) {
 			return c.JSON(http.StatusBadRequest, chyba("Jmeno obsahuje nepovolene znaky nebo ma spatnou delku"))
 		}
 		err := databaze.PrejmenovatUziv(id, body.Hodnota)
