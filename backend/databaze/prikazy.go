@@ -556,7 +556,8 @@ func PridatDokonceneCvic(cvicID, uzivID uint, neopravene int, cas int, delkaText
 	if err != nil {
 		return errors.New("konverze mapy chyb na json se nepovedla")
 	}
-	_, err = DB.Exec(`INSERT INTO dokoncene (uziv_id, cviceni_id, neopravene, cas, delka_textu, chyby_pismenka) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT ON CONSTRAINT duplicitni DO NOTHING`, uzivID, cvicID, neopravene, cas, delkaTextu, chybyPismenkaJSON)
+	// ignoruje duplicitní inserty které jsou méně než 10s od sebe. po 10s už povoluje doplicity
+	_, err = DB.Exec(`WITH recent AS (SELECT 1 FROM dokoncene WHERE uziv_id = $1 AND cviceni_id = $2 AND neopravene = $3 AND cas = $4 AND delka_textu = $5 AND now() - datum <= interval '10 seconds' LIMIT 1) INSERT INTO dokoncene (uziv_id, cviceni_id, neopravene, cas, delka_textu, chyby_pismenka) SELECT $1, $2, $3, $4, $5, $6 WHERE NOT EXISTS (SELECT 1 FROM recent);`, uzivID, cvicID, neopravene, cas, delkaTextu, chybyPismenkaJSON)
 	return err
 }
 
@@ -575,7 +576,7 @@ func PridatDokonceneProcvic(procvicID, uzivID uint, neopravene int, cas int, del
 	if err != nil {
 		return errors.New("konverze mapy chyb na json se nepovedla")
 	}
-	_, err = DB.Exec(`INSERT INTO dokoncene_procvic (uziv_id, typ_textu, neopravene, cas, delka_textu, chyby_pismenka) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT ON CONSTRAINT duplicitni2 DO NOTHING`, id, procvicCislo, neopravene, cas, delkaTextu, chybyPismenkaJSON)
+	_, err = DB.Exec(`WITH recent AS (SELECT 1 FROM dokoncene_procvic WHERE uziv_id = $1 AND typ_textu = $2 AND neopravene = $3 AND cas = $4 AND delka_textu = $5 AND now() - datum <= interval '10 seconds' LIMIT 1) INSERT INTO dokoncene_procvic (uziv_id, typ_textu, neopravene, cas, delka_textu, chyby_pismenka) SELECT $1, $2, $3, $4, $5, $6 WHERE NOT EXISTS (SELECT 1 FROM recent);`, id, procvicCislo, neopravene, cas, delkaTextu, chybyPismenkaJSON)
 	return err
 }
 
