@@ -52,10 +52,11 @@ useHead({
         <div class="text">
             <h2>Nastavení textu v sekci procvičování</h2>
             <p>
-                Chceš si procvičit rychlost, ale ještě nezvládáš psát <b>háčky a čárky</b>? Nebo by ti vyhovoval <b>delší čas</b> na psaní? Všechno si
+                Chceš si procvičit rychlost, ale ještě nezvládáš psát <b>háčky a čárky</b>? Nebo by ti vyhovoval
+                <b>delší čas</b> na psaní? Všechno si
                 můžeš snadno upravit podle sebe!
                 <br><br>
-                Stačí kliknout na tlačítko nastavení, které najdeš hned vedle digitální klávesnice vpravo.
+                Stačí kliknout na tlačítko nastavení, které najdeš hned vedle vizuální klávesnice vpravo.
             </p>
         </div>
         <img src="../assets/nastaveni.svg" alt="Nastavení textu" width="300" height="233">
@@ -90,10 +91,10 @@ useHead({
                 <li>
                     <ul style="margin: 0 0 16px 8px; list-style: none;">
                         <li><span class="klavesa-v-textu">Enter</span> podržet - vybere to, kde jsem skončil</li>
-                        <li><span class="klavesa-v-textu" style="margin-right: 5px;"><img src="../assets/icony/sipkaL.svg" alt="Šipka"
-                                    class="klav-sipka"></span>
-                            <span class="klavesa-v-textu"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klav-sipka"
-                                    style="transform: scaleX(-1);">
+                        <li><span class="klavesa-v-textu" style="margin-right: 5px;"><img
+                                    src="../assets/icony/sipkaL.svg" alt="Šipka" class="klav-sipka"></span>
+                            <span class="klavesa-v-textu"><img src="../assets/icony/sipkaL.svg" alt="Šipka"
+                                    class="klav-sipka" style="transform: scaleX(-1);">
                             </span> - přesný výběr,
                             <span class="klavesa-v-textu" style="margin-left: 5px;">Enter</span>
                             - potvrzení
