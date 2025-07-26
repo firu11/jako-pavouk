@@ -1,9 +1,12 @@
 package utils
 
 import (
+	"backend/databaze"
 	cryptoRand "crypto/rand"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"math/big"
 	mathRand "math/rand"
@@ -17,6 +20,7 @@ import (
 
 	emailverifier "github.com/AfterShip/email-verifier"
 	"github.com/go-playground/validator/v10"
+	godiacritics "gopkg.in/Regis24GmbH/go-diacritics.v2"
 )
 
 var verifier = emailverifier.NewVerifier()
@@ -168,6 +172,72 @@ func SaveSkola(jmenoSkoly string, kontaktniEmail string, kontaktniTelefon string
 
 	_, err = f.Write([]byte(fmt.Sprintf("%s, %s, %s\n", jmenoSkoly, kontaktniEmail, kontaktniTelefon)))
 	return err
+}
+
+func volbaJmena(celeJmeno string) (string, error) {
+	celeJmeno = godiacritics.Normalize(celeJmeno)
+	var jmeno []string = strings.Fields(celeJmeno) // rozdělim na jmeno a prijimeni
+
+	for range 20 { // vic než 20x to zkoušet nebudu
+		var cislo int = mathRand.Intn(databaze.MaxCisloZaJmeno-1) + 1
+
+		var jmenoNaTest string
+		if len(jmeno) >= 1 {
+			jmenoNaTest = fmt.Sprintf("%s%d", jmeno[0], cislo)
+			if databaze.RegexJmeno.MatchString(jmenoNaTest) {
+				_, err := databaze.GetUzivByJmeno(jmenoNaTest)
+				if err != nil {
+					return jmenoNaTest, nil
+				}
+			}
+		}
+		if len(jmeno) == 2 {
+			jmenoNaTest = fmt.Sprintf("%s%d", jmeno[1], cislo)
+			if databaze.RegexJmeno.MatchString(jmenoNaTest) {
+				_, err := databaze.GetUzivByJmeno(jmenoNaTest)
+				if err != nil { // ještě neexistuje
+					return jmenoNaTest, nil
+				}
+			}
+		}
+		jmenoNaTest = fmt.Sprintf("Pavouk%d", cislo)
+		if databaze.RegexJmeno.MatchString(jmenoNaTest) {
+			_, err := databaze.GetUzivByJmeno(jmenoNaTest)
+			if err != nil { // ještě neexistuje
+				return jmenoNaTest, nil
+			}
+		}
+	}
+
+	return "", errors.New("konec sveta nenašel jsem jméno")
+}
+
+func GoogleTokenNaData(token string) (string, string, error) {
+	res, err := http.Get(fmt.Sprintf("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%v", token))
+	if err != nil {
+		return "", "", err
+	}
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", "", err
+	}
+
+	m := make(map[string]string)
+	err = json.Unmarshal(body, &m)
+	if err != nil {
+		return "", "", err
+	}
+
+	if m["aud"] != os.Getenv("GOOGLE_CLIENT_ID") {
+		return "", "", errors.New("fake token")
+	}
+
+	jmeno, err := volbaJmena(m["name"])
+	if err != nil {
+		return "", "", err
+	}
+
+	return m["email"], jmeno, err
 }
 
 var PismenaPobliz map[rune]rune = map[rune]rune{
