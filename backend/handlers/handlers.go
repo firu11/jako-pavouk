@@ -426,7 +426,7 @@ func google(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, chyba(err.Error()))
 	}
 
-	email, jmeno, err := databaze.GoogleTokenNaData(body.AccessToken)
+	email, jmeno, err := utils.GoogleTokenNaData(body.AccessToken)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, chyba(err.Error()))
 	}
