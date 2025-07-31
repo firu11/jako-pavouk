@@ -43,16 +43,19 @@ function copyEmail() {
     <p>
         Jako Pavouk je studentský projekt zaměřený na výuku psaní všemi deseti.
         <span style="margin: -14px;" /> <!-- trochu menší mezera než 2x <br> -->
-        Když jsem se rozhodl, že bych se chtěl naučit psát rychleji, začal jsem hledat vhodné programy, které by mi s tím pomohly.
+        Když jsem se rozhodl, že bych se chtěl naučit psát rychleji, začal jsem hledat vhodné programy, které by mi s
+        tím pomohly.
         <br>
         Zjistil jsem ale, že zejména pro českou klávesnici jich není mnoho a některé z nich dokonce stojí téměř 1000 Kč.
         A tak jsem se rozhodl vytvořit si vlastní.
         <span style="margin: -14px;" /> <!-- trochu menší mezera než 2x <br> -->
         A ano, čteš správně!
-        Text je psán v první osobě. Možná by se tato stránka měla jmenovat spíše "O mně", jelikož tento web spravuje pouze jeden člověk.
+        Text je psán v první osobě. Možná by se tato stránka měla jmenovat spíše "O mně", jelikož tento web spravuje
+        pouze jeden člověk.
     </p>
     <p>
-        Chtěl bych poděkovat těmto webům, které mi poskytly svůj obsah, ať už ve formě vzdělávacích textů, článků, nebo pohádek.
+        Chtěl bych poděkovat těmto webům, které mi poskytly svůj obsah, ať už ve formě vzdělávacích textů, článků, nebo
+        pohádek.
         Většina textů je upravena.
         <span id="pytel-partneru">
             <a href="https://www.dejepis.com/" target="_blank">dejepis.com</a>
@@ -72,7 +75,8 @@ function copyEmail() {
     <p>
         Objevil/a jsi nějakou chybu/bug?
         <br>
-        Máš nějaký zajímavý nápad jak vylepšit tuto aplikaci nebo jen chceš dát zpětnou vazbu? Neboj se mi napsat na e-mail:
+        Máš nějaký zajímavý nápad jak vylepšit tuto aplikaci nebo jen chceš dát zpětnou vazbu? Neboj se mi napsat na
+        e-mail:
         <span id="btn" @click="copyEmail">
             <span style="unicode-bidi:bidi-override; direction: rtl;">zc</span>
             <span style="display: none;">nechci dostavat spam</span>
@@ -91,7 +95,7 @@ function copyEmail() {
         Pro zvědavé tu mám i link na GitHub, kde je celý projekt volně k prohlédnutí.
         <br>
         Budu moc rád za hvězdičku!
-        <a href="https://github.com/Firu115/jako_pavouk" target=”_blank” rel="nofollow">
+        <a href="https://github.com/firu11/jako_pavouk" target=”_blank” rel="nofollow">
             <img id="github" src="../assets/github.webp" alt="GitHub" width="173" height="60">
         </a>
     </p>
