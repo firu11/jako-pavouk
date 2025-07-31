@@ -95,7 +95,7 @@ function copyEmail() {
         Pro zvědavé tu mám i link na GitHub, kde je celý projekt volně k prohlédnutí.
         <br>
         Budu moc rád za hvězdičku!
-        <a href="https://github.com/firu11/jako_pavouk" target=”_blank” rel="nofollow">
+        <a href="https://github.com/firu11/jako-pavouk" target=”_blank” rel="nofollow">
             <img id="github" src="../assets/github.webp" alt="GitHub" width="173" height="60">
         </a>
     </p>
