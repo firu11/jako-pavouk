@@ -69,6 +69,7 @@ function get() {
         jmeno.value = response.data.jmeno
         nazev.value = response.data.typ
         if (response.data.cislo != cisla[0]) setCisloProcvic(typ, [1, 0]) // jedeme od zacatku
+        chciZmenitJmeno.value.push({ pismenoID: 0, jmeno: response.data.jmeno, cisloTextu: response.data.cislo })
 
         if (delkaTextu.value < 250) prodlouzit()
 
@@ -232,20 +233,27 @@ const a = computed(() => {
     return psaniRef.value?.aktivniPismeno.id
 })
 
-watch(a, () => {
+watch(a, async () => {
     if (a.value == undefined || chciZmenitJmeno.value.length == 0) return
 
-    const novy = chciZmenitJmeno.value[0]
-
-    if (a.value == novy.pismenoID) {
-        chciZmenitJmeno.value.shift()
-        jmeno.value = novy.jmeno
-        cisloTextu.value = novy.cisloTextu
-        cisloSlovaPosledni.value = 0
-        setTimeout(() => {
-            cisloSlovaPosledni.value = Math.min(0, cisloSlovaPosledni.value - 1)
-        }, 10)
+    let txt: {
+        pismenoID: number;
+        jmeno: string;
+        cisloTextu: number;
+    } | undefined
+    for (const v of chciZmenitJmeno.value) {
+        if (v.pismenoID <= a.value) {
+            txt = v
+        } else break
     }
+    if (txt == undefined) return
+
+    jmeno.value = txt.jmeno
+    cisloTextu.value = txt.cisloTextu
+    cisloSlovaPosledni.value = 0
+    setTimeout(() => {
+        cisloSlovaPosledni.value = Math.min(0, cisloSlovaPosledni.value - 1)
+    }, 10)
 })
 
 function refocus() {
