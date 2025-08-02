@@ -165,17 +165,22 @@ export function naJednoDesetiny(cpm: number): number {
     return Math.round(cpm * 10) / 10
 }
 
-export function getCisloProcvic(id: string): number {
-    const cislo = localStorage.getItem(cislaProcvicJmeno + id)
-    if (cislo === null) {
-        setCisloProcvic(id, 2)
-        return 1
+export function getCisloProcvic(id: string): number[] {
+    const v = localStorage.getItem(cislaProcvicJmeno + id)
+    if (v === null) {
+        return [1, 0]
     }
-    return Number(cislo)
+    const cisla = v.split(",")
+    if (cisla.length == 1) {
+        return [Number(cisla[0]), 0]
+    } else if (cisla.length < 1) {
+        return [1, 0]
+    }
+    return [Number(cisla[0]), Number(cisla[1])]
 }
 
-export function setCisloProcvic(id: string, cislo: number) {
-    localStorage.setItem(cislaProcvicJmeno + id, String(cislo))
+export function setCisloProcvic(id: string, cisla: number[]) {
+    localStorage.setItem(cislaProcvicJmeno + id, cisla.join(","))
 }
 
 export function postKlavesnice(klavesnice: boolean) {
