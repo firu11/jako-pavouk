@@ -15,7 +15,7 @@ useHead({
     ]
 })
 
-const emit = defineEmits(["konec", "pise", "restart", "prodlouzit"])
+const emit = defineEmits(["konec", "pise", "restart", "prodlouzit", "napsane-slovo"])
 
 interface TextInterface {
     id: number;
@@ -190,7 +190,7 @@ function klik(e: Event) {
     if (!(e instanceof InputEvent)) return // typescript je sus, nemůžu dát do parametru rovnou InputEvent https://github.com/microsoft/TypeScript/issues/39925
     if (e.data == "") return
 
-    /* 
+    /*
     windows chrome i firefox:
     zmáčknu x = insertText, x, isComposing=false
     zmáčknu háček = nic
@@ -254,7 +254,7 @@ function klik(e: Event) {
         calcCas() // naposledy
         document.removeEventListener("keydown", specialniKlik)
         document.removeEventListener("click", checkFocus)
-        emit("konec", opravene.value, preklepy.value, chybyPismenka)
+        emit("konec", opravene.value, preklepy.value, chybyPismenka, 100)
         restart()
     }
 
@@ -283,17 +283,19 @@ async function posunoutRadek() {
 }
 
 async function vratitRadek() {
+    if (textElem.value === null) return
     let aktualniY = document.getElementById("p" + aktivniPismeno.value.id)?.getBoundingClientRect().y
     let lastY = document.getElementById("p" + (aktivniPismeno.value.id + 1))?.getBoundingClientRect().y
     if (lastY == undefined || aktualniY == undefined) return
     if (lastY - aktualniY > 30) {
         indexPosunuti--
-        textElem.value!.classList.add("animace")
-        textElem.value!.style.top = "0rem"
+        textElem.value.classList.add("animace")
+        textElem.value.style.top = "0rem"
         setTimeout(() => {
-            textElem.value!.classList.remove("animace")
+            if (textElem.value === null) return
+            textElem.value.classList.remove("animace")
             mistaPosunuti.value.pop()
-            if (indexPosunuti > 0) textElem.value!.style.top = "-2.35rem" // posunuti dolu
+            if (indexPosunuti > 0) textElem.value.style.top = "-2.35rem" // posunuti dolu
         }, 200)
     }
 }
@@ -480,7 +482,7 @@ function focusInput() {
 }
 
 function napoveda() {
-    if (route.path !== "/test-psani" && !/\/procvic\/\d+/.test(route.path) ) return false
+    if (route.path !== "/test-psani" && !/\/procvic\/\d+/.test(route.path)) return false
     let x = localStorage.getItem("pavouk_tutorial")
     return x == null
 }
@@ -489,16 +491,24 @@ function chapeNapovedu() {
     localStorage.setItem("pavouk_tutorial", "done")
 }
 
+watch(counterSlov, async (nev: number, old: number) => {
+    if (nev == old) return
+    emit("napsane-slovo", nev > old)
+})
+
 defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
 </script>
 
 <template>
     <div id="flex" ref="celyPsani">
         <div id="nabidka" :class="{ unfocused: unfocused }">
-            <h2 id="cas" :style="{ color: hideCasomira ? 'gray' : 'var(--bila)', opacity: (cass >= 3 && hideCasomira) ? '0' : '1' }">
+            <h2 id="cas"
+                :style="{ color: hideCasomira ? 'gray' : 'var(--bila)', opacity: (cass >= 3 && hideCasomira) ? '0' : '1' }">
                 {{ casFormat + "" }}
-                <button @click="toggleHideCasomira" id="hideCasomiru" title="Můžeš schovat časomíru po začátku, aby tě nerozptylovala při psaní.">
-                    <img v-show="hideCasomira" src="../assets/icony/okoSkrtnuty.svg" alt="Zobrazit" width="16" height="13">
+                <button @click="toggleHideCasomira" id="hideCasomiru"
+                    title="Můžeš schovat časomíru po začátku, aby tě nerozptylovala při psaní.">
+                    <img v-show="hideCasomira" src="../assets/icony/okoSkrtnuty.svg" alt="Zobrazit" width="16"
+                        height="13">
                     <img v-show="!hideCasomira" src="../assets/icony/oko.svg" alt="Schovat" width="16" height="13">
                 </button>
             </h2>
@@ -516,7 +526,8 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
                             'opravene-pismeno': p.spatne === 2 && aktivniPismeno.id > p.id,
                             'spravne-pismeno': (!p.spatne && aktivniPismeno.id > p.id) || !p.psat
                         }">
-                            {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp;") }} </div>
+                            {{ (p.znak !== " " ? p.znak : p.spatne && p.id < aktivniPismeno.id ? "_" : "&nbsp;") }}
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -525,22 +536,25 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
                 :style="{ display: unfocused ? 'block' : 'none', top: (route.fullPath == '/prvni-psani' || route.fullPath.split('/')[1] == 'prace') ? '200px' : '235px' }"
                 @click="input?.focus()">Klikni sem nebo zmáčkni <span class="klavesa-v-textu">Mezerník</span> !</span>
 
-            <input type="text" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off" ref="input" id="input" @input="klik"
-                @beforeinput="filterKlik">
+            <input type="text" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off" ref="input"
+                id="input" @input="klik" @beforeinput="filterKlik">
 
             <Transition>
                 <div v-show="klavesnice != ''">
-                    <Klavesnice :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak" :rozmazat="hideKlavesnice || prestalPsat"
-                        :cekame="(aktivniPismeno.id == 0 || aktivniPismeno.id == -1) && cass == 0" :full-hide="fullHideKlavesnice" />
+                    <Klavesnice :typ="klavesnice" :aktivniPismeno="aktivniPismeno.znak"
+                        :rozmazat="hideKlavesnice || prestalPsat"
+                        :cekame="(aktivniPismeno.id == 0 || aktivniPismeno.id == -1) && cass == 0"
+                        :full-hide="fullHideKlavesnice" />
                     <Tooltip v-if="props.resetBtn && (props.text.length != 0 || nacitamePodruhy)"
-                        zprava="Restart cvičení <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="120" :vzdalenost="6" :xOffset="385"
-                        :yOffset="-154">
+                        zprava="Restart cvičení <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="120"
+                        :vzdalenost="6" :xOffset="385" :yOffset="-154">
                         <div id="reset-btn" @click="resetTlacitko(); animace(); input?.focus();"
                             :class="{ schovat: route.fullPath == '/prvni-psani' }">
                             <img :style="{ transform: rotace }" src="../assets/icony/reset.svg" alt="Restart">
                         </div>
                     </Tooltip>
-                    <div v-if="props.resetBtn" id="hide-btn" @click="fullHideKlavesnice = !fullHideKlavesnice; input?.focus()"
+                    <div v-if="props.resetBtn" id="hide-btn"
+                        @click="fullHideKlavesnice = !fullHideKlavesnice; input?.focus()"
                         :class="{ schovat: route.fullPath == '/prvni-psani' }"
                         :style="{ top: route.fullPath.split('/')[1] == 'lekce' ? '-140px' : '-70px' }">
                         <img v-if="!fullHideKlavesnice" src="../assets/icony/oko.svg" alt="Schovat" width="34">
@@ -548,8 +562,10 @@ defineExpose({ restart, aktivniPismeno, fullHideKlavesnice, focusInput })
                     </div>
 
                     <div id="zvuk-btn" @click="toggleZvuk(); input?.focus()">
-                        <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvuk-icon" src="../assets/icony/zvukOn.svg" alt="Zvuky jsou zapnuté">
-                        <img v-else style="margin-left: 1px;" class="zvuk-icon" src="../assets/icony/zvukOff.svg" alt="Zvuky jsou vypnuté">
+                        <img v-if="zvukyZaply" style="margin-top: 1px;" class="zvuk-icon"
+                            src="../assets/icony/zvukOn.svg" alt="Zvuky jsou zapnuté">
+                        <img v-else style="margin-left: 1px;" class="zvuk-icon" src="../assets/icony/zvukOff.svg"
+                            alt="Zvuky jsou vypnuté">
                     </div>
                 </div>
             </Transition>

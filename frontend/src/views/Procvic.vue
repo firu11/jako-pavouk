@@ -37,29 +37,38 @@ const nacitamNovej = ref(false)
 
 const hideKlavecnice = ref(false)
 
-const chciZmenitJmeno = ref([] as { pismeno: number, jmeno: string, cislo: number }[])
+const chciZmenitJmeno = ref([] as { pismenoID: number, jmeno: string, cisloTextu: number }[])
+const cisloTextu = ref(1)
+const cisloSlovaPosledni = ref(0)
 
 function get() {
     nacitamNovej.value = true
-    const cislo = getCisloProcvic(typ)
+    const cisla = getCisloProcvic(typ)
 
-    axios.get(`/procvic/${typ}/${cislo}`, {
+    axios.get(`/procvic/${typ}/${cisla[0]}`, {
         headers: {
             Authorization: `Bearer ${getToken()}`
         }
     }).then(response => {
+        if (cisla[1] > response.data.text.length) {
+            console.log("prekrocili jsme")
+            setCisloProcvic(typ, [cisla[0] + 1, cisla[1] % response.data.text.length])
+            get()
+            return
+        }
         response.data.text.forEach((slovo: string, i: number) => {
-            text.value.push([])
-            const slovoArr = [...slovo]
-            slovoArr.forEach(pismeno => {
-                text.value[i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !okZnaky.test(pismeno) })
+            if (i < cisla[1]) return
+
+            const slovoInsert = [] as { id: number, znak: string, spatne: number, psat: boolean }[]
+            [...slovo].forEach(pismeno => {
+                slovoInsert.push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !okZnaky.test(pismeno) })
                 delkaTextu.value++
             })
+            text.value.push(slovoInsert)
         })
         jmeno.value = response.data.jmeno
         nazev.value = response.data.typ
-        if (response.data.cislo != cislo) setCisloProcvic(typ, 1)
-        else setCisloProcvic(typ, cislo + 1)
+        if (response.data.cislo != cisla[0]) setCisloProcvic(typ, [1, 0]) // jedeme od zacatku
 
         if (delkaTextu.value < 250) prodlouzit()
 
@@ -96,6 +105,7 @@ function restart() {
     text.value = [] as { id: number, znak: string, spatne: number, psat: boolean }[][]
     delkaTextu.value = 0
     chciZmenitJmeno.value = []
+    cisloSlovaPosledni.value = 0
 
     get()
     konec.value = false
@@ -107,6 +117,19 @@ function konecTextu(o: number, p: number, n: MojeMapa, d: number) {
     nejcastejsiChyby.value = new MojeMapa(n)
     konec.value = true
     delkaNapsanehoTextu.value = d
+
+    if (cisloSlovaPosledni.value < 0) cisloSlovaPosledni.value = 0
+    const cisla = getCisloProcvic(typ)
+    if (cisloTextu.value > cisla[0])
+        setCisloProcvic(typ, [cisloTextu.value, cisloSlovaPosledni.value])
+    else
+        setCisloProcvic(typ, [cisloTextu.value, cisla[1] + cisloSlovaPosledni.value])
+    cisloSlovaPosledni.value = 0
+}
+
+function napsaneSlovo(up: boolean) {
+    if (up) cisloSlovaPosledni.value++
+    else cisloSlovaPosledni.value--
 }
 
 const klavesnice = computed(() => {
@@ -157,9 +180,9 @@ async function loadAlternativy() {
 
 async function prodlouzit() {
     nacitamNovej.value = true
-    const cislo = getCisloProcvic(typ)
+    const cisla = getCisloProcvic(typ)
 
-    axios.get(`/procvic/${typ}/${cislo}`, {
+    axios.get(`/procvic/${typ}/${cisla[0] + 1}`, {
         headers: {
             Authorization: `Bearer ${getToken()}`
         }
@@ -187,7 +210,7 @@ async function prodlouzit() {
             text.value[pocetSlov - 1].push({ id: delkaTextu.value, znak: " ", spatne: 0, psat: true })
         }
 
-        chciZmenitJmeno.value.push({ pismeno: delkaTextu.value + 1, jmeno: response.data.jmeno, cislo: response.data.cislo })
+        chciZmenitJmeno.value.push({ pismenoID: delkaTextu.value + 1, jmeno: response.data.jmeno, cisloTextu: response.data.cislo })
 
         response.data.text.forEach((slovo: string, i: number) => {
             text.value.push([])
@@ -210,14 +233,18 @@ const a = computed(() => {
 })
 
 watch(a, () => {
-    if (chciZmenitJmeno.value.length < 1) return
+    if (a.value == undefined || chciZmenitJmeno.value.length == 0) return
 
-    chciZmenitJmeno.value.sort((a, b) => { return a.pismeno - b.pismeno })
+    const novy = chciZmenitJmeno.value[0]
 
-    if (a.value == chciZmenitJmeno.value[0].pismeno) {
-        jmeno.value = chciZmenitJmeno.value[0].jmeno
-        setCisloProcvic(typ, chciZmenitJmeno.value[0].cislo + 1)
+    if (a.value == novy.pismenoID) {
         chciZmenitJmeno.value.shift()
+        jmeno.value = novy.jmeno
+        cisloTextu.value = novy.cisloTextu
+        cisloSlovaPosledni.value = 0
+        setTimeout(() => {
+            cisloSlovaPosledni.value = Math.min(0, cisloSlovaPosledni.value - 1)
+        }, 10)
     }
 })
 
@@ -234,17 +261,21 @@ function refocus() {
     </h1>
     <h2>{{ jmeno }}</h2>
 
-    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="hideKlavecnice = false" @prodlouzit="prodlouzit" :text="text"
-        :klavesnice="klavesnice" :delkaTextu="delkaTextu" :hide-klavesnice="hideKlavecnice" :nacitam-novej="nacitamNovej"
-        :cas="menuRef == undefined ? 15 : menuRef.delka" ref="psaniRef" />
+    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="hideKlavecnice = false" @prodlouzit="prodlouzit"
+        :text="text" :klavesnice="klavesnice" :delkaTextu="delkaTextu" :hide-klavesnice="hideKlavecnice"
+        :nacitam-novej="nacitamNovej" :cas="menuRef == undefined ? 15 : menuRef.delka" ref="psaniRef"
+        @napsane-slovo="napsaneSlovo" />
 
-    <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaNapsanehoTextu"
-        :cas="menuRef == undefined ? 15 : menuRef.delka" :cislo="typ" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
+    <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet"
+        :delkaTextu="delkaNapsanehoTextu" :cas="menuRef == undefined ? 15 : menuRef.delka" :cislo="typ" :posledni="true"
+        :nejcastejsiChyby="nejcastejsiChyby" />
 
     <PsaniMenu class="psaniMenu" :class="{ hide: konec || !hideKlavecnice }" @restart="restart(); psaniRef?.restart()"
-        @toggle="toggleDiakritikaAVelkaPismena" @click="refocus" :vyberTextu="false" :bez-stinu="psaniRef?.fullHideKlavesnice" ref="menuRef" />
+        @toggle="toggleDiakritikaAVelkaPismena" @click="refocus" :vyberTextu="false"
+        :bez-stinu="psaniRef?.fullHideKlavesnice" ref="menuRef" />
 
-    <NastaveniBtn v-if="!konec && klavesnice != ''" @klik="hideKlavecnice = !hideKlavecnice; refocus(); psaniRef?.restart()" />
+    <NastaveniBtn v-if="!konec && klavesnice != ''"
+        @klik="hideKlavecnice = !hideKlavecnice; refocus(); psaniRef?.restart()" />
 </template>
 
 <style scoped>
