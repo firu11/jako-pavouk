@@ -2,7 +2,7 @@
 import { useRoute, useRouter } from "vue-router";
 import { clone, getCisloProcvic, getToken, MojeMapa, pridatOznameni, saveNastaveni, setCisloProcvic } from "../utils";
 import SipkaZpet from "../components/SipkaZpet.vue";
-import { computed, onMounted, ref, toRaw, watch } from "vue";
+import { computed, onMounted, ref, toRaw, watch, nextTick } from "vue";
 import axios from "axios";
 import Vysledek from "../components/Vysledek.vue";
 import { useHead } from "@unhead/vue";
@@ -50,7 +50,7 @@ function get() {
             Authorization: `Bearer ${getToken()}`
         }
     }).then(response => {
-        if (cisla[1] > response.data.text.length) {
+        if (cisla[1] > response.data.text.length - 1) {
             console.log("prekrocili jsme")
             setCisloProcvic(typ, [cisla[0] + 1, cisla[1] % response.data.text.length])
             get()
@@ -233,27 +233,30 @@ const a = computed(() => {
     return psaniRef.value?.aktivniPismeno.id
 })
 
-watch(a, async () => {
+let oldCisloSlovaPosledni: number = 0
+watch(a, async (nev, old) => {
+    await nextTick() // wait for "napsane-slovo" callback to increment
     if (a.value == undefined || chciZmenitJmeno.value.length == 0) return
 
-    let txt: {
-        pismenoID: number;
-        jmeno: string;
-        cisloTextu: number;
-    } | undefined
-    for (const v of chciZmenitJmeno.value) {
-        if (v.pismenoID <= a.value) {
-            txt = v
+    let i: number = -1
+    for (let j = 0; j < chciZmenitJmeno.value.length; j++) {
+        if (chciZmenitJmeno.value[j].pismenoID <= a.value) {
+            i = j
         } else break
     }
-    if (txt == undefined) return
+    if (i == -1 || chciZmenitJmeno.value[i].jmeno === jmeno.value) return
 
-    jmeno.value = txt.jmeno
-    cisloTextu.value = txt.cisloTextu
-    cisloSlovaPosledni.value = 0
-    setTimeout(() => {
-        cisloSlovaPosledni.value = Math.min(0, cisloSlovaPosledni.value - 1)
-    }, 10)
+    jmeno.value = chciZmenitJmeno.value[i].jmeno
+    cisloTextu.value = chciZmenitJmeno.value[i].cisloTextu
+    if (nev !== undefined && old !== undefined) {
+        if (nev > old) {
+            oldCisloSlovaPosledni = cisloSlovaPosledni.value - 1
+            cisloSlovaPosledni.value = 0
+        }
+        else
+            cisloSlovaPosledni.value = oldCisloSlovaPosledni
+    } else
+        cisloSlovaPosledni.value = 0
 })
 
 function refocus() {
