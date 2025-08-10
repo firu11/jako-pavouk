@@ -3,13 +3,13 @@ import { useHead } from "unhead";
 import { ref } from "vue";
 import { getToken, pridatOznameni } from "../utils";
 import axios from "axios";
-import { prihlasen, role } from "../stores";
+import { prihlasen, role, uziv } from "../stores";
 
 useHead({
     title: "Systém pro školy"
 })
 
-const email = ref("")
+const email = ref(uziv.value.email)
 const telefon = ref("+420")
 const skola = ref("")
 
@@ -69,8 +69,10 @@ function chekujUdaje() {
             <h2>Řazení žáků do tříd</h2>
             <div>
                 <p>
-                    Studenti se do tříd připojují pomocí <b>4-místného kódu</b>, který se s třídou automaticky vytvoří. <br>
-                    Vyučujícímu jsou ke každému žákovi dostupné <b>statistiky</b> a výsledky jeho předchozích prací. <br>
+                    Studenti se do tříd připojují pomocí <b>4-místného kódu</b>, který se s třídou automaticky vytvoří.
+                    <br>
+                    Vyučujícímu jsou ke každému žákovi dostupné <b>statistiky</b> a výsledky jeho předchozích prací.
+                    <br>
                     Studenty lze také <b>přesouvat mezi třídami</b>, nebo je z tříd odebírat.
                 </p>
             </div>
@@ -82,7 +84,8 @@ function chekujUdaje() {
             <div>
                 <p>
                     Práce jsou způsob, jak žákům zadat <b>specifický text</b> podle vašeho uvážení.
-                    Je tedy možné zadat nejen automaticky <b>vygenerovaný text</b> (z nabídky), ale i <b>libovolný text</b> (třeba zkopírovaný z
+                    Je tedy možné zadat nejen automaticky <b>vygenerovaný text</b> (z nabídky), ale i <b>libovolný
+                        text</b> (třeba zkopírovaný z
                     internetu).
                     Možnostem se meze nekladou.
                 </p>
