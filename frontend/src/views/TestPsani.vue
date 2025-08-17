@@ -73,10 +73,8 @@ function get() {
         if (response.data.klavesnice != undefined) menuRef.value.klavModel = response.data.klavesnice == "qwerty"
 
     }).catch(e => {
-        if (!checkTeapot(e)) {
-            console.log(e)
-            pridatOznameni()
-        }
+        console.log(e)
+        pridatOznameni()
     }).finally(() => {
         nacitamNovej.value = false
     })
@@ -193,10 +191,8 @@ async function prodlouzit() {
         })
 
     }).catch(e => {
-        if (!checkTeapot(e)) {
-            console.log(e)
-            pridatOznameni()
-        }
+        console.log(e)
+        pridatOznameni()
     }).finally(() => {
         nacitamNovej.value = false
     })
@@ -215,17 +211,20 @@ function refocus() {
     </h1>
     <h2>Typ: {{ menuRef != undefined ? (menuRef.typ ? "Věty" : "Slova") : " " }}</h2>
 
-    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="hideKlavecnice = false" @prodlouzit="prodlouzit" :text="text"
-        :klavesnice="klavesnice" :delkaTextu="delkaTextu" :hide-klavesnice="hideKlavecnice" :nacitam-novej="nacitamNovej"
-        :cas="menuRef == undefined ? 15 : menuRef.delka" ref="psaniRef" />
+    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="hideKlavecnice = false" @prodlouzit="prodlouzit"
+        :text="text" :klavesnice="klavesnice" :delkaTextu="delkaTextu" :hide-klavesnice="hideKlavecnice"
+        :nacitam-novej="nacitamNovej" :cas="menuRef == undefined ? 15 : menuRef.delka" ref="psaniRef" />
 
-    <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaNapsanehoTextu"
-        :cas="menuRef == undefined ? 15 : menuRef.delka" :cislo="'test-psani'" :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
+    <Vysledek v-else @restart="restart" :preklepy="preklepy" :opravenych="opravenePocet"
+        :delkaTextu="delkaNapsanehoTextu" :cas="menuRef == undefined ? 15 : menuRef.delka" :cislo="'test-psani'"
+        :posledni="true" :nejcastejsiChyby="nejcastejsiChyby" />
 
     <PsaniMenu class="psaniMenu" :class="{ hide: konec || !hideKlavecnice }" @restart="restart(); psaniRef.restart()"
-        @toggle="toggleDiakritikaAVelkaPismena" @click="refocus" :bez-stinu="psaniRef?.fullHideKlavesnice" ref="menuRef" />
+        @toggle="toggleDiakritikaAVelkaPismena" @click="refocus" :bez-stinu="psaniRef?.fullHideKlavesnice"
+        ref="menuRef" />
 
-    <NastaveniBtn v-if="!konec && klavesnice != ''" @klik="hideKlavecnice = !hideKlavecnice; refocus(); psaniRef?.restart()" />
+    <NastaveniBtn v-if="!konec && klavesnice != ''"
+        @klik="hideKlavecnice = !hideKlavecnice; refocus(); psaniRef?.restart()" />
 </template>
 
 <style scoped>
