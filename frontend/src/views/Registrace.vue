@@ -4,7 +4,7 @@ import { ref } from "vue";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
 import { prihlasen, tokenJmeno, uziv } from "../stores";
 import { pridatOznameni } from "../utils";
-import { useHead } from "unhead";
+import { useHead } from "@unhead/vue";
 
 useHead({
     title: "Registrace",
@@ -155,7 +155,7 @@ const handleLoginSuccess = (response: { credential: string}) => {
     }).then(response => {
         localStorage.setItem(tokenJmeno, response.data.token)
         prihlasen.value = true
-        
+
         uziv.value.email = response.data.email
         uziv.value.jmeno = response.data.jmeno
 

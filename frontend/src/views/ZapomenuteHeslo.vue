@@ -2,7 +2,7 @@
 import axios from "axios";
 import { onMounted, ref } from "vue";
 import { pridatOznameni } from "../utils";
-import { useHead } from "unhead";
+import { useHead } from "@unhead/vue";
 import { useRoute, useRouter } from "vue-router";
 
 useHead({

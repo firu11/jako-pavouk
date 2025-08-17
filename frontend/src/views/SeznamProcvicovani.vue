@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useHead } from "unhead";
+import { useHead } from "@unhead/vue";
 import { Oznacene, getToken, napovedaKNavigaci, pridatOznameni } from "../utils";
 import axios from "axios";
 import { onMounted, onUnmounted, ref } from "vue";

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useHead } from "unhead";
+import { useHead } from "@unhead/vue";
 import { ref } from "vue";
 import { pridatOznameni } from "../utils";
 

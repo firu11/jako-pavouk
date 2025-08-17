@@ -4,7 +4,7 @@ import BlokLekce from "../components/BlokLekce.vue";
 import Rada from "../components/Rada.vue"
 import { onMounted, onUnmounted, ref } from "vue";
 import { Oznacene, getToken, pridatOznameni, napovedaKNavigaci } from "../utils";
-import { useHead } from "unhead";
+import { useHead } from "@unhead/vue";
 import { useRouter } from "vue-router";
 import { mobil, prihlasen } from "../stores";
 

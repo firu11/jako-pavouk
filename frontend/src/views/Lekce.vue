@@ -5,7 +5,7 @@ import { useRouter, useRoute } from "vue-router";
 import { Oznacene, format, getToken, napovedaKNavigaci } from "../utils";
 import BlokCviceni from "../components/BlokCviceni.vue";
 import SipkaZpet from "../components/SipkaZpet.vue";
-import { useHead } from "unhead";
+import { useHead } from "@unhead/vue";
 
 const route = useRoute().params.pismena
 const pismena = Array.isArray(route) ? route[0] : route // sus proste kdyby nahodou to byl array jakoze nebude tak to indexnem

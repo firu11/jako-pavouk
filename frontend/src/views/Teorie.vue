@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useHead } from "unhead";
+import { useHead } from "@unhead/vue";
 
 useHead({
     title: "Jak psát všemi deseti",
