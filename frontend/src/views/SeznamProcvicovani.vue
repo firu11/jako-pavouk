@@ -51,9 +51,8 @@ onMounted(() => {
         o.setMax(response.data.texty.length + 1)
         randomCvic = Math.floor(Math.random() * response.data.texty.length) + 2
     }).catch(e => {
-        if (!checkTeapot(e)) {
-            pridatOznameni()
-        }
+        console.log(e)
+        pridatOznameni()
     })
     document.addEventListener("keydown", e1)
     document.addEventListener("keyup", e2)
@@ -154,9 +153,10 @@ onUnmounted(() => {
                 <AnimaceCisla class="cislo" :cislo="testPsaniCPM" /> CPM
             </span>
         </RouterLink>
-        <a v-else href="/test-psani" class="blok" :i="1 == o.index.value" style="user-select: none; margin-top: 5px;" @click="mobilKlik">
+        <a v-else href="/test-psani" class="blok" :i="1 == o.index.value" style="user-select: none; margin-top: 5px;"
+            @click="mobilKlik">
             <h3>Test psaní</h3>
-            <span v-if="texty.size != 0 && testPsaniCPM != -1" >
+            <span v-if="texty.size != 0 && testPsaniCPM != -1">
                 <AnimaceCisla class="cislo" :cislo="testPsaniCPM" /> CPM
             </span>
         </a>
@@ -166,10 +166,12 @@ onUnmounted(() => {
             <h2>{{ k }}</h2>
 
             <!-- eslint-disable-next-line vue/no-use-v-if-with-v-for -->
-            <RouterLink v-if="!mobil" v-for="t in texty.get(k)" :to="`/procvic/${t.id}`" class="blok" :i="t.cislo == o.index.value"
+            <RouterLink v-if="!mobil" v-for="t in texty.get(k)" :to="`/procvic/${t.id}`" class="blok"
+                :i="t.cislo == o.index.value"
                 :class="{ oznacene: t.cislo == o.index.value, nohover: o.index.value != 0 }" :key="t.id">
                 <h3>
-                    <Tooltip :sirka="100" :zprava="`${t.obtiznost == 1 ? 'Jednoduchá' : (t.obtiznost == 2 ? 'Střední' : 'Těžká')} obtížnost`"
+                    <Tooltip :sirka="100"
+                        :zprava="`${t.obtiznost == 1 ? 'Jednoduchá' : (t.obtiznost == 2 ? 'Střední' : 'Těžká')} obtížnost`"
                         :xOffset="-38" :vzdalenost="5">
                         <ObtiznostBar :o="t.obtiznost" />
                     </Tooltip>
@@ -181,7 +183,8 @@ onUnmounted(() => {
             </RouterLink>
             <div v-else v-for="t in texty.get(k)" class="blok" @click="mobilKlik" :key="t.jmeno">
                 <h3>
-                    <Tooltip :sirka="100" :zprava="`${t.obtiznost == 1 ? 'Jednoduchá' : (t.obtiznost == 2 ? 'Střední' : 'Těžká')} obtížnost`"
+                    <Tooltip :sirka="100"
+                        :zprava="`${t.obtiznost == 1 ? 'Jednoduchá' : (t.obtiznost == 2 ? 'Střední' : 'Těžká')} obtížnost`"
                         :xOffset="-28" :vzdalenost="5">
                         <ObtiznostBar :o="t.obtiznost" />
                     </Tooltip>
