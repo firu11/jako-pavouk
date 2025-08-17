@@ -5,7 +5,7 @@ import Klavesnice from "../components/Klavesnice.vue";
 import { Howl } from "howler";
 import { MojeMapa, pridatOznameni } from "../utils";
 import { useRoute } from "vue-router";
-import { useHead } from "unhead";
+import { useHead } from "@unhead/vue";
 import Tooltip from "../components/Tooltip.vue";
 import { os } from "../stores";
 

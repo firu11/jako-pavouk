@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useHead } from "unhead";
+import { useHead } from "@unhead/vue";
 import { onMounted, ref, useTemplateRef } from "vue";
 import { role } from "../stores";
 import { getToken, MojeMapa, pridatOznameni } from "../utils";

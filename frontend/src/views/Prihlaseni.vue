@@ -4,7 +4,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { prihlasen, tokenJmeno, uziv, role } from "../stores";
 import { checkTeapot, pridatOznameni } from "../utils";
-import { useHead } from "unhead";
+import { useHead } from "@unhead/vue";
 
 useHead({
     title: "Přihlášení",

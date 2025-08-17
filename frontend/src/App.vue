@@ -3,13 +3,13 @@ import { onMounted, ref, useTemplateRef, watch } from "vue";
 import MenuLink from "./components/MenuLink.vue";
 import { mobil, prihlasen, role, tokenJmeno, uziv } from "./stores";
 import { jeToRobot, getToken, oznameni, pridatOznameni } from "./utils";
-import { useHead } from "unhead";
+import { useHead } from "@unhead/vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 import Tooltip from "./components/Tooltip.vue";
 
 useHead({
-    titleTemplate: (title?: string) => title == "" || title == undefined ? "Psaní všemi deseti zdarma | Jako Pavouk" : `${title} | Jako Pavouk`
+    titleTemplate: (title?: string) => !title ? "Psaní všemi deseti zdarma | Jako Pavouk" : `${title} | Jako Pavouk`
 })
 
 const router = useRouter()
@@ -159,7 +159,8 @@ watch(() => uziv.value.jmeno, function () {
             <div v-for="(o, i) in oznameni" class="alert" :key="i">
                 <img v-if="o.typ == 'vykricnik'" src="./assets/icony/alert.svg" alt="Vykřičník">
                 <img v-else-if="o.typ == 'copy'" src="./assets/icony/copy.svg" alt="Zkopírováno">
-                <img v-else-if="o.typ == 'svisla-cara'" src="./assets/icony/info.svg" alt="Oznámení" id="svisla-cara-info">
+                <img v-else-if="o.typ == 'svisla-cara'" src="./assets/icony/info.svg" alt="Oznámení"
+                    id="svisla-cara-info">
                 <span v-html="o.text"></span>
             </div>
         </TransitionGroup>

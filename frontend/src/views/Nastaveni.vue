@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from "axios";
-import { useHead } from "unhead";
+import { useHead } from "@unhead/vue";
 import { onMounted, ref, useTemplateRef } from "vue";
 import { getToken, pridatOznameni, postKlavesnice } from "../utils";
 import { prihlasen, uziv } from "../stores";
