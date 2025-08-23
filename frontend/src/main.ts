@@ -7,7 +7,7 @@ import { createHead } from '@unhead/vue/client'
 import vue3GoogleLogin from "vue3-google-login";
 
 const app = createApp(App)
-const head = createHead();
+const head = createHead()
 
 axios.defaults.baseURL = "http://localhost:1323/api" // http:||localhost:1323|api na production jen |api
 
@@ -16,7 +16,7 @@ app.use(vue3GoogleLogin, {
 })
 
 app.use(router)
-app.use(head);
+app.use(head)
 app.mount("#app")
 
 console.log("%cCo sem koukáš koloušku?", "color: white; font-size: x-large") // troulin
