@@ -15,8 +15,9 @@ const router = useRouter()
 const route = useRoute()
 const typ: string = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
 
+const titleName = ref("Procvičování") // po fetchi změnim
 useHead({
-    title: "Procvičování" // po fetchi změnim
+    title: titleName
 })
 
 const text = ref([] as { id: number, znak: string, spatne: number, psat: boolean }[][]) // spatne: 0 ok, 1 spatne, 2 opraveno
@@ -80,9 +81,7 @@ function get() {
 
         if (response.data.klavesnice != undefined) menuRef.value.klavModel = response.data.klavesnice == "qwerty"
 
-        useHead({
-            title: nazev.value
-        })
+        titleName.value = nazev.value
     }).catch(e => {
         console.log(e)
         pridatOznameni()
