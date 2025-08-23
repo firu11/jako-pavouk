@@ -25,7 +25,6 @@ func GetLekce(uzivID uint) ([][]Lekce, error) {
 	if err != nil {
 		return lekce, err
 	}
-
 	defer rows.Close()
 
 	var skupina []Lekce
@@ -85,7 +84,7 @@ func GetTexty() ([]Procvic, error) {
 	if err != nil {
 		return texty, err
 	}
-
+	defer rows.Close()
 	err = scan.Rows(&texty, rows)
 
 	return texty, err
@@ -95,8 +94,8 @@ func GetProcvicovani(id, cislo int) (string, string, []string, int, error) {
 	var text, nazev, podnazev string
 	var realCislo int
 
-	r := DB.QueryRow(`WITH maximum AS ( SELECT MAX(cislo) as m FROM texty WHERE typ = $1) SELECT d.jmeno as nazev, t.jmeno as podnazev, t.txt, t.cislo FROM texty t JOIN druhy_textu d ON t.typ = d.id, maximum WHERE d.id = $1 AND t.cislo = ((($2 - 1) % maximum.m) + 1) LIMIT 1;`, id, cislo)
-	err := r.Scan(&nazev, &podnazev, &text, &realCislo)
+	row := DB.QueryRow(`WITH maximum AS ( SELECT MAX(cislo) as m FROM texty WHERE typ = $1) SELECT d.jmeno as nazev, t.jmeno as podnazev, t.txt, t.cislo FROM texty t JOIN druhy_textu d ON t.typ = d.id, maximum WHERE d.id = $1 AND t.cislo = ((($2 - 1) % maximum.m) + 1) LIMIT 1;`, id, cislo)
+	err := row.Scan(&nazev, &podnazev, &text, &realCislo)
 	if err != nil {
 		return "", "", []string{}, 0, err
 	}
@@ -135,7 +134,6 @@ func GetDokonceneCvicVLekci(uzivID uint, lekceID uint, pismena string) ([]Cvic, 
 	if err != nil {
 		return cviceniIDs, err
 	}
-
 	defer rows.Close()
 
 	for rows.Next() {
@@ -159,7 +157,6 @@ func GetRychlostiProcvic(uzivID uint) (map[int]float32, error) {
 	if err != nil {
 		return rychlosti, err
 	}
-
 	defer rows.Close()
 
 	for rows.Next() {
@@ -185,23 +182,22 @@ func GetLekceIDbyPismena(pismena string) (uint, error) {
 
 func GetCviceniVLekciByID(lekceID uint) ([]Cviceni, error) {
 	var cviceni []Cviceni
-
 	rows, err := DB.Query(`SELECT id, typ FROM cviceni WHERE lekce_id = $1 ORDER BY id;`, lekceID)
 	if err != nil {
 		return cviceni, err
 	}
-
+	defer rows.Close()
 	err = scan.Rows(&cviceni, rows)
 	return cviceni, err
 }
 
 func GetCviceniVLekciByPismena(uzivID uint, pismena string) ([]Cviceni, error) {
 	var cviceni []Cviceni
-
 	rows, err := DB.Query(`SELECT id, typ FROM cviceni WHERE lekce_id = (SELECT id FROM lekce where pismena = $1 LIMIT 1) ORDER BY id;`, pismena)
 	if err != nil {
 		return cviceni, err
 	}
+	defer rows.Close()
 	err = scan.Rows(&cviceni, rows)
 	if err != nil {
 		return cviceni, err
@@ -214,30 +210,33 @@ func GetCviceniVLekciByPismena(uzivID uint, pismena string) ([]Cviceni, error) {
 
 func GetUzivByID(uzivID uint) (Uzivatel, error) {
 	var uziv Uzivatel
-	row, err := DB.Query(`SELECT uz.*, CASE WHEN u.smazany THEN 0 ELSE COALESCE(u.skola_id, 0) END AS skola_id FROM uzivatel uz LEFT JOIN ucitel u ON u.uziv_id = uz.id WHERE uz.id = $1 AND NOT uz.smazany;`, uzivID)
+	row, err := DB.Query(`SELECT uz.*, CASE WHEN u.smazany THEN 0 ELSE COALESCE(u.skola_id, 0) END AS skola_id FROM uzivatel uz LEFT JOIN ucitel u ON u.uziv_id = uz.id WHERE uz.id = $1 AND NOT uz.smazany LIMIT 1;`, uzivID)
 	if err != nil {
 		return uziv, err
 	}
+	defer row.Close()
 	err = scan.Row(&uziv, row)
 	return uziv, err
 }
 
 func GetUzivByEmail(email string) (Uzivatel, error) {
 	var uziv Uzivatel
-	row, err := DB.Query(`SELECT uz.*, CASE WHEN u.smazany THEN 0 ELSE COALESCE(u.skola_id, 0) END AS skola_id FROM uzivatel uz LEFT JOIN ucitel u ON u.uziv_id = uz.id WHERE uz.email = $1 AND NOT uz.smazany;`, email)
+	row, err := DB.Query(`SELECT uz.*, CASE WHEN u.smazany THEN 0 ELSE COALESCE(u.skola_id, 0) END AS skola_id FROM uzivatel uz LEFT JOIN ucitel u ON u.uziv_id = uz.id WHERE uz.email = $1 AND NOT uz.smazany LIMIT 1;`, email)
 	if err != nil {
 		return uziv, err
 	}
+	defer row.Close()
 	err = scan.Row(&uziv, row)
 	return uziv, err
 }
 
 func GetUzivByJmeno(jmeno string) (Uzivatel, error) {
 	var uziv Uzivatel
-	row, err := DB.Query(`SELECT uz.*, CASE WHEN u.smazany THEN 0 ELSE COALESCE(u.skola_id, 0) END AS skola_id FROM uzivatel uz LEFT JOIN ucitel u ON u.uziv_id = uz.id WHERE uz.jmeno = $1 AND NOT uz.smazany;`, jmeno)
+	row, err := DB.Query(`SELECT uz.*, CASE WHEN u.smazany THEN 0 ELSE COALESCE(u.skola_id, 0) END AS skola_id FROM uzivatel uz LEFT JOIN ucitel u ON u.uziv_id = uz.id WHERE uz.jmeno = $1 AND NOT uz.smazany LIMIT 1;`, jmeno)
 	if err != nil {
 		return uziv, err
 	}
+	defer row.Close()
 	err = scan.Row(&uziv, row)
 	return uziv, err
 }
@@ -248,6 +247,7 @@ func GetVsechnyJmenaUziv() ([]string, error) {
 	if err != nil {
 		return uzivatele, err
 	}
+	defer rows.Close()
 	err = scan.Rows(&uzivatele, rows)
 	return uzivatele, err
 }
@@ -324,9 +324,7 @@ func GetUdajeProGraf(uzivID uint) ([13]float32, [13]float32, error) {
 	var rychlosti [13]float32
 	var presnosti [13]float32
 
-	var rows *sql.Rows
-	var err error
-	rows, err = DB.Query(`WITH dny AS ( SELECT CURRENT_DATE - gs.n AS datum FROM generate_series(0, 12, 1) AS gs (n) ), vsechny_zaznamy AS ( SELECT neopravene, delka_textu, cas, datum, ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ) AS opravene FROM dokoncene WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) UNION SELECT neopravene, delka_textu, cas, datum, ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ) AS opravene FROM dokoncene_procvic WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) ), vypocteny_dny AS ( SELECT datum::date, GREATEST( ( ( SUM(delka_textu) - 10 * SUM(neopravene) ) / SUM(cas)::NUMERIC ) * 60, 0 ) AS rychlost, COALESCE( ( ( SUM(delka_textu) - SUM(neopravene) - COALESCE(SUM(opravene), 0) ) / SUM(delka_textu)::NUMERIC ) * 100, -1 ) AS presnost FROM vsechny_zaznamy GROUP BY datum::date ) SELECT dny.datum, COALESCE(vypocteny_dny.rychlost, -1) AS rychlost, COALESCE(vypocteny_dny.presnost, -1) AS presnost FROM dny LEFT JOIN vypocteny_dny ON dny.datum = vypocteny_dny.datum ORDER BY dny.datum;`, uzivID)
+	rows, err := DB.Query(`WITH dny AS ( SELECT CURRENT_DATE - gs.n AS datum FROM generate_series(0, 12, 1) AS gs (n) ), vsechny_zaznamy AS ( SELECT neopravene, delka_textu, cas, datum, ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ) AS opravene FROM dokoncene WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) UNION SELECT neopravene, delka_textu, cas, datum, ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ) AS opravene FROM dokoncene_procvic WHERE uziv_id = $1 AND datum::date > CURRENT_DATE - MAKE_INTERVAL(days => 13) ), vypocteny_dny AS ( SELECT datum::date, GREATEST( ( ( SUM(delka_textu) - 10 * SUM(neopravene) ) / SUM(cas)::NUMERIC ) * 60, 0 ) AS rychlost, COALESCE( ( ( SUM(delka_textu) - SUM(neopravene) - COALESCE(SUM(opravene), 0) ) / SUM(delka_textu)::NUMERIC ) * 100, -1 ) AS presnost FROM vsechny_zaznamy GROUP BY datum::date ) SELECT dny.datum, COALESCE(vypocteny_dny.rychlost, -1) AS rychlost, COALESCE(vypocteny_dny.presnost, -1) AS presnost FROM dny LEFT JOIN vypocteny_dny ON dny.datum = vypocteny_dny.datum ORDER BY dny.datum;`, uzivID)
 	if err != nil {
 		return rychlosti, presnosti, err
 	}
@@ -472,7 +470,6 @@ func GetSlovaProLekci(uzivID uint, pismena string, pocet int, tridaID uint) ([]s
 			return vysledek, err
 		}
 	}
-
 	defer rows.Close()
 
 	var slovo string
@@ -549,6 +546,7 @@ func GetNeoverenyUziv(email string) (NeoUziv, error) {
 	if err != nil {
 		return uziv, err
 	}
+	defer row.Close()
 	err = scan.Row(&uziv, row)
 	return uziv, err
 }
@@ -593,6 +591,7 @@ func GetZmenuHesla(email string) (ZmenaHeslaUziv, error) {
 	if err != nil {
 		return uziv, err
 	}
+	defer row.Close()
 	err = scan.Row(&uziv, row)
 	return uziv, err
 }
