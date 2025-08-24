@@ -3,7 +3,7 @@ import "./style.css";
 import App from "./App.vue";
 import router from "./router.ts";
 import axios from "axios";
-import { createHead } from '@unhead/vue/client'
+import { createHead } from '@unhead/vue/client';
 import vue3GoogleLogin from "vue3-google-login";
 
 const app = createApp(App)
