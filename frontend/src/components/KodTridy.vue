@@ -41,15 +41,18 @@ function zamek() {
     <div id="kod">
         <div>
             <Tooltip zprava="Kliknutím zkopírujete" :sirka="192" :vzdalenost="6">
-                <span @click="copy" :class="{ 'zamknuty-kod': zamknuta }">{{ props.kod == undefined ? "----" : props.kod }}</span>
+                <span @click="copy" :class="{ 'zamknuty-kod': zamknuta }">
+                    {{ props.kod == undefined ? "----" : props.kod }}
+                </span>
             </Tooltip>
-            <Tooltip zprava="Uzamknout/Odemknout přístup novým žákům do této třídy" :sirka="192" :vzdalenost="6">
+            <Tooltip zprava="Zamknout/odemknout přístup novým žákům do této třídy" :sirka="192" :vzdalenost="6">
                 <img v-if="!zamknuta" src="../assets/icony/zamekOpen.svg" alt="Odemčená třída" @click="zamek()">
                 <img v-else src="../assets/icony/zamekClosed.svg" alt="Zamčená třída" @click="zamek()">
             </Tooltip>
         </div>
-        <a :class="{ 'zamknuty-kod': zamknuta }" :href="'https://jakopavouk.cz/zapis/' + props.kod" target="_blank">jakopavouk.cz/zapis/{{ props.kod
-            }}</a>
+        <a :class="{ 'zamknuty-kod': zamknuta }" :href="'https://jakopavouk.cz/zapis/' + props.kod" target="_blank">
+            jakopavouk.cz/zapis/{{ props.kod }}
+        </a>
     </div>
 </template>
 <style scoped>
