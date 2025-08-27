@@ -1,58 +1,61 @@
 <script setup lang="ts">
-import axios from "axios";
-import { getToken, pridatOznameni } from "../utils";
-import { ref } from "vue";
-import Tooltip from "./Tooltip.vue"
+import axios from 'axios';
+import { getToken, pridatOznameni } from '../utils';
+import { ref } from 'vue';
+import Tooltip from './Tooltip.vue';
 
 const props = defineProps({
     id: Number,
     kod: String,
     zamknuta: Boolean,
-})
+});
 
-const zamknuta = ref(props.zamknuta)
+const zamknuta = ref(props.zamknuta);
 
 function copy() {
-    if (!props.kod) return
+    if (!props.kod) return;
     if (zamknuta.value) {
-        pridatOznameni("Třída je zamknutá, a tak se do ní nikdo další nemůže připojit.")
-        return
+        pridatOznameni('Třída je zamknutá, a tak se do ní nikdo další nemůže připojit.');
+        return;
     }
-    navigator.clipboard.writeText(props.kod)
-    pridatOznameni("Zkopírováno!", undefined, "copy")
+    navigator.clipboard.writeText(props.kod);
+    pridatOznameni('Zkopírováno!', undefined, 'copy');
 }
 
 function zamek() {
-    zamknuta.value = !zamknuta.value
+    zamknuta.value = !zamknuta.value;
 
-    axios.post("/skola/zmena-tridy", { trida_id: props.id, zmena: "zamek" }, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).catch(e => {
-        console.log(e)
-        pridatOznameni("Chyba serveru")
-        zamknuta.value = !zamknuta.value
-    })
+    axios
+        .post(
+            '/skola/zmena-tridy',
+            { trida_id: props.id, zmena: 'zamek' },
+            {
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                },
+            },
+        )
+        .catch((e) => {
+            console.log(e);
+            pridatOznameni('Chyba serveru');
+            zamknuta.value = !zamknuta.value;
+        });
 }
-
 </script>
 <template>
     <div id="kod">
         <div>
             <Tooltip zprava="Kliknutím zkopírujete" :sirka="192" :vzdalenost="6">
                 <span @click="copy" :class="{ 'zamknuty-kod': zamknuta }">
-                    {{ props.kod == undefined ? "----" : props.kod }}
+                    {{ props.kod == undefined ? '----' : props.kod }}
                 </span>
             </Tooltip>
             <Tooltip zprava="Zamknout/odemknout přístup novým žákům do této třídy" :sirka="192" :vzdalenost="6">
-                <img v-if="!zamknuta" src="../assets/icony/zamekOpen.svg" alt="Odemčená třída" @click="zamek()">
-                <img v-else src="../assets/icony/zamekClosed.svg" alt="Zamčená třída" @click="zamek()">
+                <img v-if="!zamknuta" src="../assets/icony/zamekOpen.svg" alt="Odemčená třída" @click="zamek()" />
+                <img v-else src="../assets/icony/zamekClosed.svg" alt="Zamčená třída" @click="zamek()" />
             </Tooltip>
         </div>
-        <a :class="{ 'zamknuty-kod': zamknuta }" :href="'https://jakopavouk.cz/zapis/' + props.kod" target="_blank">
-            jakopavouk.cz/zapis/{{ props.kod }}
-        </a>
+        <a :class="{ 'zamknuty-kod': zamknuta }" :href="'https://jakopavouk.cz/zapis/' + props.kod" target="_blank"> jakopavouk.cz/zapis/{{ props.kod }} </a>
     </div>
 </template>
 <style scoped>
@@ -68,7 +71,7 @@ function zamek() {
     width: 250px;
 }
 
-#kod>div {
+#kod > div {
     font-size: 32px;
     display: flex;
     gap: 5px;
@@ -82,7 +85,7 @@ function zamek() {
     letter-spacing: 6px;
 }
 
-#kod>div * {
+#kod > div * {
     transition: 0.2s;
 }
 

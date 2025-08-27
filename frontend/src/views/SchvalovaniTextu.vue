@@ -4,24 +4,27 @@ import TextZadani from '../components/ucitel/TextZadani.vue';
 import axios from 'axios';
 import { getToken, pridatOznameni } from '../utils';
 
-const textovePole = useTemplateRef("textove-pole")
+const textovePole = useTemplateRef('textove-pole');
 
-const nazev = ref("")
+const nazev = ref('');
 
 onMounted(() => {
-    get()
-})
+    get();
+});
 
 function get() {
-    axios.get("/sus", {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(resp => {
-        textovePole.value!.text = resp.data.text
-    }).catch(() => {
-        pridatOznameni()
-    })
+    axios
+        .get('/sus', {
+            headers: {
+                Authorization: `Bearer ${getToken()}`,
+            },
+        })
+        .then((resp) => {
+            textovePole.value!.text = resp.data.text;
+        })
+        .catch(() => {
+            pridatOznameni();
+        });
 }
 </script>
 <template>
@@ -53,7 +56,7 @@ function get() {
     resize: none;
     z-index: 2;
     line-height: 21px;
-    font-family: "Red Hat Mono", monospace;
+    font-family: 'Red Hat Mono', monospace;
     border-radius: 5px;
     margin-top: 10px;
 }

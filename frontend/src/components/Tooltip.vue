@@ -1,78 +1,77 @@
 <script setup lang="ts">
-import { onUnmounted, ref, useTemplateRef, watch } from "vue";
-import { onMounted } from "vue";
+import { onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { onMounted } from 'vue';
 
 const props = defineProps({
     zprava: String,
     sirka: Number,
     xOffset: {
         type: Number,
-        default: 0
+        default: 0,
     },
     yOffset: {
         type: Number,
-        default: 0
+        default: 0,
     },
     vzdalenost: {
         type: Number,
-        default: 15
+        default: 15,
     },
     vzdalenostX: {
         type: Number,
-        default: 0
-    }
-})
+        default: 0,
+    },
+});
 
-const obsah = useTemplateRef("obsah")
-const tip = useTemplateRef("tip")
-const y = ref(props.vzdalenost + document.documentElement.scrollTop)
+const obsah = useTemplateRef('obsah');
+const tip = useTemplateRef('tip');
+const y = ref(props.vzdalenost + document.documentElement.scrollTop);
 
 onMounted(() => {
-    recalc()
-    recalcTipY()
-    setTimeout(recalcTipY, 100)
-    window.addEventListener('resize', recalc)
-})
+    recalc();
+    recalcTipY();
+    setTimeout(recalcTipY, 100);
+    window.addEventListener('resize', recalc);
+});
 
 onUnmounted(() => {
-    window.removeEventListener('resize', recalc)
-})
+    window.removeEventListener('resize', recalc);
+});
 
 function getPageTopLeft(el: Element) {
-    var rect = el.getBoundingClientRect()
-    var docEl = document.documentElement
+    var rect = el.getBoundingClientRect();
+    var docEl = document.documentElement;
     return {
         left: rect.left + (window.scrollX || docEl.scrollLeft || 0),
-        top: rect.top + (window.scrollY || docEl.scrollTop || 0)
-    }
+        top: rect.top + (window.scrollY || docEl.scrollTop || 0),
+    };
 }
 
 function recalcTipY() {
-    if (obsah.value == null) return
-    y.value = obsah.value.getBoundingClientRect().bottom + props.vzdalenost
+    if (obsah.value == null) return;
+    y.value = obsah.value.getBoundingClientRect().bottom + props.vzdalenost;
 }
 
 function recalc() {
-    if (tip.value == null) return
-    tip.value.style.removeProperty("left")
-    tip.value.style.removeProperty("right")
+    if (tip.value == null) return;
+    tip.value.style.removeProperty('left');
+    tip.value.style.removeProperty('right');
 
-    let left = getPageTopLeft(tip.value).left + props.vzdalenostX + props.xOffset
+    let left = getPageTopLeft(tip.value).left + props.vzdalenostX + props.xOffset;
     if (left + props.sirka! > document.body.clientWidth) {
-        tip.value.style.right = `12px`
+        tip.value.style.right = `12px`;
     } else {
         if (obsah.value == null || typeof obsah.value.getBoundingClientRect !== 'function') {
-            tip.value.style.left = `${props.vzdalenostX + document.documentElement.scrollLeft}px`
+            tip.value.style.left = `${props.vzdalenostX + document.documentElement.scrollLeft}px`;
         } else if (props.xOffset == 0 && props.vzdalenostX == 0) {
-            return // nevim co to dělá no nic
+            return; // nevim co to dělá no nic
         } else {
-            tip.value.style.left = `${obsah.value.getBoundingClientRect().left + obsah.value.getBoundingClientRect().width / 2 - props.sirka! / 2 + props.vzdalenostX}px`
+            tip.value.style.left = `${obsah.value.getBoundingClientRect().left + obsah.value.getBoundingClientRect().width / 2 - props.sirka! / 2 + props.vzdalenostX}px`;
         }
     }
 }
 
-watch(obsah, recalc)
-
+watch(obsah, recalc);
 </script>
 
 <template>
@@ -80,8 +79,7 @@ watch(obsah, recalc)
         <div id="obsah" ref="obsah" :style="{ top: `${props.yOffset}px`, left: `${props.xOffset}px` }">
             <slot />
         </div>
-        <div id="tooltip" :style="{ top: `${y}px`, width: `${props.sirka == null ? obsah!.getBoundingClientRect().width * 2.2 : props.sirka}px` }"
-            v-html="zprava" ref="tip" />
+        <div id="tooltip" :style="{ top: `${y}px`, width: `${props.sirka == null ? obsah!.getBoundingClientRect().width * 2.2 : props.sirka}px` }" v-html="zprava" ref="tip" />
     </div>
 </template>
 
@@ -102,7 +100,7 @@ watch(obsah, recalc)
     transition: 0.1s opacity;
 }
 
-#obsah:hover~#tooltip {
+#obsah:hover ~ #tooltip {
     opacity: 100%;
     transition-delay: 0.4s;
 }

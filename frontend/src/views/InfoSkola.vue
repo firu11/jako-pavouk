@@ -1,54 +1,62 @@
 <script setup lang="ts">
-import { useHead } from "@unhead/vue";
-import { ref } from "vue";
-import { getToken, pridatOznameni } from "../utils";
-import axios from "axios";
-import { prihlasen, role, uziv } from "../stores";
+import { useHead } from '@unhead/vue';
+import { ref } from 'vue';
+import { getToken, pridatOznameni } from '../utils';
+import axios from 'axios';
+import { prihlasen, role, uziv } from '../stores';
 
 useHead({
-    title: "Systém pro školy"
-})
+    title: 'Systém pro školy',
+});
 
-const email = ref(uziv.value.email)
-const telefon = ref("+420")
-const skola = ref("")
+const email = ref(uziv.value.email);
+const telefon = ref('+420');
+const skola = ref('');
 
-const odeslano = ref(false)
-const odesilame = ref(false)
+const odeslano = ref(false);
+const odesilame = ref(false);
 
 function potvrdit(e: Event) {
-    e.preventDefault()
-    if (chekujUdaje() == false || role.value == "student") return
+    e.preventDefault();
+    if (chekujUdaje() == false || role.value == 'student') return;
     if (email.value.length == 0 || telefon.value.length <= 4 || skola.value.length == 0) {
-        pridatOznameni("Vyplň prosím všechna pole!")
-        return
+        pridatOznameni('Vyplň prosím všechna pole!');
+        return;
     }
-    odesilame.value = true
-    axios.post("/skola/zapis-skoly", {
-        "jmeno_skoly": skola.value,
-        "kontaktni_email": email.value,
-        "kontaktni_telefon": telefon.value
-    }, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(() => {
-        odeslano.value = true
-        role.value = "ucitel"
-    }).catch(e => {
-        pridatOznameni(e.response.data.error)
-    }).finally(() => {
-        odesilame.value = false
-    })
+    odesilame.value = true;
+    axios
+        .post(
+            '/skola/zapis-skoly',
+            {
+                jmeno_skoly: skola.value,
+                kontaktni_email: email.value,
+                kontaktni_telefon: telefon.value,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                },
+            },
+        )
+        .then(() => {
+            odeslano.value = true;
+            role.value = 'ucitel';
+        })
+        .catch((e) => {
+            pridatOznameni(e.response.data.error);
+        })
+        .finally(() => {
+            odesilame.value = false;
+        });
 }
 
 function chekujUdaje() {
-    if (email.value && !/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/g.test(email.value)) pridatOznameni("Špatný formát e-mailu.")
-    else if (telefon.value != "+420" && !/^\+[0-9]{6,15}$/g.test(telefon.value)) pridatOznameni("Telefon musí být ve formátu: +420123456789 <br>(předčíslí a číslo nez mezer)")
-    else return true
-    return false
+    if (email.value && !/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/g.test(email.value))
+        pridatOznameni('Špatný formát e-mailu.');
+    else if (telefon.value != '+420' && !/^\+[0-9]{6,15}$/g.test(telefon.value)) pridatOznameni('Telefon musí být ve formátu: +420123456789 <br>(předčíslí a číslo nez mezer)');
+    else return true;
+    return false;
 }
-
 </script>
 
 <template>
@@ -56,23 +64,23 @@ function chekujUdaje() {
 
     <div class="bloky">
         <video controls controlslist="nodownload" width="100%">
-            <source src="/skolni_system.mp4">
+            <source src="/skolni_system.mp4" />
             Váš prohlížeč neumí přehrát toto video.
             <a href="/skolni_system.mp4" download="/skolni_system.mp4">Tady</a> si ho můžete zkusit stáhnout.
         </video>
     </div>
     <div class="specialni-blok bloky">
         <div class="obrazek">
-            <img src="../assets/seznamZaku.svg" alt="Seznam žáků">
+            <img src="../assets/seznamZaku.svg" alt="Seznam žáků" />
         </div>
         <div class="text">
             <h2>Řazení žáků do tříd</h2>
             <div>
                 <p>
                     Studenti se do tříd připojují pomocí <b>4-místného kódu</b>, který se s třídou automaticky vytvoří.
-                    <br>
+                    <br />
                     Vyučujícímu jsou ke každému žákovi dostupné <b>statistiky</b> a výsledky jeho předchozích prací.
-                    <br>
+                    <br />
                     Studenty lze také <b>přesouvat mezi třídami</b>, nebo je z tříd odebírat.
                 </p>
             </div>
@@ -83,58 +91,53 @@ function chekujUdaje() {
             <h2>Zadávání prací</h2>
             <div>
                 <p>
-                    Práce jsou způsob, jak žákům zadat <b>specifický text</b> podle vašeho uvážení.
-                    Je tedy možné zadat nejen automaticky <b>vygenerovaný text</b> (z nabídky), ale i <b>libovolný
-                        text</b> (třeba zkopírovaný z
-                    internetu).
-                    Možnostem se meze nekladou.
+                    Práce jsou způsob, jak žákům zadat <b>specifický text</b> podle vašeho uvážení. Je tedy možné zadat nejen automaticky <b>vygenerovaný text</b> (z nabídky), ale i
+                    <b>libovolný text</b> (třeba zkopírovaný z internetu). Možnostem se meze nekladou.
                 </p>
             </div>
         </div>
         <div class="obrazek">
-            <img src="../assets/praceZadani.svg" alt="Textové pole na zadání práce">
+            <img src="../assets/praceZadani.svg" alt="Textové pole na zadání práce" />
         </div>
     </div>
     <div class="bloky">
         <div class="text">
             <h2>Cena, platba a zkušební období</h2>
             <p>
-                <b>Zdarma</b> můžete po dobu <b>tří měsíců</b> vyzkoušet systém s libovolným počtem žáků.
-                Po jeho uplynutí je cena na žáka jednorázová. Od <b>99Kč</b> za nového žáka.
-                Fakturace probíhá <b>jednou ročně bankovním převodem</b>.
+                <b>Zdarma</b> můžete po dobu <b>tří měsíců</b> vyzkoušet systém s libovolným počtem žáků. Po jeho uplynutí je cena na žáka jednorázová. Od <b>99Kč</b> za nového žáka. Fakturace
+                probíhá <b>jednou ročně bankovním převodem</b>.
             </p>
         </div>
     </div>
     <div class="bloky" id="formular">
         <h2>Formulář pro zařazení školy</h2>
-        <hr id="predel">
+        <hr id="predel" />
         <div class="container">
             <div id="ilustrace">
-                <img src="../assets/pavoukSkola.svg" alt="Pavouk a škola">
+                <img src="../assets/pavoukSkola.svg" alt="Pavouk a škola" />
                 <p>Po odeslání tohoto formuláře si budete moct systém okamžitě vyzkoušet!</p>
             </div>
             <div v-if="!odeslano && !prihlasen">
-                <p>
-                    Před vyplněním formuláře se prosím přihlašte, a nebo pokud účet ještě nemáte, založte si ho prosím.
-                </p>
+                <p>Před vyplněním formuláře se prosím přihlašte, a nebo pokud účet ještě nemáte, založte si ho prosím.</p>
             </div>
             <form v-if="!odeslano && prihlasen" @submit="potvrdit">
                 <div>
                     <label for="skola">Jméno školy</label>
-                    <input type="text" id="skola" placeholder="Např: Gymnázium pana Pavouka" v-model="skola">
+                    <input type="text" id="skola" placeholder="Např: Gymnázium pana Pavouka" v-model="skola" />
                 </div>
                 <div>
                     <h2>Kontaktní osoba</h2>
                     <label for="email">E-mail</label>
-                    <input type="email" id="email" placeholder="Např: pavoukova@jakopavouk.cz" v-model="email">
+                    <input type="email" id="email" placeholder="Např: pavoukova@jakopavouk.cz" v-model="email" />
                     <label for="tel">Telefonní číslo</label>
-                    <input type="tel" id="tel" placeholder="Např: +420123456789" v-model="telefon">
+                    <input type="tel" id="tel" placeholder="Např: +420123456789" v-model="telefon" />
                 </div>
                 <button class="tlacitko" type="submit" :disabled="odesilame">Odeslat</button>
             </form>
             <div v-if="odeslano">
                 <p>
-                    Díky za registraci školy! <br> Vlevo v navigaci se vám objevila záložka jménem "Škola". Začněte tam!
+                    Díky za registraci školy! <br />
+                    Vlevo v navigaci se vám objevila záložka jménem "Škola". Začněte tam!
                 </p>
             </div>
         </div>
@@ -151,28 +154,28 @@ function chekujUdaje() {
     padding: 0;
 }
 
-.specialni-blok>.obrazek {
+.specialni-blok > .obrazek {
     align-self: center;
     display: flex;
     height: 85%;
     width: 80%;
 }
 
-.specialni-blok>.obrazek:first-of-type {
+.specialni-blok > .obrazek:first-of-type {
     overflow: hidden !important;
     width: auto;
 }
 
-.specialni-blok>.obrazek:first-of-type>img {
+.specialni-blok > .obrazek:first-of-type > img {
     width: 150%;
     height: 100%;
 }
 
-.specialni-blok>.obrazek>img {
+.specialni-blok > .obrazek > img {
     width: 100%;
 }
 
-.specialni-blok>.text {
+.specialni-blok > .text {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -203,23 +206,23 @@ function chekujUdaje() {
     gap: 8px;
 }
 
-#formular>div {
+#formular > div {
     display: flex;
     align-items: center;
 }
 
-#formular>div #ilustrace {
+#formular > div #ilustrace {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.5em;
 }
 
-#formular>div #ilustrace>img {
+#formular > div #ilustrace > img {
     width: 240px;
 }
 
-#formular>div>div:not(#ilustrace) {
+#formular > div > div:not(#ilustrace) {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -243,7 +246,7 @@ form h2 {
     font-size: 19px;
 }
 
-form>div {
+form > div {
     display: flex;
     flex-direction: column;
 }
@@ -290,11 +293,11 @@ h1 {
         gap: 2em;
     }
 
-    #formular>div #ilustrace>img {
+    #formular > div #ilustrace > img {
         display: none;
     }
 
-    #formular>div #ilustrace>p {
+    #formular > div #ilustrace > p {
         max-width: 90%;
     }
 
@@ -310,7 +313,7 @@ h1 {
         width: 97%;
     }
 
-    form>div {
+    form > div {
         width: 60%;
     }
 
@@ -320,7 +323,7 @@ h1 {
         max-width: 400px;
     }
 
-    .obrazek>img {
+    .obrazek > img {
         max-width: none;
         width: 100% !important;
     }
@@ -343,7 +346,7 @@ h1 {
         width: 98%;
     }
 
-    form>div {
+    form > div {
         width: 85%;
     }
 
