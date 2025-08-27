@@ -1,164 +1,164 @@
 <script setup lang="ts">
-import { useHead } from "@unhead/vue";
-import { Oznacene, getToken, napovedaKNavigaci, pridatOznameni } from "../utils";
-import axios from "axios";
-import { onMounted, onUnmounted, ref } from "vue";
-import { mobil } from "../stores";
-import ObtiznostBar from "../components/ObtiznostBar.vue";
-import Tooltip from "../components/Tooltip.vue";
-import AnimaceCisla from "../components/AnimaceCisla.vue";
+import { useHead } from '@unhead/vue';
+import { Oznacene, getToken, napovedaKNavigaci, pridatOznameni } from '../utils';
+import axios from 'axios';
+import { onMounted, onUnmounted, ref } from 'vue';
+import { mobil } from '../stores';
+import ObtiznostBar from '../components/ObtiznostBar.vue';
+import Tooltip from '../components/Tooltip.vue';
+import AnimaceCisla from '../components/AnimaceCisla.vue';
 
 useHead({
-    title: "Procvičování",
+    title: 'Procvičování',
     link: [
         {
-            rel: "canonical",
-            href: "https://jakopavouk.cz/procvic"
-        }
-    ]
-})
+            rel: 'canonical',
+            href: 'https://jakopavouk.cz/procvic',
+        },
+    ],
+});
 
-const texty = ref(new Map<string, { id: number, jmeno: string, cpm: number, cislo: number, obtiznost: number }[]>())
-const testPsaniCPM = ref(-1)
-const o = new Oznacene()
-let randomCvic = 1
+const texty = ref(new Map<string, { id: number; jmeno: string; cpm: number; cislo: number; obtiznost: number }[]>());
+const testPsaniCPM = ref(-1);
+const o = new Oznacene();
+let randomCvic = 1;
 
 onMounted(() => {
-    axios.get("/procvic", {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(response => {
-        response.data.texty.forEach((txt: { id: number, jmeno: string, cpm: number, kategorie: string, obtiznost: number }) => {
-            let a = texty.value.get(txt.kategorie)
-
-            if (a) {
-                a.push({ id: txt.id, jmeno: txt.jmeno, cpm: txt.cpm, cislo: NaN, obtiznost: txt.obtiznost })
-            } else {
-                texty.value.set(txt.kategorie, [{ id: txt.id, jmeno: txt.jmeno, cpm: txt.cpm, cislo: NaN, obtiznost: txt.obtiznost }])
-            }
+    axios
+        .get('/procvic', {
+            headers: {
+                Authorization: `Bearer ${getToken()}`,
+            },
         })
-        let c = 2
-        sortKategorii(texty.value.keys()).forEach((v) => {
-            let procvic = texty.value.get(v)!
-            procvic.sort((a, b) => a.obtiznost - b.obtiznost || a.jmeno.localeCompare(b.jmeno))
-            for (let i = 0; i < procvic.length; i++) {
-                procvic[i].cislo = c
-                c++
-            }
-        })
-        testPsaniCPM.value = response.data.testPsaniCPM
-        o.setMax(response.data.texty.length + 1)
-        randomCvic = Math.floor(Math.random() * response.data.texty.length) + 2
-    }).catch(e => {
-        console.log(e)
-        pridatOznameni()
-    })
-    document.addEventListener("keydown", e1)
-    document.addEventListener("keyup", e2)
-    document.addEventListener("mousemove", zrusitVyber)
-})
+        .then((response) => {
+            response.data.texty.forEach((txt: { id: number; jmeno: string; cpm: number; kategorie: string; obtiznost: number }) => {
+                let a = texty.value.get(txt.kategorie);
 
-let jede = false
-let ms = 120
+                if (a) {
+                    a.push({ id: txt.id, jmeno: txt.jmeno, cpm: txt.cpm, cislo: NaN, obtiznost: txt.obtiznost });
+                } else {
+                    texty.value.set(txt.kategorie, [{ id: txt.id, jmeno: txt.jmeno, cpm: txt.cpm, cislo: NaN, obtiznost: txt.obtiznost }]);
+                }
+            });
+            let c = 2;
+            sortKategorii(texty.value.keys()).forEach((v) => {
+                let procvic = texty.value.get(v)!;
+                procvic.sort((a, b) => a.obtiznost - b.obtiznost || a.jmeno.localeCompare(b.jmeno));
+                for (let i = 0; i < procvic.length; i++) {
+                    procvic[i].cislo = c;
+                    c++;
+                }
+            });
+            testPsaniCPM.value = response.data.testPsaniCPM;
+            o.setMax(response.data.texty.length + 1);
+            randomCvic = Math.floor(Math.random() * response.data.texty.length) + 2;
+        })
+        .catch((e) => {
+            console.log(e);
+            pridatOznameni();
+        });
+    document.addEventListener('keydown', e1);
+    document.addEventListener('keyup', e2);
+    document.addEventListener('mousemove', zrusitVyber);
+});
+
+let jede = false;
+let ms = 120;
 
 function e1(e: KeyboardEvent) {
-    if (e.key == "ArrowUp" || e.key == "ArrowLeft") {
-        e.preventDefault()
-        if (jede) return
+    if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
+        e.preventDefault();
+        if (jede) return;
 
-        if (o.index.value == 0) o.index.value = 2
-        else o.mensi()
-        let procvic: HTMLElement | null = document.querySelector(`[i="true"]`)
-        if (!procvic) return
-        window.scrollTo({ top: procvic.offsetTop - 500 })
+        if (o.index.value == 0) o.index.value = 2;
+        else o.mensi();
+        let procvic: HTMLElement | null = document.querySelector(`[i="true"]`);
+        if (!procvic) return;
+        window.scrollTo({ top: procvic.offsetTop - 500 });
 
-        jede = true
-        setTimeout(() => { jede = false }, ms)
-    } else if (e.key == "ArrowDown" || e.key == "ArrowRight") {
-        e.preventDefault()
-        if (jede) return
+        jede = true;
+        setTimeout(() => {
+            jede = false;
+        }, ms);
+    } else if (e.key == 'ArrowDown' || e.key == 'ArrowRight') {
+        e.preventDefault();
+        if (jede) return;
 
-        if (o.index.value == 0) o.index.value = 2
-        else o.vetsi()
+        if (o.index.value == 0) o.index.value = 2;
+        else o.vetsi();
 
-        let procvic: HTMLElement | null = document.querySelector(`[i="true"]`)
-        if (!procvic) return
-        window.scrollTo({ top: procvic.offsetTop - 200 })
+        let procvic: HTMLElement | null = document.querySelector(`[i="true"]`);
+        if (!procvic) return;
+        window.scrollTo({ top: procvic.offsetTop - 200 });
 
-        jede = true
-        setTimeout(() => { jede = false }, ms)
-    } else if (e.key == "Enter") {
-        e.preventDefault()
-        let procvic: HTMLElement | null = document.querySelector(`[i="true"]`)
+        jede = true;
+        setTimeout(() => {
+            jede = false;
+        }, ms);
+    } else if (e.key == 'Enter') {
+        e.preventDefault();
+        let procvic: HTMLElement | null = document.querySelector(`[i="true"]`);
         if (procvic == null || o.bezOznaceni) {
-            if (jede) return
+            if (jede) return;
 
-            o.bezOznaceni = true
-            o.index.value = randomCvic
+            o.bezOznaceni = true;
+            o.index.value = randomCvic;
 
             setTimeout(() => {
-                procvic = document.querySelector(`[i="true"]`)
-                if (!procvic) return
-                window.scrollTo({ top: procvic.offsetTop - 300 })
-            }, 0) // idk proč to musim delaynout i o 0ms xddddd
-        } else procvic?.click()
-    } else if (e.key == "Tab") {
-        e.preventDefault()
-        napovedaKNavigaci()
+                procvic = document.querySelector(`[i="true"]`);
+                if (!procvic) return;
+                window.scrollTo({ top: procvic.offsetTop - 300 });
+            }, 0); // idk proč to musim delaynout i o 0ms xddddd
+        } else procvic?.click();
+    } else if (e.key == 'Tab') {
+        e.preventDefault();
+        napovedaKNavigaci();
     }
 }
 
 function e2(e: KeyboardEvent) {
-    if (e.key == "Enter") {
-        e.preventDefault()
-        let procvic: HTMLElement | null = document.querySelector(`[i="true"]`)
-        procvic?.click()
+    if (e.key == 'Enter') {
+        e.preventDefault();
+        let procvic: HTMLElement | null = document.querySelector(`[i="true"]`);
+        procvic?.click();
     }
 }
 
 function zrusitVyber() {
-    o.index.value = 0
+    o.index.value = 0;
 }
 
 function mobilKlik(e: MouseEvent) {
-    e.preventDefault()
-    pridatOznameni("Psaní na telefonech zatím neučíme...")
+    e.preventDefault();
+    pridatOznameni('Psaní na telefonech zatím neučíme...');
 }
 
 function sortKategorii(x: IterableIterator<string>): string[] {
-    let list: string[] = []
+    let list: string[] = [];
     for (const e of x) {
-        list.push(e)
+        list.push(e);
     }
-    return list.sort((a, b) => a.localeCompare(b)) // sort podle abecedy
+    return list.sort((a, b) => a.localeCompare(b)); // sort podle abecedy
 }
 
 onUnmounted(() => {
-    document.removeEventListener("keydown", e1)
-    document.removeEventListener("keyup", e2)
-    document.removeEventListener("mousemove", zrusitVyber)
-})
-
+    document.removeEventListener('keydown', e1);
+    document.removeEventListener('keyup', e2);
+    document.removeEventListener('mousemove', zrusitVyber);
+});
 </script>
 
 <template>
     <h1>Procvičování</h1>
 
     <div id="seznam">
-        <RouterLink v-if="!mobil" :to="'/test-psani'" class="blok" :i="1 == o.index.value"
-            :class="{ oznacene: 1 == o.index.value, nohover: o.index.value != 0 }" style="margin-top: 5px;">
+        <RouterLink v-if="!mobil" :to="'/test-psani'" class="blok" :i="1 == o.index.value" :class="{ oznacene: 1 == o.index.value, nohover: o.index.value != 0 }" style="margin-top: 5px">
             <h3>Test psaní</h3>
-            <span v-if="texty.size != 0 && testPsaniCPM != -1">
-                <AnimaceCisla class="cislo" :cislo="testPsaniCPM" /> CPM
-            </span>
+            <span v-if="texty.size != 0 && testPsaniCPM != -1"> <AnimaceCisla class="cislo" :cislo="testPsaniCPM" /> CPM </span>
         </RouterLink>
-        <a v-else href="/test-psani" class="blok" :i="1 == o.index.value" style="user-select: none; margin-top: 5px;"
-            @click="mobilKlik">
+        <a v-else href="/test-psani" class="blok" :i="1 == o.index.value" style="user-select: none; margin-top: 5px" @click="mobilKlik">
             <h3>Test psaní</h3>
-            <span v-if="texty.size != 0 && testPsaniCPM != -1">
-                <AnimaceCisla class="cislo" :cislo="testPsaniCPM" /> CPM
-            </span>
+            <span v-if="texty.size != 0 && testPsaniCPM != -1"> <AnimaceCisla class="cislo" :cislo="testPsaniCPM" /> CPM </span>
         </a>
 
         <!-- eslint-disable-next-line vue/no-use-v-if-with-v-for -->
@@ -166,26 +166,26 @@ onUnmounted(() => {
             <h2>{{ k }}</h2>
 
             <!-- eslint-disable-next-line vue/no-use-v-if-with-v-for -->
-            <RouterLink v-if="!mobil" v-for="t in texty.get(k)" :to="`/procvic/${t.id}`" class="blok"
+            <RouterLink
+                v-if="!mobil"
+                v-for="t in texty.get(k)"
+                :to="`/procvic/${t.id}`"
+                class="blok"
                 :i="t.cislo == o.index.value"
-                :class="{ oznacene: t.cislo == o.index.value, nohover: o.index.value != 0 }" :key="t.id">
+                :class="{ oznacene: t.cislo == o.index.value, nohover: o.index.value != 0 }"
+                :key="t.id"
+            >
                 <h3>
-                    <Tooltip :sirka="100"
-                        :zprava="`${t.obtiznost == 1 ? 'Jednoduchá' : (t.obtiznost == 2 ? 'Střední' : 'Těžká')} obtížnost`"
-                        :xOffset="-38" :vzdalenost="5">
+                    <Tooltip :sirka="100" :zprava="`${t.obtiznost == 1 ? 'Jednoduchá' : t.obtiznost == 2 ? 'Střední' : 'Těžká'} obtížnost`" :xOffset="-38" :vzdalenost="5">
                         <ObtiznostBar :o="t.obtiznost" />
                     </Tooltip>
                     {{ t.jmeno }}
                 </h3>
-                <span v-if="t.cpm != -1">
-                    <AnimaceCisla class="cislo" :cislo="t.cpm" /> CPM
-                </span>
+                <span v-if="t.cpm != -1"> <AnimaceCisla class="cislo" :cislo="t.cpm" /> CPM </span>
             </RouterLink>
             <div v-else v-for="t in texty.get(k)" class="blok" @click="mobilKlik" :key="t.jmeno">
                 <h3>
-                    <Tooltip :sirka="100"
-                        :zprava="`${t.obtiznost == 1 ? 'Jednoduchá' : (t.obtiznost == 2 ? 'Střední' : 'Těžká')} obtížnost`"
-                        :xOffset="-28" :vzdalenost="5">
+                    <Tooltip :sirka="100" :zprava="`${t.obtiznost == 1 ? 'Jednoduchá' : t.obtiznost == 2 ? 'Střední' : 'Těžká'} obtížnost`" :xOffset="-28" :vzdalenost="5">
                         <ObtiznostBar :o="t.obtiznost" />
                     </Tooltip>
                     {{ t.jmeno }}
@@ -195,17 +195,17 @@ onUnmounted(() => {
         <div v-else style="width: 100%">
             <h2>Knihy</h2>
             <div v-for="i in 3" class="blok" :key="i">
-                <h3 style="margin-left: 8px;">. . .</h3>
+                <h3 style="margin-left: 8px">. . .</h3>
             </div>
 
             <h2>Naučné</h2>
             <div v-for="i in 2" class="blok" :key="i">
-                <h3 style="margin-left: 8px;">. . .</h3>
+                <h3 style="margin-left: 8px">. . .</h3>
             </div>
 
             <h2>Zábavné</h2>
             <div v-for="i in 2" class="blok" :key="i">
-                <h3 style="margin-left: 8px;">. . .</h3>
+                <h3 style="margin-left: 8px">. . .</h3>
             </div>
         </div>
     </div>
@@ -219,7 +219,7 @@ onUnmounted(() => {
     flex-direction: column;
 }
 
-#seznam>div {
+#seznam > div {
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -267,7 +267,7 @@ h2 {
     line-height: 40px;
 }
 
-.blok>span {
+.blok > span {
     font-size: 19px;
     display: flex;
     align-items: baseline;
@@ -279,8 +279,8 @@ h2 {
     top: -2px;
 }
 
-.blok>span .cislo {
-    font-family: "Red Hat Mono";
+.blok > span .cislo {
+    font-family: 'Red Hat Mono';
     font-size: 29px;
     font-weight: 500;
 }
@@ -310,7 +310,7 @@ h2 {
         cursor: pointer;
     }
 
-    .blok>span .cislo {
+    .blok > span .cislo {
         font-size: 22px;
     }
 

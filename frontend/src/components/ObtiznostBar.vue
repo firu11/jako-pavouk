@@ -1,9 +1,7 @@
 <script setup lang="ts">
-
 defineProps<{
-    o: number
-}>()
-
+    o: number;
+}>();
 </script>
 <template>
     <div v-if="o == 1" class="pilulka">
@@ -33,7 +31,7 @@ defineProps<{
     width: 8px;
 }
 
-.pilulka>div {
+.pilulka > div {
     width: 100%;
     background-color: rgba(255, 255, 255, 0.25);
     height: 11.666px;
@@ -52,13 +50,12 @@ defineProps<{
     background-color: red !important;
 }
 
-.pilulka:hover>div:nth-child(3) {
+.pilulka:hover > div:nth-child(3) {
     height: 100%;
 }
 
-.pilulka:hover>div:nth-child(1),
-.pilulka:hover>div:nth-child(2) {
+.pilulka:hover > div:nth-child(1),
+.pilulka:hover > div:nth-child(2) {
     height: 0%;
 }
-
 </style>

@@ -1,110 +1,116 @@
 <script setup lang="ts">
-import { onMounted, ref, useTemplateRef, watch } from "vue";
-import MenuLink from "./components/MenuLink.vue";
-import { mobil, prihlasen, role, tokenJmeno, uziv } from "./stores";
-import { jeToRobot, getToken, oznameni, pridatOznameni } from "./utils";
-import { useHead } from "@unhead/vue";
-import axios from "axios";
-import { useRouter } from "vue-router";
-import Tooltip from "./components/Tooltip.vue";
+import { onMounted, ref, useTemplateRef, watch } from 'vue';
+import MenuLink from './components/MenuLink.vue';
+import { mobil, prihlasen, role, tokenJmeno, uziv } from './stores';
+import { jeToRobot, getToken, oznameni, pridatOznameni } from './utils';
+import { useHead } from '@unhead/vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
+import Tooltip from './components/Tooltip.vue';
 
 useHead({
-    titleTemplate: (title?: string) => !title ? "Psaní všemi deseti zdarma | Jako Pavouk" : `${title} | Jako Pavouk`
-})
+    titleTemplate: (title?: string) => (!title ? 'Psaní všemi deseti zdarma | Jako Pavouk' : `${title} | Jako Pavouk`),
+});
 
-const router = useRouter()
-const mobilMenu = ref(false)
+const router = useRouter();
+const mobilMenu = ref(false);
 
-const jmenoSpan = useTemplateRef('jmenoSpan')
-const nadpisyDiv = useTemplateRef('nadpisyDiv')
+const jmenoSpan = useTemplateRef('jmenoSpan');
+const nadpisyDiv = useTemplateRef('nadpisyDiv');
 
 onMounted(() => {
     if (getToken()) {
-        axios.get("/token-expirace", {
-            headers: {
-                Authorization: `Bearer ${getToken()}`
-            }
-        }).then(response => {
-            role.value = response.data.role
-            uziv.value.email = response.data.email
-            uziv.value.jmeno = response.data.jmeno
+        axios
+            .get('/token-expirace', {
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                },
+            })
+            .then((response) => {
+                role.value = response.data.role;
+                uziv.value.email = response.data.email;
+                uziv.value.jmeno = response.data.jmeno;
 
-            if (response.data.jePotrebaVymenit) {
-                localStorage.removeItem(tokenJmeno)
-                prihlasen.value = false
-                router.push("/prihlaseni")
-                pridatOznameni("Z bezpečnostních důvodů jsme tě odhlásili ze sítě 🕸️", 8000)
-            } else {
-                prihlasen.value = true
-            }
-        }).catch(e => {
-            if (!(e.response && e.response.status == 418)) {
-                console.log(e)
-                pridatOznameni("Chyba serveru")
-            }
-        })
-    } else if (!jeToRobot(navigator.userAgent) && window.location.host !== "localhost:5173") { //test jestli to neni bot + počítají se jen na produkci
-        axios.post("/navsteva")
+                if (response.data.jePotrebaVymenit) {
+                    localStorage.removeItem(tokenJmeno);
+                    prihlasen.value = false;
+                    router.push('/prihlaseni');
+                    pridatOznameni('Z bezpečnostních důvodů jsme tě odhlásili ze sítě 🕸️', 8000);
+                } else {
+                    prihlasen.value = true;
+                }
+            })
+            .catch((e) => {
+                if (!(e.response && e.response.status == 418)) {
+                    console.log(e);
+                    pridatOznameni('Chyba serveru');
+                }
+            });
+    } else if (!jeToRobot(navigator.userAgent) && window.location.host !== 'localhost:5173') {
+        //test jestli to neni bot + počítají se jen na produkci
+        axios.post('/navsteva');
     }
 
-    window.addEventListener("resize", function () {
-        mobil.value = document.body.clientWidth <= 900
+    window.addEventListener('resize', function () {
+        mobil.value = document.body.clientWidth <= 900;
 
         if (mobil.value) {
-            window.addEventListener("scroll", function () {
-                mobilMenu.value = false
-            })
+            window.addEventListener('scroll', function () {
+                mobilMenu.value = false;
+            });
         }
-    })
-})
+    });
+});
 
 async function upravitSirkuJmena() {
     if (jmenoSpan.value == undefined || nadpisyDiv.value == undefined) {
-        setTimeout(upravitSirkuJmena, 10)
-        return
+        setTimeout(upravitSirkuJmena, 10);
+        return;
     }
 
-    let velikost = 24
-    jmenoSpan.value.style.fontSize = `${velikost}px`
+    let velikost = 24;
+    jmenoSpan.value.style.fontSize = `${velikost}px`;
     while (jmenoSpan.value.clientWidth! > nadpisyDiv.value.clientWidth) {
-        velikost -= 0.5
-        jmenoSpan.value.style.fontSize = `${velikost}px`
-        if (velikost <= 0) break
+        velikost -= 0.5;
+        jmenoSpan.value.style.fontSize = `${velikost}px`;
+        if (velikost <= 0) break;
     }
     //console.log("velikost jmena v px:", velikost)
 }
 
 function odhlasit(e: Event) {
-    zavritDialog(e)
-    localStorage.removeItem(tokenJmeno)
-    role.value = "basic"
-    prihlasen.value = false
-    router.push("/prihlaseni")
+    zavritDialog(e);
+    localStorage.removeItem(tokenJmeno);
+    role.value = 'basic';
+    prihlasen.value = false;
+    router.push('/prihlaseni');
 
-    uziv.value.email = ""
-    uziv.value.jmeno = ""
+    uziv.value.email = '';
+    uziv.value.jmeno = '';
 }
 
-const dialog1 = useTemplateRef("dialog1")
+const dialog1 = useTemplateRef('dialog1');
 function otevritDialog(e: Event) {
-    e.preventDefault()
-    dialog1.value?.showModal()
+    e.preventDefault();
+    dialog1.value?.showModal();
 }
 
 function zavritDialog(e: Event) {
-    e.preventDefault()
-    dialog1.value?.close()
+    e.preventDefault();
+    dialog1.value?.close();
 }
 
-watch(() => uziv.value.jmeno, function () {
-    setTimeout(upravitSirkuJmena, 1)
-})
-
+watch(
+    () => uziv.value.jmeno,
+    function () {
+        setTimeout(upravitSirkuJmena, 1);
+    },
+);
 </script>
 
 <template>
     <div id="menu-mobilni-btn" @click="mobilMenu = !mobilMenu">
-        <img id="menuIcon" src="./assets/icony/menu.svg" alt="Menu" width="40" height="40">
+        <img id="menuIcon" src="./assets/icony/menu.svg" alt="Menu" width="40" height="40" />
     </div>
     <header :class="{ 'mobil-hidden': !mobilMenu }">
         <nav @click="mobilMenu = !mobilMenu">
@@ -122,30 +128,30 @@ watch(() => uziv.value.jmeno, function () {
                 <div id="tlacitka">
                     <Tooltip zprava="Nastavení účtu" :sirka="100" :vzdalenost="-36" :vzdalenostX="75">
                         <div class="kulate-tlacitko" @click="router.push('/nastaveni')">
-                            <img src="./assets/icony/nastaveni.svg" alt="" width="22" height="22">
+                            <img src="./assets/icony/nastaveni.svg" alt="" width="22" height="22" />
                         </div>
                     </Tooltip>
                     <Tooltip zprava="Statitiky" :sirka="100" :vzdalenost="-29" :vzdalenostX="75">
                         <div class="kulate-tlacitko" @click="router.push('/statistiky')">
-                            <img src="./assets/icony/statistiky.svg" alt="" width="22" height="22">
+                            <img src="./assets/icony/statistiky.svg" alt="" width="22" height="22" />
                         </div>
                     </Tooltip>
                     <Tooltip zprava="Odhlásit" :sirka="100" :vzdalenost="-29" :vzdalenostX="75">
                         <div class="kulate-tlacitko" @click="otevritDialog">
-                            <img src="./assets/icony/odhlasit.svg" alt="" width="22" height="22">
+                            <img src="./assets/icony/odhlasit.svg" alt="" width="22" height="22" />
                         </div>
                     </Tooltip>
                 </div>
-                <img id="pavouk" src="./assets/pavoucekBezPozadi.svg" alt="uzivatel" width="181" height="114">
+                <img id="pavouk" src="./assets/pavoucekBezPozadi.svg" alt="uzivatel" width="181" height="114" />
             </div>
-            <hr style="border: white solid 1px;">
+            <hr style="border: white solid 1px" />
             <div id="nadpisy" ref="nadpisyDiv">
                 <span id="jmeno" ref="jmenoSpan">{{ uziv.jmeno }}</span>
                 <span id="email">{{ uziv.email }}</span>
             </div>
         </div>
         <div v-else id="ucet" class="neprihlasen" @click="mobilMenu = !mobilMenu">
-            <img id="pavouk" src="./assets/pavoucekBezPozadi.svg" alt="uzivatel" width="181" height="114">
+            <img id="pavouk" src="./assets/pavoucekBezPozadi.svg" alt="uzivatel" width="181" height="114" />
             <span>Nepřihlášený pavouk</span>
             <MenuLink jmeno="Přihlásit se" cesta="/prihlaseni" />
         </div>
@@ -157,10 +163,9 @@ watch(() => uziv.value.jmeno, function () {
     <div id="alerty">
         <TransitionGroup name="list">
             <div v-for="(o, i) in oznameni" class="alert" :key="i">
-                <img v-if="o.typ == 'vykricnik'" src="./assets/icony/alert.svg" alt="Vykřičník">
-                <img v-else-if="o.typ == 'copy'" src="./assets/icony/copy.svg" alt="Zkopírováno">
-                <img v-else-if="o.typ == 'svisla-cara'" src="./assets/icony/info.svg" alt="Oznámení"
-                    id="svisla-cara-info">
+                <img v-if="o.typ == 'vykricnik'" src="./assets/icony/alert.svg" alt="Vykřičník" />
+                <img v-else-if="o.typ == 'copy'" src="./assets/icony/copy.svg" alt="Zkopírováno" />
+                <img v-else-if="o.typ == 'svisla-cara'" src="./assets/icony/info.svg" alt="Oznámení" id="svisla-cara-info" />
                 <span v-html="o.text"></span>
             </div>
         </TransitionGroup>
@@ -185,7 +190,7 @@ watch(() => uziv.value.jmeno, function () {
     gap: 1.2em;
 }
 
-#dialog-kontejner>div {
+#dialog-kontejner > div {
     display: flex;
     justify-content: center;
     gap: 1em;
@@ -199,7 +204,7 @@ dialog {
     padding: 1.4em;
 }
 
-#dialog-kontejner>div button {
+#dialog-kontejner > div button {
     margin: 0;
 }
 
@@ -408,7 +413,7 @@ nav {
         margin-top: -70px;
     }
 
-    #dialog-kontejner>div button {
+    #dialog-kontejner > div button {
         width: 120px;
     }
 }

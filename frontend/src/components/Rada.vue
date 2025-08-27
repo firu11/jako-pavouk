@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { mobil, prihlasen, role } from "../stores";
+import { mobil, prihlasen, role } from '../stores';
 
-const router = useRouter()
+const router = useRouter();
 
 defineProps({
     pocetDoko: {
         type: Number,
-        default: -1
-    }
-})
+        default: -1,
+    },
+});
 
 function hop() {
-    router.push("/jak-psat")
+    router.push('/jak-psat');
 }
 </script>
 
@@ -23,17 +23,18 @@ function hop() {
             <p>Mrkni na trochu teorie! Základem je výchozí pozice.</p>
             <button class="tlacitko" :onclick="hop">Jak psát</button>
         </div>
-        <img src="../assets/theThinker.svg" alt="Pavouk the thinker" width="180" height="157">
+        <img src="../assets/theThinker.svg" alt="Pavouk the thinker" width="180" height="157" />
     </div>
     <div v-else-if="!mobil && pocetDoko >= 12 - 2 && role == 'basic'" id="box">
         <div>
             <h2>Líbí se ti projekt?</h2>
             <p>Pokud už píšeš Jako Pavouk, oceníme finanční podporu!</p>
             <a href="https://ko-fi.com/jakopavouk" target="_blank" rel="nofollow">
-                <img id="kofi" src="../assets/kofi_button.webp" alt="Podpořit" width="230" height="36">
+                <img id="kofi" src="../assets/kofi_button.webp" alt="Podpořit" width="230" height="36" />
             </a>
         </div>
-        <img src="../assets/theLover.svg" alt="Pavouk the thinker" width="180" height="157" style="transform: scale(1.15);"> <!-- idk proc je mensi -->
+        <img src="../assets/theLover.svg" alt="Pavouk the thinker" width="180" height="157" style="transform: scale(1.15)" />
+        <!-- idk proc je mensi -->
     </div>
 </template>
 

@@ -1,99 +1,107 @@
 <script setup lang="ts">
-import axios from "axios";
-import { useHead } from "@unhead/vue";
-import { onMounted, ref, useTemplateRef } from "vue";
-import { getToken, pridatOznameni, postKlavesnice } from "../utils";
-import { prihlasen, uziv } from "../stores";
-import { useRouter } from "vue-router";
-import { role } from "../stores";
+import axios from 'axios';
+import { useHead } from '@unhead/vue';
+import { onMounted, ref, useTemplateRef } from 'vue';
+import { getToken, pridatOznameni, postKlavesnice } from '../utils';
+import { prihlasen, uziv } from '../stores';
+import { useRouter } from 'vue-router';
+import { role } from '../stores';
 
 useHead({
-    title: "Nastavení"
-})
+    title: 'Nastavení',
+});
 
-const router = useRouter()
+const router = useRouter();
 
-const info = ref({ id: -1, role: "basic", klavesnice: "", jmeno: "...", email: "...@..." })
-const klavesniceUprava = ref(false)
-const jmenoUprava = ref("")
+const info = ref({ id: -1, role: 'basic', klavesnice: '', jmeno: '...', email: '...@...' });
+const klavesniceUprava = ref(false);
+const jmenoUprava = ref('');
 
-const dialog = useTemplateRef("dialog")
+const dialog = useTemplateRef('dialog');
 
 onMounted(() => {
     if (!prihlasen.value) {
-        pridatOznameni("Nejsi přihlášený!")
-        router.push("/")
-        return
+        pridatOznameni('Nejsi přihlášený!');
+        router.push('/');
+        return;
     }
-    get()
-})
+    get();
+});
 
 function get() {
-    axios.get("/nastaveni", {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(resp => {
-        info.value = resp.data
-        klavesniceUprava.value = info.value.klavesnice == "qwerty"
-        jmenoUprava.value = info.value.jmeno
+    axios
+        .get('/nastaveni', {
+            headers: {
+                Authorization: `Bearer ${getToken()}`,
+            },
+        })
+        .then((resp) => {
+            info.value = resp.data;
+            klavesniceUprava.value = info.value.klavesnice == 'qwerty';
+            jmenoUprava.value = info.value.jmeno;
 
-        uziv.value.jmeno = info.value.jmeno
-    }).catch(e => {
-        console.log(e)
-    })
+            uziv.value.jmeno = info.value.jmeno;
+        })
+        .catch((e) => {
+            console.log(e);
+        });
 }
 
 function postSmazat(e: Event) {
-    e.preventDefault()
-    axios.post("/ucet-zmena", { "zmena": "smazat" }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(() => {
-        prihlasen.value = false
-        localStorage.removeItem("pavouk_token")
-        router.push("/prihlaseni")
-        pridatOznameni("Účet byl úspěšně smazán. Pavoučí rodina by však ráda věděla, proč odcházíš...", 15000)
-    }).catch(e => {
-        console.log(e)
-        pridatOznameni()
-    })
+    e.preventDefault();
+    axios
+        .post('/ucet-zmena', { zmena: 'smazat' }, { headers: { Authorization: `Bearer ${getToken()}` } })
+        .then(() => {
+            prihlasen.value = false;
+            localStorage.removeItem('pavouk_token');
+            router.push('/prihlaseni');
+            pridatOznameni('Účet byl úspěšně smazán. Pavoučí rodina by však ráda věděla, proč odcházíš...', 15000);
+        })
+        .catch((e) => {
+            console.log(e);
+            pridatOznameni();
+        });
 }
 
 function postJmeno() {
-    axios.post("/ucet-zmena", { "zmena": "jmeno", "hodnota": jmenoUprava.value }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(() => {
-        get()
-        jmenoInput.value?.blur() // lose focus
-    }).catch(e => {
-        if (e.response.data.error.search("uzivatel_jmeno_key")) {
-            pridatOznameni("Takové jméno už někdo má")
-        }
-    })
+    axios
+        .post('/ucet-zmena', { zmena: 'jmeno', hodnota: jmenoUprava.value }, { headers: { Authorization: `Bearer ${getToken()}` } })
+        .then(() => {
+            get();
+            jmenoInput.value?.blur(); // lose focus
+        })
+        .catch((e) => {
+            if (e.response.data.error.search('uzivatel_jmeno_key')) {
+                pridatOznameni('Takové jméno už někdo má');
+            }
+        });
 }
 
 function zmenaJmena(e: Event) {
-    e.preventDefault()
+    e.preventDefault();
     if (jmenoUprava.value == info.value.jmeno) {
-        return
+        return;
     }
     if (/^[a-zA-Z0-9ěščřžýáíéůúťňďóĚŠČŘŽÝÁÍÉŮÚŤŇĎÓ_\-+*! ]{3,12}$/.test(jmenoUprava.value)) {
-        postJmeno()
+        postJmeno();
     } else {
-        if (jmenoUprava.value.length < 3) pridatOznameni("Jméno je moc krátké.<br>(3-12 znaků)")
-        else if (jmenoUprava.value.length > 12) pridatOznameni("Jméno je moc dlouhé.<br>(3-12 znaků)")
-        else pridatOznameni("Jméno může obsahovat jen velká a malá písmena, čísla a znaky _-+*!?")
+        if (jmenoUprava.value.length < 3) pridatOznameni('Jméno je moc krátké.<br>(3-12 znaků)');
+        else if (jmenoUprava.value.length > 12) pridatOznameni('Jméno je moc dlouhé.<br>(3-12 znaků)');
+        else pridatOznameni('Jméno může obsahovat jen velká a malá písmena, čísla a znaky _-+*!?');
     }
 }
 
 function otevritDialog(e: Event) {
-    e.preventDefault()
-    dialog.value?.showModal()
+    e.preventDefault();
+    dialog.value?.showModal();
 }
 
 function zavritDialog(e: Event) {
-    e.preventDefault()
-    dialog.value?.close()
+    e.preventDefault();
+    dialog.value?.close();
 }
 
-const jmenoInput = useTemplateRef("jmenoInput")
-
+const jmenoInput = useTemplateRef('jmenoInput');
 </script>
 <template>
     <h1>Nastavení</h1>
@@ -101,7 +109,7 @@ const jmenoInput = useTemplateRef("jmenoInput")
         <form @submit="zmenaJmena">
             <div>
                 <h3>Uživatelské jméno:</h3>
-                <input ref="jmenoInput" v-model="jmenoUprava" type="text">
+                <input ref="jmenoInput" v-model="jmenoUprava" type="text" />
             </div>
             <button type="submit" class="tlacitko">Uložit</button>
         </form>
@@ -119,8 +127,8 @@ const jmenoInput = useTemplateRef("jmenoInput")
             <RouterLink to="/klavesnice?kam=nastaveni">Nevím, jakou mám klávesnici.</RouterLink>
 
             <span>
-                Klávesnice ovlivňuje nejen <b>grafickou klávesnici</b> pod textem, ale i kurz samotný. Od první lekce horní řady se totiž liší množina
-                již naučených písmen podle toho, jestli už umíme <b>z</b> nebo <b>y</b>.
+                Klávesnice ovlivňuje nejen <b>grafickou klávesnici</b> pod textem, ale i kurz samotný. Od první lekce horní řady se totiž liší množina již naučených písmen podle toho, jestli už
+                umíme <b>z</b> nebo <b>y</b>.
             </span>
         </form>
 
@@ -171,7 +179,7 @@ dialog {
     margin-top: -70px;
 }
 
-dialog>div>div {
+dialog > div > div {
     display: flex;
     gap: 1em;
 }
@@ -180,7 +188,7 @@ dialog>div>div {
     min-width: 150px;
 }
 
-form input[type=text] {
+form input[type='text'] {
     width: 43%;
     height: 36px;
     background-color: var(--fialova);
@@ -193,7 +201,7 @@ form input[type=text] {
     font-size: 20px;
 }
 
-form input[type=text]:focus {
+form input[type='text']:focus {
     outline: none !important;
     width: calc(43% + 10px);
 }
@@ -202,7 +210,7 @@ form input::placeholder {
     color: rgba(255, 255, 255, 0.42);
 }
 
-form>:nth-child(2) {
+form > :nth-child(2) {
     margin-top: 6px !important;
 }
 
@@ -220,11 +228,11 @@ a:hover {
 }
 
 @media screen and (max-width: 460px) {
-    form input[type=text] {
+    form input[type='text'] {
         width: 90%;
     }
 
-    form input[type=text]:focus {
+    form input[type='text']:focus {
         width: calc(90% + 10px);
     }
 }

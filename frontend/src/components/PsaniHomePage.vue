@@ -1,32 +1,44 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref } from 'vue';
 
-let delka = 9
-const counter = ref(delka - 1)
-const text = ref([["1", "J"], ["2", "a"], ["3", "k"], ["4", "o"], ["5", " "], ["6", "P"], ["7", "a"], ["8", "v"], ["9", "o"], ["10", "u"], ["11", "k"], ["12", " "]])
-const viditelny = ref(text.value.slice(0, delka))
+let delka = 9;
+const counter = ref(delka - 1);
+const text = ref([
+    ['1', 'J'],
+    ['2', 'a'],
+    ['3', 'k'],
+    ['4', 'o'],
+    ['5', ' '],
+    ['6', 'P'],
+    ['7', 'a'],
+    ['8', 'v'],
+    ['9', 'o'],
+    ['10', 'u'],
+    ['11', 'k'],
+    ['12', ' '],
+]);
+const viditelny = ref(text.value.slice(0, delka));
 
 onMounted(() => {
-    setTimeout(dalsi, 200)
-})
+    setTimeout(dalsi, 200);
+});
 
 function dalsi() {
-    counter.value++
+    counter.value++;
     if (counter.value == text.value.length) {
-        counter.value = 0
+        counter.value = 0;
     }
-    viditelny.value.shift()
-    viditelny.value.push(text.value[counter.value])
-    setTimeout(dalsi, Math.floor(Math.random() * 3) * 300 + 300)
+    viditelny.value.shift();
+    viditelny.value.push(text.value[counter.value]);
+    setTimeout(dalsi, Math.floor(Math.random() * 3) * 300 + 300);
 }
-
 </script>
 
 <template>
     <div id="box">
         <TransitionGroup name="pismenka">
             <span v-for="(p, i) in viditelny" :class="{ 'spravne-pismeno': i < 2 }" class="pismeno" :key="p.toString()">
-                {{ p[1] != " " ? p[1] : "&nbsp;" }}
+                {{ p[1] != ' ' ? p[1] : '&nbsp;' }}
             </span>
         </TransitionGroup>
         <div id="cara"></div>
@@ -74,7 +86,7 @@ function dalsi() {
 }
 
 .pismeno {
-    font-family: "Red Hat Mono", monospace;
+    font-family: 'Red Hat Mono', monospace;
     line-height: 1.2;
     text-decoration: none;
     color: var(--bila);

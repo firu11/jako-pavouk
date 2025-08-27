@@ -1,57 +1,57 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
-import { nastaveniJmeno, prihlasen } from "../stores";
-import { saveNastaveni } from "../utils";
+import { onMounted, onUnmounted, ref } from 'vue';
+import { nastaveniJmeno, prihlasen } from '../stores';
+import { saveNastaveni } from '../utils';
 
-const emit = defineEmits(["restart", "toggle", "refocus"])
+const emit = defineEmits(['restart', 'toggle', 'refocus']);
 
 const props = defineProps({
     vyberTextu: {
         type: Boolean,
-        default: true
+        default: true,
     },
     bezStinu: {
         type: Boolean,
-        default: false
+        default: false,
     },
-})
+});
 
-const typ = ref(true) // false = slova, true = vety
-const delka = ref(60)
-const diakritika = ref(true)
-const velkaPismena = ref(false)
-const klavModel = ref(false)
+const typ = ref(true); // false = slova, true = vety
+const delka = ref(60);
+const diakritika = ref(true);
+const velkaPismena = ref(false);
+const klavModel = ref(false);
 
 onMounted(() => {
-    let nastaveni = localStorage.getItem(nastaveniJmeno)
+    let nastaveni = localStorage.getItem(nastaveniJmeno);
     if (nastaveni !== null) {
-        let obj: { diakritika: boolean, velkaPismena: boolean, vetySlova: boolean, delka: number, klavesnice: boolean }
+        let obj: { diakritika: boolean; velkaPismena: boolean; vetySlova: boolean; delka: number; klavesnice: boolean };
         try {
-            obj = JSON.parse(nastaveni)
+            obj = JSON.parse(nastaveni);
         } catch {
-            console.log("nepodařilo se načíst nastavení")
-            saveNastaveni(diakritika.value, velkaPismena.value, typ.value, delka.value, klavModel.value)
-            return
+            console.log('nepodařilo se načíst nastavení');
+            saveNastaveni(diakritika.value, velkaPismena.value, typ.value, delka.value, klavModel.value);
+            return;
         }
 
         if (obj.diakritika == undefined || obj.velkaPismena == undefined || obj.vetySlova == undefined || obj.delka == undefined || obj.klavesnice == undefined) {
-            saveNastaveni(diakritika.value, velkaPismena.value, typ.value, delka.value, klavModel.value)
-            return
+            saveNastaveni(diakritika.value, velkaPismena.value, typ.value, delka.value, klavModel.value);
+            return;
         }
 
-        diakritika.value = obj.diakritika
-        velkaPismena.value = obj.velkaPismena
-        typ.value = obj.vetySlova
-        delka.value = obj.delka ? obj.delka : 60
-        klavModel.value = obj.klavesnice
+        diakritika.value = obj.diakritika;
+        velkaPismena.value = obj.velkaPismena;
+        typ.value = obj.vetySlova;
+        delka.value = obj.delka ? obj.delka : 60;
+        klavModel.value = obj.klavesnice;
     }
 
-    document.addEventListener("keydown", disableTab)
-})
+    document.addEventListener('keydown', disableTab);
+});
 
 onUnmounted(() => {
-    document.removeEventListener("keydown", disableTab)
-})
+    document.removeEventListener('keydown', disableTab);
+});
 
 function disableTab(e: KeyboardEvent) {
     if (e.which == 9) {
@@ -60,30 +60,37 @@ function disableTab(e: KeyboardEvent) {
 }
 
 function disabledBtn(e: KeyboardEvent) {
-    e.preventDefault()
+    e.preventDefault();
 }
 
 function d(x: number) {
-    delka.value = x
-    saveNastaveni(diakritika.value, velkaPismena.value, typ.value, delka.value, klavModel.value)
-    emit("refocus")
+    delka.value = x;
+    saveNastaveni(diakritika.value, velkaPismena.value, typ.value, delka.value, klavModel.value);
+    emit('refocus');
 }
 
-defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
-
+defineExpose({ diakritika, velkaPismena, typ, delka, klavModel });
 </script>
 <template>
     <div id="kontejneros">
         <div id="psani-menu" :class="{ 'bez-stinu': props.bezStinu }">
-            <div v-if="!(prihlasen && !vyberTextu)" class="kontejner" style="gap: 20px;">
-                <input v-if="vyberTextu" v-model="typ" type="checkbox" id="toggle" class="toggle-checkbox"
-                    @change="emit('restart'); saveNastaveni(diakritika, velkaPismena, typ, delka, klavModel)" />
+            <div v-if="!(prihlasen && !vyberTextu)" class="kontejner" style="gap: 20px">
+                <input
+                    v-if="vyberTextu"
+                    v-model="typ"
+                    type="checkbox"
+                    id="toggle"
+                    class="toggle-checkbox"
+                    @change="
+                        emit('restart');
+                        saveNastaveni(diakritika, velkaPismena, typ, delka, klavModel);
+                    "
+                />
                 <label v-if="vyberTextu" for="toggle" class="toggle-contejner">
                     <div>Slova</div>
                     <div>Věty</div>
                 </label>
-                <input v-if="!prihlasen" @change="saveNastaveni(diakritika, velkaPismena, typ, delka, klavModel)" v-model="klavModel" type="checkbox"
-                    id="toggle1" class="toggle-checkbox" />
+                <input v-if="!prihlasen" @change="saveNastaveni(diakritika, velkaPismena, typ, delka, klavModel)" v-model="klavModel" type="checkbox" id="toggle1" class="toggle-checkbox" />
                 <label v-if="!prihlasen" for="toggle1" class="toggle-contejner">
                     <div>Qwertz</div>
                     <div>Qwerty</div>
@@ -102,7 +109,7 @@ defineExpose({ diakritika, velkaPismena, typ, delka, klavModel })
                 </div>
             </div>
 
-            <hr id="predel">
+            <hr id="predel" />
 
             <div class="kontejner">
                 <label for="toggle2" class="kontejner">

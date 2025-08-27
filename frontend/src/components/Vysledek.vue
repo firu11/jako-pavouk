@@ -1,161 +1,182 @@
 <script setup lang="ts">
-import axios from "axios";
-import { computed, onMounted, onUnmounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { getCisloPochvaly, getToken, MojeMapa, napovedaKNavigaci } from "../utils";
-import { levelyRychlosti } from "../stores";
-import Tooltip from "./Tooltip.vue";
-import AnimaceCisla from "../components/AnimaceCisla.vue";
+import axios from 'axios';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { getCisloPochvaly, getToken, MojeMapa, napovedaKNavigaci } from '../utils';
+import { levelyRychlosti } from '../stores';
+import Tooltip from './Tooltip.vue';
+import AnimaceCisla from '../components/AnimaceCisla.vue';
 
-const emit = defineEmits(["restart"])
+const emit = defineEmits(['restart']);
 
 const props = defineProps({
     preklepy: {
         type: Number,
-        default: 0
+        default: 0,
     },
     opravenych: {
         type: Number,
-        default: 0
+        default: 0,
     },
     delkaTextu: {
         type: Number,
-        default: 1
+        default: 1,
     },
     cas: {
         type: Number,
-        default: 1
+        default: 1,
     },
     pismena: {
         type: String,
-        default: ""
+        default: '',
     },
     nejcastejsiChyby: {
         type: MojeMapa,
-        default: new MojeMapa()
+        default: new MojeMapa(),
     },
     cislo: String,
     posledni: {
         type: Boolean,
-        default: true
-    }
-})
+        default: true,
+    },
+});
 
-let rychlost = ((props.delkaTextu - (10 * props.preklepy)) / props.cas) * 60
-const route = useRoute()
-const router = useRouter()
-const pochavly = ["Dobrá práce!", "Bravo!", "Pěkná práce!", "Skvělá práce!", "Výborně!", "Parádní!", "Skvělý výsledek!", "Paráda!", "Hezký!", "Super výkon!", "Parádní výkon!", "Skvělý výkon!"]
+let rychlost = ((props.delkaTextu - 10 * props.preklepy) / props.cas) * 60;
+const route = useRoute();
+const router = useRouter();
+const pochavly = ['Dobrá práce!', 'Bravo!', 'Pěkná práce!', 'Skvělá práce!', 'Výborně!', 'Parádní!', 'Skvělý výsledek!', 'Paráda!', 'Hezký!', 'Super výkon!', 'Parádní výkon!', 'Skvělý výkon!'];
 const vsechnyHodnoceni = [
-    ["Pavouci jásají z tvé šikovnosti.", "Avšak i když už jsi profík, vždy je kam se posouvat.", "Píšeš krásně jako pavouk."], // parádní
-    ["Ale můžeš ještě zapracovat na rychlosti.", "Leda rychlost jde ještě zlepšovat.", "Máš to za sebou ale rychlost můžeš ještě zlepšit."], // dobrý ale rychlost by šla zlepšit
-    ["Ale můžeš ještě zapracovat na přesnosti.", "Leda přesnost jde ještě zlepšovat.", "Máš to za sebou ale přesnost můžeš ještě zlepšit."], // dobrý ale přesnost by šla zlepšit
-    ["Ale můžeš se ještě zlepšit.", "Máš to za sebou ale ještě je kam růst."], // dobrý ale oboje jde zlepsit
-    ["Dej tomu ale ještě chvíli. Jde psát i trochu rychleji.", "Zatím ale moc pomalé.", "Musíš ale ještě trochu zrychlit."], // rychlost není dostatečná
-    ["Dej tomu ale ještě chvíli. Jde dělat i méně chyb.", "Zatím hodně chybuješ.", "Zaměř se i na přesnost, ještě to není ono."], // přesnost není dostatečná
-    ["Dej tomu ale ještě chvíli. Zatím ti to moc nejde.", "Zkus to ale ještě jednou."]
-]
-const hodnoceni = ref("")
+    ['Pavouci jásají z tvé šikovnosti.', 'Avšak i když už jsi profík, vždy je kam se posouvat.', 'Píšeš krásně jako pavouk.'], // parádní
+    ['Ale můžeš ještě zapracovat na rychlosti.', 'Leda rychlost jde ještě zlepšovat.', 'Máš to za sebou ale rychlost můžeš ještě zlepšit.'], // dobrý ale rychlost by šla zlepšit
+    ['Ale můžeš ještě zapracovat na přesnosti.', 'Leda přesnost jde ještě zlepšovat.', 'Máš to za sebou ale přesnost můžeš ještě zlepšit.'], // dobrý ale přesnost by šla zlepšit
+    ['Ale můžeš se ještě zlepšit.', 'Máš to za sebou ale ještě je kam růst.'], // dobrý ale oboje jde zlepsit
+    ['Dej tomu ale ještě chvíli. Jde psát i trochu rychleji.', 'Zatím ale moc pomalé.', 'Musíš ale ještě trochu zrychlit.'], // rychlost není dostatečná
+    ['Dej tomu ale ještě chvíli. Jde dělat i méně chyb.', 'Zatím hodně chybuješ.', 'Zaměř se i na přesnost, ještě to není ono.'], // přesnost není dostatečná
+    ['Dej tomu ale ještě chvíli. Zatím ti to moc nejde.', 'Zkus to ale ještě jednou.'],
+];
+const hodnoceni = ref('');
 
-let presnost = (props.delkaTextu - props.preklepy - props.opravenych) / props.delkaTextu * 100
-const nejcastejsiChybyTop3 = ref()
+let presnost = ((props.delkaTextu - props.preklepy - props.opravenych) / props.delkaTextu) * 100;
+const nejcastejsiChybyTop3 = ref();
 
 function reset() {
-    emit("restart")
+    emit('restart');
 }
 
 function dalsi() {
-    if (props.cislo == undefined) return
-    let r = route.path.split("/")
-    r.pop()
-    let c = r.join("/")
-    if (props.posledni) router.push(c) // /lekce/pismena
-    else router.push(c + "/" + (parseInt(props.cislo) + 1).toString()) // /lekce/pismena/cislo
+    if (props.cislo == undefined) return;
+    let r = route.path.split('/');
+    r.pop();
+    let c = r.join('/');
+    if (props.posledni)
+        router.push(c); // /lekce/pismena
+    else router.push(c + '/' + (parseInt(props.cislo) + 1).toString()); // /lekce/pismena/cislo
 }
 
 function random(list: Array<string>) {
-    return list[(Math.floor(Math.random() * list.length))]
+    return list[Math.floor(Math.random() * list.length)];
 }
 
 onMounted(() => {
-    hodnoceni.value = random(pochavly) + " " + random(vsechnyHodnoceni[getCisloPochvaly(rychlost, presnost)])
+    hodnoceni.value = random(pochavly) + ' ' + random(vsechnyHodnoceni[getCisloPochvaly(rychlost, presnost)]);
 
-    document.addEventListener("keydown", e1)
+    document.addEventListener('keydown', e1);
 
-    if (props.cislo == "prvni-psani") {
-        hodnoceni.value = "Píšeš krásně, ale tohle byl jen začátek..."
-        return
+    if (props.cislo == 'prvni-psani') {
+        hodnoceni.value = 'Píšeš krásně, ale tohle byl jen začátek...';
+        return;
     }
 
-    nejcastejsiChybyTop3.value = props.nejcastejsiChyby.top(3)
+    nejcastejsiChybyTop3.value = props.nejcastejsiChyby.top(3);
 
-    if (props.pismena == "") { // je to procvicovani / test takze posilame jinam
-        let cislo = props.cislo
-        if (props.cislo == "test-psani") cislo = "0" // test psani
+    if (props.pismena == '') {
+        // je to procvicovani / test takze posilame jinam
+        let cislo = props.cislo;
+        if (props.cislo == 'test-psani') cislo = '0'; // test psani
 
-        axios.post("/dokonceno-procvic/" + cislo, {
-            "neopravenePreklepy": props.preklepy,
-            "cas": props.cas,
-            "delkaTextu": props.delkaTextu,
-            "nejcastejsiChyby": Object.fromEntries(props.nejcastejsiChyby)
-        }, {
-            headers: {
-                Authorization: `Bearer ${getToken()}`
-            }
-        }).catch(function (e) {
-            console.log(e)
-        })
-        return
+        axios
+            .post(
+                '/dokonceno-procvic/' + cislo,
+                {
+                    neopravenePreklepy: props.preklepy,
+                    cas: props.cas,
+                    delkaTextu: props.delkaTextu,
+                    nejcastejsiChyby: Object.fromEntries(props.nejcastejsiChyby),
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${getToken()}`,
+                    },
+                },
+            )
+            .catch(function (e) {
+                console.log(e);
+            });
+        return;
     }
 
-    if (props.pismena == "pracepraceprace") { // je to práce
-        let id = props.cislo
+    if (props.pismena == 'pracepraceprace') {
+        // je to práce
+        let id = props.cislo;
 
-        axios.post("/skola/dokoncit-praci/" + id, {
-            "neopravenePreklepy": props.preklepy,
-            "cas": props.cas,
-            "delkaTextu": props.delkaTextu,
-            "nejcastejsiChyby": Object.fromEntries(props.nejcastejsiChyby)
-        }, {
-            headers: {
-                Authorization: `Bearer ${getToken()}`
-            }
-        }).catch(function (e) {
-            console.log(e)
-        })
-        return
+        axios
+            .post(
+                '/skola/dokoncit-praci/' + id,
+                {
+                    neopravenePreklepy: props.preklepy,
+                    cas: props.cas,
+                    delkaTextu: props.delkaTextu,
+                    nejcastejsiChyby: Object.fromEntries(props.nejcastejsiChyby),
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${getToken()}`,
+                    },
+                },
+            )
+            .catch(function (e) {
+                console.log(e);
+            });
+        return;
     }
 
     // jsme ve cviceni
-    axios.post("/dokonceno/" + encodeURIComponent(props.pismena) + "/" + props.cislo, {
-        "neopravenePreklepy": props.preklepy,
-        "cas": props.cas,
-        "delkaTextu": props.delkaTextu,
-        "nejcastejsiChyby": Object.fromEntries(props.nejcastejsiChyby)
-    }, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).catch(function (e) {
-        console.log(e)
-    })
-})
+    axios
+        .post(
+            '/dokonceno/' + encodeURIComponent(props.pismena) + '/' + props.cislo,
+            {
+                neopravenePreklepy: props.preklepy,
+                cas: props.cas,
+                delkaTextu: props.delkaTextu,
+                nejcastejsiChyby: Object.fromEntries(props.nejcastejsiChyby),
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                },
+            },
+        )
+        .catch(function (e) {
+            console.log(e);
+        });
+});
 
 onUnmounted(() => {
-    document.removeEventListener("keydown", e1)
-})
+    document.removeEventListener('keydown', e1);
+});
 
 function e1(e: KeyboardEvent) {
-    if (e.key == "Delete") {
-        e.preventDefault()
-        if (props.cislo == 'prvni-psani' || props.pismena == 'pracepraceprace') return
-        reset()
-    } else if (e.key == "ArrowRight") {
-        e.preventDefault()
-        if (route.path.split('/')[1] != 'lekce') return
-        dalsi()
-    } else if (e.key == "Tab") {
-        e.preventDefault()
-        napovedaKNavigaci()
+    if (e.key == 'Delete') {
+        e.preventDefault();
+        if (props.cislo == 'prvni-psani' || props.pismena == 'pracepraceprace') return;
+        reset();
+    } else if (e.key == 'ArrowRight') {
+        e.preventDefault();
+        if (route.path.split('/')[1] != 'lekce') return;
+        dalsi();
+    } else if (e.key == 'Tab') {
+        e.preventDefault();
+        napovedaKNavigaci();
     }
 }
 
@@ -163,35 +184,34 @@ const sipkaL = new URL('../assets/icony/sipkaL.svg', import.meta.url).href;
 const zprava = computed(() => {
     return `Také pomocí klávesy <span class='klavesa-v-textu-mensi'>
         <img src='${sipkaL}' alt='Šipka' class='klav-sipka' style='transform: scaleX(-1) translateY(2px) translateX(-1px);'>
-    </span>`
-})
+    </span>`;
+});
 </script>
 
 <template>
-    <div id="bloky" style="margin-top: 25px;">
+    <div id="bloky" style="margin-top: 25px">
         <div id="hodnoceni" class="blok" :style="{ width: cislo == 'prvni-psani' ? '400px' : '' }">
-            <Tooltip :zprava="`Pro získání 3 hvězd je potřeba dosánout rychlosti <b>min. ${levelyRychlosti[2]} CPM</b>. Hodně štěstí!`"
-                :vzdalenost="10" :sirka="250">
+            <Tooltip :zprava="`Pro získání 3 hvězd je potřeba dosánout rychlosti <b>min. ${levelyRychlosti[2]} CPM</b>. Hodně štěstí!`" :vzdalenost="10" :sirka="250">
                 <div id="hvezdy">
-                    <img v-if="rychlost >= levelyRychlosti[0]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
-                    <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-                    <img v-if="rychlost >= levelyRychlosti[1]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
-                    <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-                    <img v-if="rychlost >= levelyRychlosti[2]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
-                    <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
+                    <img v-if="rychlost >= levelyRychlosti[0]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda" />
+                    <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda" />
+                    <img v-if="rychlost >= levelyRychlosti[1]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda" />
+                    <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda" />
+                    <img v-if="rychlost >= levelyRychlosti[2]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda" />
+                    <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda" />
                 </div>
             </Tooltip>
-            <div style="display: flex; align-items: center; height: 100%;">
+            <div style="display: flex; align-items: center; height: 100%">
                 <h3 style="font-weight: 300; margin: 0">{{ hodnoceni }}</h3>
             </div>
         </div>
         <div v-if="cislo !== 'prvni-psani'" class="blok" id="chyby">
             <h2>Nejčastější chyby</h2>
-            <hr>
+            <hr />
             <div v-if="nejcastejsiChyby.size !== 0">
                 <ol>
                     <li v-for="znak in nejcastejsiChybyTop3" :key="znak.znak">
-                        <span :style="{ fontSize: znak.znak == ' ' ? '20px' : 'auto', paddingTop: znak.znak == ' ' ? '14px' : '0px'}">{{ znak.znak == " " ? "┗━┛" : znak.znak }}</span>
+                        <span :style="{ fontSize: znak.znak == ' ' ? '20px' : 'auto', paddingTop: znak.znak == ' ' ? '14px' : '0px' }">{{ znak.znak == ' ' ? '┗━┛' : znak.znak }}</span>
                     </li>
                 </ol>
                 <ul>
@@ -200,7 +220,7 @@ const zprava = computed(() => {
                     </li>
                 </ul>
             </div>
-            <h3 v-else style="height: 100%; display: flex; justify-content: center; align-items: center; margin-top: 0;">
+            <h3 v-else style="height: 100%; display: flex; justify-content: center; align-items: center; margin-top: 0">
                 <span>Žádné!</span>
             </h3>
         </div>
@@ -210,10 +230,12 @@ const zprava = computed(() => {
         <div class="blok">
             <Tooltip
                 zprava="Za <b>neopravené</b> chyby je adekvátní <b>penalizace</b>. Chybu opravíš pomocí klávesy <span class='klavesa-v-textu-mensi'>Backspace</span>"
-                :sirka="180" :vzdalenost="6">
+                :sirka="180"
+                :vzdalenost="6"
+            >
                 <AnimaceCisla class="cislo" :cislo="rychlost > 0 ? Math.round(rychlost * 10) / 10 : 0" :desetina-mista="0" />
             </Tooltip>
-            <hr>
+            <hr />
             <p class="jednotka">CPM / úhozů</p>
             <p class="jednotka">&zwnj;</p>
             <h3>Rychlost</h3>
@@ -223,7 +245,7 @@ const zprava = computed(() => {
                 <AnimaceCisla class="cislo" :cislo="Math.round(presnost * 10) / 10 <= 0 ? 0 : Math.round(presnost * 10) / 10" />
                 <span class="procento">%</span>
             </Tooltip>
-            <hr>
+            <hr />
             <p v-if="preklepy == 1" class="jednotka">{{ preklepy }} neopravený</p>
             <p v-else-if="preklepy >= 2 && preklepy <= 4" class="jednotka">{{ preklepy }} neopravené</p>
             <p v-else-if="preklepy >= 5 || preklepy == 0" class="jednotka">{{ preklepy }} neopravených</p>
@@ -234,10 +256,10 @@ const zprava = computed(() => {
         </div>
         <div class="blok">
             <AnimaceCisla class="cislo" :cislo="cas < 60 ? Math.round(cas * 10) / 10 : Math.round(cas / 60)" :desetina-mista="0" />
-            <hr>
-            <p class="jednotka">{{ cas < 60 ? "Sekund" : (cas == 60) ? "Minuta" : (cas <= 240) ? "Minuty" : "Minut" }}</p>
-                    <p class="jednotka">&zwnj;</p>
-                    <h3>Čas</h3>
+            <hr />
+            <p class="jednotka">{{ cas < 60 ? 'Sekund' : cas == 60 ? 'Minuta' : cas <= 240 ? 'Minuty' : 'Minut' }}</p>
+            <p class="jednotka">&zwnj;</p>
+            <h3>Čas</h3>
         </div>
     </div>
 
@@ -246,18 +268,14 @@ const zprava = computed(() => {
         <button v-if="props.cislo == 'prvni-psani'" class="tlacitko" @click="router.push('/registrace')">Vytvořit účet</button>
         <button v-if="props.pismena == 'pracepraceprace'" class="tlacitko" @click="router.push('/trida')">Zpět do třídy</button>
 
-        <Tooltip v-if="props.cislo != 'prvni-psani' && props.pismena != 'pracepraceprace'"
-            zprava="Také pomocí klávesy <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="130">
+        <Tooltip v-if="props.cislo != 'prvni-psani' && props.pismena != 'pracepraceprace'" zprava="Také pomocí klávesy <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="130">
             <button class="tlacitko" @click="reset">Zkusit znovu</button>
         </Tooltip>
 
-        <Tooltip v-if="route.path.split('/')[1] == 'lekce'"
-            :zprava="zprava"
-            :sirka="130">
+        <Tooltip v-if="route.path.split('/')[1] == 'lekce'" :zprava="zprava" :sirka="130">
             <button class="tlacitko" @click="dalsi()">Pokračovat</button>
         </Tooltip>
     </div>
-
 </template>
 
 <style scoped>
@@ -278,7 +296,7 @@ li:first-child {
 
 ol span {
     font-weight: 500;
-    font-family: "Red Hat Mono", monospace;
+    font-family: 'Red Hat Mono', monospace;
 }
 
 ol,
@@ -365,7 +383,7 @@ ul {
 .blok .cislo {
     font-size: 40px;
     font-weight: 500;
-    font-family: "Red Hat Mono";
+    font-family: 'Red Hat Mono';
 }
 
 .jednotka {

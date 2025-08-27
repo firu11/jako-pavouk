@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { useHead } from "@unhead/vue";
+import { useHead } from '@unhead/vue';
 
 useHead({
-    title: "Jak psát všemi deseti",
+    title: 'Jak psát všemi deseti',
     meta: [
         {
-            name: "description",
-            content: "Teorie jak psát všemi deseti na české klávesnici. Popsaný prstoklad i tipy na zlepšení přesnosti.",
+            name: 'description',
+            content: 'Teorie jak psát všemi deseti na české klávesnici. Popsaný prstoklad i tipy na zlepšení přesnosti.',
         },
         {
-            name: "keywords",
-            content: "psani, psaní, všemi, vsemi, všema, vsema, deseti, teorie, jak, psát, klávesy, princip, teorie, prstoklad",
-        }
+            name: 'keywords',
+            content: 'psani, psaní, všemi, vsemi, všema, vsema, deseti, teorie, jak, psát, klávesy, princip, teorie, prstoklad',
+        },
     ],
     link: [
         {
-            rel: "canonical",
-            href: "https://jakopavouk.cz/jak-psat"
-        }
-    ]
-})
+            rel: 'canonical',
+            href: 'https://jakopavouk.cz/jak-psat',
+        },
+    ],
+});
 </script>
 
 <template>
@@ -31,20 +31,18 @@ useHead({
             <h2>Výchozí pozice</h2>
             <p>
                 Základem je mít prsty ve správné výchozí pozici, která je velice prostá. Ukazováčky položíme na
-                <b>písmena F, J</b>, kde často bývá fyzická značka, abychom se jich mohli držet.
-                Ostatní prsty umístíme <b>do stran ve stejné řadě</b>.
-                Tedy levý prostředníček bude na D, prsteníček na S a malíček na A. Zrcadlově na druhé ruce.
+                <b>písmena F, J</b>, kde často bývá fyzická značka, abychom se jich mohli držet. Ostatní prsty umístíme <b>do stran ve stejné řadě</b>. Tedy levý prostředníček bude na D,
+                prsteníček na S a malíček na A. Zrcadlově na druhé ruce.
             </p>
         </div>
     </div>
     <div class="bloky">
-        <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí" width="300" height="233">
+        <img src="../assets/klavesniceSPavoukem.webp" alt="Pavouk s klávesnicí" width="300" height="233" />
         <div class="text">
             <h2>Co zbytek klávesnice?</h2>
             <p>
-                Každý prst si hlídá svůj pomyslný <b>sloupeček</b> označený jednou barvou.
-                Například zelené klávesy mačkáme v ideálním případě pouze pravým ukazováčem.
-                <b>Výjimkou jsou palce</b>, které se starají pouze o&nbsp;mezerník.
+                Každý prst si hlídá svůj pomyslný <b>sloupeček</b> označený jednou barvou. Například zelené klávesy mačkáme v ideálním případě pouze pravým ukazováčem. <b>Výjimkou jsou palce</b>,
+                které se starají pouze o&nbsp;mezerník.
             </p>
         </div>
     </div>
@@ -52,33 +50,27 @@ useHead({
         <div class="text">
             <h2>Nastavení textu v sekci procvičování</h2>
             <p>
-                Chceš si procvičit rychlost, ale ještě nezvládáš psát <b>háčky a čárky</b>? Nebo by ti vyhovoval
-                <b>delší čas</b> na psaní? Všechno si
-                můžeš snadno upravit podle sebe!
-                <br><br>
+                Chceš si procvičit rychlost, ale ještě nezvládáš psát <b>háčky a čárky</b>? Nebo by ti vyhovoval <b>delší čas</b> na psaní? Všechno si můžeš snadno upravit podle sebe! <br /><br />
                 Stačí kliknout na tlačítko nastavení, které najdeš hned vedle vizuální klávesnice vpravo.
             </p>
         </div>
-        <img src="../assets/nastaveni.svg" alt="Nastavení textu" width="300" height="233">
+        <img src="../assets/nastaveni.svg" alt="Nastavení textu" width="300" height="233" />
     </div>
     <div class="bloky">
-        <a id="npi" href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target=”_blank” rel="nofollow">
-            <img src="../assets/npi.webp" alt="Národní pedagogický institut" width="225" height="225">
+        <a id="npi" href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target="”_blank”" rel="nofollow">
+            <img src="../assets/npi.webp" alt="Národní pedagogický institut" width="225" height="225" />
         </a>
-        <div class="text" style="display: flex; flex-direction: column; text-align: center;">
+        <div class="text" style="display: flex; flex-direction: column; text-align: center">
             <h2>Státní zkouška</h2>
             <ol>
                 <li>Základní (<b>200+</b> CPM*)</li>
                 <li>Se zvýšenou rychlostí (<b>300+</b> CPM*)</li>
                 <li>Mistrovská (<b>400+</b> CPM*)</li>
             </ol>
-            <hr>
-            <p>
-                Přesnost min. <b>99.5 %</b>, přičemž za neopravenou chybu se odečítá <b>10 úhozů</b>.
-            </p>
+            <hr />
+            <p>Přesnost min. <b>99.5 %</b>, přičemž za neopravenou chybu se odečítá <b>10 úhozů</b>.</p>
             <div id="spodni">
-                <a href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target=”_blank” rel="nofollow">VÍCE
-                    ZDE</a>
+                <a href="https://www.npi.cz/statni-tesnopisny-ustav-statni-zkousky" target="”_blank”" rel="nofollow">VÍCE ZDE</a>
                 <span>*(CPM = úhozů za minutu)</span>
             </div>
         </div>
@@ -86,30 +78,28 @@ useHead({
     <div class="bloky" id="pohyb">
         <div class="text">
             <h2>Pohyb po Pavoukovi</h2>
-            <ul class="mensi-padding" style="list-style: none;">
+            <ul class="mensi-padding" style="list-style: none">
                 <li><b>Výběr lekce / cvičení:</b></li>
                 <li>
-                    <ul style="margin: 0 0 16px 8px; list-style: none;">
+                    <ul style="margin: 0 0 16px 8px; list-style: none">
                         <li><span class="klavesa-v-textu">Enter</span> podržet - vybere to, kde jsem skončil</li>
-                        <li><span class="klavesa-v-textu" style="margin-right: 5px;"><img
-                                    src="../assets/icony/sipkaL.svg" alt="Šipka" class="klav-sipka"></span>
-                            <span class="klavesa-v-textu"><img src="../assets/icony/sipkaL.svg" alt="Šipka"
-                                    class="klav-sipka" style="transform: scaleX(-1);">
-                            </span> - přesný výběr,
-                            <span class="klavesa-v-textu" style="margin-left: 5px;">Enter</span>
+                        <li>
+                            <span class="klavesa-v-textu" style="margin-right: 5px"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klav-sipka" /></span>
+                            <span class="klavesa-v-textu"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klav-sipka" style="transform: scaleX(-1)" /> </span> - přesný výběr,
+                            <span class="klavesa-v-textu" style="margin-left: 5px">Enter</span>
                             - potvrzení
                         </li>
                     </ul>
                 </li>
 
-                <li><span class="klavesa-v-textu"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klav-sipka"
-                            style="transform: scaleX(-1);"></span> - pokračuje na další cvičení
+                <li>
+                    <span class="klavesa-v-textu"><img src="../assets/icony/sipkaL.svg" alt="Šipka" class="klav-sipka" style="transform: scaleX(-1)" /></span> - pokračuje na další cvičení
                 </li>
                 <li><span class="klavesa-v-textu">Delete</span> - opakuje cvičení</li>
                 <li><span class="klavesa-v-textu">Esc</span> - zpět</li>
             </ul>
         </div>
-        <img src="../assets/sipky.svg" alt="Pavouk s klávesnicí" width="345" height="244">
+        <img src="../assets/sipky.svg" alt="Pavouk s klávesnicí" width="345" height="244" />
     </div>
 </template>
 
@@ -134,7 +124,7 @@ useHead({
     text-align: start;
 }
 
-#pohyb>img {
+#pohyb > img {
     transform: scale(1.15);
 }
 

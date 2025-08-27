@@ -5,39 +5,38 @@ const props = defineProps({
     taby: {
         type: Array<Array<string>>,
         default: function () {
-            return [["sus", "Nějaký tab"]]
-        }
+            return [['sus', 'Nějaký tab']];
+        },
     },
     defaultTab: String,
     sirka: {
         type: String,
-        default: "100px"
-    }
-})
-const emit = defineEmits(["zmena"])
+        default: '100px',
+    },
+});
+const emit = defineEmits(['zmena']);
 
 const sirkaCislo = computed(() => {
-    let x = parseInt(props.sirka)
-    if (x > 0) return x
-    return 100
-})
+    let x = parseInt(props.sirka);
+    if (x > 0) return x;
+    return 100;
+});
 
-const tab = ref(props.defaultTab)
+const tab = ref(props.defaultTab);
 const index = computed(() => {
     for (let i = 0; i < props.taby.length; i++) {
-        if (props.taby[i][0] == tab.value) return i
+        if (props.taby[i][0] == tab.value) return i;
     }
-    return 0
-})
+    return 0;
+});
 
-defineExpose({ tab })
-
+defineExpose({ tab });
 </script>
 <template>
     <div id="prepinac-tabu">
-        <label v-for="x, i in taby" :key="i" :class="{ oznaceny: tab == x[0] }">
+        <label v-for="(x, i) in taby" :key="i" :class="{ oznaceny: tab == x[0] }">
             {{ x[1] }}
-            <input type="radio" :value="x[0]" v-model="tab" @change="emit('zmena')">
+            <input type="radio" :value="x[0]" v-model="tab" @change="emit('zmena')" />
         </label>
 
         <span :style="{ transform: `translateX(${sirkaCislo * index}px)` }"></span>

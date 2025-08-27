@@ -4,74 +4,91 @@ import { pridatOznameni, postKlavesnice } from '../utils';
 import { mobil } from '../stores';
 import { useRoute, useRouter } from 'vue-router';
 
-const router = useRouter()
-const route = useRoute()
+const router = useRouter();
+const route = useRoute();
 
-const klavesnice = ref(false)
-const mameJi = ref(false)
-const rucne = ref(mobil)
-const img = ref()
+const klavesnice = ref(false);
+const mameJi = ref(false);
+const rucne = ref(mobil);
+const img = ref();
 
 onMounted(() => {
-    document.addEventListener("keypress", click)
-    setTimeout(zoomIn, 300)
-})
+    document.addEventListener('keypress', click);
+    setTimeout(zoomIn, 300);
+});
 
 onUnmounted(() => {
-    document.removeEventListener("keypress", click)
-})
+    document.removeEventListener('keypress', click);
+});
 
 function click(e: KeyboardEvent) {
-    if (e.key.toLowerCase() == "z") {
-        klavesnice.value = false
-        mameJi.value = true
-        document.removeEventListener("keypress", click)
-    } else if (e.key.toLowerCase() == "y") {
-        klavesnice.value = true
-        mameJi.value = true
-        document.removeEventListener("keypress", click)
+    if (e.key.toLowerCase() == 'z') {
+        klavesnice.value = false;
+        mameJi.value = true;
+        document.removeEventListener('keypress', click);
+    } else if (e.key.toLowerCase() == 'y') {
+        klavesnice.value = true;
+        mameJi.value = true;
+        document.removeEventListener('keypress', click);
     } else {
-        pridatOznameni("Asi mačkáš špatné tlačítko")
+        pridatOznameni('Asi mačkáš špatné tlačítko');
     }
 }
 
 function vybratRucne() {
-    rucne.value = true
-    img.value.style.transform = "none"
+    rucne.value = true;
+    img.value.style.transform = 'none';
 }
 
 function zoomIn() {
-    if (rucne.value) return
-    img.value.style.transform = "scale(1.6) translateY(36px)"
+    if (rucne.value) return;
+    img.value.style.transform = 'scale(1.6) translateY(36px)';
 }
 
 function zoomOut() {
-    if (rucne.value) return
-    img.value.style.transition = "0.8s"
-    img.value.style.transform = "none"
+    if (rucne.value) return;
+    img.value.style.transition = '0.8s';
+    img.value.style.transform = 'none';
 }
 
 function potvrdit() {
-    postKlavesnice(klavesnice.value)
-    router.push("/" + route.query["kam"])
+    postKlavesnice(klavesnice.value);
+    router.push('/' + route.query['kam']);
 }
-
 </script>
 <template>
     <h1>Výběr klávesnice</h1>
 
     <div id="popup">
         <div>
-            <img @mouseenter="zoomOut" @mouseleave="zoomIn" src="../assets/vyberKlavesnice.png" alt="Klavesnice" width="600" ref="img">
+            <img @mouseenter="zoomOut" @mouseleave="zoomIn" src="../assets/vyberKlavesnice.png" alt="Klavesnice" width="600" ref="img" />
         </div>
 
         <p v-if="!mameJi && !rucne">Zmáčkni prosím toto tlačítko na své klávesnici.</p>
-        <p v-else-if="mameJi">Super! Tvoje rozložení je <b>{{ klavesnice ? 'Qwerty' : 'Qwertz' }}.</b></p>
-        <button v-if="mameJi" class="tlacitko" @click="potvrdit" style="margin-top: -14px;">Pokračovat</button>
+        <p v-else-if="mameJi">
+            Super! Tvoje rozložení je <b>{{ klavesnice ? 'Qwerty' : 'Qwertz' }}.</b>
+        </p>
+        <button v-if="mameJi" class="tlacitko" @click="potvrdit" style="margin-top: -14px">Pokračovat</button>
 
         <div v-if="rucne && !mameJi" id="tlacitka">
-            <button class="tlacitko" @click="klavesnice = false; mameJi = true">Qwertz</button>
-            <button class="tlacitko" @click="klavesnice = true; mameJi = true">Qwerty</button>
+            <button
+                class="tlacitko"
+                @click="
+                    klavesnice = false;
+                    mameJi = true;
+                "
+            >
+                Qwertz
+            </button>
+            <button
+                class="tlacitko"
+                @click="
+                    klavesnice = true;
+                    mameJi = true;
+                "
+            >
+                Qwerty
+            </button>
         </div>
     </div>
 
@@ -90,7 +107,7 @@ function potvrdit() {
     cursor: pointer;
 }
 
-#popup>div {
+#popup > div {
     overflow: hidden;
     border-radius: 8px;
 }
@@ -106,11 +123,11 @@ function potvrdit() {
     border-radius: 10px;
 }
 
-#popup>div>img {
+#popup > div > img {
     transition: 2s ease-in-out;
 }
 
-#popup>p {
+#popup > p {
     font-size: 26px;
     line-height: 40px;
 }
@@ -129,7 +146,7 @@ h1 {
         max-width: 90vw;
     }
 
-    #popup>div {
+    #popup > div {
         max-width: 100%;
         display: flex;
         align-items: center;
