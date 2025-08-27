@@ -1,92 +1,99 @@
 <script setup lang="ts">
-import axios from "axios";
-import { getToken, pridatOznameni, naJednoDesetiny } from "../../utils";
-import { computed, onMounted, ref } from "vue";
-import { useHead } from "@unhead/vue";
-import { mobil, role } from "../../stores";
-import Tooltip from "../../components/Tooltip.vue";
-import { useRouter } from "vue-router";
+import axios from 'axios';
+import { getToken, pridatOznameni, naJednoDesetiny } from '../../utils';
+import { computed, onMounted, ref } from 'vue';
+import { useHead } from '@unhead/vue';
+import { mobil, role } from '../../stores';
+import Tooltip from '../../components/Tooltip.vue';
+import { useRouter } from 'vue-router';
 
 useHead({
-    title: "Třída"
-})
+    title: 'Třída',
+});
 
-const router = useRouter()
+const router = useRouter();
 
-const trida = ref({} as { id: number, jmeno: string, ucitel_id: number, kod: string, zamknuta: boolean, pocet_studentu: number, klavesnice: string })
-const praceNove = ref([] as { id: number, cislo: number, datum: string, cpm: number, presnost: number }[])
-const praceDoko = ref([] as { id: number, cislo: number, datum: string, cpm: number, presnost: number }[])
+const trida = ref({} as { id: number; jmeno: string; ucitel_id: number; kod: string; zamknuta: boolean; pocet_studentu: number; klavesnice: string });
+const praceNove = ref([] as { id: number; cislo: number; datum: string; cpm: number; presnost: number }[]);
+const praceDoko = ref([] as { id: number; cislo: number; datum: string; cpm: number; presnost: number }[]);
 
-const nacitam = ref(false)
+const nacitam = ref(false);
 
-const klavesniceStudenta = ref("")
+const klavesniceStudenta = ref('');
 
 onMounted(() => {
     if (mobil.value) {
-        history.back()
-        pridatOznameni("Psaní na telefonech zatím neučíme...")
+        history.back();
+        pridatOznameni('Psaní na telefonech zatím neučíme...');
     }
-    get()
-})
+    get();
+});
 
 function get() {
-    nacitam.value = true
-    axios.get("/skola/trida", {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(response => {
-        trida.value = response.data.trida
-        klavesniceStudenta.value = response.data.klavesnice
+    nacitam.value = true;
+    axios
+        .get('/skola/trida', {
+            headers: {
+                Authorization: `Bearer ${getToken()}`,
+            },
+        })
+        .then((response) => {
+            trida.value = response.data.trida;
+            klavesniceStudenta.value = response.data.klavesnice;
 
-        praceNove.value = []
-        response.data.prace.sort((a: { datum: string }, b: { datum: string }) => b.datum.localeCompare(a.datum))
-        for (let i = 0; i < response.data.prace.length; i++) {
-            const prace1 = response.data.prace[i]
-            let p = { id: prace1.id, cislo: response.data.prace.length - i, datum: new Date(prace1.datum).toLocaleDateString("cs-CZ"), cpm: prace1.cpm, presnost: prace1.presnost }
+            praceNove.value = [];
+            response.data.prace.sort((a: { datum: string }, b: { datum: string }) => b.datum.localeCompare(a.datum));
+            for (let i = 0; i < response.data.prace.length; i++) {
+                const prace1 = response.data.prace[i];
+                let p = { id: prace1.id, cislo: response.data.prace.length - i, datum: new Date(prace1.datum).toLocaleDateString('cs-CZ'), cpm: prace1.cpm, presnost: prace1.presnost };
 
-            if (prace1.cpm != -1) praceDoko.value.push(p)
-            else praceNove.value.push(p)
-        }
-    }).catch(() => {
-        pridatOznameni("Chyba serveru")
-        router.back()
-        role.value = "basic"
-    }).finally(() => {
-        nacitam.value = false
-    })
+                if (prace1.cpm != -1) praceDoko.value.push(p);
+                else praceNove.value.push(p);
+            }
+        })
+        .catch(() => {
+            pridatOznameni('Chyba serveru');
+            router.back();
+            role.value = 'basic';
+        })
+        .finally(() => {
+            nacitam.value = false;
+        });
 }
 
 function prvniVelky(s: string) {
-    if (!s) return "---------"
-    return s[0].toUpperCase() + s.slice(1)
+    if (!s) return '---------';
+    return s[0].toUpperCase() + s.slice(1);
 }
 
 const dobraKlavesnice = computed(() => {
-    if (klavesniceStudenta.value == "") return true
-    return klavesniceStudenta.value == trida.value.klavesnice
-})
+    if (klavesniceStudenta.value == '') return true;
+    return klavesniceStudenta.value == trida.value.klavesnice;
+});
 
 const zprava = computed(() => {
-    if (dobraKlavesnice.value) return "Používáš správnou klávesnici!"
-    return `Třída používá <b>${prvniVelky(trida.value.klavesnice)}</b>, zatímco ty používáš <b>${prvniVelky(klavesniceStudenta.value)}</b>. Nějaké texty by ti nemuseli sedět! Kliknutím si ji změň.`
-})
+    if (dobraKlavesnice.value) return 'Používáš správnou klávesnici!';
+    return `Třída používá <b>${prvniVelky(trida.value.klavesnice)}</b>, zatímco ty používáš <b>${prvniVelky(klavesniceStudenta.value)}</b>. Nějaké texty by ti nemuseli sedět! Kliknutím si ji změň.`;
+});
 
 function zmenaKlavesnice() {
-    if (dobraKlavesnice.value) return
-    axios.post("/ucet-zmena", { "zmena": "klavesnice", "hodnota": trida.value.klavesnice }, { headers: { Authorization: `Bearer ${getToken()}` } }).then(() => {
-        praceDoko.value = []
-        praceNove.value = []
-        get()
-    }).catch(() => {
-        pridatOznameni()
-    })
+    if (dobraKlavesnice.value) return;
+    axios
+        .post('/ucet-zmena', { zmena: 'klavesnice', hodnota: trida.value.klavesnice }, { headers: { Authorization: `Bearer ${getToken()}` } })
+        .then(() => {
+            praceDoko.value = [];
+            praceNove.value = [];
+            get();
+        })
+        .catch(() => {
+            pridatOznameni();
+        });
 }
-
 </script>
 <template>
-    <h1>Třída: {{ trida.jmeno == undefined ? "-.-" : trida.jmeno }}
-        <Tooltip @click="zmenaKlavesnice" :zprava="zprava" :sirka="230" :vzdalenost="2" style="cursor: pointer;">
+    <h1>
+        Třída: {{ trida.jmeno == undefined ? '-.-' : trida.jmeno }}
+        <Tooltip @click="zmenaKlavesnice" :zprava="zprava" :sirka="230" :vzdalenost="2" style="cursor: pointer">
             <span :class="{ blba: !dobraKlavesnice, dobra: dobraKlavesnice }">
                 {{ prvniVelky(trida.klavesnice) }}
             </span>
@@ -101,7 +108,7 @@ function zmenaKlavesnice() {
                     <h3>Práce {{ v.cislo }}</h3>
                     <h4>{{ v.datum }}</h4>
                 </div>
-                <img class="play" src="../../assets/icony/start.svg" alt="Dokonceno!">
+                <img class="play" src="../../assets/icony/start.svg" alt="Dokonceno!" />
             </RouterLink>
         </div>
         <span v-else>Žádné</span>
@@ -114,8 +121,12 @@ function zmenaKlavesnice() {
                     <h4>{{ v.datum }}</h4>
                 </div>
                 <div class="statistika">
-                    <span><b>{{ naJednoDesetiny(v.cpm) }}</b> CPM</span>
-                    <span><b>{{ naJednoDesetiny(v.presnost) }}</b> %</span>
+                    <span
+                        ><b>{{ naJednoDesetiny(v.cpm) }}</b> CPM</span
+                    >
+                    <span
+                        ><b>{{ naJednoDesetiny(v.presnost) }}</b> %</span
+                    >
                 </div>
             </div>
         </div>
@@ -123,7 +134,6 @@ function zmenaKlavesnice() {
     </div>
 
     <span v-if="praceNove.length == 0 && praceDoko.length == 0 && !nacitam" id="textZaci">Zatím tu nejsou žádné zadané práce.</span>
-
 </template>
 <style scoped>
 h1 {
@@ -171,7 +181,7 @@ h1 span.blba {
 }
 
 .statistika span b {
-    font-family: "Red Hat Mono";
+    font-family: 'Red Hat Mono';
     font-size: 29px;
 }
 
@@ -217,7 +227,7 @@ h2 {
     text-align: left;
 }
 
-#kontejner>span {
+#kontejner > span {
     align-self: center;
     margin: 10px 0 10px 0;
 }

@@ -1,189 +1,213 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, useTemplateRef } from "vue";
-import TextZadani from "./TextZadani.vue";
-import axios from "axios";
-import { getToken, pridatOznameni, format } from "../../utils";
-import Tooltip from "../../components/Tooltip.vue";
+import { computed, onMounted, ref, useTemplateRef } from 'vue';
+import TextZadani from './TextZadani.vue';
+import axios from 'axios';
+import { getToken, pridatOznameni, format } from '../../utils';
+import Tooltip from '../../components/Tooltip.vue';
 
 const props = defineProps({
     tridaID: Number,
-    posledniRychlost: Number
-})
+    posledniRychlost: Number,
+});
 
-const emit = defineEmits(["zadano"])
+const emit = defineEmits(['zadano']);
 
-const textovePole = useTemplateRef("textove-pole")
+const textovePole = useTemplateRef('textove-pole');
 
-const delka = ref(5 * 60)
-const typTextu = ref("")
-const lekceTextu = ref()
+const delka = ref(5 * 60);
+const typTextu = ref('');
+const lekceTextu = ref();
 
-const texty = ref([] as { jmeno: string, obtiznost: number }[])
-const lekce = ref([] as { id: number, lekce_id: number, pismena: string }[])
-let mapa: Map<string, { id: number, lekce_id: number, pismena: string }[]> = new Map<string, { id: number, lekce_id: number, pismena: string }[]>();
+const texty = ref([] as { jmeno: string; obtiznost: number }[]);
+const lekce = ref([] as { id: number; lekce_id: number; pismena: string }[]);
+let mapa: Map<string, { id: number; lekce_id: number; pismena: string }[]> = new Map<string, { id: number; lekce_id: number; pismena: string }[]>();
 
 onMounted(() => {
-    axios.get("/procvic").then(response => {
-        response.data.texty.forEach((el: { jmeno: string, obtiznost: number }) => {
-            texty.value.push({ jmeno: el.jmeno, obtiznost: el.obtiznost })
+    axios
+        .get('/procvic')
+        .then((response) => {
+            response.data.texty.forEach((el: { jmeno: string; obtiznost: number }) => {
+                texty.value.push({ jmeno: el.jmeno, obtiznost: el.obtiznost });
+            });
+            texty.value.sort((a: { obtiznost: number }, b: { obtiznost: number }) => {
+                return a.obtiznost - b.obtiznost;
+            });
         })
-        texty.value.sort((a: { obtiznost: number }, b: { obtiznost: number }) => { return a.obtiznost - b.obtiznost })
-    }).catch(() => {
-        pridatOznameni("Chyba serveru")
-    })
+        .catch(() => {
+            pridatOznameni('Chyba serveru');
+        });
 
-    axios.get("/skola/typy-cviceni", { params: { trida_id: props.tridaID } }).then(response => {
-        for (const k in response.data) {
-            mapa.set(k, response.data[k].sort((a: { id: number, lekce_id: number, pismena: string }, b: { id: number, lekce_id: number, pismena: string }) => a.lekce_id - b.lekce_id))
-        }
-    }).catch(e => {
-        console.log(e)
-        pridatOznameni("Chyba serveru")
-    })
-})
+    axios
+        .get('/skola/typy-cviceni', { params: { trida_id: props.tridaID } })
+        .then((response) => {
+            for (const k in response.data) {
+                mapa.set(
+                    k,
+                    response.data[k].sort((a: { id: number; lekce_id: number; pismena: string }, b: { id: number; lekce_id: number; pismena: string }) => a.lekce_id - b.lekce_id),
+                );
+            }
+        })
+        .catch((e) => {
+            console.log(e);
+            pridatOznameni('Chyba serveru');
+        });
+});
 
 function getText() {
-    if (typTextu.value == "") return
+    if (typTextu.value == '') return;
 
-    axios.post("/skola/text", {
-        "typ": typTextu.value,
-        "z_lekce": lekceTextu.value.pismena,
-        "trida_id": props.tridaID,
-        "delka": odhadovanaDelkaTextu.value == -1 ? 239 : odhadovanaDelkaTextu.value
-    }, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(response => {
-        if (textovePole.value?.text.length != 0 && textovePole.value?.text[textovePole.value?.text.length - 1] != " ") textovePole.value!.text += " "
-        textovePole.value!.text += response.data.text
-    }).catch(e => {
-        console.log(e)
-        pridatOznameni("Chyba serveru")
-    })
+    axios
+        .post(
+            '/skola/text',
+            {
+                typ: typTextu.value,
+                z_lekce: lekceTextu.value.pismena,
+                trida_id: props.tridaID,
+                delka: odhadovanaDelkaTextu.value == -1 ? 239 : odhadovanaDelkaTextu.value,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                },
+            },
+        )
+        .then((response) => {
+            if (textovePole.value?.text.length != 0 && textovePole.value?.text[textovePole.value?.text.length - 1] != ' ') textovePole.value!.text += ' ';
+            textovePole.value!.text += response.data.text;
+        })
+        .catch((e) => {
+            console.log(e);
+            pridatOznameni('Chyba serveru');
+        });
 }
 
 function pridatPraci() {
     if (textovePole.value!.text.length <= 10) {
-        pridatOznameni("Není text nějak krátký?")
-        return
+        pridatOznameni('Není text nějak krátký?');
+        return;
     }
 
     if (!textovePole.value!.ready) {
-        pridatOznameni("Text obsahuje červeně označené znaky, které nelze jednoduše napsat na české klávesnici.")
-        return
+        pridatOznameni('Text obsahuje červeně označené znaky, které nelze jednoduše napsat na české klávesnici.');
+        return;
     }
 
-    axios.post("/skola/pridat-praci", {
-        "cas": delka.value,
-        "trida_id": props.tridaID,
-        "text": textovePole.value!.text
-    }, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(() => {
-        emit("zadano")
-    }).catch(e => {
-        console.log(e)
-        pridatOznameni("Chyba serveru")
-    })
+    axios
+        .post(
+            '/skola/pridat-praci',
+            {
+                cas: delka.value,
+                trida_id: props.tridaID,
+                text: textovePole.value!.text,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                },
+            },
+        )
+        .then(() => {
+            emit('zadano');
+        })
+        .catch((e) => {
+            console.log(e);
+            pridatOznameni('Chyba serveru');
+        });
 }
 
 function d(x: number) {
-    delka.value = x
+    delka.value = x;
 }
 
-const puvodniText = ref("")
+const puvodniText = ref('');
 
 function smazatDiakritiku() {
-    if (textovePole.value!.text.length == 0) return
-    puvodniText.value = textovePole.value!.text
-    textovePole.value!.text = textovePole.value!.text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    if (textovePole.value!.text.length == 0) return;
+    puvodniText.value = textovePole.value!.text;
+    textovePole.value!.text = textovePole.value!.text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     if (puvodniText.value === textovePole.value!.text) {
-        puvodniText.value = ""
+        puvodniText.value = '';
     }
 }
 
 function smazatVelkaPismena() {
-    if (textovePole.value!.text.length == 0) return
-    puvodniText.value = textovePole.value!.text
-    textovePole.value!.text = textovePole.value!.text.toLocaleLowerCase()
+    if (textovePole.value!.text.length == 0) return;
+    puvodniText.value = textovePole.value!.text;
+    textovePole.value!.text = textovePole.value!.text.toLocaleLowerCase();
     if (puvodniText.value === textovePole.value!.text) {
-        puvodniText.value = ""
+        puvodniText.value = '';
     }
 }
 
 function smazatEnterAMezery() {
-    if (textovePole.value!.text.length == 0) return
-    puvodniText.value = textovePole.value!.text
-    textovePole.value!.text = textovePole.value!.text.replace(/\n/g, " ").replace(/ {2,}/g, " ").trim()
+    if (textovePole.value!.text.length == 0) return;
+    puvodniText.value = textovePole.value!.text;
+    textovePole.value!.text = textovePole.value!.text.replace(/\n/g, ' ').replace(/ {2,}/g, ' ').trim();
     if (puvodniText.value === textovePole.value!.text) {
-        puvodniText.value = ""
+        puvodniText.value = '';
     }
 }
 
 function vymenitUvozovky() {
-    if (textovePole.value!.text.length == 0) return
-    puvodniText.value = textovePole.value!.text
-    textovePole.value!.text = textovePole.value!.text.replace(/[„“”‟❞❝＂⹂]/g, '"').replace(/[‚’‘‛❛❜]/g, "'")
+    if (textovePole.value!.text.length == 0) return;
+    puvodniText.value = textovePole.value!.text;
+    textovePole.value!.text = textovePole.value!.text.replace(/[„“”‟❞❝＂⹂]/g, '"').replace(/[‚’‘‛❛❜]/g, "'");
     if (puvodniText.value === textovePole.value!.text) {
-        puvodniText.value = ""
+        puvodniText.value = '';
     }
 }
 
 function zrusitPosledniUpravu() {
-    textovePole.value!.text = puvodniText.value
-    puvodniText.value = ""
+    textovePole.value!.text = puvodniText.value;
+    puvodniText.value = '';
 }
 
 function getZnakyASlova() {
-    if (textovePole.value == null) return "0 / 0"
-    let vys = ""
+    if (textovePole.value == null) return '0 / 0';
+    let vys = '';
 
-    vys += textovePole.value.text.length
-    if (textovePole.value.text.length == 0 || textovePole.value.text.length >= 5) vys += " znaků"
-    else if (textovePole.value.text.length == 1) vys += " znak"
-    else vys += " znaky"
+    vys += textovePole.value.text.length;
+    if (textovePole.value.text.length == 0 || textovePole.value.text.length >= 5) vys += ' znaků';
+    else if (textovePole.value.text.length == 1) vys += ' znak';
+    else vys += ' znaky';
 
-    vys += " / "
-    let slova = 0
-    if (textovePole.value.text.length != 0) slova = textovePole.value.text.trim().split(/[ \n]+/).length
-    vys += slova
-    if (slova == 0 || slova >= 5) vys += " slov"
-    else if (slova == 1) vys += " slovo"
-    else vys += " slova"
+    vys += ' / ';
+    let slova = 0;
+    if (textovePole.value.text.length != 0) slova = textovePole.value.text.trim().split(/[ \n]+/).length;
+    vys += slova;
+    if (slova == 0 || slova >= 5) vys += ' slov';
+    else if (slova == 1) vys += ' slovo';
+    else vys += ' slova';
 
-    return vys
+    return vys;
 }
 
 function upravaSelectuLekci() {
-    lekce.value = []
+    lekce.value = [];
     switch (typTextu.value) {
-        case "1":
-            lekce.value = mapa.get("nova")!
-            break
-        case "2":
-            lekce.value = mapa.get("naucena")!
-            break
-        case "3":
-            lekce.value = mapa.get("slova")!
-            break
-        case "4":
-            lekce.value = mapa.get("programator")!
-            break
+        case '1':
+            lekce.value = mapa.get('nova')!;
+            break;
+        case '2':
+            lekce.value = mapa.get('naucena')!;
+            break;
+        case '3':
+            lekce.value = mapa.get('slova')!;
+            break;
+        case '4':
+            lekce.value = mapa.get('programator')!;
+            break;
         default:
-            lekce.value = []
+            lekce.value = [];
     }
 
-    lekceTextu.value = ""
+    lekceTextu.value = '';
 }
 
 const odhadovanaDelkaTextu = computed(() => {
-    if (props.posledniRychlost == -1) return -1
-    return Math.ceil((props.posledniRychlost! + 10) * (delka.value / 60))
-})
-
+    if (props.posledniRychlost == -1) return -1;
+    return Math.ceil((props.posledniRychlost! + 10) * (delka.value / 60));
+});
 </script>
 <template>
     <div id="pulic-zadani">
@@ -192,11 +216,10 @@ const odhadovanaDelkaTextu = computed(() => {
 
             <div id="moznosti">
                 <div id="delka">
-                    <Tooltip zprava="Pokud student dopíše text před vypršením časového limitu, bude ho psát znovu."
-                        :sirka="210" :vzdalenost="0">
+                    <Tooltip zprava="Pokud student dopíše text před vypršením časového limitu, bude ho psát znovu." :sirka="210" :vzdalenost="0">
                         <h3>Čas</h3>
                     </Tooltip>
-                    <hr id="predel2">
+                    <hr id="predel2" />
                     <button :class="{ aktivni: 60 == delka }" @click="d(60)">1min</button>
                     <button :class="{ aktivni: 120 == delka }" @click="d(120)">2min</button>
                     <button :class="{ aktivni: 180 == delka }" @click="d(180)">3min</button>
@@ -207,7 +230,7 @@ const odhadovanaDelkaTextu = computed(() => {
                     <button :class="{ aktivni: 1800 == delka }" @click="d(1800)">30min</button>
                 </div>
 
-                <hr id="predel">
+                <hr id="predel" />
 
                 <div class="vert-kontejner">
                     <div class="kontejner">
@@ -218,10 +241,7 @@ const odhadovanaDelkaTextu = computed(() => {
                     </div>
 
                     <div class="kontejner">
-                        <button @click="zrusitPosledniUpravu" class="cervene-tlacitko"
-                            :disabled="puvodniText.length == 0">
-                            Zrušit poslední úpravu
-                        </button>
+                        <button @click="zrusitPosledniUpravu" class="cervene-tlacitko" :disabled="puvodniText.length == 0">Zrušit poslední úpravu</button>
                     </div>
 
                     <button @click="pridatPraci" class="tlacitko">Zadat práci</button>
@@ -230,28 +250,23 @@ const odhadovanaDelkaTextu = computed(() => {
         </div>
 
         <div id="text">
-            <div style="display: flex; gap: 5px; width: 100%;">
+            <div style="display: flex; gap: 5px; width: 100%">
                 <select v-model="typTextu" @change="upravaSelectuLekci">
-                    <option value="" style="color: #a1a1a1;">Generovat text</option>
+                    <option value="" style="color: #a1a1a1">Generovat text</option>
                     <option value="1">Nová písmena z lekce</option>
                     <option value="2">Naučená písmena z lekce</option>
                     <option value="3">Slova z lekce</option>
                     <option value="4">Programátorské</option>
-                    <option v-for="t, i in texty" :value="t.jmeno"
-                        :class="{ lehkaObtiznost: t.obtiznost == 1, stredniObtiznost: t.obtiznost == 2, tezkaObtiznost: t.obtiznost == 3 }"
-                        :key="i">
+                    <option v-for="(t, i) in texty" :value="t.jmeno" :class="{ lehkaObtiznost: t.obtiznost == 1, stredniObtiznost: t.obtiznost == 2, tezkaObtiznost: t.obtiznost == 3 }" :key="i">
                         {{ t.jmeno }}
                     </option>
                 </select>
-                <select v-model="lekceTextu"
-                    :disabled="typTextu != '1' && typTextu != '2' && typTextu != '3' && typTextu != '4'"
-                    style="width: 121px;">
-                    <option value="" style="color: #a1a1a1;">Vybrat lekci</option>
+                <select v-model="lekceTextu" :disabled="typTextu != '1' && typTextu != '2' && typTextu != '3' && typTextu != '4'" style="width: 121px">
+                    <option value="" style="color: #a1a1a1">Vybrat lekci</option>
                     <option v-for="l in lekce" :value="l" :key="l.pismena">{{ format(l.pismena) }}</option>
                 </select>
-                <button class="tlacitko" @click="getText"
-                    :disabled="typTextu == '' || ((typTextu == '1' || typTextu == '2' || typTextu == '3' || typTextu == '4') && lekceTextu == '')">
-                    <img src="../../assets/icony/plus.svg" alt="Prodloužit">
+                <button class="tlacitko" @click="getText" :disabled="typTextu == '' || ((typTextu == '1' || typTextu == '2' || typTextu == '3' || typTextu == '4') && lekceTextu == '')">
+                    <img src="../../assets/icony/plus.svg" alt="Prodloužit" />
                 </button>
             </div>
 
@@ -259,9 +274,13 @@ const odhadovanaDelkaTextu = computed(() => {
 
             <div>
                 <span>{{ getZnakyASlova() }}</span>
-                <Tooltip v-show="odhadovanaDelkaTextu != -1"
+                <Tooltip
+                    v-show="odhadovanaDelkaTextu != -1"
                     :zprava="`Odhad, jak má být text dlouhý, aby ho studenti nestihli napsat až do konce. Počítá s rychlostí z poslední práce.`"
-                    :sirka="350" :vzdalenost="-190" :vzdalenostX="120">
+                    :sirka="350"
+                    :vzdalenost="-190"
+                    :vzdalenostX="120"
+                >
                     <span>~ {{ odhadovanaDelkaTextu }} znaků</span>
                 </Tooltip>
             </div>
@@ -307,7 +326,7 @@ select {
 }
 
 /* firefox nenenene */
-@supports(-webkit-tap-highlight-color: black) {
+@supports (-webkit-tap-highlight-color: black) {
     select:hover {
         background-color: var(--fialova) !important;
     }
@@ -323,7 +342,7 @@ select:hover {
 
 select option {
     background-color: var(--tmave-fialova) !important;
-    font-family: "Montserrat", Candara !important;
+    font-family: 'Montserrat', Candara !important;
     font-weight: 400;
 }
 
@@ -352,7 +371,7 @@ select option:disabled {
     gap: 15px;
 }
 
-#text>div {
+#text > div {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -409,7 +428,7 @@ select option:disabled {
     transition: filter 0.2s;
 }
 
-.kontejner>div {
+.kontejner > div {
     display: flex;
     gap: 15px;
 }
@@ -423,7 +442,7 @@ select option:disabled {
     width: 100px !important;
 }
 
-#delka>button {
+#delka > button {
     background-color: transparent;
     border: none;
     color: rgba(240, 240, 240, 0.7);

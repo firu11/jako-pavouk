@@ -1,159 +1,195 @@
 <script setup lang="ts">
-import axios from "axios";
-import { onMounted, onUnmounted, ref, useTemplateRef } from "vue";
-import { getToken, pridatOznameni, oznameni } from "../../utils";
-import { moznostiRocnik, moznostiTrida, moznostiSkupina, prihlasen } from "../../stores";
-import { useHead } from "@unhead/vue";
-import { useRouter } from "vue-router";
-import PrepinacTabu from "../../components/PrepinacTabu.vue";
-import SeznamUcitelu from "../../components/ucitel/SeznamUcitelu.vue";
+import axios from 'axios';
+import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { getToken, pridatOznameni, oznameni } from '../../utils';
+import { moznostiRocnik, moznostiTrida, moznostiSkupina, prihlasen } from '../../stores';
+import { useHead } from '@unhead/vue';
+import { useRouter } from 'vue-router';
+import PrepinacTabu from '../../components/PrepinacTabu.vue';
+import SeznamUcitelu from '../../components/ucitel/SeznamUcitelu.vue';
 
-const router = useRouter()
+const router = useRouter();
 
-const skola = ref({} as { jmeno: string, id: number, aktivni: boolean })
-type Trida = { id: number, jmeno: string, ucitel_id: number, kod: string, zamknuta: boolean, pocet_studentu: number, pocet_praci: number }
-const rocniky = ref(new Map<string, Trida[]>())
-const pridavani = ref(false)
+const skola = ref({} as { jmeno: string; id: number; aktivni: boolean });
+type Trida = { id: number; jmeno: string; ucitel_id: number; kod: string; zamknuta: boolean; pocet_studentu: number; pocet_praci: number };
+const rocniky = ref(new Map<string, Trida[]>());
+const pridavani = ref(false);
 
-const rocnik = ref("1.")
-const trida = ref("A")
-const skupina = ref("-")
+const rocnik = ref('1.');
+const trida = ref('A');
+const skupina = ref('-');
 
-const nacitam = ref(true)
+const nacitam = ref(true);
 
-const sources: EventSource[] = []
+const sources: EventSource[] = [];
 
 useHead({
-    title: "Škola"
-})
+    title: 'Škola',
+});
 
 onMounted(() => {
     if (!prihlasen.value && getToken() == null) {
-        router.push("/")
+        router.push('/');
     }
-    get()
-})
+    get();
+});
 
 onUnmounted(() => {
-    sources.forEach(s => {
-        s.close()
-    })
-})
+    sources.forEach((s) => {
+        s.close();
+    });
+});
 
 function get() {
-    axios.get("/skola/tridy", {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(response => {
-        if (response.data.skola == undefined) {
-            pridatOznameni("Něco se pokazilo")
-            router.push("/")
-            return
-        }
-        skola.value = response.data.skola
-
-        Object.keys(response.data.tridy).forEach(key => {
-            rocniky.value.set(key, response.data.tridy[key].sort((a: { jmeno: string }, b: { jmeno: string }) => a.jmeno.localeCompare(b.jmeno)))
+    axios
+        .get('/skola/tridy', {
+            headers: {
+                Authorization: `Bearer ${getToken()}`,
+            },
         })
+        .then((response) => {
+            if (response.data.skola == undefined) {
+                pridatOznameni('Něco se pokazilo');
+                router.push('/');
+                return;
+            }
+            skola.value = response.data.skola;
 
-        sources.splice(0, sources.length - 1)
-        if (sources.length == 0) {
-            rocniky.value.forEach(r => {
-                r.forEach(t => {
-                    let s: EventSource
-                    if (window.location.hostname == "jakopavouk.cz" || window.location.hostname == "test.jakopavouk.cz") {
-                        s = new EventSource("/api/skola/zaci-stream/" + t.id)
-                    } else {
-                        s = new EventSource("http://127.0.0.1:1323/api/skola/zaci-stream/" + t.id)
-                    }
-                    s.onmessage = function () {
-                        get()
-                    }
-                    sources.push(s)
-                })
-            })
-        }
+            Object.keys(response.data.tridy).forEach((key) => {
+                rocniky.value.set(
+                    key,
+                    response.data.tridy[key].sort((a: { jmeno: string }, b: { jmeno: string }) => a.jmeno.localeCompare(b.jmeno)),
+                );
+            });
 
-        if (!skola.value.aktivni && oznameni.value.length == 0) {
-            pridatOznameni("Vaše škola nemá platnou licenci a školní systém se brzy uzamkne. Pro více informací pište na e-mail: firu@jakopavouk.cz.", 15000)
-        }
-    }).catch(e => {
-        pridatOznameni("Chyba serveru")
-        if (e.response === undefined) router.push("/")
-        if (e.response.status == 401) {
-            pridatOznameni("Sem nemáš přístup")
-            router.push("/")
-            return
-        }
-    }).finally(() => {
-        nacitam.value = false
-    })
+            sources.splice(0, sources.length - 1);
+            if (sources.length == 0) {
+                rocniky.value.forEach((r) => {
+                    r.forEach((t) => {
+                        let s: EventSource;
+                        if (window.location.hostname == 'jakopavouk.cz' || window.location.hostname == 'test.jakopavouk.cz') {
+                            s = new EventSource('/api/skola/zaci-stream/' + t.id);
+                        } else {
+                            s = new EventSource('http://127.0.0.1:1323/api/skola/zaci-stream/' + t.id);
+                        }
+                        s.onmessage = function () {
+                            get();
+                        };
+                        sources.push(s);
+                    });
+                });
+            }
+
+            if (!skola.value.aktivni && oznameni.value.length == 0) {
+                pridatOznameni('Vaše škola nemá platnou licenci a školní systém se brzy uzamkne. Pro více informací pište na e-mail: firu@jakopavouk.cz.', 15000);
+            }
+        })
+        .catch((e) => {
+            pridatOznameni('Chyba serveru');
+            if (e.response === undefined) router.push('/');
+            if (e.response.status == 401) {
+                pridatOznameni('Sem nemáš přístup');
+                router.push('/');
+                return;
+            }
+        })
+        .finally(() => {
+            nacitam.value = false;
+        });
 }
 
 function vytvorit(e: Event) {
-    e.preventDefault()
+    e.preventDefault();
 
-    axios.post("/skola/create-trida", { jmeno: `${rocnik.value}${trida.value}${skupina.value != '-' ? ' ￨ ' + skupina.value : ''}` }, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(() => {
-        pridavani.value = false
-        get()
-    }).catch(e => {
-        console.log(e)
-        pridatOznameni("Chyba serveru")
-    })
+    axios
+        .post(
+            '/skola/create-trida',
+            { jmeno: `${rocnik.value}${trida.value}${skupina.value != '-' ? ' ￨ ' + skupina.value : ''}` },
+            {
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                },
+            },
+        )
+        .then(() => {
+            pridavani.value = false;
+            get();
+        })
+        .catch((e) => {
+            console.log(e);
+            pridatOznameni('Chyba serveru');
+        });
 }
 
-const prepinacTabu = useTemplateRef("prepinac-tabu")
+const prepinacTabu = useTemplateRef('prepinac-tabu');
 
-const pridatEmail = ref("")
+const pridatEmail = ref('');
 function pridatUcitele(e: Event) {
-    e.preventDefault()
-    axios.post("/skola/upravit-ucitele", { email: pridatEmail.value, akce: "pridat" }, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(() => {
-        pridavani.value = false
-        pridatEmail.value = ""
-    }).catch(e => {
-        pridatOznameni(e.response.data.error)
-    })
+    e.preventDefault();
+    axios
+        .post(
+            '/skola/upravit-ucitele',
+            { email: pridatEmail.value, akce: 'pridat' },
+            {
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                },
+            },
+        )
+        .then(() => {
+            pridavani.value = false;
+            pridatEmail.value = '';
+        })
+        .catch((e) => {
+            pridatOznameni(e.response.data.error);
+        });
 }
-
 </script>
 <template>
-    <h1 style="margin: 0;">{{ skola.jmeno ? skola.jmeno : "Škola" }}</h1>
-    <PrepinacTabu v-show="!pridavani" :taby="[['tridy', 'Moje Třídy'], ['ucitele', 'Učitelé']]" default-tab="tridy"
-        sirka="120px" ref="prepinac-tabu" />
+    <h1 style="margin: 0">{{ skola.jmeno ? skola.jmeno : 'Škola' }}</h1>
+    <PrepinacTabu
+        v-show="!pridavani"
+        :taby="[
+            ['tridy', 'Moje Třídy'],
+            ['ucitele', 'Učitelé'],
+        ]"
+        default-tab="tridy"
+        sirka="120px"
+        ref="prepinac-tabu"
+    />
 
     <div id="tridy" v-if="prepinacTabu?.tab === 'tridy'">
         <div id="rocniky" v-if="!pridavani && rocniky.size !== 0">
             <div v-for="[rocnik, tridy] in rocniky" :key="rocnik" class="rocnik">
-                <h2>{{ rocnik }}{{ isNaN(+rocnik) ? "" : ". ročník" }}</h2>
+                <h2>{{ rocnik }}{{ isNaN(+rocnik) ? '' : '. ročník' }}</h2>
                 <div id="kontejner">
                     <div class="blok" v-for="t in tridy" :key="t.id" @click="$router.push('/skola/' + t.id)">
                         <h3>{{ t.jmeno }}</h3>
 
-                        <hr style="margin: 0 8px 8px 8px; border: #c0c0c0 1px solid;">
+                        <hr style="margin: 0 8px 8px 8px; border: #c0c0c0 1px solid" />
 
-                        <div style="display: flex; justify-content: space-around;">
+                        <div style="display: flex; justify-content: space-around">
                             <div class="statistiky">
-                                <span v-if="t.pocet_studentu == 1"><b>{{ t.pocet_studentu }}</b> student</span>
-                                <span v-else-if="t.pocet_studentu >= 2 && t.pocet_studentu <= 4"><b>{{ t.pocet_studentu
-                                }}</b> studenti</span>
-                                <span v-else><b>{{ t.pocet_studentu }}</b> studentů</span>
+                                <span v-if="t.pocet_studentu == 1"
+                                    ><b>{{ t.pocet_studentu }}</b> student</span
+                                >
+                                <span v-else-if="t.pocet_studentu >= 2 && t.pocet_studentu <= 4"
+                                    ><b>{{ t.pocet_studentu }}</b> studenti</span
+                                >
+                                <span v-else
+                                    ><b>{{ t.pocet_studentu }}</b> studentů</span
+                                >
 
-                                <span v-if="t.pocet_praci == 0 || t.pocet_praci > 4"><b>{{ t.pocet_praci }}</b>
-                                    prací</span>
-                                <span v-else><b>{{ t.pocet_praci }}</b> práce</span>
+                                <span v-if="t.pocet_praci == 0 || t.pocet_praci > 4"
+                                    ><b>{{ t.pocet_praci }}</b> prací</span
+                                >
+                                <span v-else
+                                    ><b>{{ t.pocet_praci }}</b> práce</span
+                                >
                             </div>
 
-                            <img v-if="!t.zamknuta" src="../../assets/icony/zamekOpen.svg" alt="Odemčená třída">
-                            <img v-else src="../../assets/icony/zamekClosed.svg" alt="Zamčená třída">
+                            <img v-if="!t.zamknuta" src="../../assets/icony/zamekOpen.svg" alt="Odemčená třída" />
+                            <img v-else src="../../assets/icony/zamekClosed.svg" alt="Zamčená třída" />
                         </div>
                     </div>
                 </div>
@@ -187,28 +223,24 @@ function pridatUcitele(e: Event) {
 
                 <span>Podle jména se třídy řadí do ročníků v seznamu tříd.</span>
                 <span>
-                    Skupina je určena pro rozdělení třídy. To se může hodit,
-                    pokud vyučujete třídy po menších skupinkách.
-                    <br>
+                    Skupina je určena pro rozdělení třídy. To se může hodit, pokud vyučujete třídy po menších skupinkách.
+                    <br />
                     Např.: <b>3.B&nbsp;￨&nbsp;1</b> a <b>3.B&nbsp;￨&nbsp;2</b>.
                 </span>
             </form>
         </div>
-        <div v-else-if="rocniky.size === 0 && nacitam">
-            Načítám...
-        </div>
-        <div v-else
-            style="background-color: var(--tmave-fialova); padding: 20px; border-radius: 10px; max-width: 450px; margin: 0 5vw;">
-            <h2 style="font-size: 21px;">Vítejte v rozhraní pro učitele!</h2>
-            <br>
+        <div v-else-if="rocniky.size === 0 && nacitam">Načítám...</div>
+        <div v-else style="background-color: var(--tmave-fialova); padding: 20px; border-radius: 10px; max-width: 450px; margin: 0 5vw">
+            <h2 style="font-size: 21px">Vítejte v rozhraní pro učitele!</h2>
+            <br />
             Zde se vám budou třídy řadit do ročníků.
-            <br>
+            <br />
             Žáci se do nich mohou připojit pomocí 4místného kódu, který bude pro každou třídu automaticky vytvořen.
         </div>
 
         <div v-if="rocniky.size == 0 && !pridavani && !nacitam" id="text-prace">
-            <span>Zatím tu nejsou žádné třídy. <br>První vytvoříte pomocí tohoto tlačítka.</span>
-            <img src="../../assets/icony/sipkaOhnuta.svg" alt="Šipka na tlačítko" width="100">
+            <span>Zatím tu nejsou žádné třídy. <br />První vytvoříte pomocí tohoto tlačítka.</span>
+            <img src="../../assets/icony/sipkaOhnuta.svg" alt="Šipka na tlačítko" width="100" />
         </div>
     </div>
     <SeznamUcitelu v-else-if="prepinacTabu?.tab === 'ucitele' && !pridavani" />
@@ -217,15 +249,14 @@ function pridatUcitele(e: Event) {
             <h2>Přidat učitele</h2>
             <div>
                 <h3>E-mail:</h3>
-                <input type="email" placeholder="Např: pavoukova@jakopavouk.cz" v-model="pridatEmail">
+                <input type="email" placeholder="Např: pavoukova@jakopavouk.cz" v-model="pridatEmail" />
             </div>
 
             <button class="tlacitko" @click="pridatUcitele">Přidat</button>
         </form>
     </div>
-    <div id="pridat" @click="pridavani = !pridavani"
-        :style="{ transform: pridavani ? 'rotate(-45deg)' : 'rotate(0deg)' }">
-        <img src="../../assets/icony/plus.svg" alt="Přidat">
+    <div id="pridat" @click="pridavani = !pridavani" :style="{ transform: pridavani ? 'rotate(-45deg)' : 'rotate(0deg)' }">
+        <img src="../../assets/icony/plus.svg" alt="Přidat" />
     </div>
 </template>
 <style scoped>
@@ -250,11 +281,11 @@ form {
     margin: 5.8em 5vw 0 5vw;
 }
 
-form>h2 {
+form > h2 {
     margin-bottom: 15px;
 }
 
-form>div {
+form > div {
     display: flex;
     width: 100%;
     align-items: center;
@@ -262,7 +293,7 @@ form>div {
     gap: 10px;
 }
 
-form>span {
+form > span {
     opacity: 0.5;
     font-size: 14px;
     margin-bottom: -4px;
@@ -276,8 +307,8 @@ form span:last-of-type {
     margin-bottom: 0;
 }
 
-form input[type=text],
-form input[type=email] {
+form input[type='text'],
+form input[type='email'] {
     width: 73%;
     height: 36px;
     background-color: var(--fialova);
@@ -290,8 +321,8 @@ form input[type=email] {
     font-size: 20px;
 }
 
-form input[type=text]:focus,
-form input[type=email]:focus {
+form input[type='text']:focus,
+form input[type='email']:focus {
     width: 75%;
 }
 
@@ -312,7 +343,9 @@ form input[type=email]:focus {
     justify-content: center;
     padding: 13px;
     cursor: pointer;
-    transition: background-color 0.15s, transform 0.3s;
+    transition:
+        background-color 0.15s,
+        transform 0.3s;
     box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.75);
     user-select: none;
 }
@@ -390,7 +423,7 @@ form input[type=email]:focus {
     right: 120px;
 }
 
-#text-prace>img {
+#text-prace > img {
     margin-left: 230px;
 }
 
@@ -412,7 +445,7 @@ form input[type=email]:focus {
         right: 20px;
     }
 
-    #text-prace>img {
+    #text-prace > img {
         margin-left: 20px;
         transform: rotate(8deg);
     }

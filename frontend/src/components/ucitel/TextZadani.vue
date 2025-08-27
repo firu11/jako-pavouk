@@ -1,78 +1,86 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from "vue"
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 
-const text = ref("")
-const vyska = "calc(100vh - 60px - 40px - 25px - 30px - 40px - 11px)"
+const text = ref('');
+const vyska = 'calc(100vh - 60px - 40px - 25px - 30px - 40px - 11px)';
 
-const textarea = ref<HTMLTextAreaElement | null>(null)
-const div = ref<HTMLElement>()
-const highlightText = ref("")
+const textarea = ref<HTMLTextAreaElement | null>(null);
+const div = ref<HTMLElement>();
+const highlightText = ref('');
 
-const isComposing = ref(false)
+const isComposing = ref(false);
 
-const lineBreak = /(\r\n|\r|\n)/g
-const red = /([^A-Za-z0-9ěščřžýáíéůúťďňóĚŠČŘŽÝÁÍÉŮÚŤĎŇÓ ,.!?;:_=+\-*/%#$~§()[\]{}<>"'@&|\r\n\\]+)/g
-const orange = /(([_=+\-*%()[\]{}"'@&|#$~§\\]+)|(?<!\/?mark)([<>])(?!\/?mark))|(\/)(?!mark>)/g
-const mezeraNaZacatku = /(^ )/g
-const viceMezer = /( {2,})/g
+const lineBreak = /(\r\n|\r|\n)/g;
+const red = /([^A-Za-z0-9ěščřžýáíéůúťďňóĚŠČŘŽÝÁÍÉŮÚŤĎŇÓ ,.!?;:_=+\-*/%#$~§()[\]{}<>"'@&|\r\n\\]+)/g;
+const orange = /(([_=+\-*%()[\]{}"'@&|#$~§\\]+)|(?<!\/?mark)([<>])(?!\/?mark))|(\/)(?!mark>)/g;
+const mezeraNaZacatku = /(^ )/g;
+const viceMezer = /( {2,})/g;
 
 function scrollDiv() {
-    div.value?.scrollTo(0, textarea.value?.scrollTop ?? 0)
+    div.value?.scrollTo(0, textarea.value?.scrollTop ?? 0);
 }
 
 function updateHighlighting(fromInput = false) {
-    const val = textarea.value?.value ?? ""
-    if (!fromInput) text.value = val.replace(lineBreak, "") // clean breaks if not from input
+    const val = textarea.value?.value ?? '';
+    if (!fromInput) text.value = val.replace(lineBreak, ''); // clean breaks if not from input
 
-    let t = val.replace(red, `<mark>$&</mark>`)
-    t = t.replace(orange, "<mark2>$&</mark2>")
-    t = t.replace(lineBreak, "<mark>↵\n</mark>")
-    t = t.replace(viceMezer, "<mark>$&</mark>")
-    t = t.replace(mezeraNaZacatku, "<mark>$&</mark>")
+    let t = val.replace(red, `<mark>$&</mark>`);
+    t = t.replace(orange, '<mark2>$&</mark2>');
+    t = t.replace(lineBreak, '<mark>↵\n</mark>');
+    t = t.replace(viceMezer, '<mark>$&</mark>');
+    t = t.replace(mezeraNaZacatku, '<mark>$&</mark>');
 
-    highlightText.value = t
+    highlightText.value = t;
 }
 
 function onInput(e: Event) {
-    const val = (e.target as HTMLTextAreaElement).value
-    text.value = val
-    updateHighlighting(true) // Update highlights on input
+    const val = (e.target as HTMLTextAreaElement).value;
+    text.value = val;
+    updateHighlighting(true); // Update highlights on input
 }
 
 function onCompositionStart() {
-    isComposing.value = true
+    isComposing.value = true;
 }
 
 function onCompositionUpdate() {
     // If composing, update highlights as you type composed characters
-    updateHighlighting(true)
+    updateHighlighting(true);
 }
 
 function onCompositionEnd() {
-    isComposing.value = false
-    updateHighlighting(true) // Re-apply final highlight after composition ends
+    isComposing.value = false;
+    updateHighlighting(true); // Re-apply final highlight after composition ends
 }
 
 onMounted(() => {
-    updateHighlighting() // Initial highlight setup
-})
+    updateHighlighting(); // Initial highlight setup
+});
 
 watch(text, () => {
     nextTick(() => {
-        updateHighlighting(true)
-    })
-})
+        updateHighlighting(true);
+    });
+});
 
-const ready = computed(() => !text.value.match(red))
+const ready = computed(() => !text.value.match(red));
 
-defineExpose({ text, ready })
+defineExpose({ text, ready });
 // krejzy https://codersblock.com/blog/highlight-text-inside-a-textarea/
 </script>
 
 <template>
     <div ref="div" v-html="highlightText"></div>
-    <textarea ref="textarea" placeholder="Text, který budou žáci psát..." v-model="text" @scroll="scrollDiv" @compositionstart="onCompositionStart"
-        @input="onInput" @compositionupdate="onCompositionUpdate" @compositionend="onCompositionEnd" />
+    <textarea
+        ref="textarea"
+        placeholder="Text, který budou žáci psát..."
+        v-model="text"
+        @scroll="scrollDiv"
+        @compositionstart="onCompositionStart"
+        @input="onInput"
+        @compositionupdate="onCompositionUpdate"
+        @compositionend="onCompositionEnd"
+    />
 </template>
 <style scoped>
 div {
@@ -92,7 +100,7 @@ div {
     text-decoration: none;
 
     color: rgb(156, 156, 156);
-    font-family: "Red Hat Mono", monospace;
+    font-family: 'Red Hat Mono', monospace;
 
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -112,7 +120,7 @@ textarea {
     resize: none;
     z-index: 2;
     line-height: 21px;
-    font-family: "Red Hat Mono", monospace;
+    font-family: 'Red Hat Mono', monospace;
 }
 
 ::placeholder {
@@ -156,18 +164,18 @@ div::-webkit-scrollbar {
 
 <!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
 <style>
-div>mark,
-div>mark2 {
-    font-family: "Red Hat Mono", monospace;
+div > mark,
+div > mark2 {
+    font-family: 'Red Hat Mono', monospace;
     border-radius: 3px;
     color: rgb(156, 156, 156) !important;
 }
 
-div>mark {
+div > mark {
     background-color: rgba(255, 0, 0, 0.4);
 }
 
-div>mark2 {
+div > mark2 {
     background-color: rgba(255, 136, 0, 0.4);
 }
 </style>

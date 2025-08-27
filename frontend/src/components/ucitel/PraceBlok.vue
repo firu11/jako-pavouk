@@ -1,83 +1,91 @@
 <script setup lang="ts">
-import axios from "axios";
-import { getToken, pridatOznameni, naJednoDesetiny } from "../../utils";
-import { PropType, ref } from "vue";
-import Tooltip from "../../components/Tooltip.vue";
-import { mobil } from "../../stores";
+import axios from 'axios';
+import { getToken, pridatOznameni, naJednoDesetiny } from '../../utils';
+import { PropType, ref } from 'vue';
+import Tooltip from '../../components/Tooltip.vue';
+import { mobil } from '../../stores';
 
-export type Prace = { id: number, text: string, cas: number, datum: Date, prumerneCPM: number, prumernaPresnost: number, StudentuDokoncilo: number }
-export type Zak = { id: number, jmeno: string, email: string, cpm: number, presnost: number }
+export type Prace = { id: number; text: string; cas: number; datum: Date; prumerneCPM: number; prumernaPresnost: number; StudentuDokoncilo: number };
+export type Zak = { id: number; jmeno: string; email: string; cpm: number; presnost: number };
 
-const emit = defineEmits(["unselect", "select", "reload", "copy"])
+const emit = defineEmits(['unselect', 'select', 'reload', 'copy']);
 const props = defineProps({
     prace: {
         type: Object as PropType<Prace>,
-        required: true
+        required: true,
     },
     selectnutaPraceID: {
         type: Number,
-        required: true
+        required: true,
     },
     studentiVPraci: {
         type: Map<number, Array<Zak>>,
-        required: true
+        required: true,
     },
     cisloPrace: {
         type: Number,
-        required: true
+        required: true,
     },
     pocetStudentu: {
         type: Number,
-        required: true
-    }
-})
+        required: true,
+    },
+});
 
-const smazatPraciID = ref(0)
+const smazatPraciID = ref(0);
 
 function smazatPraci() {
     if (props.prace.StudentuDokoncilo != 0) {
-        if (!confirm(`Tuto práci už dokončilo ${props.prace.StudentuDokoncilo} studentů! Opravdu ji chcete smazat?`)) return
+        if (!confirm(`Tuto práci už dokončilo ${props.prace.StudentuDokoncilo} studentů! Opravdu ji chcete smazat?`)) return;
     }
 
-    axios.delete("/skola/smazat-praci/" + props.prace.id, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(() => {
-        emit("reload")
-        pridatOznameni("Práce byla smazána.")
-        smazatPraciID.value = 0
-    }).catch(e => {
-        console.log(e)
-        pridatOznameni("Chyba serveru")
-    })
+    axios
+        .delete('/skola/smazat-praci/' + props.prace.id, {
+            headers: {
+                Authorization: `Bearer ${getToken()}`,
+            },
+        })
+        .then(() => {
+            emit('reload');
+            pridatOznameni('Práce byla smazána.');
+            smazatPraciID.value = 0;
+        })
+        .catch((e) => {
+            console.log(e);
+            pridatOznameni('Chyba serveru');
+        });
 }
 
 function selectPraci(id: number) {
-    if (props.selectnutaPraceID == id) { //unselect
-        emit("unselect")
-        return
+    if (props.selectnutaPraceID == id) {
+        //unselect
+        emit('unselect');
+        return;
     }
-    if (props.pocetStudentu === 0) return
+    if (props.pocetStudentu === 0) return;
 
-    emit("reload")
+    emit('reload');
 }
-
 </script>
 <template>
-    <div class="jedna-prace"
-        :style="{ maxHeight: selectnutaPraceID !== prace.id ? (mobil ? '48px' : '60px') : `${60 + 10 + 20 + (37.5 + 5) * pocetStudentu || 0}px`, marginBottom: selectnutaPraceID === prace.id ? '15px' : 0 }">
+    <div
+        class="jedna-prace"
+        :style="{
+            maxHeight: selectnutaPraceID !== prace.id ? (mobil ? '48px' : '60px') : `${60 + 10 + 20 + (37.5 + 5) * pocetStudentu || 0}px`,
+            marginBottom: selectnutaPraceID === prace.id ? '15px' : 0,
+        }"
+    >
         <div class="radek">
             <div id="prace-uprava-kontejner">
-                <div class="uprava-pill" :style="{ opacity: (smazatPraciID == prace.id || smazatPraciID == 0) ? 1 : 0.4 }">
+                <div class="uprava-pill" :style="{ opacity: smazatPraciID == prace.id || smazatPraciID == 0 ? 1 : 0.4 }">
                     <div class="copy-btn" @click="emit('copy')">
-                        <img src="../../assets/icony/copy.svg" alt="Kopírovat práci">
+                        <img src="../../assets/icony/copy.svg" alt="Kopírovat práci" />
                     </div>
                     <div v-if="smazatPraciID != prace.id" class="smazat-btn" @click="smazatPraciID = prace.id">
-                        <img src="../../assets/icony/trash.svg" alt="Smazat práci">
+                        <img src="../../assets/icony/trash.svg" alt="Smazat práci" />
                     </div>
                     <div v-else class="smazat-btn" @click="smazatPraci" @mouseleave="smazatPraciID = 0">
-                        <img src="../../assets/icony/right.svg" alt="Smazat práci">
+                        <img src="../../assets/icony/right.svg" alt="Smazat práci" />
                     </div>
                 </div>
             </div>
@@ -85,20 +93,26 @@ function selectPraci(id: number) {
                 <Tooltip :zprava="`<b>${prace.cas / 60} min</b> | ${prace.text.slice(0, 100)}...`" :sirka="300" :vzdalenost="3">
                     <div class="nadpis-prace">
                         <h2>Práce {{ cisloPrace }}</h2>
-                        <h3>{{ prace.datum.toLocaleDateString("cs-CZ") }}</h3>
+                        <h3>{{ prace.datum.toLocaleDateString('cs-CZ') }}</h3>
                     </div>
                 </Tooltip>
 
                 <div class="statistika">
                     <Tooltip v-if="prace.prumerneCPM != -1" zprava="Průměrná rychlost studentů" :sirka="160" :vzdalenost="5">
-                        <span><b>{{ naJednoDesetiny(prace.prumerneCPM) }}</b> CPM</span>
+                        <span
+                            ><b>{{ naJednoDesetiny(prace.prumerneCPM) }}</b> CPM</span
+                        >
                     </Tooltip>
                     <Tooltip v-if="prace.prumernaPresnost != -1" zprava="Průměrná přesnost studentů" :sirka="160" :vzdalenost="5">
-                        <span><b>{{ naJednoDesetiny(prace.prumernaPresnost) }}</b> %</span>
+                        <span
+                            ><b>{{ naJednoDesetiny(prace.prumernaPresnost) }}</b> %</span
+                        >
                     </Tooltip>
                     <Tooltip zprava="Studentů kteří mají hotovo" :sirka="160" :vzdalenost="5">
-                        <span class="udaj2" :style="{ 'min-width': pocetStudentu > 10 ? '115px' : '80px' }"><b>{{ prace.StudentuDokoncilo
-                        }}</b>/<b>{{ pocetStudentu }}</b></span>
+                        <span class="udaj2" :style="{ 'min-width': pocetStudentu > 10 ? '115px' : '80px' }"
+                            ><b>{{ prace.StudentuDokoncilo }}</b
+                            >/<b>{{ pocetStudentu }}</b></span
+                        >
                     </Tooltip>
                 </div>
             </div>
@@ -107,8 +121,12 @@ function selectPraci(id: number) {
             <div v-for="zak in studentiVPraci.get(prace.id)" :key="zak.id" class="zak-v-praci">
                 <span>{{ zak.jmeno }}</span>
                 <div v-if="zak.cpm !== -1" class="statistika-zaka">
-                    <span><b>{{ naJednoDesetiny(zak.cpm) }}</b> CPM</span>
-                    <span><b>{{ naJednoDesetiny(zak.presnost) }}</b> %</span>
+                    <span
+                        ><b>{{ naJednoDesetiny(zak.cpm) }}</b> CPM</span
+                    >
+                    <span
+                        ><b>{{ naJednoDesetiny(zak.presnost) }}</b> %</span
+                    >
                 </div>
                 <div v-else>Ještě nedokončil</div>
             </div>
@@ -163,8 +181,8 @@ function selectPraci(id: number) {
     background-color: var(--fialova);
 }
 
-.copy-btn>img,
-.smazat-btn>img {
+.copy-btn > img,
+.smazat-btn > img {
     position: relative;
 }
 
@@ -185,7 +203,9 @@ function selectPraci(id: number) {
     overflow: hidden;
     max-height: 60px;
 
-    transition: max-height 0.3s, margin-bottom 0.3s;
+    transition:
+        max-height 0.3s,
+        margin-bottom 0.3s;
 }
 
 .prace {
@@ -220,12 +240,12 @@ function selectPraci(id: number) {
 }
 
 .statistika span b {
-    font-family: "Red Hat Mono";
+    font-family: 'Red Hat Mono';
     font-size: 29px;
 }
 
 .statistika-zaka span b {
-    font-family: "Red Hat Mono";
+    font-family: 'Red Hat Mono';
     font-size: 22px;
 }
 
@@ -235,8 +255,8 @@ function selectPraci(id: number) {
     text-align: end;
 }
 
-.zak-v-praci>span,
-.zak-v-praci>div:not(:has(span)) {
+.zak-v-praci > span,
+.zak-v-praci > div:not(:has(span)) {
     height: 22px;
     align-self: center;
 }

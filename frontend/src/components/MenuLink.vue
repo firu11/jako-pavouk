@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { pridatOznameni } from "../utils";
-import { mobil } from "../stores"
+import { pridatOznameni } from '../utils';
+import { mobil } from '../stores';
 
-defineProps(["jmeno", "cesta"])
+defineProps(['jmeno', 'cesta']);
 
 function mobilKlik(e: MouseEvent) {
-    e.preventDefault()
-    pridatOznameni("Psaní na telefonech zatím neučíme...")
+    e.preventDefault();
+    pridatOznameni('Psaní na telefonech zatím neučíme...');
 }
 </script>
 
@@ -19,7 +19,7 @@ function mobilKlik(e: MouseEvent) {
             <p>{{ jmeno }}</p>
         </div>
     </RouterLink>
-    <a v-else @click="mobilKlik" href="/test-psani" style="user-select: none;">
+    <a v-else @click="mobilKlik" href="/test-psani" style="user-select: none">
         <div class="hover">
             <svg class="tecka" height="10" width="15">
                 <circle cx="5" cy="5" r="5" fill="white" />

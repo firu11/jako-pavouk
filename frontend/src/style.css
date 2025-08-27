@@ -1,12 +1,12 @@
 @font-face {
-    font-family: "Montserrat";
-    src: url("/Montserrat.woff2") format("woff2");
+    font-family: 'Montserrat';
+    src: url('/Montserrat.woff2') format('woff2');
     font-display: swap;
 }
 
 @font-face {
-    font-family: "Red Hat Mono";
-    src: url("/RedHatMono.woff2") format("woff2");
+    font-family: 'Red Hat Mono';
+    src: url('/RedHatMono.woff2') format('woff2');
     font-display: swap;
 }
 
@@ -14,7 +14,7 @@
     --cerna: #171528;
     --bila: #f0f0f0;
     --seda: #aaaaaa;
-    --tmave-fialova: #3F3351;
+    --tmave-fialova: #3f3351;
     --sirka-menu: 230px;
     --sirka-textoveho-pole: 650px;
     --fialova: #864879;
@@ -25,7 +25,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Montserrat", Candara;
+    font-family: 'Montserrat', Candara;
     font-weight: 300;
 }
 
@@ -261,7 +261,7 @@ select:focus {
 }
 
 .radio::before {
-    content: "";
+    content: '';
     width: 14px;
     height: 14px;
     transform: scale(0);
@@ -306,7 +306,7 @@ select:focus {
     transition: all 0.3s;
 }
 
-.toggle-checkbox:checked+.toggle-contejner::before {
+.toggle-checkbox:checked + .toggle-contejner::before {
     left: 50%;
 }
 
@@ -319,22 +319,22 @@ select:focus {
     top: -1px;
 }
 
-.toggle-checkbox:checked+.toggle-contejner div:first-child {
+.toggle-checkbox:checked + .toggle-contejner div:first-child {
     color: transparent;
     transition: color 0.3s;
 }
 
-.toggle-checkbox:checked+.toggle-contejner div:last-child {
+.toggle-checkbox:checked + .toggle-contejner div:last-child {
     color: white;
     transition: color 0.3s;
 }
 
-.toggle-checkbox+.toggle-contejner div:first-child {
+.toggle-checkbox + .toggle-contejner div:first-child {
     color: white;
     transition: color 0.3s;
 }
 
-.toggle-checkbox+.toggle-contejner div:last-child {
+.toggle-checkbox + .toggle-contejner div:last-child {
     color: transparent;
     transition: color 0.3s;
 }
@@ -345,7 +345,7 @@ select {
     padding: 3px;
     font-size: 21px;
     color: white;
-    font-family: "Red Hat Mono", monospace;
+    font-family: 'Red Hat Mono', monospace;
     background-color: var(--fialova);
     cursor: pointer;
     transition: 0.2s;
@@ -362,7 +362,7 @@ select:disabled:hover {
 
 select option {
     background-color: var(--fialova);
-    font-family: "Red Hat Mono", monospace;
+    font-family: 'Red Hat Mono', monospace;
     font-size: 16px;
     border: none;
 }
@@ -378,7 +378,7 @@ select option {
     align-self: center !important;
 }
 
-#nastaveni>form {
+#nastaveni > form {
     display: flex;
     flex-direction: column;
     max-width: 450px;
@@ -390,7 +390,7 @@ select option {
     margin: 0 5vw;
 }
 
-#nastaveni>form>div {
+#nastaveni > form > div {
     display: flex;
     width: 100%;
     align-items: center;
@@ -407,13 +407,13 @@ select option {
     width: auto;
 }
 
-#nastaveni form>span {
+#nastaveni form > span {
     opacity: 0.5;
     font-size: 14px;
     margin-bottom: -4px;
 }
 
-#nastaveni form>span b {
+#nastaveni form > span b {
     font-weight: 600;
 }
 
@@ -451,8 +451,7 @@ video {
     background-color: var(--tmave-fialova) !important;
 }
 
-@supports(-webkit-tap-highlight-color: black) {
-
+@supports (-webkit-tap-highlight-color: black) {
     /* ne na firefoxu, jinak je to sus */
     select:hover {
         background-color: var(--svetle-fialova);
@@ -511,13 +510,13 @@ video {
 }
 
 @media screen and (max-width: 460px) {
-    #nastaveni>form>div {
+    #nastaveni > form > div {
         flex-wrap: wrap;
         justify-content: space-between;
         gap: 10px 20%;
     }
 
-    #nastaveni>form:not(:first-of-type)>div {
+    #nastaveni > form:not(:first-of-type) > div {
         flex-wrap: wrap;
         justify-content: center;
         gap: 10px 20%;

@@ -5,59 +5,70 @@ import { onMounted, ref, useTemplateRef } from 'vue';
 import { role, uziv } from '../../stores';
 import { useRouter } from 'vue-router';
 
-const router = useRouter()
-const ucitele = ref([] as { email: string, pocet_trid: number, pocet_zaku: number }[])
-const email = ref("")
-onMounted(get)
+const router = useRouter();
+const ucitele = ref([] as { email: string; pocet_trid: number; pocet_zaku: number }[]);
+const email = ref('');
+onMounted(get);
 
 function get() {
-    axios.get("/skola/ucitele", {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(response => {
-        ucitele.value = response.data
-    }).catch(e => {
-        console.log(e)
-        pridatOznameni("Chyba serveru")
-    })
+    axios
+        .get('/skola/ucitele', {
+            headers: {
+                Authorization: `Bearer ${getToken()}`,
+            },
+        })
+        .then((response) => {
+            ucitele.value = response.data;
+        })
+        .catch((e) => {
+            console.log(e);
+            pridatOznameni('Chyba serveru');
+        });
 }
 
-const dialog1 = useTemplateRef("dialog1")
+const dialog1 = useTemplateRef('dialog1');
 function otevritDialog(e: Event) {
-    e.preventDefault()
+    e.preventDefault();
 
-    let button = e.currentTarget as Element
-    let mailos = button.getAttribute("data-email")
-    if (mailos === null) return
-    email.value = mailos
+    let button = e.currentTarget as Element;
+    let mailos = button.getAttribute('data-email');
+    if (mailos === null) return;
+    email.value = mailos;
 
-    dialog1.value?.showModal()
+    dialog1.value?.showModal();
 }
 
 function zavritDialog(e: Event) {
-    e.preventDefault()
-    dialog1.value?.close()
+    e.preventDefault();
+    dialog1.value?.close();
 }
 
 function smazatUcitele(e: Event) {
-    axios.post("/skola/upravit-ucitele", { email: email.value, akce: "smazat" }, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(() => {
-        if (email.value === uziv.value.email) {
-            router.push("/")
-            role.value = "basic"
-            return
-        }
-        get()
-    }).catch(e => {
-        console.log(e)
-        pridatOznameni(e)
-    }).finally(() => {
-        zavritDialog(e)
-    })
+    axios
+        .post(
+            '/skola/upravit-ucitele',
+            { email: email.value, akce: 'smazat' },
+            {
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                },
+            },
+        )
+        .then(() => {
+            if (email.value === uziv.value.email) {
+                router.push('/');
+                role.value = 'basic';
+                return;
+            }
+            get();
+        })
+        .catch((e) => {
+            console.log(e);
+            pridatOznameni(e);
+        })
+        .finally(() => {
+            zavritDialog(e);
+        });
 }
 </script>
 <template>
@@ -68,16 +79,16 @@ function smazatUcitele(e: Event) {
                 <div class="stats">
                     <span>
                         <b>{{ ucitel.pocet_trid }}</b>
-                        {{ (ucitel.pocet_trid == 0 || ucitel.pocet_trid > 4) ? "tříd" : (ucitel.pocet_trid == 1) ? "třída" : "třídy" }}
+                        {{ ucitel.pocet_trid == 0 || ucitel.pocet_trid > 4 ? 'tříd' : ucitel.pocet_trid == 1 ? 'třída' : 'třídy' }}
                     </span>
                     <span>
                         <b>{{ ucitel.pocet_zaku }}</b>
-                        {{ (ucitel.pocet_zaku == 0 || ucitel.pocet_zaku > 4) ? "studentů" : (ucitel.pocet_zaku == 1) ? "student" : "studenti" }}
+                        {{ ucitel.pocet_zaku == 0 || ucitel.pocet_zaku > 4 ? 'studentů' : ucitel.pocet_zaku == 1 ? 'student' : 'studenti' }}
                     </span>
                 </div>
             </div>
             <button @click="otevritDialog" :data-email="ucitel.email">
-                <img src="../../assets/icony/trash.svg" alt="Smazat">
+                <img src="../../assets/icony/trash.svg" alt="Smazat" />
             </button>
         </div>
     </div>
@@ -102,13 +113,13 @@ function smazatUcitele(e: Event) {
     width: 500px;
 }
 
-#seznam>div {
+#seznam > div {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-#seznam>div>button {
+#seznam > div > button {
     background-color: var(--tmave-fialova);
     border: none;
     border-radius: 10px;
@@ -124,7 +135,7 @@ function smazatUcitele(e: Event) {
     transition: 0.2s;
 }
 
-#seznam>div>button:hover {
+#seznam > div > button:hover {
     background-color: var(--fialova);
 }
 
@@ -140,7 +151,7 @@ function smazatUcitele(e: Event) {
     gap: 7px;
 }
 
-.blok>h3 {
+.blok > h3 {
     width: 306px;
     text-align: left;
     font-weight: 500;
@@ -158,13 +169,13 @@ dialog {
     padding-top: 1em;
 }
 
-#dialog-kontejner>div {
+#dialog-kontejner > div {
     display: flex;
     justify-content: center;
     gap: 1em;
 }
 
-#dialog-kontejner>h3 {
+#dialog-kontejner > h3 {
     font-weight: 500;
     font-size: 1.4em;
     margin: 0.6em;
@@ -196,7 +207,7 @@ dialog {
 }
 
 @media screen and (max-width: 380px) {
-    #seznam>div>button {
+    #seznam > div > button {
         display: none;
     }
 

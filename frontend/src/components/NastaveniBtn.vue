@@ -1,26 +1,32 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref } from 'vue';
 
-const rotacePocet = ref(0)
+const rotacePocet = ref(0);
 function animace() {
-    rotacePocet.value += 1
+    rotacePocet.value += 1;
 }
 
 const rotace = computed(() => {
-    return `rotate(${rotacePocet.value * 45}deg)`
-})
+    return `rotate(${rotacePocet.value * 45}deg)`;
+});
 
-const ready = ref(false)
+const ready = ref(false);
 
 onMounted(() => {
-    ready.value = true
-})
-
+    ready.value = true;
+});
 </script>
 <template>
     <Transition>
-        <div v-if="ready" id="nastaveni-btn" @click="$emit('klik'); animace()">
-            <img :style="{ transform: rotace }" src="../assets/icony/nastaveni.svg" alt="Nastavení">
+        <div
+            v-if="ready"
+            id="nastaveni-btn"
+            @click="
+                $emit('klik');
+                animace();
+            "
+        >
+            <img :style="{ transform: rotace }" src="../assets/icony/nastaveni.svg" alt="Nastavení" />
         </div>
     </Transition>
 </template>

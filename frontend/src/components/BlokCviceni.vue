@@ -1,75 +1,73 @@
 <script setup lang="ts">
-import { levelyRychlosti, prihlasen, mobil } from "../stores";
-import { pridatOznameni } from "../utils";
+import { levelyRychlosti, prihlasen, mobil } from '../stores';
+import { pridatOznameni } from '../utils';
 
 defineProps({
     dokonceno: Boolean,
     index: Number,
     pismena: {
         type: String,
-        default: ""
+        default: '',
     },
     typ: String,
     rychlost: {
         type: Number,
-        default: 0
+        default: 0,
     },
-    oznacene: Boolean
-})
-
+    oznacene: Boolean,
+});
 </script>
 
 <template>
-    <router-link v-if="prihlasen && typ !== '...' && !mobil" class="cvic-blok" :class="{ dokoncenyBlok: dokonceno, oznacene: oznacene }"
-        :to="'/lekce/' + pismena + '/' + index">
+    <router-link v-if="prihlasen && typ !== '...' && !mobil" class="cvic-blok" :class="{ dokoncenyBlok: dokonceno, oznacene: oznacene }" :to="'/lekce/' + pismena + '/' + index">
         <h2>{{ index }}</h2>
-        <hr>
+        <hr />
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>
         <h3 v-else-if="typ === 'naucena'">Probraná písmenka</h3>
         <h3 v-else-if="typ === 'slova' || typ === 'programator'">Se slovy</h3>
         <h3 v-else>...</h3>
         <div v-if="dokonceno" id="hvezdy">
-            <img v-if="rychlost >= levelyRychlosti[0]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
-            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-            <img v-if="rychlost >= levelyRychlosti[1]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
-            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-            <img v-if="rychlost >= levelyRychlosti[2]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
-            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
+            <img v-if="rychlost >= levelyRychlosti[0]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda" />
+            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda" />
+            <img v-if="rychlost >= levelyRychlosti[1]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda" />
+            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda" />
+            <img v-if="rychlost >= levelyRychlosti[2]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda" />
+            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda" />
         </div>
-        <img class="play-vetsi" v-else src="../assets/icony/start.svg" alt="Začít lekci">
+        <img class="play-vetsi" v-else src="../assets/icony/start.svg" alt="Začít lekci" />
     </router-link>
-    <a v-else-if="typ === '...' && !mobil" class="cvic-blok"> <!-- aby na to ńeslo kliknout nez se to nacte -->
+    <a v-else-if="typ === '...' && !mobil" class="cvic-blok">
+        <!-- aby na to ńeslo kliknout nez se to nacte -->
         <h2>{{ index }}</h2>
-        <hr>
+        <hr />
         <h3>...</h3>
-        <img class="play-vetsi" src="../assets/icony/start.svg" alt="Začít lekci">
+        <img class="play-vetsi" src="../assets/icony/start.svg" alt="Začít lekci" />
     </a>
-    <a v-else-if="!mobil" class="cvic-blok" :class="{ oznacene: oznacene }"
-        @click='pridatOznameni(`Bez přihlášení si můžeš psaní vyzkoušet v sekci "Procvičování"`, 10000)'>
+    <a v-else-if="!mobil" class="cvic-blok" :class="{ oznacene: oznacene }" @click="pridatOznameni(`Bez přihlášení si můžeš psaní vyzkoušet v sekci &quot;Procvičování&quot;`, 10000)">
         <h2>{{ index }}</h2>
-        <hr>
+        <hr />
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>
         <h3 v-else-if="typ === 'naucena'">Probraná písmenka</h3>
         <h3 v-else-if="typ === 'slova' || typ === 'programator'">Se slovy</h3>
         <h3 v-else>...</h3>
-        <img class="play-vetsi" src="../assets/icony/start.svg" alt="Začít lekci">
+        <img class="play-vetsi" src="../assets/icony/start.svg" alt="Začít lekci" />
     </a>
     <a v-else class="cvic-blok" :class="{ dokoncenyBlok: dokonceno }" @click="pridatOznameni('Psaní na telefonech zatím neučíme...')">
         <h2>{{ index }}</h2>
-        <hr>
+        <hr />
         <h3 v-if="typ === 'nova'">Nová písmenka</h3>
         <h3 v-else-if="typ === 'naucena'">Probraná písmenka</h3>
         <h3 v-else-if="typ === 'slova' || typ === 'programator'">Se slovy</h3>
         <h3 v-else>...</h3>
         <div v-if="dokonceno" id="hvezdy">
-            <img v-if="rychlost >= levelyRychlosti[0]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
-            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-            <img v-if="rychlost >= levelyRychlosti[1]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
-            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
-            <img v-if="rychlost >= levelyRychlosti[2]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda">
-            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda">
+            <img v-if="rychlost >= levelyRychlosti[0]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda" />
+            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda" />
+            <img v-if="rychlost >= levelyRychlosti[1]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda" />
+            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda" />
+            <img v-if="rychlost >= levelyRychlosti[2]" src="../assets/icony/hvezda.svg" alt="Hvezda" class="hvezda" />
+            <img v-else src="../assets/icony/hvezdaPrazdna.svg" alt="Hvezda" class="hvezda" />
         </div>
-        <img class="play-vetsi" v-else src="../assets/icony/start.svg" alt="Začít lekci">
+        <img class="play-vetsi" v-else src="../assets/icony/start.svg" alt="Začít lekci" />
     </a>
 </template>
 

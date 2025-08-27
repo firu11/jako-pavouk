@@ -1,27 +1,31 @@
 <script setup lang="ts">
-import { prihlasen } from "../stores";
-import { format } from "../utils";
+import { prihlasen } from '../stores';
+import { format } from '../utils';
 
 defineProps({
     pismena: {
         type: String,
-        default: ""
+        default: '',
     },
     jeDokoncena: Boolean,
     oznacena: Boolean,
-    cislo: Number
-})
-
+    cislo: Number,
+});
 </script>
 
 <template>
     <RouterLink v-if="pismena !== '. . .'" class="lekce-blok" :class="{ hotovoBlok: jeDokoncena, oznacene: oznacena }" :to="'/lekce/' + pismena">
-        <h2>Lekce {{ cislo }}: <b>{{ format(pismena) }}</b></h2>
-        <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
+        <h2>
+            Lekce {{ cislo }}: <b>{{ format(pismena) }}</b>
+        </h2>
+        <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!" />
     </RouterLink>
-    <a v-else class="lekce-blok"> <!-- aby na to neslo kliknout nez se to nacte -->
-        <h2>Lekce {{ cislo }}: <b>{{ pismena }}</b></h2>
-        <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!">
+    <a v-else class="lekce-blok">
+        <!-- aby na to neslo kliknout nez se to nacte -->
+        <h2>
+            Lekce {{ cislo }}: <b>{{ pismena }}</b>
+        </h2>
+        <img class="fajvka" v-if="prihlasen && jeDokoncena" src="../assets/icony/right.svg" alt="Dokonceno!" />
     </a>
 </template>
 

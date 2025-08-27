@@ -1,106 +1,119 @@
 <script setup lang="ts">
-import { onMounted, PropType, ref, computed, useTemplateRef } from "vue";
-import { getToken, pridatOznameni } from "../../utils";
-import { moznostiRocnik, moznostiTrida, moznostiSkupina } from "../../stores";
-import axios from "axios";
-import { useRouter } from "vue-router";
-import KodTridy from "../../components/KodTridy.vue";
+import { onMounted, PropType, ref, computed, useTemplateRef } from 'vue';
+import { getToken, pridatOznameni } from '../../utils';
+import { moznostiRocnik, moznostiTrida, moznostiSkupina } from '../../stores';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
+import KodTridy from '../../components/KodTridy.vue';
 
-const emit = defineEmits(["prejmenovatTridu", "refresh"])
+const emit = defineEmits(['prejmenovatTridu', 'refresh']);
 
 type Trida = {
-    id: number,
-    jmeno: string,
-    ucitelID: number,
-    kod: string,
-    zamknuta: boolean,
-    klavesnice: string
-}
+    id: number;
+    jmeno: string;
+    ucitelID: number;
+    kod: string;
+    zamknuta: boolean;
+    klavesnice: string;
+};
 
 const props = defineProps({
     trida: {
         type: Object as PropType<Trida>,
-        required: true
+        required: true,
     },
     pocetStudentu: {
         type: Number,
-        required: true
-    }
-})
+        required: true,
+    },
+});
 
-const router = useRouter()
+const router = useRouter();
 
-const tridaRocnikUprava = ref()
-const tridaJmenoUprava = ref()
-const tridaSkupinaUprava = ref()
-const klavesniceUprava = ref()
+const tridaRocnikUprava = ref();
+const tridaJmenoUprava = ref();
+const tridaSkupinaUprava = ref();
+const klavesniceUprava = ref();
 
-let smazatZprava = ref("")
+let smazatZprava = ref('');
 
 function smazatTridu(e: Event) {
-    e.preventDefault()
+    e.preventDefault();
 
     if (props.pocetStudentu != 0) {
-        if (props.pocetStudentu == 1) smazatZprava.value = "1 student už je v této třídě."
-        else if (props.pocetStudentu <= 4) smazatZprava.value = `${props.pocetStudentu} studenti už jsou v této třídě.`
-        else smazatZprava.value = `${props.pocetStudentu} studentů už je v této třídě.`
-        dialog1.value?.showModal()
+        if (props.pocetStudentu == 1) smazatZprava.value = '1 student už je v této třídě.';
+        else if (props.pocetStudentu <= 4) smazatZprava.value = `${props.pocetStudentu} studenti už jsou v této třídě.`;
+        else smazatZprava.value = `${props.pocetStudentu} studentů už je v této třídě.`;
+        dialog1.value?.showModal();
     } else {
-        postSmazat(e)
+        postSmazat(e);
     }
 }
 
 function zavritDialog(e: Event) {
-    e.preventDefault()
-    dialog1.value?.close()
+    e.preventDefault();
+    dialog1.value?.close();
 }
 
 function postSmazat(e: Event) {
-    e.preventDefault()
+    e.preventDefault();
 
-    axios.post("/skola/zmena-tridy", { trida_id: props.trida.id, zmena: "smazat" }, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(() => {
-        router.push("/skola")
-        pridatOznameni(`Třída "${props.trida.jmeno}", byla smazána.`)
-    }).catch(e => {
-        console.log(e)
-        pridatOznameni("Chyba serveru")
-    })
+    axios
+        .post(
+            '/skola/zmena-tridy',
+            { trida_id: props.trida.id, zmena: 'smazat' },
+            {
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                },
+            },
+        )
+        .then(() => {
+            router.push('/skola');
+            pridatOznameni(`Třída "${props.trida.jmeno}", byla smazána.`);
+        })
+        .catch((e) => {
+            console.log(e);
+            pridatOznameni('Chyba serveru');
+        });
 }
 
 function postKlavesnice(e: Event) {
-    e.preventDefault()
+    e.preventDefault();
 
-    axios.post("/skola/zmena-tridy", { trida_id: props.trida.id, zmena: "klavesnice", hodnota: klavesniceUprava.value ? "qwerty" : "qwertz" }, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(() => {
-        emit("refresh")
-    }).catch(e => {
-        console.log(e)
-        pridatOznameni("Chyba serveru")
-    })
+    axios
+        .post(
+            '/skola/zmena-tridy',
+            { trida_id: props.trida.id, zmena: 'klavesnice', hodnota: klavesniceUprava.value ? 'qwerty' : 'qwertz' },
+            {
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                },
+            },
+        )
+        .then(() => {
+            emit('refresh');
+        })
+        .catch((e) => {
+            console.log(e);
+            pridatOznameni('Chyba serveru');
+        });
 }
 
 onMounted(() => {
-    let a = props.trida.jmeno.split(/[. ]/)
-    tridaJmenoUprava.value = a[1]
-    tridaRocnikUprava.value = a[0] + (isNaN(+a[0]) ? " " : ".")
-    tridaSkupinaUprava.value = a[3] == undefined ? "-" : a[3]
+    let a = props.trida.jmeno.split(/[. ]/);
+    tridaJmenoUprava.value = a[1];
+    tridaRocnikUprava.value = a[0] + (isNaN(+a[0]) ? ' ' : '.');
+    tridaSkupinaUprava.value = a[3] == undefined ? '-' : a[3];
 
-    klavesniceUprava.value = props.trida.klavesnice == "qwerty"
-})
+    klavesniceUprava.value = props.trida.klavesnice == 'qwerty';
+});
 
 const tridaJmeno = computed(() => {
-    return `${tridaRocnikUprava.value}${tridaJmenoUprava.value}${tridaSkupinaUprava.value != '-' ? ' ￨ ' + tridaSkupinaUprava.value : ''}`
-})
+    return `${tridaRocnikUprava.value}${tridaJmenoUprava.value}${tridaSkupinaUprava.value != '-' ? ' ￨ ' + tridaSkupinaUprava.value : ''}`;
+});
 
-const dialog1 = useTemplateRef("dialog1")
-
+const dialog1 = useTemplateRef('dialog1');
 </script>
 <template>
     <div id="nastaveni">
@@ -132,9 +145,8 @@ const dialog1 = useTemplateRef("dialog1")
 
             <span>Podle jména se třídy řadí do ročníků v seznamu tříd.</span>
             <span>
-                Skupina je určena pro rozdělení třídy. To se může hodit,
-                pokud vyučujete třídy po menších skupinkách.
-                <br>
+                Skupina je určena pro rozdělení třídy. To se může hodit, pokud vyučujete třídy po menších skupinkách.
+                <br />
                 Např.: <b>3.B&nbsp;￨&nbsp;1</b> a <b>3.B&nbsp;￨&nbsp;2</b>.
             </span>
         </form>
@@ -151,9 +163,8 @@ const dialog1 = useTemplateRef("dialog1")
             </div>
 
             <span>
-                Klávesnice ovlivňuje pouze to, jak se generují texty typu: <b>Naučená písmena</b> a <b>Slova</b>, v lekcích <b>t,z - y,x,m</b>. Tam se
-                totiž
-                množina již naučených písmen liší klávesami Z a Y.
+                Klávesnice ovlivňuje pouze to, jak se generují texty typu: <b>Naučená písmena</b> a <b>Slova</b>, v lekcích <b>t,z - y,x,m</b>. Tam se totiž množina již naučených písmen liší
+                klávesami Z a Y.
             </span>
             <span>Žákům, kteří mají jinou klácesnici než jaká je nastavena v jejich třídě, se zobrazí varování.</span>
         </form>
@@ -179,7 +190,7 @@ const dialog1 = useTemplateRef("dialog1")
 </template>
 <style scoped>
 /* firefox nenenene */
-@supports(-webkit-tap-highlight-color: black) {
+@supports (-webkit-tap-highlight-color: black) {
     select:hover {
         background-color: var(--svetle-fialova) !important;
     }
@@ -206,11 +217,11 @@ select option {
     gap: 1em;
 }
 
-#dialog-kontejner>span {
+#dialog-kontejner > span {
     color: var(--seda);
 }
 
-#dialog-kontejner>div {
+#dialog-kontejner > div {
     display: flex;
     gap: 1em;
 }

@@ -1,99 +1,108 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { getToken, pridatOznameni } from "../../utils";
-import axios from "axios";
-import { prihlasen, role } from "../../stores";
+import { onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { getToken, pridatOznameni } from '../../utils';
+import axios from 'axios';
+import { prihlasen, role } from '../../stores';
 
-const router = useRouter()
+const router = useRouter();
 
-const kodURL = useRoute().params.kod as string
-const state = ref("kod") // kod, jmeno
+const kodURL = useRoute().params.kod as string;
+const state = ref('kod'); // kod, jmeno
 
-const kod = ref("")
-const jmeno = ref("")
+const kod = ref('');
+const jmeno = ref('');
 
 onMounted(() => {
     if (kodURL != undefined) {
-        kod.value = kodURL
+        kod.value = kodURL;
     }
-})
+});
 
 function potvrditKod(e: Event) {
-    e.preventDefault()
+    e.preventDefault();
     if (getToken() == null) {
-        pridatOznameni("Nejsi přihlášen/a!")
-        return
+        pridatOznameni('Nejsi přihlášen/a!');
+        return;
     }
     if (!/^[a-zA-Z]{4}$/.test(kod.value)) {
-        pridatOznameni("Kód je neplatný")
-        return
+        pridatOznameni('Kód je neplatný');
+        return;
     }
-    axios.get("/skola/test-tridy/" + kod.value, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(() => {
-        state.value = "jmeno"
-    }).catch(e => {
-        console.log(e.response.data.error)
-        if (e.response.data.error == "Takova trida neexistuje") {
-            pridatOznameni("Taková třída neexistuje")
-            return
-        }
-        if (e.response.data.error == "Trida je zamcena") {
-            pridatOznameni("Tato třída je zamčená")
-            return
-        }
-        console.log(e)
-        pridatOznameni("Chyba serveru")
-    })
+    axios
+        .get('/skola/test-tridy/' + kod.value, {
+            headers: {
+                Authorization: `Bearer ${getToken()}`,
+            },
+        })
+        .then(() => {
+            state.value = 'jmeno';
+        })
+        .catch((e) => {
+            console.log(e.response.data.error);
+            if (e.response.data.error == 'Takova trida neexistuje') {
+                pridatOznameni('Taková třída neexistuje');
+                return;
+            }
+            if (e.response.data.error == 'Trida je zamcena') {
+                pridatOznameni('Tato třída je zamčená');
+                return;
+            }
+            console.log(e);
+            pridatOznameni('Chyba serveru');
+        });
 }
 
 function zapsatSe(e: Event) {
-    e.preventDefault()
-    if (jmeno.value == "") {
-        pridatOznameni("Zadej prosím jméno")
-        return
+    e.preventDefault();
+    if (jmeno.value == '') {
+        pridatOznameni('Zadej prosím jméno');
+        return;
     }
-    axios.post("/skola/zapis", { kod: kod.value, jmeno: jmeno.value }, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(() => {
-        router.push("/trida")
-        role.value = "student"
-    }).catch(e => {
-        if (e.response.data.error == "Uz jsi ve tride") {
-            pridatOznameni("Už jsi ve třídě")
-            return
-        }
-        if (e.response.data.error == "jako ucitel nemuzete byt ve tride") {
-            pridatOznameni("Jako učitel/ka se nemůžete připojit do žádné třídy")
-            return
-        }
-        console.log(e)
-        pridatOznameni("Chyba serveru")
-    })
+    axios
+        .post(
+            '/skola/zapis',
+            { kod: kod.value, jmeno: jmeno.value },
+            {
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                },
+            },
+        )
+        .then(() => {
+            router.push('/trida');
+            role.value = 'student';
+        })
+        .catch((e) => {
+            if (e.response.data.error == 'Uz jsi ve tride') {
+                pridatOznameni('Už jsi ve třídě');
+                return;
+            }
+            if (e.response.data.error == 'jako ucitel nemuzete byt ve tride') {
+                pridatOznameni('Jako učitel/ka se nemůžete připojit do žádné třídy');
+                return;
+            }
+            console.log(e);
+            pridatOznameni('Chyba serveru');
+        });
 }
 
 function checkPrihlaseni() {
-    if (!prihlasen.value) pridatOznameni("Nejsi přihlášen/a!")
+    if (!prihlasen.value) pridatOznameni('Nejsi přihlášen/a!');
 }
-
 </script>
 <template>
     <h1>Zápis do třídy</h1>
     <div id="kontejner">
-        <img src="../../assets/pavoukSkola.svg" alt="Pavouk před školou" width="250" height="175">
+        <img src="../../assets/pavoukSkola.svg" alt="Pavouk před školou" width="250" height="175" />
         <form v-if="state == 'kod'">
             <h2>Zadej kód:</h2>
-            <input type="text" v-model="kod" placeholder="ABCD" @focus="checkPrihlaseni">
+            <input type="text" v-model="kod" placeholder="ABCD" @focus="checkPrihlaseni" />
             <button class="tlacitko" @click="potvrditKod">Potvrdit</button>
         </form>
         <form v-else>
             <h2>Zadej své jméno:</h2>
-            <input id="jmeno" type="text" v-model="jmeno" placeholder="Novák Honza">
+            <input id="jmeno" type="text" v-model="jmeno" placeholder="Novák Honza" />
             <p>(Nejlépe příjmení první)</p>
             <button class="tlacitko" @click="zapsatSe">Zapsat se</button>
         </form>
@@ -176,7 +185,7 @@ form input::placeholder {
 }
 
 @media screen and (max-width: 1100px) {
-    #kontejner>img {
+    #kontejner > img {
         display: none;
     }
 

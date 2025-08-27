@@ -1,80 +1,92 @@
 <script setup lang="ts">
-import { useHead } from "@unhead/vue";
-import { onMounted, ref, useTemplateRef } from "vue";
-import { role } from "../stores";
-import { getToken, MojeMapa, pridatOznameni } from "../utils";
-import axios from "axios";
-import PrepinacTabu from "../components/PrepinacTabu.vue";
-import Tooltip from "../components/Tooltip.vue";
-import AnimaceCisla from "../components/AnimaceCisla.vue";
-import GrafStatistiky from "../components/GrafStatistiky.vue";
+import { useHead } from '@unhead/vue';
+import { onMounted, ref, useTemplateRef } from 'vue';
+import { role } from '../stores';
+import { getToken, MojeMapa, pridatOznameni } from '../utils';
+import axios from 'axios';
+import PrepinacTabu from '../components/PrepinacTabu.vue';
+import Tooltip from '../components/Tooltip.vue';
+import AnimaceCisla from '../components/AnimaceCisla.vue';
+import GrafStatistiky from '../components/GrafStatistiky.vue';
 
 useHead({
-    title: "Statistiky"
-})
+    title: 'Statistiky',
+});
 
-const info = ref({ rychlost: -1, cas: [] as number[], napsanychPismen: [] as number[], uspesnost: -1, postupVKurzu: 0, daystreak: 0, nejcastejsiChyby: new Map<string, number>(), rychlosti: [] as number[], presnosti: [] as number[] })
-const nejcastejsiChyby = ref([] as { znak: string, pocet: number }[])
-const cas = ref(0)
-const napsanychPismen = ref(0)
+const info = ref({
+    rychlost: -1,
+    cas: [] as number[],
+    napsanychPismen: [] as number[],
+    uspesnost: -1,
+    postupVKurzu: 0,
+    daystreak: 0,
+    nejcastejsiChyby: new Map<string, number>(),
+    rychlosti: [] as number[],
+    presnosti: [] as number[],
+});
+const nejcastejsiChyby = ref([] as { znak: string; pocet: number }[]);
+const cas = ref(0);
+const napsanychPismen = ref(0);
 
-const prepinacTabu = useTemplateRef("prepinac-tabu")
+const prepinacTabu = useTemplateRef('prepinac-tabu');
 
 async function getInfo() {
-    axios.get("/statistiky", {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    }).then(resp => {
-        info.value = resp.data
-        nejcastejsiChyby.value = new MojeMapa(Object.entries(info.value.nejcastejsiChyby)).top(6)
+    axios
+        .get('/statistiky', {
+            headers: {
+                Authorization: `Bearer ${getToken()}`,
+            },
+        })
+        .then((resp) => {
+            info.value = resp.data;
+            nejcastejsiChyby.value = new MojeMapa(Object.entries(info.value.nejcastejsiChyby)).top(6);
 
-        // prvne smazeme co půjde ze zacatku
-        while (true) {
-            if (info.value.rychlosti.length > 5 && info.value.rychlosti[0] == -1 && info.value.presnosti[0] == -1) {
-                info.value.rychlosti.shift()
-                info.value.presnosti.shift()
-            } else break
-        }
+            // prvne smazeme co půjde ze zacatku
+            while (true) {
+                if (info.value.rychlosti.length > 5 && info.value.rychlosti[0] == -1 && info.value.presnosti[0] == -1) {
+                    info.value.rychlosti.shift();
+                    info.value.presnosti.shift();
+                } else break;
+            }
 
-        // nastavíme -1cky na NaN aby byla v grafu díra
-        for (let i = 0; i < info.value.rychlosti.length; i++) {
-            if (info.value.rychlosti[i] == -1) info.value.rychlosti[i] = NaN
-            else info.value.rychlosti[i] = zaokrouhlit(info.value.rychlosti[i])
-            if (info.value.presnosti[i] == -1) info.value.presnosti[i] = NaN
-            else info.value.presnosti[i] = zaokrouhlit(info.value.presnosti[i])
-        }
+            // nastavíme -1cky na NaN aby byla v grafu díra
+            for (let i = 0; i < info.value.rychlosti.length; i++) {
+                if (info.value.rychlosti[i] == -1) info.value.rychlosti[i] = NaN;
+                else info.value.rychlosti[i] = zaokrouhlit(info.value.rychlosti[i]);
+                if (info.value.presnosti[i] == -1) info.value.presnosti[i] = NaN;
+                else info.value.presnosti[i] = zaokrouhlit(info.value.presnosti[i]);
+            }
 
-        prepnoutStatistiky()
-    }).catch(() => {
-        pridatOznameni()
-    })
+            prepnoutStatistiky();
+        })
+        .catch(() => {
+            pridatOznameni();
+        });
 }
 
 function zaokrouhlit(cislo: number | null) {
     if (cislo == null) {
-        return -1
+        return -1;
     }
-    return Math.round(cislo * 10) / 10
+    return Math.round(cislo * 10) / 10;
 }
 
 function prepnoutStatistiky() {
-    if (prepinacTabu.value?.tab == "dnes" && info.value.cas[0] !== undefined && info.value.napsanychPismen[0] !== undefined) {
-        cas.value = info.value.cas[0]
-        napsanychPismen.value = info.value.napsanychPismen[0]
-    } else if (prepinacTabu.value?.tab == "dva tydny" && info.value.cas[1] !== undefined && info.value.napsanychPismen[1] !== undefined) {
-        cas.value = info.value.cas[1]
-        napsanychPismen.value = info.value.napsanychPismen[1]
-    } else if (prepinacTabu.value?.tab == "celkem" && info.value.cas[2] !== undefined && info.value.napsanychPismen[2] !== undefined) {
-        cas.value = info.value.cas[2]
-        napsanychPismen.value = info.value.napsanychPismen[2]
+    if (prepinacTabu.value?.tab == 'dnes' && info.value.cas[0] !== undefined && info.value.napsanychPismen[0] !== undefined) {
+        cas.value = info.value.cas[0];
+        napsanychPismen.value = info.value.napsanychPismen[0];
+    } else if (prepinacTabu.value?.tab == 'dva tydny' && info.value.cas[1] !== undefined && info.value.napsanychPismen[1] !== undefined) {
+        cas.value = info.value.cas[1];
+        napsanychPismen.value = info.value.napsanychPismen[1];
+    } else if (prepinacTabu.value?.tab == 'celkem' && info.value.cas[2] !== undefined && info.value.napsanychPismen[2] !== undefined) {
+        cas.value = info.value.cas[2];
+        napsanychPismen.value = info.value.napsanychPismen[2];
     }
 }
 
 onMounted(() => {
-    
-    getInfo()
-})
+    getInfo();
+});
 </script>
 <template>
     <h1>Statistiky</h1>
@@ -85,41 +97,45 @@ onMounted(() => {
                 <div id="nacitani-pozadi" :style="{ bottom: `${(info.postupVKurzu - 16) / 1.15}%` }" />
                 <div id="nacitani-pozadi2" :style="{ height: `${info.postupVKurzu >= 100 ? 100 : info.postupVKurzu - 10}%` }" />
                 <span class="popis">
-                    Kurz: <br>
+                    Kurz: <br />
                     <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.postupVKurzu)" /> %
                 </span>
             </div>
             <div class="blok">
                 <Tooltip
                     :zprava="'Počítají se jak <b>cvičení</b> v kurzu, tak texty ze záložky <b>procvičování</b>.' + (role == 'student' ? ' (Práce ve třídě se nepočítají)' : '')"
-                    :sirka="200" :vzdalenost="3">
+                    :sirka="200"
+                    :vzdalenost="3"
+                >
                     <span class="popis">
-                        Dní v řadě:<br>
+                        Dní v řadě:<br />
                         <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.daystreak)" :desetina-mista="0" />
                     </span>
                 </Tooltip>
             </div>
         </div>
         <div class="blok">
-            <img src="../assets/icony/rychlost.svg" alt="Rychlost" width="68">
+            <img src="../assets/icony/rychlost.svg" alt="Rychlost" width="68" />
             <Tooltip
                 :zprava="`Za <b>neopravené</b> chyby je adekvátní penalizace. <br>${zaokrouhlit(info.rychlost)} CPM = ${info.rychlost == -1 ? '?' : zaokrouhlit(info.rychlost / 5)} WPM <br>(<b>CPM</b> = úhozů za minutu, <b>WPM</b> = slov za minutu)`"
-                :sirka="200" style="width: 60%;" :vzdalenost="2">
-                <span v-if="info.rychlost == -1" class="popis">Rychlost:<br><span class="nic">Zatím nic</span></span>
+                :sirka="200"
+                style="width: 60%"
+                :vzdalenost="2"
+            >
+                <span v-if="info.rychlost == -1" class="popis">Rychlost:<br /><span class="nic">Zatím nic</span></span>
                 <span v-else class="popis">
-                    Rychlost:<br>
+                    Rychlost:<br />
                     <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.rychlost)" /> CPM
                 </span>
             </Tooltip>
         </div>
         <div class="blok" id="chyby">
             <div id="presnost">
-                <img src="../assets/icony/terc.svg" alt="Přesnost">
-                <Tooltip zprava="Přesnost zahrunuje chyby <b>opravené</b> i <b>neopravené</b>. (Státní zkouška počítá pouze neopravené.)" :sirka="210"
-                    :vzdalenost="2">
-                    <span v-if="info.uspesnost == -1" class="popis">Přesnost:<br><span class="nic">Zatím nic</span></span>
+                <img src="../assets/icony/terc.svg" alt="Přesnost" />
+                <Tooltip zprava="Přesnost zahrunuje chyby <b>opravené</b> i <b>neopravené</b>. (Státní zkouška počítá pouze neopravené.)" :sirka="210" :vzdalenost="2">
+                    <span v-if="info.uspesnost == -1" class="popis">Přesnost:<br /><span class="nic">Zatím nic</span></span>
                     <span v-else class="popis">
-                        Přesnost:<br>
+                        Přesnost:<br />
                         <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.uspesnost)" /> %
                     </span>
                 </Tooltip>
@@ -127,26 +143,28 @@ onMounted(() => {
 
             <div>
                 <h2>Nejčastější chyby:</h2>
-                <hr>
+                <hr />
             </div>
-            <div style="width: 100%;">
+            <div style="width: 100%">
                 <div v-if="nejcastejsiChyby.length !== 0" id="pismena">
                     <div id="prvni">
-                        <span v-for="znak, i in nejcastejsiChyby.slice(0, 2)" :key="znak.znak + znak.pocet"><span class="cisla">{{ i + 1 }}. </span>
+                        <span v-for="(znak, i) in nejcastejsiChyby.slice(0, 2)" :key="znak.znak + znak.pocet"
+                            ><span class="cisla">{{ i + 1 }}. </span>
                             <b :style="{ fontSize: znak.znak == ' ' ? '12px' : 'auto', fontWeight: znak.znak == ' ' ? '700' : '500' }">
-                                {{ znak.znak == " " ? "┗━┛" : znak.znak }}
+                                {{ znak.znak == ' ' ? '┗━┛' : znak.znak }}
                             </b>
                         </span>
                     </div>
                     <div id="druhy">
-                        <span v-for="znak, i in nejcastejsiChyby.slice(2)" :key="znak.znak + znak.pocet"><span class="cisla">{{ i + 3 }}. </span>
+                        <span v-for="(znak, i) in nejcastejsiChyby.slice(2)" :key="znak.znak + znak.pocet"
+                            ><span class="cisla">{{ i + 3 }}. </span>
                             <b :style="{ fontSize: znak.znak == ' ' ? '12px' : 'auto', fontWeight: znak.znak == ' ' ? '700' : '500' }">
-                                {{ znak.znak == " " ? "┗━┛" : znak.znak }}
+                                {{ znak.znak == ' ' ? '┗━┛' : znak.znak }}
                             </b>
                         </span>
                     </div>
                 </div>
-                <div v-else style="margin: 27px 0;">
+                <div v-else style="margin: 27px 0">
                     <span>Žádné!</span>
                 </div>
             </div>
@@ -155,30 +173,31 @@ onMounted(() => {
     </div>
 
     <div id="bloky">
-        <PrepinacTabu id="prepinac-tabu" :taby="[['celkem', 'Celkem'], ['dva tydny', 'Dva týdny'], ['dnes', 'Dnes']]" default-tab="celkem"
-            ref="prepinac-tabu" @zmena="prepnoutStatistiky" />
+        <PrepinacTabu
+            id="prepinac-tabu"
+            :taby="[
+                ['celkem', 'Celkem'],
+                ['dva tydny', 'Dva týdny'],
+                ['dnes', 'Dnes'],
+            ]"
+            default-tab="celkem"
+            ref="prepinac-tabu"
+            @zmena="prepnoutStatistiky"
+        />
         <div class="blok">
-            <img src="../assets/icony/cas.svg" alt="Čas" width="68">
+            <img src="../assets/icony/cas.svg" alt="Čas" width="68" />
             <span class="popis">
-                Čas strávený psaním: <br>
-                <span v-if="cas >= 3600">
-                    <AnimaceCisla class="cislo" :cislo="(cas - (cas % 3600)) / 3600" :desetina-mista="0" /> h
-                </span>
-                <span v-if="(cas % 3600) / 60 >= 1">
-                    <AnimaceCisla class="cislo" :cislo="((cas % 3600) - (cas % 60)) / 60" :desetina-mista="0" /> min
-                </span>
-                <span v-if="cas % 60 >= 1 && cas < 3660">
-                    <AnimaceCisla class="cislo" :cislo="cas % 60" :desetina-mista="0" /> s
-                </span>
+                Čas strávený psaním: <br />
+                <span v-if="cas >= 3600"> <AnimaceCisla class="cislo" :cislo="(cas - (cas % 3600)) / 3600" :desetina-mista="0" /> h </span>
+                <span v-if="(cas % 3600) / 60 >= 1"> <AnimaceCisla class="cislo" :cislo="((cas % 3600) - (cas % 60)) / 60" :desetina-mista="0" /> min </span>
+                <span v-if="cas % 60 >= 1 && cas < 3660"> <AnimaceCisla class="cislo" :cislo="cas % 60" :desetina-mista="0" /> s </span>
                 <span v-if="cas == 0" class="nic">Zatím nic</span>
             </span>
         </div>
         <div class="blok">
-            <div id="fake-obrazek">
-                aA
-            </div>
+            <div id="fake-obrazek">aA</div>
             <span class="popis">
-                Napsaných písmen: <br>
+                Napsaných písmen: <br />
                 <span v-if="napsanychPismen != 0">
                     <AnimaceCisla class="cislo" :cislo="napsanychPismen >= 10000 ? napsanychPismen / 1000 : napsanychPismen" :desetina-mista="0" />
                     <span v-if="napsanychPismen >= 10000"> tis.</span>
@@ -189,7 +208,7 @@ onMounted(() => {
     </div>
 </template>
 <style scoped>
-.blok>#fake-obrazek {
+.blok > #fake-obrazek {
     font-size: 55px;
     font-weight: 700;
     user-select: none;
@@ -200,7 +219,7 @@ onMounted(() => {
     grid-column-end: 3;
 }
 
-#mini>.blok {
+#mini > .blok {
     width: 150px !important;
     padding: 8px;
 }
@@ -251,7 +270,7 @@ onMounted(() => {
 
 #prvni b,
 #druhy b {
-    font-family: "Red Hat Mono", monospace;
+    font-family: 'Red Hat Mono', monospace;
 }
 
 #chyby {
@@ -271,7 +290,7 @@ onMounted(() => {
     font-size: 19px;
 }
 
-#chyby>div:first-child {
+#chyby > div:first-child {
     height: 65%;
 }
 
@@ -290,7 +309,7 @@ onMounted(() => {
 .cislo {
     font-size: 28pt;
     font-weight: 480;
-    font-family: "Red Hat Mono";
+    font-family: 'Red Hat Mono';
 }
 
 #bloky {
@@ -324,7 +343,7 @@ onMounted(() => {
     overflow: hidden;
 }
 
-#progres>.popis {
+#progres > .popis {
     z-index: 1;
 }
 
@@ -407,14 +426,45 @@ onMounted(() => {
 }
 
 @keyframes animate {
-
     0%,
     100% {
-        clip-path: polygon(0% 47.5%, 9% 47.5%, 18.25% 48.25%, 28.25% 50.25%, 36.83% 52.75%, 45.25% 56.25%, 54% 60%, 62% 62.75%, 70.28% 64.95%, 78.5% 66.5%, 86.46% 67%, 93.5% 67.25%, 100% 67%, 100% 100%, 0% 100%);
+        clip-path: polygon(
+            0% 47.5%,
+            9% 47.5%,
+            18.25% 48.25%,
+            28.25% 50.25%,
+            36.83% 52.75%,
+            45.25% 56.25%,
+            54% 60%,
+            62% 62.75%,
+            70.28% 64.95%,
+            78.5% 66.5%,
+            86.46% 67%,
+            93.5% 67.25%,
+            100% 67%,
+            100% 100%,
+            0% 100%
+        );
     }
 
     50% {
-        clip-path: polygon(0% 67%, 9% 67.25%, 18.25% 67%, 28.25% 66.5%, 36.83% 64.95%, 45.25% 62.75%, 54% 60%, 62%56.25%, 70.28% 52.75%, 78.5% 50.25%, 86.46% 48.25%, 93.5% 47.5%, 100% 47.5%, 100% 100%, 0% 100%);
+        clip-path: polygon(
+            0% 67%,
+            9% 67.25%,
+            18.25% 67%,
+            28.25% 66.5%,
+            36.83% 64.95%,
+            45.25% 62.75%,
+            54% 60%,
+            62%56.25%,
+            70.28% 52.75%,
+            78.5% 50.25%,
+            86.46% 48.25%,
+            93.5% 47.5%,
+            100% 47.5%,
+            100% 100%,
+            0% 100%
+        );
     }
 }
 
@@ -424,11 +474,11 @@ onMounted(() => {
         height: 105px;
     }
 
-    #mini>.blok {
+    #mini > .blok {
         width: 150px !important;
     }
 
-    #bloky:first-of-type>.blok:nth-of-type(2) {
+    #bloky:first-of-type > .blok:nth-of-type(2) {
         order: -1;
     }
 
