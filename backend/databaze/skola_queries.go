@@ -165,8 +165,13 @@ func ZapsatStudenta(kod string, studentID uint, jmeno string) (int, error) {
 	return id, err
 }
 
-func PridatPraci(text string, cas int, tridaID uint) error {
-	_, err := DB.Exec(`INSERT INTO prace (trida_id, text, cas) VALUES ($1, $2, $3);`, tridaID, text, cas)
+func PridatPraci(text string, cas int, tridaID uint, hodnocena bool) error {
+	var err error
+	if hodnocena {
+		_, err = DB.Exec(`INSERT INTO prace (trida_id, text, cas, hodnoceni) VALUES ($1, $2, $3, (SELECT hodnoceni FROM trida WHERE trida.id = $1));`, tridaID, text, cas)
+	} else {
+		_, err = DB.Exec(`INSERT INTO prace (trida_id, text, cas) VALUES ($1, $2, $3);`, tridaID, text, cas)
+	}
 	return err
 }
 

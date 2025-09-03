@@ -101,6 +101,7 @@ function pridatPraci() {
                 cas: delka.value,
                 trida_id: props.tridaID,
                 text: textovePole.value!.text,
+                hodnocena: hodnocena.value,
             },
             {
                 headers: {

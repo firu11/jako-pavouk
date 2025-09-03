@@ -581,7 +581,7 @@ func pridatPraci(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, chyba("Spatny body"))
 	}
 
-	if err = databaze.PridatPraci(body.Text, body.Cas, body.TridaID); err != nil {
+	if err = databaze.PridatPraci(body.Text, body.Cas, body.TridaID, body.Hodnocena); err != nil {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 
