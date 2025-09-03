@@ -605,35 +605,36 @@ func getText(c echo.Context) error {
 	}
 
 	var text string = ""
-	if body.Typ == "1" {
+	switch body.Typ {
+	case "1":
 		textPole, err := utils.GenerovatTextCviceni(body.ZLekce, "nova", 0, body.TridaID, body.Delka+5)
 		if err != nil {
 			log.Println(err)
 			return c.JSON(http.StatusInternalServerError, chyba(""))
 		}
 		text = strings.Join(textPole, "")
-	} else if body.Typ == "2" {
+	case "2":
 		textPole, err := utils.GenerovatTextCviceni(body.ZLekce, "naucena", 0, body.TridaID, body.Delka+5)
 		if err != nil {
 			log.Println(err)
 			return c.JSON(http.StatusInternalServerError, chyba(""))
 		}
 		text = strings.Join(textPole, "")
-	} else if body.Typ == "3" {
+	case "3":
 		textPole, err := utils.GenerovatTextCviceni(body.ZLekce, "slova", 0, body.TridaID, body.Delka+5)
 		if err != nil {
 			log.Println(err)
 			return c.JSON(http.StatusInternalServerError, chyba(""))
 		}
 		text = strings.Join(textPole, "")
-	} else if body.Typ == "4" {
+	case "4":
 		textPole, err := utils.GenerovatTextCviceni(body.ZLekce, "programator", 0, body.TridaID, body.Delka+5)
 		if err != nil {
 			log.Println(err)
 			return c.JSON(http.StatusInternalServerError, chyba(""))
 		}
 		text = strings.Join(textPole, "")
-	} else if body.Typ == "Věty z pohádek" {
+	case "Věty z pohádek":
 		var textBuilder strings.Builder
 		vety, err := databaze.GetVsechnyVety(int(PocetZnaku / 85)) // cca 85 znaku na vetu
 		if err != nil {
@@ -646,7 +647,7 @@ func getText(c echo.Context) error {
 		}
 
 		text = textBuilder.String()
-	} else {
+	default:
 		var textBuilder strings.Builder
 		txt, err := databaze.GetRandomProcvic(body.Typ)
 		if err == sql.ErrNoRows {
