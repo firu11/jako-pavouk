@@ -80,6 +80,7 @@ type (
 		Text    string `json:"text" validate:"required,min=1"`
 		Cas     int    `json:"cas" validate:"required"`
 		TridaID uint   `json:"trida_id" validate:"required"`
+		Hodnocena bool `json:"hodnocena"`
 	}
 	bodyGetText struct {
 		TridaID uint    `json:"trida_id"`

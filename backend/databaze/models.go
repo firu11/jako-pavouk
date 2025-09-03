@@ -62,14 +62,22 @@ type (
 		ChybyPismenka map[string]int `json:"chyby_pismenka" db:"chyby_pismenka"`
 	}
 
+	HodnoticiTabulka struct {
+		Hodnoceni1 int `json:"hodnoceni1" db:"hodnoceni1"`
+		Hodnoceni2 int `json:"hodnoceni2" db:"hodnoceni2"`
+		Hodnoceni3 int `json:"hodnoceni3" db:"hodnoceni3"`
+		Hodnoceni4 int `json:"hodnoceni4" db:"hodnoceni4"`
+	}
+
 	Trida struct {
-		ID         uint   `json:"id" db:"id"`
-		Jmeno      string `json:"jmeno" db:"jmeno"`
-		UcitelID   uint   `json:"-" db:"ucitel_id"`
-		Kod        string `json:"kod" db:"kod"`
-		Zamknuta   bool   `json:"zamknuta" db:"zamknuta"`
-		Smazana    bool   `json:"smazana" db:"smazana"`
-		Klavesnice string `json:"klavesnice" db:"klavesnice"`
+		ID         uint             `json:"id" db:"id"`
+		Jmeno      string           `json:"jmeno" db:"jmeno"`
+		UcitelID   uint             `json:"-" db:"ucitel_id"`
+		Kod        string           `json:"kod" db:"kod"`
+		Zamknuta   bool             `json:"zamknuta" db:"zamknuta"`
+		Smazana    bool             `json:"smazana" db:"smazana"`
+		Klavesnice string           `json:"klavesnice" db:"klavesnice"`
+		Hodnoceni  HodnoticiTabulka `json:"hodnoceni" db:"hodnoceni"`
 	}
 
 	Skola struct {
@@ -93,14 +101,15 @@ type (
 	}
 
 	Prace struct {
-		ID                uint      `json:"id" db:"id"`
-		TridaID           uint      `json:"-" db:"trida_id"`
-		Text              string    `json:"text" db:"text"`
-		Cas               int       `json:"cas" db:"cas"`
-		Datum             time.Time `json:"datum" db:"datum"`
-		PrumerneCPM       float32   `json:"prumerne_cpm" db:"prumerne_cpm"`
-		PrumernaPresnost  float32   `json:"prumerna_presnost" db:"prumerna_presnost"`
-		StudentuDokoncilo int       `json:"studentu_dokoncilo" db:"studentu_dokoncilo"`
+		ID                uint             `json:"id" db:"id"`
+		TridaID           uint             `json:"-" db:"trida_id"`
+		Text              string           `json:"text" db:"text"`
+		Cas               int              `json:"cas" db:"cas"`
+		Datum             time.Time        `json:"datum" db:"datum"`
+		PrumerneCPM       float32          `json:"prumerne_cpm" db:"prumerne_cpm"`
+		PrumernaPresnost  float32          `json:"prumerna_presnost" db:"prumerna_presnost"`
+		StudentuDokoncilo int              `json:"studentu_dokoncilo" db:"studentu_dokoncilo"`
+		Hodnoceni         HodnoticiTabulka `json:"hodnoceni" db:"hodnoceni"`
 	}
 
 	Procvic struct {
