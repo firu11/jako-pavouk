@@ -5,6 +5,7 @@ import { moznostiRocnik, moznostiTrida, moznostiSkupina } from '../../stores';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import KodTridy from '../../components/KodTridy.vue';
+import HodnoticiTabulka from './HodnoticiTabulka.vue';
 
 const emit = defineEmits(['prejmenovatTridu', 'refresh']);
 
@@ -149,6 +150,12 @@ const dialog1 = useTemplateRef('dialog1');
                 <br />
                 Např.: <b>3.B&nbsp;￨&nbsp;1</b> a <b>3.B&nbsp;￨&nbsp;2</b>.
             </span>
+        </form>
+
+        <form>
+            <h3 style="padding-bottom: 10px">Hodnotící tabulka</h3>
+            <HodnoticiTabulka />
+            <span>U prácí označených jako hodnocené budou žáci automaticky ohodnoceni.</span>
         </form>
 
         <form>
