@@ -77,10 +77,10 @@ type (
 		Jmeno string `json:"jmeno" validate:"required,min=1,max=30"`
 	}
 	bodyPridatPraci struct {
-		Text    string `json:"text" validate:"required,min=1"`
-		Cas     int    `json:"cas" validate:"required"`
-		TridaID uint   `json:"trida_id" validate:"required"`
-		Hodnocena bool `json:"hodnocena"`
+		Text      string `json:"text" validate:"required,min=1"`
+		Cas       int    `json:"cas" validate:"required"`
+		TridaID   uint   `json:"trida_id" validate:"required"`
+		Hodnocena bool   `json:"hodnocena"`
 	}
 	bodyGetText struct {
 		TridaID uint    `json:"trida_id"`
@@ -97,14 +97,23 @@ type (
 		Akce  string `json:"akce" validate:"oneof='smazat' 'pridat'"`
 		Email string `json:"email" validate:"required_if=Akce 'pridat',email"`
 	}
+	bodyZmenaHodnoticiTabulky struct {
+		TridaID    uint `json:"trida_id" validate:"required"`
+		Hodnoceni1 int  `json:"hodnoceni1" validate:"min=1,max=999,required,gtefield=Hodnoceni2"`
+		Hodnoceni2 int  `json:"hodnoceni2" validate:"min=1,max=999,required,gtefield=Hodnoceni3"`
+		Hodnoceni3 int  `json:"hodnoceni3" validate:"min=1,max=999,required,gtefield=Hodnoceni4"`
+		Hodnoceni4 int  `json:"hodnoceni4" validate:"min=1,max=999,required"`
+	}
 
 	praceProStudenta struct {
-		ID       uint      `json:"id"`
-		TridaID  uint      `json:"-"`
-		Text     string    `json:"-"`
-		Cas      int       `json:"cas"`
-		Datum    time.Time `json:"datum"`
-		Cpm      float64   `json:"cpm"`
-		Presnost float64   `json:"presnost"`
+		ID        uint      `json:"id"`
+		TridaID   uint      `json:"-"`
+		Text      string    `json:"-"`
+		Cas       int       `json:"cas"`
+		Datum     time.Time `json:"datum"`
+		Cpm       float64   `json:"cpm"`
+		Presnost  float64   `json:"presnost"`
+		Hodnocena bool      `json:"hodnocena"`
+		Znamka    int       `json:"znamka"`
 	}
 )

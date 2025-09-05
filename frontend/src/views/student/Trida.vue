@@ -14,8 +14,8 @@ useHead({
 const router = useRouter();
 
 const trida = ref({} as { id: number; jmeno: string; ucitel_id: number; kod: string; zamknuta: boolean; pocet_studentu: number; klavesnice: string });
-const praceNove = ref([] as { id: number; cislo: number; datum: string; cpm: number; presnost: number }[]);
-const praceDoko = ref([] as { id: number; cislo: number; datum: string; cpm: number; presnost: number }[]);
+const praceNove = ref([] as { id: number; cislo: number; datum: string; cpm: number; presnost: number; hodnocena: boolean; znamka: number }[]);
+const praceDoko = ref([] as { id: number; cislo: number; datum: string; cpm: number; presnost: number; hodnocena: boolean; znamka: number }[]);
 
 const nacitam = ref(false);
 
@@ -42,14 +42,37 @@ function get() {
             klavesniceStudenta.value = response.data.klavesnice;
 
             praceNove.value = [];
+            praceDoko.value = [];
+
             response.data.prace.sort((a: { datum: string }, b: { datum: string }) => b.datum.localeCompare(a.datum));
-            for (let i = 0; i < response.data.prace.length; i++) {
+
+            let counter: number[] = [1, 1];
+            for (let i = response.data.prace.length - 1; i >= 0; i--) {
                 const prace1 = response.data.prace[i];
-                let p = { id: prace1.id, cislo: response.data.prace.length - i, datum: new Date(prace1.datum).toLocaleDateString('cs-CZ'), cpm: prace1.cpm, presnost: prace1.presnost };
+                if (prace1.hodnocena) {
+                    prace1.cislo = counter[1];
+                    counter[1]++;
+                } else {
+                    prace1.cislo = counter[0];
+                    counter[0]++;
+                }
+
+                const p = {
+                    id: prace1.id,
+                    cislo: prace1.cislo,
+                    datum: new Date(prace1.datum).toLocaleDateString('cs-CZ'),
+                    cpm: prace1.cpm,
+                    presnost: prace1.presnost,
+                    hodnocena: prace1.hodnocena,
+                    znamka: prace1.znamka,
+                };
 
                 if (prace1.cpm != -1) praceDoko.value.push(p);
                 else praceNove.value.push(p);
             }
+
+            praceDoko.value.reverse();
+            praceNove.value.reverse();
         })
         .catch(() => {
             pridatOznameni('Chyba serveru');
@@ -105,7 +128,8 @@ function zmenaKlavesnice() {
         <div v-if="praceNove.length != 0" class="prace-kontejner">
             <RouterLink :to="`/prace/${v.id}`" v-for="v in praceNove" :key="v.id" class="prace">
                 <div class="nadpis-prace">
-                    <h3>Práce {{ v.cislo }}</h3>
+                    <h3 v-if="!v.hodnocena">Práce {{ v.cislo }}</h3>
+                    <h3 v-else>Písemka {{ v.cislo }}</h3>
                     <h4>{{ v.datum }}</h4>
                 </div>
                 <img class="play" src="../../assets/icony/start.svg" alt="Dokonceno!" />
@@ -117,16 +141,33 @@ function zmenaKlavesnice() {
         <div v-if="praceDoko.length != 0" class="prace-kontejner">
             <div v-for="v in praceDoko" :key="v.id" class="prace hotova">
                 <div class="nadpis-prace">
-                    <h3>Práce {{ v.cislo }}</h3>
+                    <h3 v-if="!v.hodnocena">Práce {{ v.cislo }}</h3>
+                    <h3 v-else>Písemka {{ v.cislo }}</h3>
                     <h4>{{ v.datum }}</h4>
                 </div>
                 <div class="statistika">
-                    <span
-                        ><b>{{ naJednoDesetiny(v.cpm) }}</b> CPM</span
-                    >
-                    <span
-                        ><b>{{ naJednoDesetiny(v.presnost) }}</b> %</span
-                    >
+                    <Tooltip zprava="Rychlost" :sirka="90" :vzdalenost="0">
+                        <span
+                            ><b>{{ naJednoDesetiny(v.cpm) }}</b> CPM
+                        </span>
+                    </Tooltip>
+
+                    <Tooltip zprava="Přesnost" :sirka="90" :vzdalenost="0">
+                        <span>
+                            <b>{{ naJednoDesetiny(v.presnost) }}</b> %
+                        </span>
+                    </Tooltip>
+
+                    <Tooltip v-if="v.hodnocena" zprava="Známka" :sirka="90" :vzdalenost="0">
+                        <span>
+                            <b>{{ v.znamka }}</b>
+                        </span>
+                    </Tooltip>
+                    <Tooltip v-else zprava="Známka <br> (není hodnoceno)" :sirka="150" :vzdalenost="0">
+                        <span>
+                            <b>-</b>
+                        </span>
+                    </Tooltip>
                 </div>
             </div>
         </div>
@@ -180,12 +221,12 @@ h1 span.blba {
     }
 }
 
-.statistika span b {
+.statistika div span b {
     font-family: 'Red Hat Mono';
     font-size: 29px;
 }
 
-.statistika span {
+.statistika div span {
     font-size: 19px;
     display: flex;
     align-items: baseline;
@@ -197,6 +238,15 @@ h1 span.blba {
     top: -2px;
 
     min-width: 115px;
+}
+
+.statistika > div:last-of-type span {
+    min-width: 43px;
+    top: -2px;
+
+    b {
+        font-size: 29px;
+    }
 }
 
 .statistika {
@@ -215,8 +265,8 @@ h2 {
 }
 
 .hotova {
-    color: var(--seda);
-    opacity: 80%;
+    color: var(--seda) !important;
+    background-color: rgba(63, 51, 81, 0.8) !important;
     cursor: default !important;
 }
 

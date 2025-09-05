@@ -16,7 +16,7 @@ func CreateTrida(jmeno string, ucitelID uint, kod string) error {
 
 func GetTrida(id uint) (Trida, error) {
 	var trida Trida
-	row, err := DB.Query(`SELECT t.id, t.jmeno, u.uziv_id AS ucitel_id, t.kod, t.zamknuta, t.smazana, t.klavesnice FROM trida t INNER JOIN ucitel u ON u.id = t.ucitel_id WHERE t.id = $1 AND NOT t.smazana AND NOT u.smazany;`, id)
+	row, err := DB.Query(`SELECT t.id, t.jmeno, u.uziv_id AS ucitel_id, t.kod, t.zamknuta, t.smazana, t.klavesnice, (t.hodnoceni).* FROM trida t INNER JOIN ucitel u ON u.id = t.ucitel_id WHERE t.id = $1 AND NOT t.smazana AND NOT u.smazany;`, id)
 	if err != nil {
 		return trida, err
 	}
@@ -27,7 +27,7 @@ func GetTrida(id uint) (Trida, error) {
 
 func GetTridaByStudentID(id uint) (Trida, error) {
 	var trida Trida
-	row, err := DB.Query(`SELECT t.* FROM trida t INNER JOIN student_a_trida sat ON t.id = sat.trida_id INNER JOIN ucitel u ON u.id = t.ucitel_id WHERE NOT t.smazana AND NOT u.smazany AND sat.student_id = $1 LIMIT 1;`, id)
+	row, err := DB.Query(`SELECT t.id, t.jmeno, u.uziv_id AS ucitel_id, t.kod, t.zamknuta, t.smazana, t.klavesnice, (t.hodnoceni).* FROM trida t INNER JOIN student_a_trida sat ON t.id = sat.trida_id INNER JOIN ucitel u ON u.id = t.ucitel_id WHERE NOT t.smazana AND NOT u.smazany AND sat.student_id = $1 LIMIT 1;`, id)
 	if err != nil {
 		return trida, err
 	}
@@ -63,9 +63,9 @@ func GetStudentyZeTridy(tridaID uint) ([]Student, error) {
 }
 
 func GetStudentyZPrace(praceID uint) ([]Student, error) {
-	var zaci []Student = []Student{}
+	var zaci []Student
 
-	rows, err := DB.Query(`WITH studenti_ze_tridy AS ( SELECT u.id, u.skolni_jmeno, u.email FROM student_a_trida sat JOIN uzivatel u ON u.id = sat.student_id WHERE sat.trida_id = ( SELECT trida_id FROM prace WHERE id = $1 ) AND NOT u.smazany ), vysledky_teto_prace AS ( SELECT student_id as id, GREATEST( ( (delka_textu - 10 * neopravene) / cas::NUMERIC ) * 60, 0 ) AS cpm, COALESCE( ( ( delka_textu - neopravene - COALESCE( ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ), 0 ) ) / GREATEST(delka_textu::NUMERIC, 1) ) * 100, -1 ) AS presnost FROM dokoncena_prace WHERE prace_id = $1 ) SELECT id, skolni_jmeno, email, COALESCE(cpm, -1) as cpm, COALESCE(presnost, -1) as presnost FROM studenti_ze_tridy LEFT JOIN vysledky_teto_prace USING(id);`, praceID)
+	rows, err := DB.Query(`WITH tato_prace AS ( SELECT * FROM prace WHERE id = $1 ), studenti_ze_tridy AS ( SELECT u.id, u.skolni_jmeno, u.email FROM student_a_trida sat JOIN uzivatel u ON u.id = sat.student_id WHERE sat.trida_id = ( SELECT trida_id FROM prace WHERE id = $1 ) AND NOT u.smazany ), vysledky_teto_prace AS ( SELECT student_id as id, GREATEST( ((delka_textu - 10 * neopravene) / cas::NUMERIC) * 60, 0 ) AS cpm, COALESCE( ( ( delka_textu - neopravene - COALESCE( ( SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka) ), 0 ) ) / GREATEST(delka_textu::NUMERIC, 1) ) * 100, -1 ) AS presnost FROM dokoncena_prace WHERE prace_id = $1 ) SELECT szt.id, skolni_jmeno, email, COALESCE(cpm, -1) as cpm, COALESCE(presnost, -1) as presnost, CASE WHEN (tp.hodnoceni).hodnoceni1 IS NULL THEN 0 WHEN cpm >= (tp.hodnoceni).hodnoceni1 THEN 1 WHEN cpm >= (tp.hodnoceni).hodnoceni2 THEN 2 WHEN cpm >= (tp.hodnoceni).hodnoceni3 THEN 3 WHEN cpm >= (tp.hodnoceni).hodnoceni4 THEN 4 ELSE 5 END AS znamka FROM studenti_ze_tridy szt LEFT JOIN vysledky_teto_prace USING (id) CROSS JOIN tato_prace tp;`, praceID)
 	if err != nil {
 		return zaci, err
 	}
@@ -112,7 +112,7 @@ func OdebratStudenta(id uint) error {
 
 func GetTridaByKod(kod string) (Trida, error) {
 	var trida Trida
-	row, err := DB.Query(`SELECT * FROM trida WHERE kod = $1 AND NOT smazana;`, kod)
+	row, err := DB.Query(`SELECT t.id, t.jmeno, t.kod, t.zamknuta, t.klavesnice, t.ucitel_id, (t.hodnoceni).* FROM trida t INNER JOIN student_a_trida s ON t.id = s.trida_id WHERE t.kod = $1 AND NOT t.smazana;`, kod)
 	if err != nil {
 		return trida, err
 	}
@@ -123,7 +123,7 @@ func GetTridaByKod(kod string) (Trida, error) {
 
 func GetTridaByUziv(id uint) (Trida, error) {
 	var trida Trida
-	row, err := DB.Query(`SELECT t.* FROM trida t INNER JOIN student_a_trida s ON t.id = s.trida_id WHERE student_id = $1 AND NOT smazana;`, id)
+	row, err := DB.Query(`SELECT t.id, t.jmeno, t.kod, t.zamknuta, t.klavesnice, t.ucitel_id, (t.hodnoceni).* FROM trida t INNER JOIN student_a_trida s ON t.id = s.trida_id WHERE student_id = $1 AND NOT smazana;`, id)
 	if err != nil {
 		return trida, err
 	}
@@ -181,9 +181,9 @@ func SmazatPraci(id uint) error {
 }
 
 func GetVsechnyPrace(tridaID uint) ([]Prace, error) {
-	var prace []Prace = []Prace{}
+	var prace []Prace
 
-	rows, err := DB.Query(`WITH soucet_neopravenych AS ( SELECT dp.prace_id, SUM(dp.neopravene) as pocet FROM dokoncena_prace dp INNER JOIN student_a_trida sat ON sat.student_id = dp.student_id INNER JOIN uzivatel u ON u.id = dp.student_id WHERE NOT u.smazany GROUP BY dp.prace_id ), soucet_chyb AS ( SELECT dp.prace_id, SUM((value::VARCHAR(5))::NUMERIC) AS pocet FROM dokoncena_prace dp INNER JOIN student_a_trida sat ON sat.student_id = dp.student_id, jsonb_each_text(dp.chyby_pismenka) WHERE NOT ( SELECT smazany FROM uzivatel WHERE id = dp.student_id ) GROUP BY dp.prace_id ), delky_textu AS ( SELECT dp.prace_id, SUM(dp.delka_textu) AS soucet_delek FROM dokoncena_prace dp INNER JOIN student_a_trida sat ON sat.student_id = dp.student_id INNER JOIN uzivatel u ON u.id = dp.student_id WHERE NOT u.smazany GROUP BY dp.prace_id ), rychlosti AS ( WITH cpmka AS ( SELECT ( ( ( dp.delka_textu - 10 * dp.neopravene ) / dp.cas::FLOAT ) * 60 ) AS cpm, p.id AS prace_id FROM dokoncena_prace dp INNER JOIN prace p ON dp.prace_id = p.id INNER JOIN student_a_trida sat ON sat.student_id = dp.student_id INNER JOIN uzivatel u ON u.id = dp.student_id WHERE NOT u.smazany AND sat.trida_id = $1 ) SELECT prace_id, AVG(GREATEST(cpm, 0)) AS prumerne_cpm FROM cpmka GROUP BY prace_id ), studenti AS ( SELECT dp.prace_id, COUNT(*) as studentu_dokoncilo FROM dokoncena_prace dp INNER JOIN student_a_trida sat ON sat.student_id = dp.student_id INNER JOIN uzivatel u ON u.id = dp.student_id WHERE sat.trida_id = $1 AND NOT u.smazany GROUP BY dp.prace_id ) SELECT p.id, COALESCE(r.prumerne_cpm, -1) AS prumerne_cpm, p.cas, p.datum, p.text, p.trida_id, COALESCE(s.studentu_dokoncilo, 0) AS studentu_dokoncilo, COALESCE( ( ( dt.soucet_delek - COALESCE(sc.pocet, 0) - COALESCE(sn.pocet, 0) ) / dt.soucet_delek::FLOAT ) * 100, -1 ) AS prumerna_presnost FROM soucet_neopravenych sn FULL OUTER JOIN soucet_chyb sc USING (prace_id) FULL OUTER JOIN delky_textu dt USING (prace_id) FULL OUTER JOIN rychlosti r USING (prace_id) FULL OUTER JOIN studenti s USING (prace_id) FULL OUTER JOIN prace p ON p.id = r.prace_id WHERE p.trida_id = $1 AND NOT p.smazana;`, tridaID)
+	rows, err := DB.Query(`WITH soucet_neopravenych AS ( SELECT dp.prace_id, SUM(dp.neopravene) as pocet FROM dokoncena_prace dp INNER JOIN student_a_trida sat ON sat.student_id = dp.student_id INNER JOIN uzivatel u ON u.id = dp.student_id WHERE NOT u.smazany GROUP BY dp.prace_id ), soucet_chyb AS ( SELECT dp.prace_id, SUM((value::VARCHAR(5))::NUMERIC) AS pocet FROM dokoncena_prace dp INNER JOIN student_a_trida sat ON sat.student_id = dp.student_id, jsonb_each_text(dp.chyby_pismenka) WHERE NOT ( SELECT smazany FROM uzivatel WHERE id = dp.student_id ) GROUP BY dp.prace_id ), delky_textu AS ( SELECT dp.prace_id, SUM(dp.delka_textu) AS soucet_delek FROM dokoncena_prace dp INNER JOIN student_a_trida sat ON sat.student_id = dp.student_id INNER JOIN uzivatel u ON u.id = dp.student_id WHERE NOT u.smazany GROUP BY dp.prace_id ), rychlosti AS ( WITH cpmka AS ( SELECT ( ( (dp.delka_textu - 10 * dp.neopravene) / dp.cas::FLOAT ) * 60 ) AS cpm, p.id AS prace_id FROM dokoncena_prace dp INNER JOIN prace p ON dp.prace_id = p.id INNER JOIN student_a_trida sat ON sat.student_id = dp.student_id INNER JOIN uzivatel u ON u.id = dp.student_id WHERE NOT u.smazany AND sat.trida_id = $1 ) SELECT prace_id, AVG(GREATEST(cpm, 0)) AS prumerne_cpm FROM cpmka GROUP BY prace_id ), studenti AS ( SELECT dp.prace_id, COUNT(*) as studentu_dokoncilo FROM dokoncena_prace dp INNER JOIN student_a_trida sat ON sat.student_id = dp.student_id INNER JOIN uzivatel u ON u.id = dp.student_id WHERE sat.trida_id = $1 AND NOT u.smazany GROUP BY dp.prace_id ) SELECT p.id, COALESCE(r.prumerne_cpm, -1) AS prumerne_cpm, p.cas, p.datum, p.text, p.trida_id, COALESCE(s.studentu_dokoncilo, 0) AS studentu_dokoncilo, COALESCE( ( ( dt.soucet_delek - COALESCE(sc.pocet, 0) - COALESCE(sn.pocet, 0) ) / dt.soucet_delek::FLOAT ) * 100, -1 ) AS prumerna_presnost, (p.hodnoceni).* FROM soucet_neopravenych sn FULL OUTER JOIN soucet_chyb sc USING (prace_id) FULL OUTER JOIN delky_textu dt USING (prace_id) FULL OUTER JOIN rychlosti r USING (prace_id) FULL OUTER JOIN studenti s USING (prace_id) FULL OUTER JOIN prace p ON p.id = r.prace_id WHERE p.trida_id = $1 AND NOT p.smazana;`, tridaID)
 	if err != nil {
 		return prace, err
 	}
@@ -219,14 +219,15 @@ func GetDokoncenePrace(studentID uint) (map[uint]float64, map[uint]float64, erro
 	return cpmka, presnost, nil
 }
 
-func GetPrace(praceID, studentID uint) (string, int, error) {
+func GetPrace(praceID, studentID uint) (string, int, bool, error) {
 	var text string
 	var cas int
-	err := DB.QueryRow(`SELECT p.text, p.cas FROM prace p INNER JOIN student_a_trida s ON p.trida_id = s.trida_id AND s.student_id = $1 AND p.id = $2 AND NOT p.smazana;`, studentID, praceID).Scan(&text, &cas)
+	var hodnocena bool
+	err := DB.QueryRow(`SELECT p.text, p.cas, ((p.hodnoceni).hodnoceni1 IS NOT NULL) FROM prace p INNER JOIN student_a_trida s ON p.trida_id = s.trida_id AND s.student_id = $1 AND p.id = $2 AND NOT p.smazana;`, studentID, praceID).Scan(&text, &cas, &hodnocena)
 	if err == sql.ErrNoRows {
-		return text, cas, errors.New("asi nepatris do teto tridy")
+		return text, cas, hodnocena, errors.New("asi nepatris do teto tridy")
 	}
-	return text, cas, err
+	return text, cas, hodnocena, err
 }
 
 func DokoncitPraci(praceID, studentID uint, neopravene int, cas int, delkaTextu int, chybyPismenka map[string]int) (int, error) {
@@ -299,5 +300,10 @@ func CreateUcitel(skolaID, uzivID uint) error {
 
 func RemoveUcitelByEmail(email string) error {
 	_, err := DB.Exec(`UPDATE ucitel SET smazany = true WHERE uziv_id = ( SELECT id FROM uzivatel WHERE email = $1 );`, email)
+	return err
+}
+
+func ZmenaHodnoticiTabulky(tridaID uint, t HodnoticiTabulka) error {
+	_, err := DB.Exec(`UPDATE trida SET hodnoceni = ROW($2,$3,$4,$5) WHERE id = $1;`, tridaID, t.Hodnoceni1, t.Hodnoceni2, t.Hodnoceni3, t.Hodnoceni4)
 	return err
 }

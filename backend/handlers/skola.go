@@ -304,7 +304,24 @@ func tridaStudent(c echo.Context) error {
 		if !ok || pres < 0 {
 			pres = -1
 		}
-		vysledek = append(vysledek, praceProStudenta{ID: p.ID, TridaID: p.TridaID, Text: p.Text, Cas: p.Cas, Datum: p.Datum, Cpm: cpm, Presnost: pres})
+		znamka := 0
+		if p.Hodnoceni.Hodnoceni1 != nil {
+			if cpm >= float64(*p.Hodnoceni.Hodnoceni1) {
+				znamka = 1
+			} else if cpm >= float64(*p.Hodnoceni.Hodnoceni2) {
+				znamka = 2
+
+			} else if cpm >= float64(*p.Hodnoceni.Hodnoceni3) {
+				znamka = 3
+
+			} else if cpm >= float64(*p.Hodnoceni.Hodnoceni4) {
+				znamka = 4
+			} else {
+				znamka = 5
+			}
+		}
+
+		vysledek = append(vysledek, praceProStudenta{ID: p.ID, TridaID: p.TridaID, Text: p.Text, Cas: p.Cas, Datum: p.Datum, Cpm: cpm, Presnost: pres, Hodnocena: p.Hodnoceni.Hodnoceni1 != nil, Znamka: znamka})
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{"trida": trida, "prace": vysledek, "klavesnice": uziv.Klavesnice})
@@ -379,6 +396,38 @@ func zmenaTridy(c echo.Context) error {
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 		}
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
+func zmenaHodnoticiTabulky(c echo.Context) error {
+	id := c.Get("uzivID").(uint)
+	if id == 0 {
+		return c.NoContent(http.StatusUnauthorized)
+	}
+	uziv, err := databaze.GetUzivByID(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+	if uziv.UcitelVeSkoleID == 0 {
+		return c.JSON(http.StatusBadRequest, chyba("Tohle muze pouze ucitel"))
+	}
+
+	var body bodyZmenaHodnoticiTabulky
+	if err := c.Bind(&body); err != nil {
+		log.Print(err)
+		return c.JSON(http.StatusInternalServerError, chyba("Spatny body"))
+	}
+	if err := utils.ValidateStruct(&body); err != nil {
+		log.Print(err)
+		return c.JSON(http.StatusInternalServerError, chyba("Spatny body"))
+	}
+
+	err = databaze.ZmenaHodnoticiTabulky(body.TridaID, databaze.HodnoticiTabulka{Hodnoceni1: &body.Hodnoceni1, Hodnoceni2: &body.Hodnoceni2, Hodnoceni3: &body.Hodnoceni3, Hodnoceni4: &body.Hodnoceni4})
+	if err != nil {
+		log.Println(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 
 	return c.NoContent(http.StatusOK)
@@ -683,7 +732,7 @@ func getPraci(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, chyba(err.Error()))
 	}
 
-	text, cas, err := databaze.GetPrace(uint(praceID), id)
+	text, cas, hodnocena, err := databaze.GetPrace(uint(praceID), id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 	}
@@ -699,7 +748,7 @@ func getPraci(c echo.Context) error {
 	}
 	utils.SmazatMezeruNaKonci(vyslednyText)
 
-	return c.JSON(http.StatusOK, echo.Map{"text": vyslednyText, "cas": cas, "klavesnice": uziv.Klavesnice})
+	return c.JSON(http.StatusOK, echo.Map{"text": vyslednyText, "cas": cas, "hodnocena": hodnocena, "klavesnice": uziv.Klavesnice})
 }
 
 func getStatistikyPrace(c echo.Context) error {
@@ -736,8 +785,7 @@ func dokoncitPraci(c echo.Context) error {
 		return c.NoContent(http.StatusUnauthorized)
 	}
 
-	var body = bodyDokoncit{}
-
+	var body bodyDokoncit
 	if err := c.Bind(&body); err != nil {
 		log.Print(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))

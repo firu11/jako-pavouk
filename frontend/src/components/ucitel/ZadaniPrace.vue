@@ -4,12 +4,13 @@ import TextZadani from './TextZadani.vue';
 import axios from 'axios';
 import { getToken, pridatOznameni, format } from '../../utils';
 import Tooltip from '../../components/Tooltip.vue';
-import HodnoticiTabulka from './HodnoticiTabulka.vue';
+import HodnoticiTabulka, { Tabulka } from './HodnoticiTabulka.vue';
 
-const props = defineProps({
-    tridaID: Number,
-    posledniRychlost: Number,
-});
+const props = defineProps<{
+    tridaID: number;
+    posledniRychlost: number;
+    hodnoticiTabulka: Tabulka;
+}>();
 
 const emit = defineEmits(['zadano']);
 
@@ -209,7 +210,7 @@ function upravaSelectuLekci() {
 
 const odhadovanaDelkaTextu = computed(() => {
     if (props.posledniRychlost == -1) return -1;
-    return Math.ceil((props.posledniRychlost! + 10) * (delka.value / 60));
+    return Math.ceil((props.posledniRychlost + 10) * (delka.value / 60));
 });
 </script>
 <template>
@@ -258,7 +259,7 @@ const odhadovanaDelkaTextu = computed(() => {
                     Hodnocená práce:
                     <input v-model="hodnocena" type="checkbox" id="toggle" class="radio" />
                 </label>
-                <HodnoticiTabulka v-show="hodnocena" />
+                <HodnoticiTabulka :stavajiciRychlosti="props.hodnoticiTabulka" :tridaID="props.tridaID" v-show="hodnocena" />
             </div>
         </div>
 

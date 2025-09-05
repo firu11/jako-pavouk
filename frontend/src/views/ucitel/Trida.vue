@@ -12,10 +12,11 @@ import KodTridy from '../../components/KodTridy.vue';
 import PrepinacTabu from '../../components/PrepinacTabu.vue';
 import { mobil } from '../../stores';
 import PraceBlok, { Prace, Zak } from '../../components/ucitel/PraceBlok.vue';
+import { Tabulka } from '../../components/ucitel/HodnoticiTabulka.vue';
 
 const id = useRoute().params.id;
 
-const trida = ref({} as { id: number; jmeno: string; ucitelID: number; kod: string; zamknuta: boolean; klavesnice: string });
+const trida = ref({} as { id: number; jmeno: string; ucitelID: number; kod: string; zamknuta: boolean; klavesnice: string; hodnoceni: Tabulka });
 const prace = ref([] as Prace[]);
 const studentiVPraci = ref(new Map<number, Array<Zak>>());
 const studenti = ref([] as { id: number; jmeno: string; email: string; cpm: number }[]);
@@ -88,6 +89,7 @@ function get() {
             for (let i = 0; i < response.data.prace.length; i++) {
                 const prace1 = response.data.prace[i];
                 let p: Prace = {
+                    cislo: 0,
                     id: prace1.id,
                     text: prace1.text,
                     cas: prace1.cas,
@@ -95,10 +97,23 @@ function get() {
                     prumerneCPM: prace1.prumerne_cpm,
                     prumernaPresnost: prace1.prumerna_presnost,
                     StudentuDokoncilo: prace1.studentu_dokoncilo,
+                    hodnocena: prace1.hodnoceni.hodnoceni1 !== null,
                 };
                 prace.value.push(p);
             }
-            prace.value.sort((a: { datum: Date }, b: { datum: Date }) => b.datum.getTime() - a.datum.getTime());
+            prace.value.sort((a: { datum: Date }, b: { datum: Date }) => a.datum.getTime() - b.datum.getTime());
+
+            let counter: number[] = [1, 1];
+            for (let i = 0; i < prace.value.length; i++) {
+                if (prace.value[i].hodnocena) {
+                    prace.value[i].cislo = counter[1];
+                    counter[1]++;
+                } else {
+                    prace.value[i].cislo = counter[0];
+                    counter[0]++;
+                }
+            }
+            prace.value.reverse();
 
             vsechnyTridy.value = [];
             for (let i = 0; i < response.data.ostatniTridy.length; i++) {
@@ -494,11 +509,10 @@ function getVysledkyStudentuVPraci(id: number) {
                 }
             "
             @copy="copyPraciIndex = i"
-            :cisloPrace="prace.length - i"
             :pocetStudentu="studenti.length"
         />
     </div>
-    <ZadaniPrace v-else-if="prepinacTabu?.tab == 'zadani'" :tridaID="trida.id" @zadano="zadano" :posledniRychlost="posledniRychlostPrace" />
+    <ZadaniPrace v-else-if="prepinacTabu?.tab == 'zadani'" :tridaID="trida.id" @zadano="zadano" :posledniRychlost="posledniRychlostPrace" :hodnoticiTabulka="trida.hodnoceni" />
     <NastaveniTridy
         v-else-if="prepinacTabu?.tab == 'nastaveni'"
         ref="nastaveni"

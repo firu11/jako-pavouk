@@ -1,36 +1,20 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { getToken, pridatOznameni, naJednoDesetiny } from '../../utils';
-import { PropType, ref } from 'vue';
+import { ref } from 'vue';
 import Tooltip from '../../components/Tooltip.vue';
 import { mobil } from '../../stores';
 
-export type Prace = { id: number; text: string; cas: number; datum: Date; prumerneCPM: number; prumernaPresnost: number; StudentuDokoncilo: number };
-export type Zak = { id: number; jmeno: string; email: string; cpm: number; presnost: number };
+export type Prace = { cislo: number; id: number; text: string; cas: number; datum: Date; prumerneCPM: number; prumernaPresnost: number; StudentuDokoncilo: number; hodnocena: boolean };
+export type Zak = { id: number; jmeno: string; email: string; cpm: number; presnost: number; znamka: number };
 
 const emit = defineEmits(['unselect', 'select', 'reload', 'copy']);
-const props = defineProps({
-    prace: {
-        type: Object as PropType<Prace>,
-        required: true,
-    },
-    selectnutaPraceID: {
-        type: Number,
-        required: true,
-    },
-    studentiVPraci: {
-        type: Map<number, Array<Zak>>,
-        required: true,
-    },
-    cisloPrace: {
-        type: Number,
-        required: true,
-    },
-    pocetStudentu: {
-        type: Number,
-        required: true,
-    },
-});
+const props = defineProps<{
+    prace: Prace;
+    selectnutaPraceID: number;
+    studentiVPraci: Map<number, Array<Zak>>;
+    pocetStudentu: number;
+}>();
 
 const smazatPraciID = ref(0);
 
@@ -92,27 +76,28 @@ function selectPraci(id: number) {
             <div class="prace" :class="{ nekliknutelna: pocetStudentu == 0 }" @click="selectPraci(prace.id)">
                 <Tooltip :zprava="`<b>${prace.cas / 60} min</b> | ${prace.text.slice(0, 100)}...`" :sirka="300" :vzdalenost="3">
                     <div class="nadpis-prace">
-                        <h2>Práce {{ cisloPrace }}</h2>
+                        <h2 v-if="!prace.hodnocena">Práce {{ prace.cislo }}</h2>
+                        <h2 v-else>Písemka {{ prace.cislo }}</h2>
                         <h3>{{ prace.datum.toLocaleDateString('cs-CZ') }}</h3>
                     </div>
                 </Tooltip>
 
                 <div class="statistika">
                     <Tooltip v-if="prace.prumerneCPM != -1" zprava="Průměrná rychlost studentů" :sirka="160" :vzdalenost="5">
-                        <span
-                            ><b>{{ naJednoDesetiny(prace.prumerneCPM) }}</b> CPM</span
-                        >
+                        <span>
+                            <b>{{ naJednoDesetiny(prace.prumerneCPM) }}</b> CPM
+                        </span>
                     </Tooltip>
                     <Tooltip v-if="prace.prumernaPresnost != -1" zprava="Průměrná přesnost studentů" :sirka="160" :vzdalenost="5">
-                        <span
-                            ><b>{{ naJednoDesetiny(prace.prumernaPresnost) }}</b> %</span
-                        >
+                        <span>
+                            <b>{{ naJednoDesetiny(prace.prumernaPresnost) }}</b> %
+                        </span>
                     </Tooltip>
                     <Tooltip zprava="Studentů kteří mají hotovo" :sirka="160" :vzdalenost="5">
-                        <span class="udaj2" :style="{ 'min-width': pocetStudentu > 10 ? '115px' : '80px' }"
-                            ><b>{{ prace.StudentuDokoncilo }}</b
-                            >/<b>{{ pocetStudentu }}</b></span
-                        >
+                        <span class="udaj2" :style="{ 'min-width': pocetStudentu > 10 ? '115px' : '80px' }">
+                            <b>{{ prace.StudentuDokoncilo }}</b
+                            >/<b>{{ pocetStudentu }}</b>
+                        </span>
                     </Tooltip>
                 </div>
             </div>
@@ -121,12 +106,16 @@ function selectPraci(id: number) {
             <div v-for="zak in studentiVPraci.get(prace.id)" :key="zak.id" class="zak-v-praci">
                 <span>{{ zak.jmeno }}</span>
                 <div v-if="zak.cpm !== -1" class="statistika-zaka">
-                    <span
-                        ><b>{{ naJednoDesetiny(zak.cpm) }}</b> CPM</span
-                    >
-                    <span
-                        ><b>{{ naJednoDesetiny(zak.presnost) }}</b> %</span
-                    >
+                    <span>
+                        <b>{{ naJednoDesetiny(zak.cpm) }}</b> CPM
+                    </span>
+                    <span>
+                        <b>{{ naJednoDesetiny(zak.presnost) }}</b> %
+                    </span>
+                    <span>
+                        <b v-if="prace.hodnocena">{{ naJednoDesetiny(zak.znamka) }}</b>
+                        <b v-else>-</b>
+                    </span>
                 </div>
                 <div v-else>Ještě nedokončil</div>
             </div>
@@ -253,6 +242,17 @@ function selectPraci(id: number) {
     font-size: 0.7em;
     min-width: 107px;
     text-align: end;
+}
+
+.statistika-zaka:has(> :last-child:nth-child(3)) {
+    span {
+        font-size: 0.7em;
+        min-width: 80px;
+        text-align: end;
+    }
+    span:last-of-type {
+        min-width: 40px;
+    }
 }
 
 .zak-v-praci > span,
