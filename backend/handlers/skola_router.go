@@ -15,6 +15,7 @@ func setupSkolniRouter(api *echo.Group) {
 	skolaApi.GET("/zaci-stream/:id", zaciStream)
 	skolaApi.GET("/test-tridy/:kod", testTridy)
 	skolaApi.POST("/zmena-tridy", zmenaTridy)
+	skolaApi.POST("/set-hodnotici-tabulka", zmenaHodnoticiTabulky)
 
 	skolaApi.POST("/pridat-praci", pridatPraci)
 	skolaApi.GET("/get-praci/:id", getPraci)

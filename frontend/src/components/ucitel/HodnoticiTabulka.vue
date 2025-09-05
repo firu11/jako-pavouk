@@ -1,10 +1,31 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { pridatOznameni } from '../../utils';
+import axios from 'axios';
+import { getToken } from '../../utils';
+
+export type Tabulka = {
+    hodnoceni1: number;
+    hodnoceni2: number;
+    hodnoceni3: number;
+    hodnoceni4: number;
+};
+
+const props = defineProps<{
+    stavajiciRychlosti: Tabulka;
+    tridaID: number;
+}>();
 
 const rychlosti = ref(new Array<number>(4));
 const spatne = ref(new Array<boolean>(4));
 const minMax = [1, 999];
+
+onMounted(() => {
+    rychlosti.value[0] = props.stavajiciRychlosti.hodnoceni1;
+    rychlosti.value[1] = props.stavajiciRychlosti.hodnoceni2;
+    rychlosti.value[2] = props.stavajiciRychlosti.hodnoceni3;
+    rychlosti.value[3] = props.stavajiciRychlosti.hodnoceni4;
+});
 
 function zmena() {
     let notifikace = false;
@@ -19,7 +40,47 @@ function zmena() {
     }
     if (notifikace) {
         pridatOznameni('Všechny rychlosti musí být vyplněné, <1000 a musí odpovídat pořadí...');
+        return;
     }
+
+    if (
+        props.stavajiciRychlosti.hodnoceni1 == rychlosti.value[0] &&
+        props.stavajiciRychlosti.hodnoceni2 == rychlosti.value[1] &&
+        props.stavajiciRychlosti.hodnoceni3 == rychlosti.value[2] &&
+        props.stavajiciRychlosti.hodnoceni4 == rychlosti.value[3]
+    ) {
+        return;
+    }
+    postZmena();
+}
+
+function postZmena() {
+    axios
+        .post(
+            '/skola/set-hodnotici-tabulka',
+            {
+                trida_id: props.tridaID,
+                hodnoceni1: rychlosti.value[0],
+                hodnoceni2: rychlosti.value[1],
+                hodnoceni3: rychlosti.value[2],
+                hodnoceni4: rychlosti.value[3],
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                },
+            },
+        )
+        .then(() => {
+            props.stavajiciRychlosti.hodnoceni1 = rychlosti.value[0];
+            props.stavajiciRychlosti.hodnoceni2 = rychlosti.value[1];
+            props.stavajiciRychlosti.hodnoceni3 = rychlosti.value[2];
+            props.stavajiciRychlosti.hodnoceni4 = rychlosti.value[3];
+        })
+        .catch((e) => {
+            console.log(e);
+            pridatOznameni('Chyba serveru');
+        });
 }
 </script>
 <template>
