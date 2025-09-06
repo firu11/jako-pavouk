@@ -4,11 +4,13 @@ import TextZadani from './TextZadani.vue';
 import axios from 'axios';
 import { getToken, pridatOznameni, format } from '../../utils';
 import Tooltip from '../../components/Tooltip.vue';
+import HodnoticiTabulka, { Tabulka } from './HodnoticiTabulka.vue';
 
-const props = defineProps({
-    tridaID: Number,
-    posledniRychlost: Number,
-});
+const props = defineProps<{
+    tridaID: number;
+    posledniRychlost: number;
+    hodnoticiTabulka: Tabulka;
+}>();
 
 const emit = defineEmits(['zadano']);
 
@@ -17,6 +19,7 @@ const textovePole = useTemplateRef('textove-pole');
 const delka = ref(5 * 60);
 const typTextu = ref('');
 const lekceTextu = ref();
+const hodnocena = ref(false);
 
 const texty = ref([] as { jmeno: string; obtiznost: number }[]);
 const lekce = ref([] as { id: number; lekce_id: number; pismena: string }[]);
@@ -99,6 +102,7 @@ function pridatPraci() {
                 cas: delka.value,
                 trida_id: props.tridaID,
                 text: textovePole.value!.text,
+                hodnocena: hodnocena.value,
             },
             {
                 headers: {
@@ -206,46 +210,56 @@ function upravaSelectuLekci() {
 
 const odhadovanaDelkaTextu = computed(() => {
     if (props.posledniRychlost == -1) return -1;
-    return Math.ceil((props.posledniRychlost! + 10) * (delka.value / 60));
+    return Math.ceil((props.posledniRychlost + 10) * (delka.value / 60));
 });
 </script>
 <template>
     <div id="pulic-zadani">
-        <div id="parametry">
-            <h2>Nastavení</h2>
+        <div id="leva-pulka">
+            <div id="parametry">
+                <h2>Nastavení</h2>
 
-            <div id="moznosti">
-                <div id="delka">
-                    <Tooltip zprava="Pokud student dopíše text před vypršením časového limitu, bude ho psát znovu." :sirka="210" :vzdalenost="0">
-                        <h3>Čas</h3>
-                    </Tooltip>
-                    <hr id="predel2" />
-                    <button :class="{ aktivni: 60 == delka }" @click="d(60)">1min</button>
-                    <button :class="{ aktivni: 120 == delka }" @click="d(120)">2min</button>
-                    <button :class="{ aktivni: 180 == delka }" @click="d(180)">3min</button>
-                    <button :class="{ aktivni: 300 == delka }" @click="d(300)">5min</button>
-                    <button :class="{ aktivni: 600 == delka }" @click="d(600)">10min</button>
-                    <button :class="{ aktivni: 900 == delka }" @click="d(900)">15min</button>
-                    <button :class="{ aktivni: 1200 == delka }" @click="d(1200)">20min</button>
-                    <button :class="{ aktivni: 1800 == delka }" @click="d(1800)">30min</button>
-                </div>
-
-                <hr id="predel" />
-
-                <div class="vert-kontejner">
-                    <div class="kontejner">
-                        <button @click="smazatVelkaPismena" class="tlacitko">Smazat velká písmena</button>
-                        <button @click="smazatDiakritiku" class="tlacitko">Smazat diakritiku</button>
-                        <button @click="smazatEnterAMezery" class="tlacitko">Smazat mezery navíc</button>
-                        <button @click="vymenitUvozovky" class="tlacitko">Vyměnit uvozovky</button>
+                <div id="moznosti">
+                    <div id="delka">
+                        <Tooltip zprava="Pokud student dopíše text před vypršením časového limitu, bude ho psát znovu." :sirka="210" :vzdalenost="0">
+                            <h3>Čas</h3>
+                        </Tooltip>
+                        <hr id="predel2" />
+                        <button :class="{ aktivni: 60 == delka }" @click="d(60)">1min</button>
+                        <button :class="{ aktivni: 120 == delka }" @click="d(120)">2min</button>
+                        <button :class="{ aktivni: 180 == delka }" @click="d(180)">3min</button>
+                        <button :class="{ aktivni: 300 == delka }" @click="d(300)">5min</button>
+                        <button :class="{ aktivni: 600 == delka }" @click="d(600)">10min</button>
+                        <button :class="{ aktivni: 900 == delka }" @click="d(900)">15min</button>
+                        <button :class="{ aktivni: 1200 == delka }" @click="d(1200)">20min</button>
+                        <button :class="{ aktivni: 1800 == delka }" @click="d(1800)">30min</button>
                     </div>
 
-                    <div class="kontejner">
-                        <button @click="zrusitPosledniUpravu" class="cervene-tlacitko" :disabled="puvodniText.length == 0">Zrušit poslední úpravu</button>
-                    </div>
+                    <hr id="predel" />
 
-                    <button @click="pridatPraci" class="tlacitko">Zadat práci</button>
+                    <div class="vert-kontejner">
+                        <div class="kontejner">
+                            <button @click="smazatVelkaPismena" class="tlacitko">Smazat velká písmena</button>
+                            <button @click="smazatDiakritiku" class="tlacitko">Smazat diakritiku</button>
+                            <button @click="smazatEnterAMezery" class="tlacitko">Smazat mezery navíc</button>
+                            <button @click="vymenitUvozovky" class="tlacitko">Vyměnit uvozovky</button>
+                        </div>
+
+                        <div class="kontejner">
+                            <button @click="zrusitPosledniUpravu" class="cervene-tlacitko" :disabled="puvodniText.length == 0">Zrušit poslední úpravu</button>
+                        </div>
+
+                        <button @click="pridatPraci" class="tlacitko">Zadat práci</button>
+                    </div>
                 </div>
+            </div>
+
+            <div>
+                <label for="toggle" class="kontejner">
+                    Hodnocená práce:
+                    <input v-model="hodnocena" type="checkbox" id="toggle" class="radio" />
+                </label>
+                <HodnoticiTabulka :stavajiciRychlosti="props.hodnoticiTabulka" :tridaID="props.tridaID" v-show="hodnocena" />
             </div>
         </div>
 
@@ -288,6 +302,25 @@ const odhadovanaDelkaTextu = computed(() => {
     </div>
 </template>
 <style scoped>
+#leva-pulka {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-bottom: 30px;
+    justify-content: stretch;
+}
+
+#leva-pulka div:has(#hodnotici-tabulka) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--tmave-fialova);
+    padding: 15px 10px;
+    border-radius: 10px;
+    flex-grow: 3;
+}
+
 .lehkaObtiznost {
     color: rgb(0, 185, 0);
 }
@@ -411,7 +444,7 @@ select option:disabled {
     flex-direction: column;
     height: 380px;
     background-color: var(--tmave-fialova);
-    padding: 10px 15px;
+    padding: 15px 15px 20px 15px;
     border-radius: 10px;
 }
 
@@ -426,6 +459,12 @@ select option:disabled {
     justify-content: center;
     align-items: center;
     transition: filter 0.2s;
+}
+
+.kontejner:has(input[id='toggle']) {
+    flex-direction: row;
+    font-size: 1.2em;
+    gap: 1em;
 }
 
 .kontejner > div {

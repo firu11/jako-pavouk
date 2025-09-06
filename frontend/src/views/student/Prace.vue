@@ -23,6 +23,7 @@ const nejcastejsiChyby = ref();
 
 const klavesnice = ref('');
 const cas = ref(0);
+const hodnocena = ref(false);
 
 const konec = ref(false);
 const delkaNapsanehoTextu = ref(0);
@@ -52,6 +53,7 @@ function get() {
 
             klavesnice.value = response.data.klavesnice;
             cas.value = response.data.cas;
+            hodnocena.value = response.data.hodnocena;
 
             while (delkaTextu.value <= 250) {
                 prodlouzit();
@@ -112,7 +114,8 @@ function prodlouzit() {
 </script>
 
 <template>
-    <h1 style="margin: 0">Práce ve třídě</h1>
+    <h1 v-if="!hodnocena" style="margin: 0">Práce ve třídě</h1>
+    <h1 v-else style="margin: 0">Písemka</h1>
 
     <Psani v-if="!konec" @pise="pise = true" @konec="konecTextu" @prodlouzit="prodlouzit" :text :klavesnice :hide-klavesnice="false" :nacitamNovej :cas="cas" :delkaTextu :resetBtn="false" />
 

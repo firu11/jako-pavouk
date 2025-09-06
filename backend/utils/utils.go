@@ -136,7 +136,7 @@ func CPM(delkaTextu int, cas float64, preklepy int) float64 {
 func GenTridaKod() string {
 	var kod string
 	var znaky string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	for i := 0; i < 4; i++ {
+	for range 4 {
 		cislo, err := cryptoRand.Int(cryptoRand.Reader, big.NewInt(int64(len(znaky))))
 		if err != nil {
 			cislo = big.NewInt(int64(mathRand.Intn(len(znaky)))) // kdyby se něco pokazilo?
@@ -170,7 +170,7 @@ func SaveSkola(jmenoSkoly string, kontaktniEmail string, kontaktniTelefon string
 	}
 	defer f.Close()
 
-	_, err = f.Write([]byte(fmt.Sprintf("%s, %s, %s\n", jmenoSkoly, kontaktniEmail, kontaktniTelefon)))
+	_, err = fmt.Fprintf(f, "%s, %s, %s\n", jmenoSkoly, kontaktniEmail, kontaktniTelefon)
 	return err
 }
 

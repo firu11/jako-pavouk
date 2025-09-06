@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onMounted, PropType, ref, computed, useTemplateRef } from 'vue';
+import { onMounted, ref, computed, useTemplateRef } from 'vue';
 import { getToken, pridatOznameni } from '../../utils';
 import { moznostiRocnik, moznostiTrida, moznostiSkupina } from '../../stores';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import KodTridy from '../../components/KodTridy.vue';
+import HodnoticiTabulka, { Tabulka } from './HodnoticiTabulka.vue';
 
 const emit = defineEmits(['prejmenovatTridu', 'refresh']);
 
@@ -15,18 +16,13 @@ type Trida = {
     kod: string;
     zamknuta: boolean;
     klavesnice: string;
+    hodnoceni: Tabulka;
 };
 
-const props = defineProps({
-    trida: {
-        type: Object as PropType<Trida>,
-        required: true,
-    },
-    pocetStudentu: {
-        type: Number,
-        required: true,
-    },
-});
+const props = defineProps<{
+    trida: Trida;
+    pocetStudentu: number;
+}>();
 
 const router = useRouter();
 
@@ -149,6 +145,12 @@ const dialog1 = useTemplateRef('dialog1');
                 <br />
                 Např.: <b>3.B&nbsp;￨&nbsp;1</b> a <b>3.B&nbsp;￨&nbsp;2</b>.
             </span>
+        </form>
+
+        <form>
+            <h3 style="padding-bottom: 10px">Hodnotící tabulka</h3>
+            <HodnoticiTabulka :stavajiciRychlosti="props.trida.hodnoceni" :tridaID="trida.id" />
+            <span>U prácí označených jako hodnocené budou žáci automaticky ohodnoceni podle této tabulky.</span>
         </form>
 
         <form>

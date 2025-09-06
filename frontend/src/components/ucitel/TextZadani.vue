@@ -72,6 +72,7 @@ defineExpose({ text, ready });
 <template>
     <div ref="div" v-html="highlightText"></div>
     <textarea
+        name="text"
         ref="textarea"
         placeholder="Text, který budou žáci psát..."
         v-model="text"

@@ -410,6 +410,7 @@ func prihlaseni(c echo.Context) error {
 			return c.JSON(http.StatusInternalServerError, chyba("Token se pokazil"))
 		} else {
 			trida, _ := databaze.GetTridaByUziv(uziv.ID)
+			log.Print(trida)
 			return c.JSON(http.StatusOK, echo.Map{"token": token, "jmeno": uziv.Jmeno, "email": uziv.Email, "role": utils.GetRole(uziv.UcitelVeSkoleID, trida.ID)})
 		}
 	}
