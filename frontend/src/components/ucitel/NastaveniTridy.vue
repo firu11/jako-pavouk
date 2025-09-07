@@ -150,7 +150,7 @@ const dialog1 = useTemplateRef('dialog1');
         <form>
             <h3 style="padding-bottom: 10px">Hodnotící tabulka</h3>
             <HodnoticiTabulka :stavajiciRychlosti="props.trida.hodnoceni" :tridaID="trida.id" />
-            <span>U prácí označených jako hodnocené budou žáci automaticky ohodnoceni podle této tabulky.</span>
+            <span>U hodnocených prací (zkoušek) budou žáci automaticky ohodnoceni podle této tabulky.</span>
         </form>
 
         <form>

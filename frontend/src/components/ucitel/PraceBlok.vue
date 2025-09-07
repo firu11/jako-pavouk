@@ -77,7 +77,7 @@ function selectPraci(id: number) {
                 <Tooltip :zprava="`<b>${prace.cas / 60} min</b> | ${prace.text.slice(0, 100)}...`" :sirka="300" :vzdalenost="3">
                     <div class="nadpis-prace">
                         <h2 v-if="!prace.hodnocena">Práce {{ prace.cislo }}</h2>
-                        <h2 v-else>Písemka {{ prace.cislo }}</h2>
+                        <h2 v-else>Zkouška {{ prace.cislo }}</h2>
                         <h3>{{ prace.datum.toLocaleDateString('cs-CZ') }}</h3>
                     </div>
                 </Tooltip>

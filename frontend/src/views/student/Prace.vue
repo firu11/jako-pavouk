@@ -115,7 +115,7 @@ function prodlouzit() {
 
 <template>
     <h1 v-if="!hodnocena" style="margin: 0">Práce ve třídě</h1>
-    <h1 v-else style="margin: 0">Písemka</h1>
+    <h1 v-else style="margin: 0">Zkouška</h1>
 
     <Psani v-if="!konec" @pise="pise = true" @konec="konecTextu" @prodlouzit="prodlouzit" :text :klavesnice :hide-klavesnice="false" :nacitamNovej :cas="cas" :delkaTextu :resetBtn="false" />
 

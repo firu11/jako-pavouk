@@ -256,7 +256,7 @@ const odhadovanaDelkaTextu = computed(() => {
 
             <div>
                 <label for="toggle" class="kontejner">
-                    Hodnocená práce:
+                    Hodnocená práce (zkouška):
                     <input v-model="hodnocena" type="checkbox" id="toggle" class="radio" />
                 </label>
                 <HodnoticiTabulka :stavajiciRychlosti="props.hodnoticiTabulka" :tridaID="props.tridaID" v-show="hodnocena" />

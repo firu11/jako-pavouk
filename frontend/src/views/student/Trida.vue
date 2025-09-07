@@ -129,7 +129,7 @@ function zmenaKlavesnice() {
             <RouterLink :to="`/prace/${v.id}`" v-for="v in praceNove" :key="v.id" class="prace">
                 <div class="nadpis-prace">
                     <h3 v-if="!v.hodnocena">Práce {{ v.cislo }}</h3>
-                    <h3 v-else>Písemka {{ v.cislo }}</h3>
+                    <h3 v-else>Zkouška {{ v.cislo }}</h3>
                     <h4>{{ v.datum }}</h4>
                 </div>
                 <img class="play" src="../../assets/icony/start.svg" alt="Dokonceno!" />
@@ -142,7 +142,7 @@ function zmenaKlavesnice() {
             <div v-for="v in praceDoko" :key="v.id" class="prace hotova">
                 <div class="nadpis-prace">
                     <h3 v-if="!v.hodnocena">Práce {{ v.cislo }}</h3>
-                    <h3 v-else>Písemka {{ v.cislo }}</h3>
+                    <h3 v-else>Zkouška {{ v.cislo }}</h3>
                     <h4>{{ v.datum }}</h4>
                 </div>
                 <div class="statistika">
