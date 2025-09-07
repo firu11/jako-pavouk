@@ -5,6 +5,7 @@ import axios from 'axios';
 import { getToken, pridatOznameni, format } from '../../utils';
 import Tooltip from '../../components/Tooltip.vue';
 import HodnoticiTabulka, { Tabulka } from './HodnoticiTabulka.vue';
+import NovinkaTag from '../NovinkaTag.vue';
 
 const props = defineProps<{
     tridaID: number;
@@ -255,10 +256,13 @@ const odhadovanaDelkaTextu = computed(() => {
             </div>
 
             <div>
-                <label for="toggle" class="kontejner">
-                    Hodnocená práce (zkouška):
-                    <input v-model="hodnocena" type="checkbox" id="toggle" class="radio" />
-                </label>
+                <Tooltip zprava="Podle nastavené tabulky automaticky vypočítá studentům známky" :sirka="300" :vzdalenost="-70">
+                    <label for="toggle" class="kontejner">
+                        Hodnocená práce (zkouška):
+                        <input v-model="hodnocena" type="checkbox" id="toggle" class="radio" />
+                    </label>
+                </Tooltip>
+                <NovinkaTag style="margin-bottom: auto; margin-top: 10px" v-show="!hodnocena" />
                 <HodnoticiTabulka :stavajiciRychlosti="props.hodnoticiTabulka" :tridaID="props.tridaID" v-show="hodnocena" />
             </div>
         </div>
@@ -465,6 +469,7 @@ select option:disabled {
     flex-direction: row;
     font-size: 1.2em;
     gap: 1em;
+    user-select: none;
 }
 
 .kontejner > div {
