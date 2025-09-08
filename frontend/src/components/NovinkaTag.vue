@@ -20,7 +20,7 @@ span {
         transform: scale(1);
     }
     50% {
-        transform: scale(1.15);
+        transform: scale(1.1);
     }
 }
 </style>
