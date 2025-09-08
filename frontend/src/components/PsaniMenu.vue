@@ -5,15 +5,13 @@ import { saveNastaveni } from '../utils';
 
 const emit = defineEmits(['restart', 'toggle', 'refocus']);
 
-const props = defineProps({
-    vyberTextu: {
-        type: Boolean,
-        default: true,
-    },
-    bezStinu: {
-        type: Boolean,
-        default: false,
-    },
+interface Props {
+    vyberTextu?: boolean;
+    bezStinu?: boolean;
+}
+const props = withDefaults(defineProps<Props>(), {
+    vyberTextu: true,
+    bezStinu: false,
 });
 
 const typ = ref(true); // false = slova, true = vety

@@ -4,11 +4,11 @@ import { mobil, prihlasen, role } from '../stores';
 
 const router = useRouter();
 
-defineProps({
-    pocetDoko: {
-        type: Number,
-        default: -1,
-    },
+interface Props {
+    pocetDoko?: number;
+}
+withDefaults(defineProps<Props>(), {
+    pocetDoko: -1,
 });
 
 function hop() {

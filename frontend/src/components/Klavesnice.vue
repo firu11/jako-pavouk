@@ -19,18 +19,15 @@ import {
     specialniZnakyLinuxQWERTY,
 } from '../layouts.ts';
 
-const props = defineProps({
-    aktivniPismeno: {
-        type: String,
-        default: '',
-    },
-    typ: {
-        type: String,
-        reqired: true,
-    },
-    rozmazat: Boolean,
-    cekame: Boolean,
-    fullHide: Boolean,
+interface Props {
+    aktivniPismeno?: string;
+    typ: string;
+    rozmazat: boolean;
+    cekame: boolean;
+    fullHide: boolean;
+}
+const props = withDefaults(defineProps<Props>(), {
+    aktivniPismeno: '',
 });
 
 const cesta = useRoute().path.split('/');

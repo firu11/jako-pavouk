@@ -4,11 +4,11 @@ import { getToken, pridatOznameni } from '../utils';
 import { ref } from 'vue';
 import Tooltip from './Tooltip.vue';
 
-const props = defineProps({
-    id: Number,
-    kod: String,
-    zamknuta: Boolean,
-});
+const props = defineProps<{
+    id: number;
+    kod: string;
+    zamknuta: boolean;
+}>();
 
 const zamknuta = ref(props.zamknuta);
 

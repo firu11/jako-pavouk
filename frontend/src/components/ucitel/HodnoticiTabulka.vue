@@ -10,7 +10,6 @@ export type Tabulka = {
     hodnoceni3: number;
     hodnoceni4: number;
 };
-
 const props = defineProps<{
     stavajiciRychlosti: Tabulka;
     tridaID: number;
@@ -71,12 +70,6 @@ function postZmena() {
                 },
             },
         )
-        .then(() => {
-            props.stavajiciRychlosti.hodnoceni1 = rychlosti.value[0];
-            props.stavajiciRychlosti.hodnoceni2 = rychlosti.value[1];
-            props.stavajiciRychlosti.hodnoceni3 = rychlosti.value[2];
-            props.stavajiciRychlosti.hodnoceni4 = rychlosti.value[3];
-        })
         .catch((e) => {
             console.log(e);
             pridatOznameni('Chyba serveru');
@@ -98,7 +91,7 @@ function postZmena() {
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(_, i) in rychlosti">
+                <tr v-for="(_, i) in rychlosti" :key="i">
                     <td>{{ i + 1 }}</td>
                     <td>
                         &ge;
