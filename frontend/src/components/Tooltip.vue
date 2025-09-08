@@ -2,25 +2,22 @@
 import { onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { onMounted } from 'vue';
 
-const props = defineProps({
-    zprava: String,
-    sirka: Number,
-    xOffset: {
-        type: Number,
-        default: 0,
-    },
-    yOffset: {
-        type: Number,
-        default: 0,
-    },
-    vzdalenost: {
-        type: Number,
-        default: 15,
-    },
-    vzdalenostX: {
-        type: Number,
-        default: 0,
-    },
+interface Props {
+    zprava: string;
+    sirka: number;
+    xOffset?: number;
+    yOffset?: number;
+    vzdalenost?: number;
+    vzdalenostX?: number;
+    hoverDelay?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    xOffset: 0,
+    yOffset: 0,
+    vzdalenost: 15,
+    vzdalenostX: 0,
+    hoverDelay: '0.4s',
 });
 
 const obsah = useTemplateRef('obsah');
@@ -102,7 +99,7 @@ watch(obsah, recalc);
 
 #obsah:hover ~ #tooltip {
     opacity: 100%;
-    transition-delay: 0.4s;
+    transition-delay: v-bind('props.hoverDelay');
 }
 
 #obsah {
