@@ -102,16 +102,7 @@ function postZmena() {
                     <td>{{ i + 1 }}</td>
                     <td>
                         &ge;
-                        <input
-                            type="number"
-                            :min="minMax[0]"
-                            :max="minMax[1]"
-                            :name="String(i + 1)"
-                            :placeholder="String(150 - i * 20)"
-                            v-model="rychlosti[i]"
-                            @change="zmena"
-                            :class="{ spatne: spatne[i] }"
-                        />
+                        <input type="number" :min="minMax[0]" :max="minMax[1]" :name="String(i + 1)" placeholder="" v-model="rychlosti[i]" @change="zmena" :class="{ spatne: spatne[i] }" />
                         CPM
                     </td>
                 </tr>
