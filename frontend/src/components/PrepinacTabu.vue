@@ -1,18 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
-const props = defineProps({
-    taby: {
-        type: Array<Array<string>>,
-        default: function () {
-            return [['sus', 'Nějaký tab']];
-        },
-    },
-    defaultTab: String,
-    sirka: {
-        type: String,
-        default: '100px',
-    },
+interface Props {
+    taby?: string[][];
+    defaultTab: string;
+    sirka?: string;
+}
+const props = withDefaults(defineProps<Props>(), {
+    taby: () => [['sus', 'Nějaký tab']],
+    sirka: '100px',
 });
 const emit = defineEmits(['zmena']);
 

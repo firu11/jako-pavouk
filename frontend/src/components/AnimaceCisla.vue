@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 
-const props = defineProps({
-    cislo: {
-        type: Number,
-        required: true,
-    },
-    desetinaMista: {
-        type: Number,
-        default: 1,
-    },
+interface Props {
+    cislo: number;
+    desetinaMista?: number;
+}
+const props = withDefaults(defineProps<Props>(), {
+    desetinaMista: 1,
 });
 
 const zobrazeneCislo = ref('0');

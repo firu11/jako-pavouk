@@ -2,15 +2,13 @@
 import { Chart, ChartConfiguration, CategoryScale, LinearScale, LineController, PointElement, LineElement, Tooltip } from 'chart.js';
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
 
-const props = defineProps({
-    presnosti: {
-        type: Array<number>,
-        default: [NaN, NaN, NaN, NaN, NaN],
-    },
-    rychlosti: {
-        type: Array<number>,
-        default: [NaN, NaN, NaN, NaN, NaN],
-    },
+interface Props {
+    presnosti?: number[];
+    rychlosti?: number[];
+}
+const props = withDefaults(defineProps<Props>(), {
+    presnosti: () => [NaN, NaN, NaN, NaN, NaN],
+    rychlosti: () => [NaN, NaN, NaN, NaN, NaN],
 });
 
 let chart: Chart;

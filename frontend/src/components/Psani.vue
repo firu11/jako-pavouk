@@ -23,35 +23,17 @@ interface TextInterface {
 }
 type TextTyp = TextInterface[][];
 
-const props = defineProps({
-    text: {
-        type: Array as () => TextTyp, //whataheeeeeel
-        required: true,
-    },
-    cas: {
-        type: Number,
-        required: true,
-    },
-    klavesnice: {
-        type: String,
-        required: true,
-    },
-    hideKlavesnice: {
-        type: Boolean,
-        required: true,
-    },
-    nacitamNovej: {
-        type: Boolean,
-        required: true,
-    },
-    delkaTextu: {
-        type: Number,
-        required: true,
-    },
-    resetBtn: {
-        type: Boolean,
-        default: true,
-    },
+interface Props {
+    text: TextTyp;
+    cas: number;
+    klavesnice: string;
+    hideKlavesnice: boolean;
+    nacitamNovej: boolean;
+    delkaTextu: number;
+    resetBtn?: boolean;
+}
+const props = withDefaults(defineProps<Props>(), {
+    resetBtn: true,
 });
 
 const route = useRoute();

@@ -2,19 +2,17 @@
 import { levelyRychlosti, prihlasen, mobil } from '../stores';
 import { pridatOznameni } from '../utils';
 
-defineProps({
-    dokonceno: Boolean,
-    index: Number,
-    pismena: {
-        type: String,
-        default: '',
-    },
-    typ: String,
-    rychlost: {
-        type: Number,
-        default: 0,
-    },
-    oznacene: Boolean,
+interface Props {
+    dokonceno: boolean;
+    index: number;
+    pismena?: string;
+    typ: string;
+    rychlost?: number;
+    oznacene: boolean;
+}
+withDefaults(defineProps<Props>(), {
+    pismena: '',
+    rychlost: 0,
 });
 </script>
 
