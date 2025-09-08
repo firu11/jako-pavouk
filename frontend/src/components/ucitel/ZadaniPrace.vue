@@ -256,7 +256,7 @@ const odhadovanaDelkaTextu = computed(() => {
             </div>
 
             <div>
-                <Tooltip zprava="Podle nastavené tabulky automaticky vypočítá studentům známky" :sirka="300" :vzdalenost="-70">
+                <Tooltip zprava="Podle nastavené tabulky automaticky vypočítá studentům známky" :sirka="300" :vzdalenost="-70" hoverDelay="1s">
                     <label for="toggle" class="kontejner">
                         Hodnocená práce (zkouška):
                         <input v-model="hodnocena" type="checkbox" id="toggle" class="radio" />
