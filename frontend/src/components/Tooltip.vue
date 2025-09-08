@@ -11,7 +11,6 @@ interface Props {
     vzdalenostX?: number;
     hoverDelay?: string;
 }
-
 const props = withDefaults(defineProps<Props>(), {
     xOffset: 0,
     yOffset: 0,

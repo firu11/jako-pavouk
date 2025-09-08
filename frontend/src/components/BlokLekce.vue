@@ -2,14 +2,14 @@
 import { prihlasen } from '../stores';
 import { format } from '../utils';
 
-defineProps({
-    pismena: {
-        type: String,
-        default: '',
-    },
-    jeDokoncena: Boolean,
-    oznacena: Boolean,
-    cislo: Number,
+interface Props {
+    pismena?: string;
+    jeDokoncena?: boolean;
+    oznacena?: boolean;
+    cislo?: number;
+}
+withDefaults(defineProps<Props>(), {
+    pismena: '',
 });
 </script>
 

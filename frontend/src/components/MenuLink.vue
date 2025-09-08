@@ -2,7 +2,7 @@
 import { pridatOznameni } from '../utils';
 import { mobil } from '../stores';
 
-defineProps(['jmeno', 'cesta']);
+defineProps<{ jmeno: string; cesta: string }>();
 
 function mobilKlik(e: MouseEvent) {
     e.preventDefault();

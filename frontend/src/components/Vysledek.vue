@@ -9,36 +9,24 @@ import AnimaceCisla from '../components/AnimaceCisla.vue';
 
 const emit = defineEmits(['restart']);
 
-const props = defineProps({
-    preklepy: {
-        type: Number,
-        default: 0,
-    },
-    opravenych: {
-        type: Number,
-        default: 0,
-    },
-    delkaTextu: {
-        type: Number,
-        default: 1,
-    },
-    cas: {
-        type: Number,
-        default: 1,
-    },
-    pismena: {
-        type: String,
-        default: '',
-    },
-    nejcastejsiChyby: {
-        type: MojeMapa,
-        default: new MojeMapa(),
-    },
-    cislo: String,
-    posledni: {
-        type: Boolean,
-        default: true,
-    },
+interface Props {
+    preklepy?: number;
+    opravenych?: number;
+    delkaTextu?: number;
+    cas?: number;
+    pismena?: string;
+    nejcastejsiChyby?: MojeMapa;
+    cislo: string;
+    posledni?: boolean;
+}
+const props = withDefaults(defineProps<Props>(), {
+    preklepy: 0,
+    opravenych: 0,
+    delkaTextu: 1,
+    cas: 1,
+    pismena: '',
+    nejcastejsiChyby: () => new MojeMapa(),
+    posledni: true,
 });
 
 let rychlost = ((props.delkaTextu - 10 * props.preklepy) / props.cas) * 60;
