@@ -262,7 +262,7 @@ const odhadovanaDelkaTextu = computed(() => {
                         <input v-model="hodnocena" type="checkbox" id="toggle" class="radio" />
                     </label>
                 </Tooltip>
-                <NovinkaTag style="margin-bottom: auto; margin-top: 10px" v-show="!hodnocena" />
+                <NovinkaTag style="margin-bottom: auto" v-show="!hodnocena" />
                 <HodnoticiTabulka :stavajiciRychlosti="props.hodnoticiTabulka" :tridaID="props.tridaID" v-show="hodnocena" />
             </div>
         </div>
@@ -310,19 +310,19 @@ const odhadovanaDelkaTextu = computed(() => {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    padding-bottom: 30px;
+    padding-bottom: 0px;
     justify-content: stretch;
+    height: calc(100vh - 60px - 25px - 30px - 5px);
 }
 
 #leva-pulka div:has(#hodnotici-tabulka) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
     background-color: var(--tmave-fialova);
     padding: 15px 10px;
-    border-radius: 10px;
-    flex-grow: 3;
+    border-radius: 10px 5px 5px 10px;
+    gap: 12px;
 }
 
 .lehkaObtiznost {
@@ -449,7 +449,7 @@ select option:disabled {
     height: 380px;
     background-color: var(--tmave-fialova);
     padding: 15px 15px 20px 15px;
-    border-radius: 10px;
+    border-radius: 10px 5px 5px 10px;
 }
 
 #moznosti {
