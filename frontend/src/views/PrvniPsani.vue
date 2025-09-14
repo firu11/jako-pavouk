@@ -64,9 +64,9 @@ const ok = ref(false);
 <template>
     <h1 style="margin: 0">První krůčky</h1>
 
-    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="ok = true" :text :klavesnice="'qwertz'" :hide-klavesnice="!ok" :nacitamNovej="false" :cas="30" :delkaTextu />
+    <Psani v-if="!konec" @konec="konecTextu" @restart="restart" @pise="ok = true" :text :klavesnice="'qwertz'" :hide-klavesnice="!ok" :nacitamNovej="false" :cas="20" :delkaTextu />
 
-    <Vysledek v-else :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaNapsanehoTextu" :cas="15" :cislo="'prvni-psani'" :posledni="true" @restart="restart" />
+    <Vysledek v-else :preklepy="preklepy" :opravenych="opravenePocet" :delkaTextu="delkaNapsanehoTextu" :cas="20" :cislo="'prvni-psani'" :posledni="true" @restart="restart" />
 
     <Transition>
         <div id="napoveda" v-if="!ok">
