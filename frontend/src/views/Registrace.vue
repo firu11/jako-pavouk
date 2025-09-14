@@ -178,7 +178,7 @@ const handleLoginSuccess = (response: { credential: string }) => {
             <h3 class="nadpis">Email:</h3>
             <input :class="{ 'spatnej-input': spatnyEmail }" @:input="chekujUdaje('email')" type="email" v-model="email" placeholder="Např: pan@pavouk.cz" inputmode="email" />
             <h3 class="nadpis info-nadpis">Heslo: <img src="../assets/icony/info.svg" alt="info" @mouseover="openInfo" @mouseleave="closeInfo" /></h3>
-            <input :class="{ 'spatnej-input': spatnyHeslo }" @:input="chekujUdaje('heslo')" type="password" v-model="heslo" placeholder="Rozhodně ne 'Pavouk123'" />
+            <input :class="{ 'spatnej-input': spatnyHeslo }" @:input="chekujUdaje('heslo')" type="password" v-model="heslo" placeholder='Rozhodně ne "Pavouk123"' />
             <button type="submit" class="tlacitko" @click="registr" :disabled="posilame">{{ posilame ? '. . .' : 'Registrovat' }}</button>
 
             <hr id="predel" />
