@@ -1,17 +1,14 @@
-.vscode
-.zed
+.vscode/
+.zed/
 taskfile.yaml
 .DS_Store
 
 backend/.env
 backend/backend
-backend/backend.exe
 backend/skoly.log.csv
 
-scripts/script_texty/texty/
-scripts/script_texty/knihy/
-scripts/script_zpravy/*.txt
+scripts/
 
 frontend/public/seznam-wmt-BUnHTQ6XWvu0wBfMQUVc2QkzAKbmEEiS.txt
-frontend/dist
-frontend/node_modules
+frontend/dist/
+frontend/node_modules/
