@@ -2,7 +2,7 @@
 import { onMounted, ref, useTemplateRef, watch } from 'vue';
 import MenuLink from './components/MenuLink.vue';
 import { mobil, prihlasen, role, tokenJmeno, uziv } from './stores';
-import { jeToRobot, getToken, oznameni, pridatOznameni } from './utils';
+import { getToken, oznameni, pridatOznameni } from './utils';
 import { useHead } from '@unhead/vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
@@ -46,9 +46,6 @@ onMounted(() => {
                     pridatOznameni('Chyba serveru');
                 }
             });
-    } else if (!jeToRobot(navigator.userAgent) && window.location.host !== 'localhost:5173') {
-        //test jestli to neni bot + počítají se jen na produkci
-        axios.post('/navsteva');
     }
 
     window.addEventListener('resize', function () {

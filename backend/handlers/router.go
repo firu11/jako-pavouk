@@ -31,7 +31,6 @@ func SetupRouter(c *echo.Echo) {
 	api.POST("/ucet-zmena", upravaUctu)
 
 	api.GET("/token-expirace", testVyprseniTokenu)
-	api.POST("/navsteva", navsteva)
 
 	setupSkolniRouter(api)
 }

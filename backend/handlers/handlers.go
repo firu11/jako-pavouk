@@ -13,7 +13,6 @@ import (
 	"unicode"
 
 	"github.com/labstack/echo/v4"
-	"zgo.at/isbot"
 )
 
 func testPsani(c echo.Context) error {
@@ -606,13 +605,6 @@ func testVyprseniTokenu(c echo.Context) error {
 	}
 	trida, _ := databaze.GetTridaByUziv(uziv.ID)
 	return c.JSON(http.StatusOK, echo.Map{"jmeno": uziv.Jmeno, "email": uziv.Email, "jePotrebaVymenit": jePotrebaVymenit, "role": utils.GetRole(uziv.UcitelVeSkoleID, trida.ID)})
-}
-
-func navsteva(c echo.Context) error {
-	if !isbot.Is(isbot.Bot(c.Request())) {
-		databaze.NovaNavsteva()
-	}
-	return c.NoContent(http.StatusOK)
 }
 
 func upravaUctu(c echo.Context) error {
