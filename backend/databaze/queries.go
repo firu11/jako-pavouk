@@ -600,8 +600,3 @@ func ZmenitHeslo(email, hesloHASH string) error {
 	_, err := DB.Exec(`UPDATE uzivatel SET heslo = $1 WHERE email = $2`, hesloHASH, email)
 	return err
 }
-
-func NovaNavsteva() error {
-	_, err := DB.Exec(`INSERT INTO navstevnost (den, pocet) VALUES (CURRENT_DATE, 1) ON CONFLICT (den) DO UPDATE SET pocet = navstevnost.pocet + 1;`)
-	return err
-}
