@@ -38,7 +38,7 @@ function zacit() {
     <div class="bloky">
         <div class="text">
             <p style="font-size: 21px; line-height: 24px">Webová aplikace na výuku <br /><b style="font-weight: 700">psaní všemi deseti</b> zdarma.<br />Chceš se naučit psát jako pavouk?</p>
-            <button v-if="!mobil" class="tlacitko velky" @click="zacit()" style="transform: scale(1.25); margin-top: 32px">Začít psát</button>
+            <button v-if="!mobil" class="tlacitko velky" @click="zacit()" style="transform: scale(1.25); margin-top: 32px" data-umami-event="prvni-psani-btn">Začít psát</button>
         </div>
         <img src="../assets/pavoukStudent.svg" alt="Pavouk student" width="300" height="253" style="max-height: 230px" />
     </div>
@@ -76,7 +76,7 @@ function zacit() {
             <h2>Systém pro školy</h2>
             <p>Jste vyučující na škole, kde probíhá výuka psaní všemi deseti? Nebo snad ještě neprobíhá? Vyzkoušejte si <b>organizovanou výuku</b> psaní!</p>
             <div style="display: flex; gap: 20px; justify-content: center">
-                <button class="tlacitko" @click="router.push('/skolni-system')">Číst dál</button>
+                <button class="tlacitko" @click="router.push('/skolni-system')" data-umami-event="skola-cist-dal-btn">Číst dál</button>
             </div>
         </div>
         <img src="../assets/pavoukSkola.svg" width="290" height="182" alt="Bohatý pavouk" style="width: 290px" />
