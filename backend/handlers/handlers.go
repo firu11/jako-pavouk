@@ -52,8 +52,8 @@ func testPsani(c echo.Context) error {
 			return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 		}
 		for i := range vety {
-			slova := strings.Split(vety[i], " ")
-			for _, v := range slova {
+			slova := strings.SplitSeq(vety[i], " ")
+			for v := range slova {
 				text = append(text, v+" ")
 			}
 		}
@@ -617,13 +617,14 @@ func upravaUctu(c echo.Context) error {
 	if err := c.Bind(&body); err != nil {
 		return c.JSON(http.StatusBadRequest, chyba(err.Error()))
 	}
-	if body.Zmena == "smazat" {
+	switch body.Zmena {
+	case "smazat":
 		if err := databaze.SmazatUzivatele(id); err != nil {
 			return err
 		}
-	} else if body.Zmena == "klavesnice" {
+	case "klavesnice":
 		databaze.ZmenitKlavesnici(id, strings.ToLower(body.Hodnota))
-	} else if body.Zmena == "jmeno" {
+	case "jmeno":
 		if !RegexJmeno.MatchString(body.Hodnota) {
 			return c.JSON(http.StatusBadRequest, chyba("Jmeno obsahuje nepovolene znaky nebo ma spatnou delku"))
 		}
@@ -631,7 +632,7 @@ func upravaUctu(c echo.Context) error {
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, chyba(err.Error()))
 		}
-	} else {
+	default:
 		return c.JSON(http.StatusBadRequest, chyba("prázdný request"))
 	}
 	return c.NoContent(http.StatusOK)
