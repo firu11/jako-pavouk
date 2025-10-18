@@ -1,14 +1,7 @@
-.vscode/
-.zed/
-taskfile.yaml
 .DS_Store
 
 backend/.env
-backend/backend
 backend/skoly.log.csv
 
-scripts/
-
-frontend/public/seznam-wmt-BUnHTQ6XWvu0wBfMQUVc2QkzAKbmEEiS.txt
 frontend/dist/
 frontend/node_modules/

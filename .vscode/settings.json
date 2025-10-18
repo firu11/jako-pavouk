@@ -1,0 +1,36 @@
+{
+    // Better Status Bar
+    "betterStatusBar.defaultColor": "statusBar.foreground",
+    "betterStatusBar.loadNpmCommands": false,
+    "betterStatusBar.reloadButton": "Refresh Bar",
+    "betterStatusBar.commands": [
+        {
+            "id": "1",
+            "label": "$(run) Pavouk",
+            "command": "workbench.action.tasks.runTask",
+            "args": [
+                "Pavouk"
+            ],
+            "color": "#f002ec",
+            "alignment": 2,
+            "priority": 1000,
+            "useVsCodeApi": true,
+            "tooltip": "Nečum"
+        },
+        {
+            "id": "2",
+            "label": "$(run) Pavouk bez tunelu",
+            "command": "workbench.action.tasks.runTask",
+            "args": [
+                "Pavouk 2"
+            ],
+            "color": "#e175ff",
+            "alignment": 2,
+            "priority": 1000,
+            "useVsCodeApi": true,
+            "tooltip": "Nečum"
+        }
+    ],
+    "typescript.preferences.quoteStyle": "double",
+    "typescript.tsdk": "./frontend/node_modules/typescript/lib"
+}
