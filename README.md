@@ -17,6 +17,5 @@
 - [pohadky.org](https://www.pohadky.org/)
 - [pohadkozem.cz](https://www.pohadkozem.cz/)
 - [zemepis24.cz](https://www.zemepis24.cz/)
-<!-- - [Dobrý Zprávy](https://dobryzpravy.cz/) -->
 
 [Původní repozitář v organizaci Gymnázium Arabská](https://github.com/gyarab/2023-4e-ruzicka-jako_pavouk)
