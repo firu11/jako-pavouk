@@ -11,6 +11,10 @@ frontend/public/seznam-wmt-BUnHTQ6XWvu0wBfMQUVc2QkzAKbmEEiS.txt
 frontend/dist/
 frontend/node_modules/
 
+tests/.venv/
+tests/.pytest_cache/
+tests/__pycache__
+
 # -- proprietary :) --
 push-to-public.sh
 scripts/
