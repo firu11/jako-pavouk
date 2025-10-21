@@ -5,3 +5,7 @@ backend/skoly.log.csv
 
 frontend/dist/
 frontend/node_modules/
+
+tests/.venv/
+tests/.pytest_cache/
+tests/__pycache__
