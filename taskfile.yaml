@@ -1,0 +1,69 @@
+# https://taskfile.dev/usage/
+
+# task JMENO
+
+version: "3"
+
+vars:
+    REMOTE: firu@128.140.124.100
+
+tasks:
+    brun:
+        dir: backend
+        cmds:
+            - arelo -p '**/*.go' -p '**/.env' -i '**/*_test.go' -- go run .
+
+    bbuild:
+        dir: backend
+        cmds:
+            - sed -i '' 's|127.0.0.1:1323|:1323|g' main.go # zmenim url
+            - defer: sed -i '' 's|:1323|127.0.0.1:1323|g' main.go # zmenim zpět
+            - GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" .
+
+    frun:
+        dir: frontend
+        cmds:
+            - npm run dev
+
+    fbuild:
+        dir: frontend
+        cmds:
+            - sed -i '' 's|http://localhost:1323/api|/api|g' src/main.ts # zmenim url
+            - defer: sed -i '' 's|/api|http://localhost:1323/api|g' src/main.ts # zmenim zpět
+            - npm run build
+
+    fupload:
+        dir: frontend
+        vars:
+            RELEASE_NAME:
+                sh: date +dist_%d-%m-%Y_%Hh-%Mm
+        cmds:
+            # this shit so crazy:
+            # it fakin checks in --link-dest
+            # and if the file is unchanged in the new release
+            # it doesnt upload and just makes a "hard-link" to the same file in previus release
+            # if you delete the previous release, it is ok. you would only delete the pointer, not the data on the disk, so the current release still points to them
+            - rsync -rv --no-perms --link-dest=/var/www/frontend/dist/ dist/ {{.REMOTE}}:/var/www/frontend/releases/{{.RELEASE_NAME}}/
+            - ssh -t {{.REMOTE}} "chmod -R 755 /var/www/frontend/releases/{{.RELEASE_NAME}} && ln -sfn /var/www/frontend/releases/{{.RELEASE_NAME}} /var/www/frontend/dist"
+
+    bupload:
+        dir: backend
+        cmds:
+            - scp backend {{.REMOTE}}:~/backend_uploaduju
+            - rsync -v --no-perms overovaci_email.html pavoucekDoEmailu.png {{.REMOTE}}:~/
+            - ssh -t {{.REMOTE}} "rm backend && mv backend_uploaduju backend && chmod +x backend && sudo systemctl restart backend"
+
+    bupload-testing:
+        dir: backend
+        cmds:
+            - scp backend {{.REMOTE}}:~/backend_uploaduju
+            - ssh -t {{.REMOTE}} "rm testbackend && mv backend_uploaduju testbackend && chmod +x testbackend && sudo systemctl restart testbackend"
+
+    tunel:
+        cmds:
+            - ssh -L 5432:localhost:5432 {{.REMOTE}}
+
+    private-backup:
+        dir: jako-pavouk
+        cmds:
+            - rsync -av --no-perms --exclude='.git' --exclude='frontend/node_modules' ../ {{.REMOTE}}:~/repo-backup/
