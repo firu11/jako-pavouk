@@ -89,7 +89,8 @@ function overitZmenu(e: Event) {
 function chekujUdaje(jaky: string) {
     if (jaky === 'email' && email.value)
         spatnyEmail.value = !/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/g.test(email.value); //test jestli email
-    else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*[a-zA-Z]).{5,128}$/.test(heslo.value);
+    else if (jaky === 'heslo' && heslo.value !== undefined)
+        spatnyHeslo.value = !/^[ -~]{5,72}$/.test(heslo.value); //ascii 5-72
     else if (jaky === 'kod' && kod.value !== undefined) spatnyKod.value = !/^\d{5}$/.test(kod.value); //kod 5 dlouhy
 }
 
