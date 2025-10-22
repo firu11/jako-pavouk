@@ -80,9 +80,15 @@ function overitZmenu(e: Event) {
         })
         .catch((e) => {
             console.log(e);
-            if (e.response.data.error.toLowerCase().search('kod') != -1) spatnyKod.value = true;
-            else if (e.response.data.error.toLowerCase().search('heslo') != -1) spatnyHeslo.value = true;
-            pridatOznameni();
+            if (e.response.data.error.toLowerCase().search('kod') != -1) {
+                spatnyKod.value = true;
+                pridatOznameni('Špatný kód');
+            } else if (e.response.data.error.toLowerCase().search('cas') != -1) {
+                state.value = 'email';
+                pridatOznameni('Čas na ověření vypršel. Zkus to prosím znovu.');
+            } else {
+                pridatOznameni();
+            }
         });
 }
 
