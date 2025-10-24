@@ -21,10 +21,10 @@ def test_registrace(page: Page):
 
     print("\nwaiting for email")
     tmp_email.start(e.listener)
-    if not e.message_received.wait(timeout=25):
+    if not e.message_received.wait(timeout=120):
         tmp_email.stop()
         e.message_received.clear()
-        raise TimeoutError("No message received within 25 seconds")
+        raise TimeoutError("No message received within 120 seconds")
     tmp_email.stop()
     e.message_received.clear()
 
@@ -63,10 +63,10 @@ def test_zmenit_jmeno(page: Page):
 
     print("\nwaiting for email")
     tmp_email.start(e.listener)
-    if not e.message_received.wait(timeout=25):
+    if not e.message_received.wait(timeout=120):
         tmp_email.stop()
         e.message_received.clear()
-        raise TimeoutError("No message received within 25 seconds")
+        raise TimeoutError("No message received within 120 seconds")
     tmp_email.stop()
     e.message_received.clear()
 

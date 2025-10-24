@@ -1,6 +1,6 @@
 .DS_Store
+.env
 
-backend/.env
 backend/skoly.log.csv
 
 frontend/dist/
