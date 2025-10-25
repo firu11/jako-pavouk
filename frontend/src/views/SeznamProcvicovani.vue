@@ -41,6 +41,7 @@ onMounted(() => {
                 }
             });
             let c = 2;
+            console.log(texty.value);
             sortKategorii(texty.value.keys()).forEach((v) => {
                 let procvic = texty.value.get(v)!;
                 procvic.sort((a, b) => a.obtiznost - b.obtiznost || a.jmeno.localeCompare(b.jmeno));
@@ -138,7 +139,14 @@ function sortKategorii(x: IterableIterator<string>): string[] {
     for (const e of x) {
         list.push(e);
     }
-    return list.sort((a, b) => a.localeCompare(b)); // sort podle abecedy
+    list.sort((a, b) => {
+        if (a === 'Anglické')
+            return 1; // anglický na konec
+        else if (b === 'Anglické')
+            return -1; // anglický na konec
+        else return a.localeCompare(b);
+    });
+    return list; // sort podle abecedy
 }
 
 onUnmounted(() => {
@@ -161,11 +169,9 @@ onUnmounted(() => {
             <span v-if="texty.size != 0 && testPsaniCPM != -1"> <AnimaceCisla class="cislo" :cislo="testPsaniCPM" /> CPM </span>
         </a>
 
-        <!-- eslint-disable-next-line vue/no-use-v-if-with-v-for -->
         <div v-if="texty.size != 0" v-for="k in sortKategorii(texty.keys())" style="width: 100%" :key="k">
             <h2>{{ k }}</h2>
 
-            <!-- eslint-disable-next-line vue/no-use-v-if-with-v-for -->
             <RouterLink
                 v-if="!mobil"
                 v-for="t in texty.get(k)"
@@ -204,6 +210,11 @@ onUnmounted(() => {
             </div>
 
             <h2>Zábavné</h2>
+            <div v-for="i in 2" class="blok" :key="i">
+                <h3 style="margin-left: 8px">. . .</h3>
+            </div>
+
+            <h2>Anglické</h2>
             <div v-for="i in 2" class="blok" :key="i">
                 <h3 style="margin-left: 8px">. . .</h3>
             </div>

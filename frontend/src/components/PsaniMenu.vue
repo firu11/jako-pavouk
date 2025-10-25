@@ -7,11 +7,13 @@ const emit = defineEmits(['restart', 'toggle', 'refocus']);
 
 interface Props {
     vyberTextu?: boolean;
+    vyberDiakritiky?: boolean;
     bezStinu?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
     vyberTextu: true,
     bezStinu: false,
+    vyberDiakritiky: true,
 });
 
 const typ = ref(true); // false = slova, true = vety
@@ -115,7 +117,7 @@ defineExpose({ diakritika, velkaPismena, typ, delka, klavModel });
                     Velká písmena
                 </label>
 
-                <label for="toggle3" class="kontejner">
+                <label v-if="vyberDiakritiky" for="toggle3" class="kontejner">
                     <input v-model="diakritika" @change="emit('toggle')" type="checkbox" id="toggle3" class="radio" />
                     Diakritika
                 </label>
