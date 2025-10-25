@@ -145,6 +145,7 @@ hr {
     position: relative;
     right: 25px;
     justify-content: center;
+    line-height: 40px;
     /* posunuti o pulku sipky */
 }
 
@@ -307,7 +308,7 @@ select:focus {
     transition: all 0.3s;
 }
 
-.toggle-checkbox:checked + .toggle-contejner::before {
+.toggle-checkbox:checked+.toggle-contejner::before {
     left: 50%;
 }
 
@@ -320,22 +321,22 @@ select:focus {
     top: -1px;
 }
 
-.toggle-checkbox:checked + .toggle-contejner div:first-child {
+.toggle-checkbox:checked+.toggle-contejner div:first-child {
     color: transparent;
     transition: color 0.3s;
 }
 
-.toggle-checkbox:checked + .toggle-contejner div:last-child {
+.toggle-checkbox:checked+.toggle-contejner div:last-child {
     color: white;
     transition: color 0.3s;
 }
 
-.toggle-checkbox + .toggle-contejner div:first-child {
+.toggle-checkbox+.toggle-contejner div:first-child {
     color: white;
     transition: color 0.3s;
 }
 
-.toggle-checkbox + .toggle-contejner div:last-child {
+.toggle-checkbox+.toggle-contejner div:last-child {
     color: transparent;
     transition: color 0.3s;
 }
@@ -379,7 +380,7 @@ select option {
     align-self: center !important;
 }
 
-#nastaveni > form {
+#nastaveni>form {
     display: flex;
     flex-direction: column;
     max-width: 450px;
@@ -391,7 +392,7 @@ select option {
     margin: 0 5vw;
 }
 
-#nastaveni > form > div {
+#nastaveni>form>div {
     display: flex;
     width: 100%;
     align-items: center;
@@ -408,13 +409,13 @@ select option {
     width: auto;
 }
 
-#nastaveni form > span {
+#nastaveni form>span {
     opacity: 0.5;
     font-size: 14px;
     margin-bottom: -4px;
 }
 
-#nastaveni form > span b {
+#nastaveni form>span b {
     font-weight: 600;
 }
 
@@ -453,6 +454,7 @@ video {
 }
 
 @supports (-webkit-tap-highlight-color: black) {
+
     /* ne na firefoxu, jinak je to sus */
     select:hover {
         background-color: var(--svetle-fialova);
@@ -511,13 +513,13 @@ video {
 }
 
 @media screen and (max-width: 460px) {
-    #nastaveni > form > div {
+    #nastaveni>form>div {
         flex-wrap: wrap;
         justify-content: space-between;
         gap: 10px 20%;
     }
 
-    #nastaveni > form:not(:first-of-type) > div {
+    #nastaveni>form:not(:first-of-type)>div {
         flex-wrap: wrap;
         justify-content: center;
         gap: 10px 20%;
