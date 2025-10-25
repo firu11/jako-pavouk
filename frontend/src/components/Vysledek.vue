@@ -57,7 +57,7 @@ function dalsi() {
     r.pop();
     let c = r.join('/');
     if (props.posledni)
-        router.push(c); // /lekce/pismena
+        router.replace(c); // /lekce/pismena
     else router.push(c + '/' + (parseInt(props.cislo) + 1).toString()); // /lekce/pismena/cislo
 }
 
@@ -256,12 +256,13 @@ const zprava = computed(() => {
         <button v-if="props.cislo == 'prvni-psani'" class="tlacitko" @click="router.push('/registrace')">Vytvořit účet</button>
         <button v-if="props.pismena == 'pracepraceprace'" class="tlacitko" @click="router.push('/trida')">Zpět do třídy</button>
 
-        <Tooltip v-if="props.cislo != 'prvni-psani' && props.pismena != 'pracepraceprace'" zprava="Také pomocí klávesy <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="130">
+        <Tooltip v-if="route.path.split('/')[1] == 'lekce'" zprava="Také pomocí klávesy <span class='klavesa-v-textu-mensi'>Delete</span>" :sirka="130">
             <button class="tlacitko" @click="reset">Zkusit znovu</button>
         </Tooltip>
 
-        <Tooltip v-if="route.path.split('/')[1] == 'lekce'" :zprava="zprava" :sirka="130">
-            <button class="tlacitko" @click="dalsi()">Pokračovat</button>
+        <Tooltip v-if="props.cislo != 'prvni-psani' && props.pismena != 'pracepraceprace'" :zprava="zprava" :sirka="130">
+            <button v-if="route.path.split('/')[1] == 'lekce'" class="tlacitko" @click="dalsi">Pokračovat</button>
+            <button v-else class="tlacitko" @click="reset">Pokračovat</button>
         </Tooltip>
     </div>
 </template>
