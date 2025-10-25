@@ -31,7 +31,7 @@ def test_registrace(page: Page):
     fill_in_verification_code(page, e.get_code())
 
     expect(page).to_have_url(re.compile("/klavesnice.*"))
-    expect(page.locator("#alerty > *")).to_have_count(0, timeout=0.2)
+    expect(page.locator("#alerty > *")).to_have_count(0, timeout=200)
 
 
 @pytest.mark.order(2)
@@ -40,7 +40,7 @@ def test_login(page: Page):
     fill_in_login_details(page)
 
     expect(page).to_have_url("/statistiky")
-    expect(page.locator("#alerty > *")).to_have_count(0, timeout=0.2)
+    expect(page.locator("#alerty > *")).to_have_count(0, timeout=200)
     expect(page.locator("#ucet #jmeno")).to_have_text(name)
 
 
@@ -76,7 +76,7 @@ def test_zmenit_jmeno(page: Page):
 
     page.goto("/prihlaseni")
     fill_in_login_details(page, new_pass)
-    expect(page.locator("#alerty > *")).to_have_count(0, timeout=0.2)
+    expect(page.locator("#alerty > *")).to_have_count(0, timeout=200)
 
 
 @pytest.mark.order(4)
@@ -93,7 +93,7 @@ def test_smazat_ucet(page: Page):
     expect(page).to_have_url("/prihlaseni")
 
     fill_in_login_details(page, new_pass)
-    expect(page.locator("#alerty > *")).to_have_count(1, timeout=0.2)
+    expect(page.locator("#alerty > *")).to_have_count(1, timeout=200)
 
 
 def fill_in_verification_code(page: Page, code: str):
