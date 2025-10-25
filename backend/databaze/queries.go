@@ -14,9 +14,11 @@ import (
 	"github.com/rickb777/date"
 )
 
-var RegexJmeno *regexp.Regexp
-var MaxCisloZaJmeno int // 10_000
-var poslednich int = 15
+var (
+	RegexJmeno      *regexp.Regexp
+	MaxCisloZaJmeno int // 10_000
+	poslednich      int = 15
+)
 
 func GetLekce(uzivID uint) ([][]Lekce, error) {
 	var lekce [][]Lekce = [][]Lekce{}
@@ -382,11 +384,11 @@ func PridatDokonceneProcvic(procvicID, uzivID uint, neopravene int, cas int, del
 	chybyPismenkaJSON, err := json.Marshal(chybyPismenka)
 
 	// pokud je procvic 0 neboli je to test psaní, vložim NULL
-	var procvicCislo = sql.NullString{}
+	procvicCislo := sql.NullString{}
 	if procvicID != 0 {
 		procvicCislo = sql.NullString{String: fmt.Sprintf("%d", procvicID), Valid: true}
 	}
-	var id = sql.NullInt32{Int32: int32(uzivID), Valid: true}
+	id := sql.NullInt32{Int32: int32(uzivID), Valid: true}
 	if uzivID == 0 {
 		id = sql.NullInt32{}
 	}
@@ -402,11 +404,17 @@ func OdebratDokonceneCvic(cvicID uint, uzivID uint) error {
 	return err
 }
 
-func GetVsechnySlova(pocet int) ([]string, error) {
+func GetVsechnySlova(pocet int, anglicky bool) ([]string, error) {
 	var vysledek []string
 	var err error
 
-	rows, err := DB.Query(`WITH prvni AS (SELECT slovo FROM slovnik WHERE nahodnost < $1 ORDER BY nahodnost DESC LIMIT $4), druhy AS (SELECT slovo FROM slovnik WHERE nahodnost < $2 ORDER BY nahodnost DESC LIMIT $4), treti AS (SELECT slovo FROM slovnik WHERE nahodnost < $3 ORDER BY nahodnost DESC LIMIT $4) SELECT slovo FROM prvni UNION ALL SELECT slovo FROM druhy UNION ALL SELECT slovo FROM treti;`, mathRand.Float64()+0.0035, mathRand.Float64()+0.0035, mathRand.Float64()+0.0035, (pocet+3)/3) // +0.0035 proto aby tam byl dostatek slov když random hodí 0.0 (když jo, máme 100 slov)
+	var rows *sql.Rows
+	if !anglicky {
+		rows, err = DB.Query(`WITH prvni AS (SELECT slovo FROM slovnik WHERE nahodnost < $1 ORDER BY nahodnost DESC LIMIT $4), druhy AS (SELECT slovo FROM slovnik WHERE nahodnost < $2 ORDER BY nahodnost DESC LIMIT $4), treti AS (SELECT slovo FROM slovnik WHERE nahodnost < $3 ORDER BY nahodnost DESC LIMIT $4) SELECT slovo FROM prvni UNION ALL SELECT slovo FROM druhy UNION ALL SELECT slovo FROM treti;`, mathRand.Float64()+0.0035, mathRand.Float64()+0.0035, mathRand.Float64()+0.0035, (pocet+3)/3) // +0.0035 proto aby tam byl dostatek slov když random hodí 0.0 (když jo, máme 100 slov)
+	} else {
+		rows, err = DB.Query(`WITH prvni AS (SELECT slovo FROM slovnik_en WHERE nahodnost < $1 ORDER BY nahodnost DESC LIMIT $4), druhy AS (SELECT slovo FROM slovnik_en WHERE nahodnost < $2 ORDER BY nahodnost DESC LIMIT $4), treti AS (SELECT slovo FROM slovnik_en WHERE nahodnost < $3 ORDER BY nahodnost DESC LIMIT $4) SELECT slovo FROM prvni UNION ALL SELECT slovo FROM druhy UNION ALL SELECT slovo FROM treti;`, mathRand.Float64()+0.02, mathRand.Float64()+0.02, mathRand.Float64()+0.02, (pocet+3)/3) // +0.02 proto aby tam byl dostatek slov když random hodí 0.0 (když jo, máme 100 slov)
+	}
+
 	if err != nil {
 		return vysledek, err
 	}

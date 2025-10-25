@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"backend/databaze"
-	"backend/utils"
 	"database/sql"
 	"fmt"
 	"log"
@@ -12,13 +10,16 @@ import (
 	"time"
 	"unicode"
 
+	"backend/databaze"
+	"backend/utils"
+
 	"github.com/labstack/echo/v4"
 )
 
 func testPsani(c echo.Context) error {
 	id := c.Get("uzivID").(uint)
 
-	var body = bodyTestPsani{}
+	body := bodyTestPsani{}
 	if err := c.Bind(&body); err != nil {
 		log.Print(err)
 		return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
@@ -32,7 +33,7 @@ func testPsani(c echo.Context) error {
 	switch body.Typ {
 	case "slova":
 		var err error
-		text, err = databaze.GetVsechnySlova(int(PocetZnaku / 7.5)) // cca 8.5 znaku na slovo
+		text, err = databaze.GetVsechnySlova(int(PocetZnaku/7.5), false) // cca 8.5 znaku na slovo
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 		}
@@ -41,7 +42,7 @@ func testPsani(c echo.Context) error {
 			text[i] += " "
 
 			r := []rune(text[i])
-			if i%5 == 0 { //kazdy paty velkym
+			if i%5 == 0 { // kazdy paty velkym
 				text[i] = fmt.Sprintf("%c%s", unicode.ToUpper(r[0]), string(r[1:]))
 			}
 		}
@@ -151,7 +152,7 @@ func dokoncitCvic(c echo.Context) error {
 	if id == 0 {
 		return c.NoContent(http.StatusUnauthorized)
 	}
-	var body = bodyDokoncit{}
+	body := bodyDokoncit{}
 
 	if err := c.Bind(&body); err != nil {
 		log.Print(err)
@@ -191,7 +192,7 @@ func dokoncitCvic(c echo.Context) error {
 func dokoncitProcvic(c echo.Context) error {
 	id := c.Get("uzivID").(uint)
 
-	var body = bodyDokoncit{}
+	body := bodyDokoncit{}
 
 	if err := c.Bind(&body); err != nil {
 		log.Print(err)
@@ -273,9 +274,31 @@ func getProcvic(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 	}
-	nazev, podnazev, text, cislo, err := databaze.GetProcvicovani(typ, cislo)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
+
+	var nazev string
+	var podnazev string
+	var text []string
+	if typ == 8 { // anglická náhodná slova
+		nazev = "Náhodná slova"
+		podnazev = "Anglicky"
+		text, err = databaze.GetVsechnySlova(int(PocetZnaku/7.5), true) // cca 8.5 znaku na slovo
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
+		}
+
+		for i := range text {
+			text[i] += " "
+
+			r := []rune(text[i])
+			if i%5 == 0 { // kazdy paty velkym
+				text[i] = fmt.Sprintf("%c%s", unicode.ToUpper(r[0]), string(r[1:]))
+			}
+		}
+	} else {
+		nazev, podnazev, text, cislo, err = databaze.GetProcvicovani(typ, cislo)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
+		}
 	}
 
 	u, err := databaze.GetUzivByID(id)
@@ -386,7 +409,7 @@ func prihlaseni(c echo.Context) error {
 
 	var uziv databaze.Uzivatel
 
-	if !utils.ValidFormat(body.EmailNeboJmeno) { //predpokladam ze je to jmeno kdyz se to nepodobá emailu
+	if !utils.ValidFormat(body.EmailNeboJmeno) { // predpokladam ze je to jmeno kdyz se to nepodobá emailu
 		uziv, err = databaze.GetUzivByJmeno(body.EmailNeboJmeno)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, chyba("Email/jmeno je spatne (Jmeno)"))
@@ -612,7 +635,7 @@ func upravaUctu(c echo.Context) error {
 	if id == 0 {
 		return c.NoContent(http.StatusUnauthorized)
 	}
-	var body = bodyUprava{}
+	body := bodyUprava{}
 
 	if err := c.Bind(&body); err != nil {
 		return c.JSON(http.StatusBadRequest, chyba(err.Error()))

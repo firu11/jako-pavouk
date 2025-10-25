@@ -316,6 +316,7 @@ function refocus() {
         @toggle="toggleDiakritikaAVelkaPismena"
         @click="refocus"
         :vyberTextu="false"
+        :vyberDiakritiky="jmeno !== 'Anglicky'"
         :bez-stinu="psaniRef?.fullHideKlavesnice"
         ref="menuRef"
     />
