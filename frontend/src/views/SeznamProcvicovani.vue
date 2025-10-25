@@ -42,7 +42,6 @@ onMounted(() => {
                 }
             });
             let c = 2;
-            console.log(texty.value);
             sortKategorii(texty.value.keys()).forEach((v) => {
                 let procvic = texty.value.get(v)!;
                 procvic.sort((a, b) => a.obtiznost - b.obtiznost || a.jmeno.localeCompare(b.jmeno));
