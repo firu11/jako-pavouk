@@ -7,6 +7,7 @@ import { mobil } from '../stores';
 import ObtiznostBar from '../components/ObtiznostBar.vue';
 import Tooltip from '../components/Tooltip.vue';
 import AnimaceCisla from '../components/AnimaceCisla.vue';
+import NovinkaTag from '../components/NovinkaTag.vue';
 
 useHead({
     title: 'Procvičování',
@@ -170,7 +171,9 @@ onUnmounted(() => {
         </a>
 
         <div v-if="texty.size != 0" v-for="k in sortKategorii(texty.keys())" style="width: 100%" :key="k">
-            <h2>{{ k }}</h2>
+            <!-- TODO remove -->
+            <h2 v-if="k == 'Anglické'">{{ k }} <NovinkaTag style="position: relative; top: -2px; left: 8px" /></h2>
+            <h2 v-else>{{ k }}</h2>
 
             <RouterLink
                 v-if="!mobil"
