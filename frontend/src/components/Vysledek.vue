@@ -160,8 +160,8 @@ function e1(e: KeyboardEvent) {
         reset();
     } else if (e.key == 'ArrowRight') {
         e.preventDefault();
-        if (route.path.split('/')[1] != 'lekce') return;
-        dalsi();
+        if (route.path.split('/')[1] != 'lekce') reset();
+        else dalsi();
     } else if (e.key == 'Tab') {
         e.preventDefault();
         napovedaKNavigaci();
