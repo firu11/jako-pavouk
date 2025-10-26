@@ -52,6 +52,7 @@ tasks:
             - scp backend {{.REMOTE}}:~/backend_uploaduju
             - rsync -v --no-perms overovaci_email.html pavoucekDoEmailu.png {{.REMOTE}}:~/
             - ssh -t {{.REMOTE}} "rm backend && mv backend_uploaduju backend && chmod +x backend && sudo systemctl restart backend"
+            - rm backend
 
     bupload-testing:
         dir: backend
