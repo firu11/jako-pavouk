@@ -16,6 +16,7 @@ tests/.pytest_cache/
 tests/__pycache__
 tests/*/__pycache__
 tests/helpers/javascript.py
+tests/test-results/
 
 
 # -------- proprietary :) --------
