@@ -185,7 +185,7 @@ def test_psani_prace(page: Page, student):
     prace.click()
     expect(page.locator("#alerty > *")).to_have_count(0, timeout=200)
     expect(page.get_by_role("heading", name="Práce ve třídě"))
-    assert page.locator("#text>.slovo").count() > 0
+    expect(page.locator("#text>.slovo")).not_to_have_count(0)
 
     page.evaluate(script)
 

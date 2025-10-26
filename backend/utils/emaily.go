@@ -67,6 +67,9 @@ func PoslatOverovaciEmail(email string, kod string) error {
 }
 
 func PoslatInterniEmail(jmenoSkoly string, kontaktniEmail string, kontaktniTelefon string) error {
+	if os.Getenv("MOBIL_NOTIFIKACE_URL") == "abc" {
+		return nil
+	}
 	m := gomail.NewMessage()
 	m.SetHeader("From", fmt.Sprintf("Jako Pavouk <%v>", os.Getenv("EMAIL_FROM")))
 	m.SetHeader("To", os.Getenv("EMAIL_MUJ"))
