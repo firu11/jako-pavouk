@@ -280,7 +280,7 @@ func getProcvic(c echo.Context) error {
 	var text []string
 	if typ == 8 { // anglická náhodná slova
 		nazev = "Náhodná slova"
-		podnazev = "Anglicky"
+		podnazev = "V angličtině"
 		text, err = databaze.GetVsechnySlova(int(PocetZnaku/7.5), true) // cca 8.5 znaku na slovo
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
