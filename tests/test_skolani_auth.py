@@ -1,10 +1,11 @@
-import re
 import random
-import pytest
-from playwright.sync_api import Page, expect
-from mailtm import Email
+import re
+
 import helpers.auth_email as e
+import pytest
 from helpers.javascript import script
+from mailtm import Email
+from playwright.sync_api import Page, expect
 
 student_name: str = ""
 ucitel_name: str = ""
