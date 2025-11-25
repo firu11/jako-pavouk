@@ -1,9 +1,10 @@
-import re
-import pytest
 import random
-from playwright.sync_api import Page, expect
-from mailtm import Email
+import re
+
 import helpers.auth_email as e
+import pytest
+from mailtm import Email
+from playwright.sync_api import Page, expect
 
 name = "".join(random.choice("abcdefghijklmnopqrstuvwxyz1234567890") for _ in range(12))
 password = "12345"
