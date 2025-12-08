@@ -132,7 +132,8 @@ form img {
 }
 
 #google {
-    max-height: 40px; /* aby to nebliklo */
+    max-height: 40px;
+    /* aby to nebliklo */
     padding: 0;
     margin: 0;
 }

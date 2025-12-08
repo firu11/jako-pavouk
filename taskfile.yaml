@@ -68,3 +68,8 @@ tasks:
         dir: jako-pavouk
         cmds:
             - rsync -av --no-perms --exclude='.git' --exclude='frontend/node_modules' ../ {{.REMOTE}}:~/repo-backup/
+
+    test-local:
+        dir: tests
+        cmds:
+            - pytest -s --base-url http://localhost:5173 # `-s` to print logs, `--headed` to show whats happening
