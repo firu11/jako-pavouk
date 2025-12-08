@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"backend/databaze"
 	cryptoRand "crypto/rand"
 	"encoding/json"
 	"errors"
@@ -17,6 +16,8 @@ import (
 	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"backend/databaze"
 
 	emailverifier "github.com/AfterShip/email-verifier"
 	"github.com/go-playground/validator/v10"
@@ -164,7 +165,7 @@ func SmazatMezeruNaKonci(text []string) {
 }
 
 func SaveSkola(jmenoSkoly string, kontaktniEmail string, kontaktniTelefon string) error {
-	f, err := os.OpenFile("skoly.log.csv", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile("skoly.log.csv", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		return err
 	}

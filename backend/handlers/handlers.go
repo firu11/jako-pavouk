@@ -363,9 +363,9 @@ func registrace(c echo.Context) error {
 	}
 
 	body.Email = strings.ToLower(body.Email)
-	if err := utils.ValidaceEmailu(body.Email); err != nil {
-		return c.JSON(http.StatusBadRequest, chyba(fmt.Sprintf("Invalidni email: %s", err)))
-	}
+	// if err := utils.ValidaceEmailu(body.Email); err != nil {
+	// 	return c.JSON(http.StatusBadRequest, chyba(fmt.Sprintf("Invalidni email: %s", err)))
+	// }
 	if _, err := databaze.GetUzivByEmail(body.Email); err == nil { // uz existuje
 		return c.JSON(http.StatusBadRequest, chyba("Uzivatel s timto emailem jiz existuje"))
 	}
