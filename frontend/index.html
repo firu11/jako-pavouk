@@ -1,110 +1,108 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="cs">
+    <head>
+        <title>Psaní všemi deseti zdarma | Jako Pavouk</title>
+        <meta charset="UTF-8" />
+        <meta name="description" content="Webová aplikace na výuku psaní všemi deseti zdarma. Chceš se naučit psát rychle Jako Pavouk? Buď pánem své klávesnice!" />
+        <meta
+            name="keywords"
+            content="jako, pavouk, psani, psaní, všemi, vsemi, všema, vsema, deseti, hrave, hravě, prsty, klavesnici, klavesnice, prst, klávesnice, klávesnici, rychle, rychlé, výuka, vyuka, zdarma, free, pavoucek, pocitaci, pocitac, notebooku, notebook, stroj, stroji, na, online, program, aplikace, webovka, procvicovani, procvičování, test"
+        />
 
-<head>
-    <title>Psaní všemi deseti zdarma | Jako Pavouk</title>
-    <meta charset="UTF-8">
-    <meta name="description"
-        content="Webová aplikace na výuku psaní všemi deseti zdarma. Chceš se naučit psát rychle Jako Pavouk? Buď pánem své klávesnice!">
-    <meta name="keywords"
-        content="jako, pavouk, psani, psaní, všemi, vsemi, všema, vsema, deseti, hrave, hravě, prsty, klavesnici, klavesnice, prst, klávesnice, klávesnici, rychle, rychlé, výuka, vyuka, zdarma, free, pavoucek, pocitaci, pocitac, notebooku, notebook, stroj, stroji, na, online, program, aplikace, webovka, procvicovani, procvičování, test">
+        <meta name="publisher" content="Filip Růžička, firu@jakopavouk.cz" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="preload" href="/RedHatMono.woff2" as="font" type="font/woff2" crossorigin />
+        <link rel="preload" href="/Montserrat.woff2" as="font" type="font/woff2" crossorigin />
+        <meta name="robots" content="noarchive" />
 
-    <meta name="publisher" content="Filip Růžička, firu@jakopavouk.cz">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preload" href="/RedHatMono.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="/Montserrat.woff2" as="font" type="font/woff2" crossorigin>
-    <meta name="robots" content="noarchive">
+        <!-- Ikony -->
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-    <!-- Ikony -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" href="/favicon.png">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/manifest.json" id="manifest" />
+        <meta name="theme-color" content="#3F3351" />
 
-    <link rel="manifest" href="/manifest.json" id="manifest">
-    <meta name="theme-color" content="#3F3351">
+        <!-- Facebook Meta Tags -->
+        <meta property="og:url" content="https://jakopavouk.cz/" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Jako Pavouk" />
+        <meta property="og:site_name" content="Jako Pavouk" />
+        <meta property="og:description" content="Webová aplikace pro výuku psaní všemi deseti." />
+        <meta property="og:image" content="https://jakopavouk.cz/PavoukIlustrace.png" />
+        <meta property="og:image:width" content="3200" />
+        <meta property="og:image:height" content="3200" />
 
-    <!-- Facebook Meta Tags -->
-    <meta property="og:url" content="https://jakopavouk.cz/">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Jako Pavouk">
-    <meta property="og:site_name" content="Jako Pavouk">
-    <meta property="og:description" content="Webová aplikace pro výuku psaní všemi deseti.">
-    <meta property="og:image" content="https://jakopavouk.cz/PavoukIlustrace.png">
-    <meta property="og:image:width" content="3200">
-    <meta property="og:image:height" content="3200">
+        <!-- Twitter Meta Tags -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta property="twitter:domain" content="jakopavouk.cz" />
+        <meta property="twitter:url" content="https://jakopavouk.cz/" />
+        <meta name="twitter:title" content="Jako Pavouk" />
+        <meta name="twitter:description" content="Webová aplikace pro výuku psaní všemi deseti." />
+        <meta name="twitter:image" content="https://jakopavouk.cz/OGnahled.png" />
 
-    <!-- Twitter Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta property="twitter:domain" content="jakopavouk.cz">
-    <meta property="twitter:url" content="https://jakopavouk.cz/">
-    <meta name="twitter:title" content="Jako Pavouk">
-    <meta name="twitter:description" content="Webová aplikace pro výuku psaní všemi deseti.">
-    <meta name="twitter:image" content="https://jakopavouk.cz/OGnahled.png">
-
-    <style>
-        #pavucina {
-            position: fixed;
-            top: -20px;
-            right: 0;
-            transform: rotate(180deg);
-            width: 600px;
-            z-index: -1000;
-            opacity: 0.3;
-            user-select: none;
-        }
-
-        @media screen and (max-width: 1100px) {
+        <style>
             #pavucina {
-                width: 85vw;
+                position: fixed;
+                top: -20px;
+                right: 0;
+                transform: rotate(180deg);
+                width: 600px;
+                z-index: -1000;
+                opacity: 0.3;
+                user-select: none;
             }
-        }
-    </style>
-    <script defer src="https://umami.firu.dev/important" data-website-id="227b7a5b-3e5b-4614-b9df-415bd7af3349"></script>
-</head>
 
-<body>
-    <div id="app"></div>
-    <img id="pavucina" src="./src/assets/pavucina.svg" alt="Pavucina" fetchpriority="high">
-    <!-- je tady aby ji mohl browser nacist co nejdrive ještě pred js -->
+            @media screen and (max-width: 1100px) {
+                #pavucina {
+                    width: 85vw;
+                }
+            }
+        </style>
+        <script defer src="https://umami.firu.dev/important" data-website-id="227b7a5b-3e5b-4614-b9df-415bd7af3349"></script>
+    </head>
 
-    <script type="module" src="/src/main.ts"></script>
-    <script>
-        // na telefonu chci aby šel web přidat na plochu jako link, ne jako standalone aplikace
-        if (document.body.clientWidth <= 900) {
-            document.getElementById("manifest").remove()
-        }
+    <body>
+        <div id="app"></div>
+        <img id="pavucina" src="./src/assets/pavucina.svg" alt="Pavucina" fetchpriority="high" />
+        <!-- je tady aby ji mohl browser nacist co nejdrive ještě pred js -->
 
-        // detekce starych prohlizecu
-        // https://ishadeed.com/article/flexbox-gap/
-        var flex = document.createElement("div")
-        flex.style.display = "flex"
-        flex.style.flexDirection = "column"
-        flex.style.rowGap = "1px"
+        <script type="module" src="/src/main.ts"></script>
+        <script>
+            // na telefonu chci aby šel web přidat na plochu jako link, ne jako standalone aplikace
+            if (document.body.clientWidth <= 900) {
+                document.getElementById('manifest').remove();
+            }
 
-        flex.appendChild(document.createElement("div"))
-        flex.appendChild(document.createElement("div"))
+            // detekce starych prohlizecu
+            // https://ishadeed.com/article/flexbox-gap/
+            var flex = document.createElement('div');
+            flex.style.display = 'flex';
+            flex.style.flexDirection = 'column';
+            flex.style.rowGap = '1px';
 
-        document.body.appendChild(flex)
-        var isSupported = flex.scrollHeight === 1
-        flex.parentNode.removeChild(flex)
+            flex.appendChild(document.createElement('div'));
+            flex.appendChild(document.createElement('div'));
 
-        if (!isSupported) alert("Váš prohlížeč je pravděpodobně příliš starý, nebo nepodporuje vše na to, aby mohl tuto aplikaci používat. Bohužel nemůže psát Jako Pavouk.")
-    </script>
-    <noscript>
-        Aplikace Jako Pavouk nefunguje bez Javascriptu. Pokud se chcete naučit psát všemi deseti, budete ho muset zapnout. Jako Pavouk je ale
-        studentský projekt, který své uživatele nesleduje. Pokud byste měli nějaké dotazy ohledně bezpečí této webové aplikace, kontaktujte mě na
-        e-mail:
-        <span style="unicode-bidi:bidi-override; direction: rtl;">zc</span>
-        <span style="display: none;">nechci dostavat spam</span>
-        <span>&#46;</span>
-        <span style="display: none;">proste to nedelej</span>
-        <span style="unicode-bidi:bidi-override; direction: rtl;">kuovapokaj</span>
-        <span style="display: none;">nebudete mi websrapovat email vy smradlavý smradi</span>
-        <span>&#64;</span>
-        <span style="display: none;">ani to nezkoušej</span>
-        <span style="unicode-bidi:bidi-override; direction: rtl;">urif</span>
-    </noscript>
-</body>
+            document.body.appendChild(flex);
+            var isSupported = flex.scrollHeight === 1;
+            flex.parentNode.removeChild(flex);
 
+            if (!isSupported) alert('Váš prohlížeč je pravděpodobně příliš starý, nebo nepodporuje vše na to, aby mohl tuto aplikaci používat. Bohužel nemůže psát Jako Pavouk.');
+        </script>
+        <noscript>
+            Aplikace Jako Pavouk nefunguje bez Javascriptu. Pokud se chcete naučit psát všemi deseti, budete ho muset zapnout. Jako Pavouk je ale studentský projekt, který své uživatele nesleduje.
+            Pokud byste měli nějaké dotazy ohledně bezpečí této webové aplikace, kontaktujte mě na e-mail:
+            <span style="unicode-bidi: bidi-override; direction: rtl">zc</span>
+            <span style="display: none">nechci dostavat spam</span>
+            <span>&#46;</span>
+            <span style="display: none">proste to nedelej</span>
+            <span style="unicode-bidi: bidi-override; direction: rtl">kuovapokaj</span>
+            <span style="display: none">nebudete mi websrapovat email vy smradlavý smradi</span>
+            <span>&#64;</span>
+            <span style="display: none">ani to nezkoušej</span>
+            <span style="unicode-bidi: bidi-override; direction: rtl">urif</span>
+        </noscript>
+    </body>
 </html>

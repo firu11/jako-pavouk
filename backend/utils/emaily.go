@@ -2,11 +2,14 @@ package utils
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"gopkg.in/gomail.v2"
 )
@@ -15,8 +18,10 @@ type dataDosadit struct {
 	Kod string
 }
 
-var htmlEmail *template.Template
-var dialer *gomail.Dialer
+var (
+	htmlEmail *template.Template
+	dialer    *gomail.Dialer
+)
 
 func SetupEmaily() error {
 	port, err := strconv.Atoi(os.Getenv("EMAIL_PORT"))
@@ -30,6 +35,7 @@ func SetupEmaily() error {
 	}
 
 	dialer = gomail.NewDialer(os.Getenv("EMAIL_HOST"), port, os.Getenv("EMAIL_FROM"), os.Getenv("EMAIL_HESLO"))
+	dialer.SSL = true
 
 	return nil
 }
@@ -51,7 +57,7 @@ func PoslatOverovaciEmail(email string, kod string) error {
 	m.SetBody("text/html", buf.String())
 	m.Embed("./pavoucekDoEmailu.png")
 
-	if err := dialer.DialAndSend(m); err != nil {
+	if err := sendVicPokusu(m); err != nil {
 		log.Println("NEFUNGUJE MAIL GG WOOHOO: ", email, err)
 		MobilNotifikace("NEFUNGUJE MAIL " + err.Error())
 		return err
@@ -61,16 +67,36 @@ func PoslatOverovaciEmail(email string, kod string) error {
 }
 
 func PoslatInterniEmail(jmenoSkoly string, kontaktniEmail string, kontaktniTelefon string) error {
+	if os.Getenv("MOBIL_NOTIFIKACE_URL") == "abc" {
+		return nil
+	}
 	m := gomail.NewMessage()
 	m.SetHeader("From", fmt.Sprintf("Jako Pavouk <%v>", os.Getenv("EMAIL_FROM")))
 	m.SetHeader("To", os.Getenv("EMAIL_MUJ"))
 	m.SetHeader("Subject", "Nová škola")
 	m.SetBody("text/plain", fmt.Sprintf("Někdo se zapsal se školou! \n\n %s\n%s\n%s", jmenoSkoly, kontaktniEmail, kontaktniTelefon))
 
-	if err := dialer.DialAndSend(m); err != nil {
+	if err := sendVicPokusu(m); err != nil {
 		log.Println("NEFUNGUJE NOVÁ ŠKOLA MAIL GG WOOHOO: ", err)
 		MobilNotifikace("NEFUNGUJE MAIL " + err.Error())
 		return err
 	}
 	return nil
+}
+
+func sendVicPokusu(m *gomail.Message) error {
+	var err error
+	for i := range 3 {
+		err = dialer.DialAndSend(m)
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				log.Printf("pokus %d: EOF u posílání mailu\n", i)
+				time.Sleep(time.Second)
+				continue // shit happens, try again
+			}
+			return err
+		}
+		return nil
+	}
+	return err
 }

@@ -2,8 +2,8 @@
 .zed/
 taskfile.yaml
 .DS_Store
+.env
 
-backend/.env
 backend/backend
 backend/skoly.log.csv
 
@@ -11,7 +11,15 @@ frontend/public/seznam-wmt-BUnHTQ6XWvu0wBfMQUVc2QkzAKbmEEiS.txt
 frontend/dist/
 frontend/node_modules/
 
-# -- proprietary :) --
+tests/.venv/
+tests/.pytest_cache/
+tests/__pycache__
+tests/*/__pycache__
+tests/helpers/javascript.py
+tests/test-results/
+
+
+# -------- proprietary :) --------
 push-to-public.sh
 scripts/
 backend/*/skola*

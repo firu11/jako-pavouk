@@ -80,16 +80,23 @@ function overitZmenu(e: Event) {
         })
         .catch((e) => {
             console.log(e);
-            if (e.response.data.error.toLowerCase().search('kod') != -1) spatnyKod.value = true;
-            else if (e.response.data.error.toLowerCase().search('heslo') != -1) spatnyHeslo.value = true;
-            pridatOznameni();
+            if (e.response.data.error.toLowerCase().search('kod') != -1) {
+                spatnyKod.value = true;
+                pridatOznameni('Špatný kód');
+            } else if (e.response.data.error.toLowerCase().search('cas') != -1) {
+                state.value = 'email';
+                pridatOznameni('Čas na ověření vypršel. Zkus to prosím znovu.');
+            } else {
+                pridatOznameni();
+            }
         });
 }
 
 function chekujUdaje(jaky: string) {
     if (jaky === 'email' && email.value)
         spatnyEmail.value = !/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/g.test(email.value); //test jestli email
-    else if (jaky === 'heslo' && heslo.value !== undefined) spatnyHeslo.value = !/^(?=.*[a-zA-Z]).{5,128}$/.test(heslo.value);
+    else if (jaky === 'heslo' && heslo.value !== undefined)
+        spatnyHeslo.value = !/^[ -~]{5,72}$/.test(heslo.value); //ascii 5-72
     else if (jaky === 'kod' && kod.value !== undefined) spatnyKod.value = !/^\d{5}$/.test(kod.value); //kod 5 dlouhy
 }
 
