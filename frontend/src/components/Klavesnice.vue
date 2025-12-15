@@ -227,7 +227,7 @@ function potrebujeShift(pismeno: string) {
     const pismenoBezDiakritiky = pismeno.normalize('NFD').replace(/\p{Diacritic}/gu, '');
     if (/^[A-Z]$/.test(pismenoBezDiakritiky)) return true; // velká písmena (i ty co mají diakritiku)
     if (znakySeShiftem.has(pismeno)) return true;
-    if ('óťňď'.includes(pismeno)) return true;
+    if ('ťňď'.includes(pismeno)) return true;
 }
 </script>
 
