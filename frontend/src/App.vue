@@ -72,7 +72,6 @@ async function upravitSirkuJmena() {
         jmenoSpan.value.style.fontSize = `${velikost}px`;
         if (velikost <= 0) break;
     }
-    //console.log("velikost jmena v px:", velikost)
 }
 
 function odhlasit(e: Event) {
@@ -104,13 +103,13 @@ watch(
     },
 );
 </script>
-
 <template>
     <div id="menu-mobilni-btn" @click="mobilMenu = !mobilMenu">
         <img id="menuIcon" src="./assets/icony/menu.svg" alt="Menu" width="40" height="40" />
     </div>
     <header :class="{ 'mobil-hidden': !mobilMenu }">
         <nav @click="mobilMenu = !mobilMenu">
+            <img id="vanocni" src="./assets/vanocni.svg" alt="Vanoční světélka" />
             <MenuLink jmeno="Domů" cesta="/" />
             <MenuLink jmeno="Jak psát" cesta="/jak-psat" />
             <MenuLink jmeno="Kurz" cesta="/kurz" />
@@ -355,6 +354,7 @@ header {
 }
 
 nav {
+    position: relative;
     flex-grow: 10;
     width: var(--sirka-menu);
     border-radius: 10px;
@@ -420,5 +420,15 @@ nav {
         margin-left: -40%;
         height: 170px;
     }
+}
+
+#vanocni {
+    position: absolute;
+    top: 3em;
+    right: -5em;
+    width: 300px;
+    transform: rotate(55deg);
+    user-select: none;
+    pointer-events: none;
 }
 </style>
