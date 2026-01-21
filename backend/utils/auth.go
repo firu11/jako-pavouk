@@ -5,16 +5,19 @@ import (
 	"os"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
-var privatniKlic []byte = []byte(os.Getenv("KLIC"))
-var TokenTimeDuration time.Duration
+var (
+	privatniKlic  []byte = []byte(os.Getenv("KLIC"))
+	TokenLifetime time.Duration
+	RefreshWindow = 24 * time.Hour
+)
 
 // obsah tokenu
 type Data struct {
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 	Email string
 	Id    uint
 }
@@ -45,8 +48,10 @@ func GenerovatToken(email string, id uint) (string, error) {
 	data := Data{
 		Email: email,
 		Id:    id,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(TokenTimeDuration).Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenLifetime)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			Issuer:    "jakopavouk.cz",
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, data)
@@ -57,9 +62,16 @@ func GenerovatToken(email string, id uint) (string, error) {
 // validace celého tokenu
 func ValidovatToken(tokenString string) (bool, uint, error) {
 	data := Data{}
-	token, err := jwt.ParseWithClaims(tokenString, &data, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &data, func(token *jwt.Token) (any, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
 		return privatniKlic, nil
-	})
+	},
+		jwt.WithLeeway(10*time.Second),
+		jwt.WithIssuedAt(),
+		jwt.WithIssuer("jakopavouk.cz"),
+	)
 	if err != nil {
 		return false, 0, err
 	}
@@ -69,13 +81,21 @@ func ValidovatToken(tokenString string) (bool, uint, error) {
 // validace pouze toho zda je potřeba ho vyměnit
 func ValidovatExpTokenu(tokenString string) (bool, error) {
 	data := Data{}
-	_, err := jwt.ParseWithClaims(tokenString, &data, func(token *jwt.Token) (interface{}, error) {
+	_, err := jwt.ParseWithClaims(tokenString, &data, func(token *jwt.Token) (any, error) {
 		return privatniKlic, nil
-	})
-
+	},
+		jwt.WithLeeway(10*time.Second),
+		jwt.WithIssuedAt(),
+		jwt.WithIssuer("jakopavouk.cz"),
+	)
 	if err != nil {
 		return false, err
 	}
+
+	if data.ExpiresAt == nil {
+		return true, nil // consider expired
+	}
 	// pokud token vyprší během příštích 24 hodin, hodilo by se ho vyměnit už teď, abychom předešli tomu že vyprší ve špatnou chvíli
-	return data.ExpiresAt-time.Now().Unix() <= int64(time.Hour.Seconds()*24), nil
+	timeLeft := time.Until(data.ExpiresAt.Time)
+	return timeLeft <= RefreshWindow, nil
 }
