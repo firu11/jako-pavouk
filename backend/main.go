@@ -1,27 +1,32 @@
 package main
 
 import (
-	"backend/databaze"
-	"backend/handlers"
-	"backend/utils"
 	"log"
 	"math"
 	"net/http"
 	"regexp"
 	"time"
 
+	"backend/databaze"
+	"backend/handlers"
+	"backend/utils"
+
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-var pocetZnaku float32 = 1500
-var pocetPismenVeSlovu int = 4
+var (
+	pocetZnaku         float32 = 1500
+	pocetPismenVeSlovu int     = 4
+)
 
 var regexJmeno *regexp.Regexp = regexp.MustCompile(`^[a-zA-Z0-9ěščřžýáíéůúťňďóĚŠČŘŽÝÁÍÉŮÚŤŇĎÓ_\-+*! ]{3,12}$`)
 
-const tokenTimeDuration time.Duration = time.Hour * 24 * 15 // v nanosekundach, 14 + 1 dni asi good (den predem uz odhlasime aby se nestalo ze neco dela a neulozi se to)
-const cifraCislaZaJmenem int = 4
+const (
+	tokenLifetime      time.Duration = time.Hour * 24 * 15 // v nanosekundach, 14 + 1 dni asi good (den predem uz odhlasime aby se nestalo ze neco dela a neulozi se to)
+	cifraCislaZaJmenem int           = 4
+)
 
 var MaxCisloZaJmeno int = int(math.Pow(10, float64(cifraCislaZaJmenem))) // 10_000
 
@@ -59,7 +64,7 @@ func main() {
 }
 
 func inject() {
-	utils.TokenTimeDuration = tokenTimeDuration
+	utils.TokenLifetime = tokenLifetime
 	databaze.RegexJmeno = regexJmeno
 	databaze.MaxCisloZaJmeno = MaxCisloZaJmeno
 	handlers.PocetZnaku = pocetZnaku
