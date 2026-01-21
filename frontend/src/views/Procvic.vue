@@ -45,6 +45,9 @@ const cisloSlovaPosledni = ref(0);
 function get() {
     nacitamNovej.value = true;
     const cisla = getCisloProcvic(typ);
+    if (!Number.isFinite(cisla[0]) || !Number.isFinite(cisla[1])) {
+        setCisloProcvic(typ, [1, 0]);
+    }
 
     axios
         .get(`/procvic/${typ}/${cisla[0]}`, {
@@ -55,7 +58,7 @@ function get() {
         .then((response) => {
             if (cisla[1] > response.data.text.length - 1) {
                 console.log('prekrocili jsme');
-                setCisloProcvic(typ, [cisla[0] + 1, cisla[1] % response.data.text.length]);
+                setCisloProcvic(typ, [cisla[0] + 1, 0]);
                 get();
                 return;
             }
@@ -71,7 +74,12 @@ function get() {
             });
             jmeno.value = response.data.jmeno;
             nazev.value = response.data.typ;
-            if (response.data.cislo != cisla[0]) setCisloProcvic(typ, [1, 0]); // jedeme od zacatku
+            if (response.data.cislo != cisla[0]) {
+                // zkusi opravit offset
+                const maxIndex = Math.max(0, response.data.text.length - 1);
+                const safeOffset = Math.min(cisla[1], maxIndex);
+                setCisloProcvic(typ, [response.data.cislo, safeOffset]);
+            }
             chciZmenitJmeno.value.push({ pismenoID: 0, jmeno: response.data.jmeno, cisloTextu: response.data.cislo });
 
             if (delkaTextu.value < 250) prodlouzit();
@@ -126,6 +134,8 @@ function konecTextu(o: number, p: number, n: MojeMapa, d: number) {
     if (cisloTextu.value > cisla[0]) setCisloProcvic(typ, [cisloTextu.value, cisloSlovaPosledni.value]);
     else setCisloProcvic(typ, [cisloTextu.value, cisla[1] + cisloSlovaPosledni.value]);
     cisloSlovaPosledni.value = 0;
+
+    console.log(`Progres uložen: cisloTextu=${cisloTextu.value}, slovaPosledni=${cisloSlovaPosledni.value}, localstorage=[${cisla[0]}, ${cisla[1]}]`);
 }
 
 function napsaneSlovo(up: boolean) {
@@ -229,6 +239,8 @@ async function prodlouzit() {
                     text.value[pocetSlov + i].push({ id: delkaTextu.value, znak: pismeno, spatne: 0, psat: !okZnaky.test(pismeno) });
                 });
             });
+
+            console.log(`Načtené procvič: cislo=${response.data.cislo}, localstorage=[${cisla[0]}, ${cisla[1]}]`);
         })
         .catch((e) => {
             console.log(e);
@@ -260,10 +272,14 @@ watch(a, async (nev, old) => {
     cisloTextu.value = chciZmenitJmeno.value[i].cisloTextu;
     if (nev !== undefined && old !== undefined) {
         if (nev > old) {
-            oldCisloSlovaPosledni = cisloSlovaPosledni.value - 1;
+            oldCisloSlovaPosledni = Math.max(0, cisloSlovaPosledni.value - 1);
             cisloSlovaPosledni.value = 0;
-        } else cisloSlovaPosledni.value = oldCisloSlovaPosledni;
+        } else {
+            cisloSlovaPosledni.value = oldCisloSlovaPosledni;
+            oldCisloSlovaPosledni = cisloSlovaPosledni.value;
+        }
     } else cisloSlovaPosledni.value = 0;
+    cisloSlovaPosledni.value = Math.max(0, cisloSlovaPosledni.value);
 });
 
 function refocus() {
