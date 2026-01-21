@@ -16,8 +16,6 @@ tasks:
     bbuild:
         dir: backend
         cmds:
-            - sed -i '' 's|127.0.0.1:1323|:1323|g' main.go # zmenim url
-            - defer: sed -i '' 's|:1323|127.0.0.1:1323|g' main.go # zmenim zpět
             - GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" .
 
     frun:
