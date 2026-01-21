@@ -109,7 +109,7 @@ watch(
     </div>
     <header :class="{ 'mobil-hidden': !mobilMenu }">
         <nav @click="mobilMenu = !mobilMenu">
-            <img id="vanocni" src="./assets/vanocni.svg" alt="Vanoční světélka" />
+            <!-- <img id="vanocni" src="./assets/vanocni.svg" alt="Vanoční světélka" /> -->
             <MenuLink jmeno="Domů" cesta="/" />
             <MenuLink jmeno="Jak psát" cesta="/jak-psat" />
             <MenuLink jmeno="Kurz" cesta="/kurz" />
@@ -161,8 +161,7 @@ watch(
             <div v-for="(o, i) in oznameni" class="alert" :key="i">
                 <img v-if="o.typ == 'vykricnik'" src="./assets/icony/alert.svg" alt="Vykřičník" />
                 <img v-else-if="o.typ == 'copy'" src="./assets/icony/copy.svg" alt="Zkopírováno" />
-                <img v-else-if="o.typ == 'svisla-cara'" src="./assets/icony/info.svg" alt="Oznámení"
-                    id="svisla-cara-info" />
+                <img v-else-if="o.typ == 'svisla-cara'" src="./assets/icony/info.svg" alt="Oznámení" id="svisla-cara-info" />
                 <span v-html="o.text"></span>
             </div>
         </TransitionGroup>
@@ -187,7 +186,7 @@ watch(
     gap: 1.2em;
 }
 
-#dialog-kontejner>div {
+#dialog-kontejner > div {
     display: flex;
     justify-content: center;
     gap: 1em;
@@ -201,7 +200,7 @@ dialog {
     padding: 1.4em;
 }
 
-#dialog-kontejner>div button {
+#dialog-kontejner > div button {
     margin: 0;
 }
 
@@ -411,7 +410,7 @@ nav {
         margin-top: -70px;
     }
 
-    #dialog-kontejner>div button {
+    #dialog-kontejner > div button {
         width: 120px;
     }
 }
