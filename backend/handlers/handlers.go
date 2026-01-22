@@ -245,12 +245,7 @@ func getVsechnyProcvic(c echo.Context) error {
 	}
 
 	for i := range texty {
-		r := rychlosti[int(texty[i].ID)-1]
-		if r == 0 {
-			texty[i].CPM = -1
-		} else {
-			texty[i].CPM = r
-		}
+		texty[i].CPM = rychlosti[int(texty[i].ID)-1]
 	}
 
 	var testPsaniCPM float32
