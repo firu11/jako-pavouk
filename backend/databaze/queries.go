@@ -155,7 +155,7 @@ func GetRychlostiProcvic(uzivID uint) (map[int]float32, error) {
 	var rows *sql.Rows
 	var err error
 
-	rows, err = DB.Query(`WITH sus AS ( SELECT * FROM ( SELECT ROW_NUMBER() OVER ( PARTITION BY typ_textu ORDER BY datum DESC ) AS r, d.* FROM dokoncene_procvic d WHERE uziv_id = $1 ) AS idk WHERE idk.r <= $2 ) SELECT typ_textu, GREATEST( ( (SUM(delka_textu) - 10 * SUM(neopravene)) / SUM(cas)::NUMERIC ) * 60, 0 ) AS cpm FROM sus GROUP BY typ_textu;`, uzivID, poslednich)
+	rows, err = DB.Query(`WITH vsechny_pokusy AS ( /* Očíslujeme všechny pokusy daného uživatele */ SELECT  typ_textu, delka_textu, neopravene, cas, ROW_NUMBER() OVER (PARTITION BY typ_textu ORDER BY datum DESC) AS r FROM dokoncene_procvic WHERE uziv_id = $1 ), poslednich_n AS ( /* Vybereme pouze posledních N záznamů na typ */ SELECT * FROM vsechny_pokusy  WHERE r <= $2 ), agregace AS ( /* Spočítáme metriky pro typy, které uživatel psal */ SELECT  typ_textu, COUNT(*) as pocet_zaznamu, SUM(delka_textu) as celkova_delka, SUM(neopravene) as celkem_neopravene, SUM(cas) as celkovy_cas FROM poslednich_n GROUP BY typ_textu ) /* Finální výběr s logikou:  Pokud typ existuje ale výpočet je nízký -> 0 Pokud uživatel typ nikdy nepsal -> query ho nevrátí, nebo (pokud ho chceme) vrátí -1 */ SELECT  typ_textu, CASE  WHEN pocet_zaznamu = 0 OR pocet_zaznamu IS NULL THEN -1 ELSE GREATEST( ((celkova_delka - 10 * celkem_neopravene) / NULLIF(celkovy_cas, 0)::NUMERIC) * 60,  0 ) END AS cpm FROM agregace;`, uzivID, poslednich)
 	if err != nil {
 		return rychlosti, err
 	}
