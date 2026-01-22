@@ -21,6 +21,7 @@
 		"@eslint/js": "^9.39.2",
 		"@types/howler": "^2.2.12",
 		"@vitejs/plugin-vue": "^6.0.3",
+		"@vue/language-server": "^3.2.2",
 		"eslint": "^9.39.2",
 		"eslint-plugin-vue": "^10.7.0",
 		"eslint-plugin-vue-scoped-css": "^2.12.0",
