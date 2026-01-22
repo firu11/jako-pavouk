@@ -48,6 +48,7 @@ function get() {
     if (!Number.isFinite(cisla[0]) || !Number.isFinite(cisla[1])) {
         setCisloProcvic(typ, [1, 0]);
     }
+    cisloTextu.value = cisla[0];
 
     axios
         .get(`/procvic/${typ}/${cisla[0]}`, {
@@ -92,6 +93,8 @@ function get() {
             if (response.data.klavesnice != undefined) menuRef.value.klavModel = response.data.klavesnice == 'qwerty';
 
             titleName.value = nazev.value;
+
+            console.log(`Procvič načteno: cisloTextu=${response.data.cislo}, localstorage=[${cisla[0]}, ${cisla[1]}]`);
         })
         .catch((e) => {
             console.log(e);
@@ -130,11 +133,12 @@ function konecTextu(o: number, p: number, n: MojeMapa, d: number) {
     delkaNapsanehoTextu.value = d;
 
     if (cisloSlovaPosledni.value < 0) cisloSlovaPosledni.value = 0;
-    const cisla = getCisloProcvic(typ);
+    let cisla = getCisloProcvic(typ);
     if (cisloTextu.value > cisla[0]) setCisloProcvic(typ, [cisloTextu.value, cisloSlovaPosledni.value]);
     else setCisloProcvic(typ, [cisloTextu.value, cisla[1] + cisloSlovaPosledni.value]);
     cisloSlovaPosledni.value = 0;
 
+    cisla = getCisloProcvic(typ);
     console.log(`Progres uložen: cisloTextu=${cisloTextu.value}, slovaPosledni=${cisloSlovaPosledni.value}, localstorage=[${cisla[0]}, ${cisla[1]}]`);
 }
 
