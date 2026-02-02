@@ -173,6 +173,8 @@ function klik(e: Event) {
     if (!(e instanceof InputEvent)) return; // typescript je sus, nemůžu dát do parametru rovnou InputEvent https://github.com/microsoft/TypeScript/issues/39925
     if (e.data == '') return;
 
+    console.log(e.inputType, e.data, e.isComposing); // TODO remove
+
     /*
     windows chrome i firefox:
     zmáčknu x = insertText, x, isComposing=false
@@ -192,7 +194,7 @@ function klik(e: Event) {
     macos firefox:
     zmáčknu x = insertText, x, isComposing=false
     zmáčknu háček = insertCompositionText, ˇ, isComposing=true
-    zmáčknu e = insertCompositionText, ě, isComposing=false
+    zmáčknu e = insertCompositionText, ě, isComposing=true a pak znovu s isComposing=false WTF
 
     macos safari:
     zmáčknu x = insertText, x, isComposing=false
@@ -200,12 +202,11 @@ function klik(e: Event) {
                   + deleteCompositionText, null, isComposing=true
     zmáčknu e = insertFromComposition, ě, isComposing=true
     */
-    //                      windows oba + linux firefox ->                    kvůli safari ->                                              kvůli linuxu/macos chrome + macos firefox ->                      v-- ubuntu chce zabít asi tohle není kolečko nad u ale "ring obove" charakter. debugoval jsem to 2h ;(
     if (
         e.data != null &&
-        ((e.inputType == 'insertText' && !e.isComposing) ||
-            (e.inputType == 'insertFromComposition' && e.isComposing) ||
-            (e.inputType == 'insertCompositionText' && !['ˇ', "'", '°', '´', '˚'].includes(e.data)))
+        ((e.inputType == 'insertText' && !e.isComposing) || // windows oba + linux firefox
+            (e.inputType == 'insertFromComposition' && e.isComposing) || // safari
+            (e.inputType == 'insertCompositionText' && !['ˇ', "'", '°', '´', '˚'].includes(e.data) && e.isComposing)) // linuxu/macos chrome + macos firefox; ubuntu chce zabít asi s "ring above" charakterem ˚!=°. debugoval jsem to 2h ;(
     ) {
         if (e.data === aktivniPismeno.value.znak) {
             if (zvukyZaply.value) zvuky[Math.floor(Math.random() * 2)].play();
