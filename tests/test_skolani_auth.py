@@ -166,6 +166,7 @@ def test_vytvoreni_prace(page: Page, ucitel):
     page.click("div#pridat")
 
     page.click("#delka > div.cas-toggle > label:nth-child(1)")
+    page.wait_for_selector("#typ-textu", timeout=1000)
     page.select_option("#typ-textu", "Zeměpis")
     page.click("#text>div>button")
 
