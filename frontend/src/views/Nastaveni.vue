@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useHead } from '@unhead/vue';
 import { onMounted, ref, useTemplateRef } from 'vue';
 import { getToken, pridatOznameni, postKlavesnice } from '../utils';
@@ -57,8 +57,14 @@ function postSmazat(e: Event) {
             router.push('/prihlaseni');
             pridatOznameni('Účet byl úspěšně smazán. Pavoučí rodina by však ráda věděla, proč odcházíš...', 15000);
         })
-        .catch((e) => {
-            console.log(e);
+        .catch((err: AxiosError) => {
+            if (err.response?.data && (err.response.data as any).error === 'jsi ucitel') {
+                pridatOznameni('Učitelský účet nelze smazat...');
+                zavritDialog(e);
+                return;
+            }
+
+            console.log(err);
             pridatOznameni();
         });
 }
