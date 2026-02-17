@@ -26,7 +26,6 @@ type (
 		Heslo           string    `json:"heslo" db:"heslo"`
 		Klavesnice      string    `json:"klavesnice" db:"klavesnice"`
 		Datum           date.Date `json:"datum" db:"datum"`
-		Role            int       `json:"role" db:"role"`
 		UcitelVeSkoleID int       `json:"" db:"skola_id"`
 		SkolniJmeno     string    `json:"skolni_jmeno" db:"skolni_jmeno"`
 	}
