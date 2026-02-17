@@ -422,7 +422,7 @@ nav {
     }
 }
 
-#vanocni {
+/*#vanocni {
     position: absolute;
     top: 3em;
     right: -5em;
@@ -430,5 +430,5 @@ nav {
     transform: rotate(55deg);
     user-select: none;
     pointer-events: none;
-}
+}*/
 </style>
