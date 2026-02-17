@@ -638,7 +638,11 @@ func upravaUctu(c echo.Context) error {
 	switch body.Zmena {
 	case "smazat":
 		if err := databaze.SmazatUzivatele(id); err != nil {
-			return err
+			if err.Error() == "ucitel" {
+				return c.JSON(http.StatusBadRequest, chyba("jsi ucitel"))
+			}
+			log.Println(err)
+			return c.JSON(http.StatusInternalServerError, chyba(""))
 		}
 	case "klavesnice":
 		databaze.ZmenitKlavesnici(id, strings.ToLower(body.Hodnota))

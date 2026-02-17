@@ -255,7 +255,11 @@ func GetVsechnyJmenaUziv() ([]string, error) {
 }
 
 func SmazatUzivatele(id uint) error {
-	_, err := DB.Exec(`UPDATE uzivatel SET smazany = TRUE WHERE id = $1 AND role != 2;`, id)
+	result, err := DB.Exec(`UPDATE uzivatel u SET smazany = TRUE WHERE u.id = $1 AND NOT EXISTS (SELECT 1 FROM ucitel c WHERE c.uziv_id = u.id);`, id)
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		return errors.New("ucitel")
+	}
 	return err
 }
 
