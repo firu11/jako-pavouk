@@ -21,7 +21,7 @@ var (
 )
 
 func GetLekce(uzivID uint) ([][]Lekce, error) {
-	var lekce [][]Lekce = [][]Lekce{}
+	var lekce [][]Lekce
 
 	rows, err := DB.Query(`SELECT id, pismena, skupina FROM lekce WHERE klavesnice = 'oboje' OR klavesnice = COALESCE((SELECT klavesnice FROM uzivatel WHERE id = $1), 'qwertz') ORDER BY id ASC;`, uzivID)
 	if err != nil {
@@ -56,7 +56,7 @@ func GetLekce(uzivID uint) ([][]Lekce, error) {
 }
 
 func GetDokonceneLekce(uzivID uint) ([]int32, error) {
-	var vysledek []int32 = []int32{}
+	var vysledek []int32
 	rows, err := DB.Query(`WITH vsechny_cviceni AS (SELECT lekce_id, c.id as cviceni_id FROM cviceni c JOIN lekce l ON l.id = c.lekce_id WHERE l.klavesnice = (SELECT klavesnice FROM uzivatel WHERE id = $1) OR l.klavesnice = 'oboje'), moje_dokonceny AS (SELECT 1 as dokonceno, d.cviceni_id FROM dokoncene d WHERE d.uziv_id = $1) SELECT lekce_id FROM vsechny_cviceni vc LEFT JOIN moje_dokonceny d ON vc.cviceni_id = d.cviceni_id GROUP BY lekce_id HAVING (COUNT(*)) = (COUNT (*) FILTER (WHERE d.dokonceno IS NOT NULL));`, uzivID)
 	if err != nil {
 		return vysledek, err
@@ -122,7 +122,7 @@ func GetRandomProcvic(jmeno string) (string, error) {
 }
 
 func GetDokonceneCvicVLekci(uzivID uint, lekceID uint, pismena string) ([]Cvic, error) {
-	var cviceniIDs []Cvic = []Cvic{}
+	var cviceniIDs []Cvic
 	var rows *sql.Rows
 	var err error
 

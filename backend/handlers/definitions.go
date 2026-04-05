@@ -5,13 +5,15 @@ import (
 	"time"
 )
 
-var PocetZnaku float32
-var RegexJmeno *regexp.Regexp
+var (
+	PocetZnaku float32
+	RegexJmeno *regexp.Regexp
+)
 
 // struct body requestu
 type (
 	bodyDokoncit struct {
-		Preklepy         int            `json:"neopravenePreklepy" validate:"min=0"` //sus reqired nebere nulu takze min=0 asi ok
+		Preklepy         int            `json:"neopravenePreklepy" validate:"min=0"` // sus reqired nebere nulu takze min=0 asi ok
 		Cas              int            `json:"cas" validate:"required"`
 		DelkaTextu       int            `json:"delkaTextu" validate:"required"`
 		NejcastejsiChyby map[string]int `json:"nejcastejsiChyby" validate:"required"`

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"math/big"
 	mathRand "math/rand"
 	"net/http"
@@ -45,7 +44,7 @@ func ValidFormat(email string) bool {
 // přetvoří request body do požadovaného structu
 var validate = validator.New()
 
-func ValidateStruct(s interface{}) error {
+func ValidateStruct(s any) error {
 	err := validate.Struct(s)
 	return err
 }
@@ -80,7 +79,7 @@ func Prumer(arr []float64) float64 {
 func DecodeURL(s string) (string, error) {
 	x, err := url.QueryUnescape(s)
 	if err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return "", err
 	}
 	return x, nil

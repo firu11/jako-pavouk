@@ -61,7 +61,7 @@ func GenerovatToken(email string, id uint) (string, error) {
 
 // validace celého tokenu
 func ValidovatToken(tokenString string) (bool, uint, error) {
-	data := Data{}
+	var data Data
 	token, err := jwt.ParseWithClaims(tokenString, &data, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")
@@ -80,7 +80,7 @@ func ValidovatToken(tokenString string) (bool, uint, error) {
 
 // validace pouze toho zda je potřeba ho vyměnit
 func ValidovatExpTokenu(tokenString string) (bool, error) {
-	data := Data{}
+	var data Data
 	_, err := jwt.ParseWithClaims(tokenString, &data, func(token *jwt.Token) (any, error) {
 		return privatniKlic, nil
 	},
