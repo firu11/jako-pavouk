@@ -612,3 +612,27 @@ func ZmenitHeslo(email, hesloHASH string) error {
 	_, err := DB.Exec(`UPDATE uzivatel SET heslo = $1 WHERE email = $2`, hesloHASH, email)
 	return err
 }
+
+func UlozPostup(uzivID uint, textID, kapitola, slovo int) error {
+	_, err := DB.Exec(`INSERT INTO postup_procvic (uziv_id, postup) VALUES ( $1, jsonb_build_object($2::text, ARRAY[$3::int, $4::int]) ) ON CONFLICT (uziv_id) DO UPDATE SET postup = postup_procvic.postup || jsonb_build_object($2::text, ARRAY[$3::int, $4::int])`, uzivID, textID, kapitola, slovo) // to || joinuje jsony do sebe smh
+	return err
+}
+
+func GetPostup(uzivID uint, textID int) ([]int, error) {
+	var postup []int
+	var raw json.RawMessage
+
+	err := DB.QueryRow(`SELECT COALESCE(postup->$1, '[]'::jsonb) FROM postup_procvic WHERE uziv_id = $2`, textID, uzivID).Scan(&raw)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return []int{}, nil
+		}
+		return nil, err
+	}
+
+	if err := json.Unmarshal(raw, &postup); err != nil {
+		return nil, err
+	}
+
+	return postup, nil
+}

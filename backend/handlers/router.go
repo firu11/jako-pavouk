@@ -18,6 +18,8 @@ func SetupRouter(c *echo.Echo) {
 	api.GET("/procvic", getVsechnyProcvic)
 	api.GET("/procvic/:cisloProcvic/:neCislo", getProcvic)
 	api.POST("/test-psani", testPsani)
+	api.POST("/uloz-procvic-postup", ulozProcvicPostup)
+	api.GET("/procvic-postup/:cislo", getProcvicPostup)
 
 	api.POST("/overit-email", overitEmail)
 	api.POST("/registrace", registrace)
