@@ -57,6 +57,12 @@ type (
 	bodyTestPsani struct {
 		Typ string `json:"typ" validate:"required"`
 	}
+
+	bodyPostupProcvic struct {
+		CisloTextu    int `json:"cislo_textu" validate:"required,min=1"`
+		CisloKapitoly int `json:"cislo_kapitoly" validate:"required,min=1"`
+		CisloSlova    int `json:"cislo_slova" validate:"required"`
+	}
 )
 
 // skolni

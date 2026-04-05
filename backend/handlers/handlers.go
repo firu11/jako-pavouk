@@ -303,6 +303,50 @@ func getProcvic(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{"text": text, "typ": nazev, "jmeno": podnazev, "cislo": cislo, "klavesnice": u.Klavesnice})
 }
 
+func ulozProcvicPostup(c echo.Context) error {
+	id := c.Get("uzivID").(uint)
+	if id == 0 {
+		return c.NoContent(http.StatusUnauthorized)
+	}
+
+	var body bodyPostupProcvic
+	if err := c.Bind(&body); err != nil {
+		return c.JSON(http.StatusBadRequest, chyba(err.Error()))
+	}
+	if err := utils.ValidateStruct(&body); err != nil {
+		log.Println(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+
+	err := databaze.UlozPostup(id, body.CisloTextu, body.CisloKapitoly, body.CisloSlova)
+	if err != nil {
+		log.Println(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
+func getProcvicPostup(c echo.Context) error {
+	id := c.Get("uzivID").(uint)
+	if id == 0 {
+		return c.NoContent(http.StatusUnauthorized)
+	}
+
+	cislo, err := strconv.Atoi(c.Param("cislo")) // str -> int
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
+	}
+
+	postup, err := databaze.GetPostup(id, cislo)
+	if err != nil {
+		log.Println(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+
+	return c.JSON(http.StatusOK, postup)
+}
+
 func overitEmail(c echo.Context) error {
 	var body bodyPoslatEmail
 	if err := c.Bind(&body); err != nil {
