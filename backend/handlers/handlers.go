@@ -19,13 +19,13 @@ import (
 func testPsani(c echo.Context) error {
 	id := c.Get("uzivID").(uint)
 
-	body := bodyTestPsani{}
+	var body bodyTestPsani
 	if err := c.Bind(&body); err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 	}
 	if err := utils.ValidateStruct(&body); err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 	}
 
@@ -110,7 +110,7 @@ func getCviceniVLekci(c echo.Context) error {
 	}
 	doko, err := databaze.GetDokonceneCvicVLekci(id, 0, pismena)
 	if err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	return c.JSON(http.StatusOK, echo.Map{"cviceni": cvic, "dokoncene": doko})
@@ -127,7 +127,7 @@ func getCviceni(c echo.Context) error {
 	}
 	vsechnyCviceni, err := databaze.GetCviceniVLekciByPismena(id, pismena)
 	if err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	cislo, err := strconv.Atoi(c.Param("cislo")) // str -> int
@@ -152,19 +152,19 @@ func dokoncitCvic(c echo.Context) error {
 	if id == 0 {
 		return c.NoContent(http.StatusUnauthorized)
 	}
-	body := bodyDokoncit{}
 
+	var body bodyDokoncit
 	if err := c.Bind(&body); err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	if err := utils.ValidateStruct(&body); err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	cislo, err := strconv.ParseUint(c.Param("cislo"), 10, 32)
 	if err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	pismena, HTTPerr := utils.DecodeURL(c.Param("pismena"))
@@ -173,7 +173,7 @@ func dokoncitCvic(c echo.Context) error {
 	}
 	vsechnyCviceni, err := databaze.GetCviceniVLekciByPismena(id, pismena)
 	if err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	if int(cislo-1) >= len(vsechnyCviceni) { // error index out of range nebude
@@ -192,24 +192,23 @@ func dokoncitCvic(c echo.Context) error {
 func dokoncitProcvic(c echo.Context) error {
 	id := c.Get("uzivID").(uint)
 
-	body := bodyDokoncit{}
-
+	var body bodyDokoncit
 	if err := c.Bind(&body); err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	if err := utils.ValidateStruct(&body); err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	cislo, err := strconv.ParseUint(c.Param("cislo"), 10, 32)
 	if err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	vsechnyProcvic, err := databaze.GetTexty()
 	if err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	if cislo > uint64(len(vsechnyProcvic)) { // error index out of range nebude
@@ -305,12 +304,12 @@ func getProcvic(c echo.Context) error {
 }
 
 func overitEmail(c echo.Context) error {
-	var body bodyPoslatEmail = bodyPoslatEmail{}
+	var body bodyPoslatEmail
 	if err := c.Bind(&body); err != nil {
 		return c.JSON(http.StatusBadRequest, chyba(err.Error()))
 	}
 	if err := utils.ValidateStruct(&body); err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	// validace emailu
@@ -338,7 +337,7 @@ func overitEmail(c echo.Context) error {
 	}
 	token, err := utils.GenerovatToken(body.Email, uzivID)
 	if err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	go databaze.OdebratOvereni(cekajiciUziv.Email)
@@ -353,7 +352,7 @@ func registrace(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, chyba(err.Error()))
 	}
 	if err := utils.ValidateStruct(&body); err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 
@@ -374,7 +373,7 @@ func registrace(c echo.Context) error {
 
 	hesloHASH, err := utils.HashPassword(body.Heslo)
 	if err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 
@@ -524,7 +523,7 @@ func overitZmenuHesla(c echo.Context) error {
 
 	hesloHASH, err := utils.HashPassword(body.Heslo)
 	if err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 
@@ -553,7 +552,7 @@ func nastaveni(c echo.Context) error {
 	}
 	uziv, err := databaze.GetUzivByID(id)
 	if err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	trida, _ := databaze.GetTridaByUziv(uziv.ID)
@@ -588,7 +587,7 @@ func statistiky(c echo.Context) error {
 	}
 	rychlosti, presnosti, err := databaze.GetUdajeProGraf(id)
 	if err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	return c.JSON(http.StatusOK, echo.Map{
@@ -630,8 +629,8 @@ func upravaUctu(c echo.Context) error {
 	if id == 0 {
 		return c.NoContent(http.StatusUnauthorized)
 	}
-	body := bodyUprava{}
 
+	var body bodyUprava
 	if err := c.Bind(&body); err != nil {
 		return c.JSON(http.StatusBadRequest, chyba(err.Error()))
 	}
