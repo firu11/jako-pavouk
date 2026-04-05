@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/blockloop/scan/v2"
-	"github.com/rickb777/date"
+	"github.com/rickb777/date/v2"
 )
 
 var (
