@@ -13,7 +13,7 @@ import { mobil, okZnaky } from '../stores';
 
 const router = useRouter();
 const route = useRoute();
-const typ: string = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
+const cisloTextu: string = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
 
 const titleName = ref('Procvičování'); // po fetchi změnim
 useHead({
@@ -38,20 +38,20 @@ const nacitamNovej = ref(false);
 
 const hideKlavecnice = ref(false);
 
-const chciZmenitJmeno = ref([] as { pismenoID: number; jmeno: string; cisloTextu: number }[]);
-const cisloTextu = ref(1);
+const chciZmenitJmeno = ref([] as { pismenoID: number; jmeno: string; cisloKapitoly: number }[]);
+const cisloKapitoly = ref(1);
 const cisloSlovaPosledni = ref(0);
 
-function get() {
+async function get() {
     nacitamNovej.value = true;
-    const cisla = getCisloProcvic(typ);
+    const cisla = await getCisloProcvic(cisloTextu);
     if (!Number.isFinite(cisla[0]) || !Number.isFinite(cisla[1])) {
-        setCisloProcvic(typ, [1, 0]);
+        setCisloProcvic(cisloTextu, [1, 0]);
     }
-    cisloTextu.value = cisla[0];
+    cisloKapitoly.value = cisla[0];
 
     axios
-        .get(`/procvic/${typ}/${cisla[0]}`, {
+        .get(`/procvic/${cisloTextu}/${cisla[0]}`, {
             headers: {
                 Authorization: `Bearer ${getToken()}`,
             },
@@ -59,7 +59,7 @@ function get() {
         .then((response) => {
             if (cisla[1] > response.data.text.length - 1) {
                 console.log('prekrocili jsme');
-                setCisloProcvic(typ, [cisla[0] + 1, 0]);
+                setCisloProcvic(cisloTextu, [cisla[0] + 1, 0]);
                 get();
                 return;
             }
@@ -79,9 +79,9 @@ function get() {
                 // zkusi opravit offset
                 const maxIndex = Math.max(0, response.data.text.length - 1);
                 const safeOffset = Math.min(cisla[1], maxIndex);
-                setCisloProcvic(typ, [response.data.cislo, safeOffset]);
+                setCisloProcvic(cisloTextu, [response.data.cislo, safeOffset]);
             }
-            chciZmenitJmeno.value.push({ pismenoID: 0, jmeno: response.data.jmeno, cisloTextu: response.data.cislo });
+            chciZmenitJmeno.value.push({ pismenoID: 0, jmeno: response.data.jmeno, cisloKapitoly: response.data.cislo });
 
             if (delkaTextu.value < 250) prodlouzit();
 
@@ -94,7 +94,7 @@ function get() {
 
             titleName.value = nazev.value;
 
-            console.log(`Procvič načteno: cisloTextu=${response.data.cislo}, localstorage=[${cisla[0]}, ${cisla[1]}]`);
+            console.log(`Procvič načteno: cisloTextu=${cisloTextu}, cisloKapitoly=${response.data.cislo}, localstorage/server=[${cisla[0]}, ${cisla[1]}]`);
         })
         .catch((e) => {
             console.log(e);
@@ -125,7 +125,7 @@ function restart() {
     konec.value = false;
 }
 
-function konecTextu(o: number, p: number, n: MojeMapa, d: number) {
+async function konecTextu(o: number, p: number, n: MojeMapa, d: number) {
     opravenePocet.value = o;
     preklepy.value = p;
     nejcastejsiChyby.value = new MojeMapa(n);
@@ -133,13 +133,10 @@ function konecTextu(o: number, p: number, n: MojeMapa, d: number) {
     delkaNapsanehoTextu.value = d;
 
     if (cisloSlovaPosledni.value < 0) cisloSlovaPosledni.value = 0;
-    let cisla = getCisloProcvic(typ);
-    if (cisloTextu.value > cisla[0]) setCisloProcvic(typ, [cisloTextu.value, cisloSlovaPosledni.value]);
-    else setCisloProcvic(typ, [cisloTextu.value, cisla[1] + cisloSlovaPosledni.value]);
+    let cisla = await getCisloProcvic(cisloTextu);
+    if (cisloKapitoly.value > cisla[0]) setCisloProcvic(cisloTextu, [cisloKapitoly.value, cisloSlovaPosledni.value]);
+    else setCisloProcvic(cisloTextu, [cisloKapitoly.value, cisla[1] + cisloSlovaPosledni.value]);
     cisloSlovaPosledni.value = 0;
-
-    cisla = getCisloProcvic(typ);
-    console.log(`Progres uložen: cisloTextu=${cisloTextu.value}, slovaPosledni=${cisloSlovaPosledni.value}, localstorage=[${cisla[0]}, ${cisla[1]}]`);
 }
 
 function napsaneSlovo(up: boolean) {
@@ -198,10 +195,10 @@ async function loadAlternativy() {
 
 async function prodlouzit() {
     nacitamNovej.value = true;
-    const cisla = getCisloProcvic(typ);
+    const cisla = await getCisloProcvic(cisloTextu);
 
     axios
-        .get(`/procvic/${typ}/${cisla[0] + 1}`, {
+        .get(`/procvic/${cisloTextu}/${cisla[0] + 1}`, {
             headers: {
                 Authorization: `Bearer ${getToken()}`,
             },
@@ -233,7 +230,7 @@ async function prodlouzit() {
                 text.value[pocetSlov - 1].push({ id: delkaTextu.value, znak: ' ', spatne: 0, psat: true });
             }
 
-            chciZmenitJmeno.value.push({ pismenoID: delkaTextu.value + 1, jmeno: response.data.jmeno, cisloTextu: response.data.cislo });
+            chciZmenitJmeno.value.push({ pismenoID: delkaTextu.value + 1, jmeno: response.data.jmeno, cisloKapitoly: response.data.cislo });
 
             response.data.text.forEach((slovo: string, i: number) => {
                 text.value.push([]);
@@ -273,7 +270,7 @@ watch(a, async (nev, old) => {
     if (i == -1 || chciZmenitJmeno.value[i].jmeno === jmeno.value) return;
 
     jmeno.value = chciZmenitJmeno.value[i].jmeno;
-    cisloTextu.value = chciZmenitJmeno.value[i].cisloTextu;
+    cisloKapitoly.value = chciZmenitJmeno.value[i].cisloKapitoly;
     if (nev !== undefined && old !== undefined) {
         if (nev > old) {
             oldCisloSlovaPosledni = Math.max(0, cisloSlovaPosledni.value - 1);
@@ -321,7 +318,7 @@ function refocus() {
         :opravenych="opravenePocet"
         :delkaTextu="delkaNapsanehoTextu"
         :cas="menuRef == undefined ? 15 : menuRef.delka"
-        :cislo="typ"
+        :cislo="cisloTextu"
         :posledni="true"
         :nejcastejsiChyby="nejcastejsiChyby"
     />
