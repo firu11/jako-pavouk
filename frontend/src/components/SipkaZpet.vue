@@ -21,24 +21,32 @@ function e1(e: KeyboardEvent) {
 const router = useRouter();
 
 function zpatky() {
-    if (history.state.current == '/test-psani') {
+    const currentState = history.state.current;
+    const backState = history.state.back;
+
+    if (currentState === '/test-psani') {
         router.push('/procvic');
         return;
     }
-    if (history.state.back != null) {
-        history.back();
+
+    if (!backState) {
+        router.replace('/');
         return;
     }
 
-    const current: Array<string> = history.state.current.split('/');
-    const back: Array<string> = history.state.back.split('/');
+    const current: string[] = currentState ? currentState.split('/') : [];
+    const back: string[] = backState ? backState.split('/') : [];
+
     current.pop();
     current.shift();
     back.pop();
     back.shift();
-    if (current.toString() === back.toString())
+
+    if (current.toString() === back.toString()) {
         router.push('/' + current.join('/')); // pokud píšu cvičení kam jsem šel přes pokračovat, aby to neskočilo zase na to první ale zpátky na lekci
-    else history.back(); // používám history, aby to scrollovalo tam kde jsem skoncil
+    } else {
+        history.back(); // používám history, aby to scrollovalo tam kde jsem skoncil
+    }
 }
 </script>
 
