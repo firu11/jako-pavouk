@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { cislaProcvicJmeno, levelyPresnosti, levelyRychlosti, nastaveniJmeno, tokenJmeno } from './stores';
+import { cislaProcvicJmeno, levelyPresnosti, levelyRychlosti, nastaveniJmeno, prihlasen, tokenJmeno } from './stores';
 import axios from 'axios';
 
 export function formatovanyPismena(pismena: string | string[] | undefined): string {
@@ -154,7 +154,16 @@ export function naJednoDesetiny(cpm: number): number {
     return Math.round(cpm * 10) / 10;
 }
 
-export function getCisloProcvic(id: string): number[] {
+export async function getCisloProcvic(id: string): Promise<number[]> {
+    if (prihlasen.value) {
+        const cisla = await getCisloProcvicFromServer(id);
+        if (cisla.length != 0) {
+            console.log('Progress načten ze serveru!');
+            return cisla;
+        }
+        console.log('Na serveru byl progress prázdný.');
+    }
+
     const v = localStorage.getItem(cislaProcvicJmeno + id);
     if (v === null) {
         return [1, 0];
@@ -170,12 +179,38 @@ export function getCisloProcvic(id: string): number[] {
 
 export function setCisloProcvic(id: string, cisla: number[]) {
     localStorage.setItem(cislaProcvicJmeno + id, cisla.join(','));
+
+    if (prihlasen.value) {
+        saveCisloProcvicToServer(id, cisla);
+    }
+
+    console.log(`Progres uložen: cisloTextu=${id}, localstorage/server=[${cisla}]`);
+}
+
+export function saveCisloProcvicToServer(id: string, cisla: number[]) {
+    axios.post('/uloz-procvic-postup', { cislo_textu: Number(id), cislo_kapitoly: cisla[0], cislo_slova: cisla[1] }, { headers: { Authorization: `Bearer ${getToken()}` } }).catch((e) => {
+        console.log(e);
+    });
+}
+
+export async function getCisloProcvicFromServer(id: string): Promise<number[]> {
+    return axios
+        .get('/procvic-postup/' + id, {
+            headers: { Authorization: `Bearer ${getToken()}` },
+        })
+        .then((response) => {
+            return response.data as number[];
+        })
+        .catch((error) => {
+            console.error(error);
+            return [];
+        });
 }
 
 export function postKlavesnice(klavesnice: boolean) {
     const k = klavesnice ? 'qwerty' : 'qwertz';
     axios.post('/ucet-zmena', { zmena: 'klavesnice', hodnota: k }, { headers: { Authorization: `Bearer ${getToken()}` } }).catch((e) => {
-        checkTeapot(e);
+        console.log(e);
     });
 }
 
