@@ -32,8 +32,8 @@ onMounted(() => {
             if (response.data.cviceni === null) {
                 router.push('/404');
             }
-            cviceni.value = response.data.cviceni;
-            dokoncene.value = response.data.dokoncene;
+            cviceni.value = response.data.cviceni ?? [];
+            dokoncene.value = response.data.dokoncene ?? [];
             fetchProbehl.value = true;
             o.setMax(cviceni.value.length);
 
