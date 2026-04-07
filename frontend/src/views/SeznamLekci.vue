@@ -149,7 +149,7 @@ function pokracovatOdPosledniho() {
     <h1>Kurz</h1>
     <div id="seznam">
         <Rada :pocetDoko="nacitam ? -1 : dokoncene.length" />
-        <button v-if="(dalsiCviceni || nacitam) && !mobil && prihlasen" id="pokracovani" @click="pokracovatOdPosledniho">
+        <button v-if="(dalsiCviceni || nacitam) && !mobil && prihlasen && dalsiCviceni != '/fjgh/1'" id="pokracovani" @click="pokracovatOdPosledniho">
             Pokračovat od posledního
             <img src="../assets/icony/start.svg" alt="Začít" width="35" />
         </button>
