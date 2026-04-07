@@ -42,8 +42,8 @@ onMounted(() => {
     axios
         .get('/lekce', header)
         .then((response) => {
-            lekce.value = response.data.lekce;
-            dokoncene.value = response.data.dokoncene;
+            lekce.value = response.data.lekce ?? [];
+            dokoncene.value = response.data.dokoncene ?? [];
             dalsiCviceni = response.data.dalsi_cviceni;
             o.setMax(lekce.value.join(',').split(',').length); // pocet lekci
 
