@@ -38,7 +38,14 @@ async function getInfo() {
             },
         })
         .then((resp) => {
-            info.value = resp.data;
+            info.value = {
+                ...resp.data,
+                cas: resp.data.cas ?? [],
+                napsanychPismen: resp.data.napsanychPismen ?? [],
+                rychlosti: resp.data.rychlosti ?? [],
+                presnosti: resp.data.presnosti ?? [],
+                nejcastejsiChyby: resp.data.nejcastejsiChyby ?? {},
+            };
             nejcastejsiChyby.value = new MojeMapa(Object.entries(info.value.nejcastejsiChyby)).top(6);
 
             // prvne smazeme co půjde ze zacatku
