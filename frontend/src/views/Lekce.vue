@@ -31,6 +31,7 @@ onMounted(() => {
         .then((response) => {
             if (response.data.cviceni === null) {
                 router.push('/404');
+                return;
             }
             cviceni.value = response.data.cviceni ?? [];
             dokoncene.value = response.data.dokoncene ?? [];

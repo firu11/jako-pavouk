@@ -60,8 +60,4 @@ function get() {
     border-radius: 5px;
     margin-top: 10px;
 }
-
-h1 {
-    z-index: 1;
-}
 </style>

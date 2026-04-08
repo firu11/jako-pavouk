@@ -24,7 +24,7 @@ useHead({
     ],
 });
 
-const lekce = ref([[]] as { id: number; pismena: string; cislo: number }[][]);
+const lekce = ref<{ id: number; pismena: string; cislo: number }[][]>(Array.from({ length: 6 }, () => []));
 const dokoncene = ref([] as number[]);
 const o = new Oznacene();
 const prvniNedokoncena = ref(1);
@@ -42,10 +42,10 @@ onMounted(() => {
     axios
         .get('/lekce', header)
         .then((response) => {
-            lekce.value = response.data.lekce ?? [];
+            lekce.value = response.data.lekce ?? [[], [], [], [], [], []];
             dokoncene.value = response.data.dokoncene ?? [];
-            dalsiCviceni = response.data.dalsi_cviceni;
-            o.setMax(lekce.value.join(',').split(',').length); // pocet lekci
+            dalsiCviceni = response.data.dalsi_cviceni ?? '';
+            o.setMax(lekce.value.flat().length); // pocet lekci
 
             let counter = 1;
             let nebylaNedoko = true;
@@ -164,7 +164,7 @@ function pokracovatOdPosledniho() {
                 v-for="l in lekce[0]"
                 :pismena="l['pismena']"
                 :key="l.id"
-                :jeDokoncena="dokoncene.includes(l['id'])"
+                :jeDokoncena="dokoncene?.includes(l['id'])"
                 :oznacena="o.is(l['id'])"
                 :i="l['cislo']"
                 :class="{ nohover: o.index.value != 0 }"
@@ -181,7 +181,7 @@ function pokracovatOdPosledniho() {
                 v-for="l in lekce[1]"
                 :pismena="l['pismena']"
                 :key="l.id"
-                :jeDokoncena="dokoncene.includes(l['id'])"
+                :jeDokoncena="dokoncene?.includes(l['id'])"
                 :oznacena="o.is(l['id'])"
                 :i="l['cislo']"
                 :class="{ nohover: o.index.value != 0 }"
@@ -198,7 +198,7 @@ function pokracovatOdPosledniho() {
                 v-for="l in lekce[2]"
                 :pismena="l['pismena']"
                 :key="l.id"
-                :jeDokoncena="dokoncene.includes(l['id'])"
+                :jeDokoncena="dokoncene?.includes(l['id'])"
                 :oznacena="o.is(l['id'])"
                 :i="l['cislo']"
                 :class="{ nohover: o.index.value != 0 }"
@@ -215,7 +215,7 @@ function pokracovatOdPosledniho() {
                 v-for="l in lekce[3]"
                 :pismena="l['pismena']"
                 :key="l.id"
-                :jeDokoncena="dokoncene.includes(l['id'])"
+                :jeDokoncena="dokoncene?.includes(l['id'])"
                 :oznacena="o.is(l['id'])"
                 :i="l['cislo']"
                 :class="{ nohover: o.index.value != 0 }"
@@ -232,7 +232,7 @@ function pokracovatOdPosledniho() {
                 v-for="l in lekce[4]"
                 :pismena="l['pismena']"
                 :key="l.id"
-                :jeDokoncena="dokoncene.includes(l['id'])"
+                :jeDokoncena="dokoncene?.includes(l['id'])"
                 :oznacena="o.is(l['id'])"
                 :i="l['cislo']"
                 :class="{ nohover: o.index.value != 0 }"
@@ -249,7 +249,7 @@ function pokracovatOdPosledniho() {
                 v-for="l in lekce[5]"
                 :pismena="l['pismena']"
                 :key="l.id"
-                :jeDokoncena="dokoncene.includes(l['id'])"
+                :jeDokoncena="dokoncene?.includes(l['id'])"
                 :oznacena="o.is(l['id'])"
                 :i="l['cislo']"
                 :class="{ nohover: o.index.value != 0 }"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { useHead } from '@unhead/vue';
 import { onMounted, ref, useTemplateRef } from 'vue';
 import { getToken, pridatOznameni, postKlavesnice } from '../utils';
@@ -36,7 +36,7 @@ function get() {
             },
         })
         .then((resp) => {
-            info.value = resp.data;
+            info.value = resp.data ?? {};
             klavesniceUprava.value = info.value.klavesnice == 'qwerty';
             jmenoUprava.value = info.value.jmeno;
 
@@ -57,8 +57,8 @@ function postSmazat(e: Event) {
             router.push('/prihlaseni');
             pridatOznameni('Účet byl úspěšně smazán. Pavoučí rodina by však ráda věděla, proč odcházíš...', 15000);
         })
-        .catch((err: AxiosError) => {
-            if (err.response?.data && (err.response.data as any).error === 'jsi ucitel') {
+        .catch((err) => {
+            if (err.response?.data && err.response.data?.error === 'jsi ucitel') {
                 pridatOznameni('Učitelský účet nelze smazat...');
                 zavritDialog(e);
                 return;
@@ -77,7 +77,7 @@ function postJmeno() {
             jmenoInput.value?.blur(); // lose focus
         })
         .catch((e) => {
-            if (e.response.data.error.search('uzivatel_jmeno_key')) {
+            if (e.response.data?.error.search('uzivatel_jmeno_key')) {
                 pridatOznameni('Takové jméno už někdo má');
             }
         });
