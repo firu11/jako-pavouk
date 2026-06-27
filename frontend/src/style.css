@@ -47,9 +47,11 @@ p {
 
 body::-webkit-scrollbar {
     width: 0;
+    display: none;
 }
 
 html {
+    scrollbar-width: none; /* Firefox */
     scroll-behavior: smooth;
 }
 
