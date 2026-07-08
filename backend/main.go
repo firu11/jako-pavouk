@@ -23,7 +23,17 @@ func main() {
 	e.HideBanner = true
 	e.HidePort = true
 
-	middlewares.Register(e, cfg)
+	publicDir, err := handlers.ResolvePublicDir(cfg.PublicDir)
+	if err != nil {
+		if cfg.Production {
+			log.Fatal(err)
+		}
+		log.Println(err) // thats okay in dev
+	} else {
+		handlers.RegisterStaticRoutes(e, publicDir)
+	}
+
+	middlewares.RegisterBasic(e)
 	handlers.SetupRouter(e)
 
 	addr := cfg.Address()

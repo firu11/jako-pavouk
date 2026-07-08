@@ -28,7 +28,7 @@ type Config struct {
 	Host        string `env:"HOST,default=0.0.0.0"`
 	Port        int    `env:"PORT,default=8080"`
 	DatabaseURL string `env:"DATABASE_URL,required"`
-	PublicDir   string `env:"PUBLIC_DIR"`
+	PublicDir   string `env:"PUBLIC_DIR,default=public"` // default for docker
 	Email       EmailConfig
 }
 
