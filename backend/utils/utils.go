@@ -16,7 +16,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"backend/databaze"
+	"github.com/firu11/jako-pavouk/backend/config"
+	"github.com/firu11/jako-pavouk/backend/databaze"
 
 	emailverifier "github.com/AfterShip/email-verifier"
 	"github.com/go-playground/validator/v10"
@@ -179,12 +180,12 @@ func volbaJmena(celeJmeno string) (string, error) {
 	var jmeno []string = strings.Fields(celeJmeno) // rozdělim na jmeno a prijimeni
 
 	for range 20 { // vic než 20x to zkoušet nebudu
-		var cislo int = mathRand.Intn(databaze.MaxCisloZaJmeno-1) + 1
+		var cislo int = mathRand.Intn(config.MaxCisloZaJmeno-1) + 1
 
 		var jmenoNaTest string
 		if len(jmeno) >= 1 {
 			jmenoNaTest = fmt.Sprintf("%s%d", jmeno[0], cislo)
-			if databaze.RegexJmeno.MatchString(jmenoNaTest) {
+			if config.RegexJmeno.MatchString(jmenoNaTest) {
 				_, err := databaze.GetUzivByJmeno(jmenoNaTest)
 				if err != nil {
 					return jmenoNaTest, nil
@@ -193,7 +194,7 @@ func volbaJmena(celeJmeno string) (string, error) {
 		}
 		if len(jmeno) == 2 {
 			jmenoNaTest = fmt.Sprintf("%s%d", jmeno[1], cislo)
-			if databaze.RegexJmeno.MatchString(jmenoNaTest) {
+			if config.RegexJmeno.MatchString(jmenoNaTest) {
 				_, err := databaze.GetUzivByJmeno(jmenoNaTest)
 				if err != nil { // ještě neexistuje
 					return jmenoNaTest, nil
@@ -201,7 +202,7 @@ func volbaJmena(celeJmeno string) (string, error) {
 			}
 		}
 		jmenoNaTest = fmt.Sprintf("Pavouk%d", cislo)
-		if databaze.RegexJmeno.MatchString(jmenoNaTest) {
+		if config.RegexJmeno.MatchString(jmenoNaTest) {
 			_, err := databaze.GetUzivByJmeno(jmenoNaTest)
 			if err != nil { // ještě neexistuje
 				return jmenoNaTest, nil

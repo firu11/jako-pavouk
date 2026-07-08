@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"backend/utils"
+	"github.com/firu11/jako-pavouk/backend/middlewares"
 
 	"github.com/labstack/echo/v4"
 )
@@ -23,7 +23,7 @@ func SetupRouter(c *echo.Echo) {
 
 	api.POST("/overit-email", overitEmail)
 	api.POST("/registrace", registrace)
-	api.POST("/prihlaseni", prihlaseni, utils.RateLimiter)
+	api.POST("/prihlaseni", prihlaseni, middlewares.RateLimiter)
 	api.POST("/zmena-hesla", zmenaHesla)
 	api.POST("/overeni-zmeny-hesla", overitZmenuHesla)
 	api.POST("/google", google)

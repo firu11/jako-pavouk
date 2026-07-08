@@ -1,4 +1,4 @@
-module backend
+module github.com/firu11/jako-pavouk/backend
 
 go 1.26.4
 
@@ -7,10 +7,10 @@ require (
 	github.com/blockloop/scan/v2 v2.5.0
 	github.com/go-playground/validator/v10 v10.30.3
 	github.com/golang-jwt/jwt/v5 v5.3.1
-	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.15.2
 	github.com/lib/pq v1.12.3
 	github.com/rickb777/date/v2 v2.3.12
+	github.com/sethvargo/go-envconfig v1.3.0
 	golang.org/x/crypto v0.53.0
 	golang.org/x/time v0.15.0
 	gopkg.in/Regis24GmbH/go-diacritics.v2 v2.0.3

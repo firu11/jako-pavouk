@@ -1,14 +1,6 @@
 package handlers
 
-import (
-	"regexp"
-	"time"
-)
-
-var (
-	PocetZnaku float32
-	RegexJmeno *regexp.Regexp
-)
+import "time"
 
 // struct body requestu
 type (

@@ -10,8 +10,9 @@ import (
 	"time"
 	"unicode"
 
-	"backend/databaze"
-	"backend/utils"
+	"github.com/firu11/jako-pavouk/backend/config"
+	"github.com/firu11/jako-pavouk/backend/databaze"
+	"github.com/firu11/jako-pavouk/backend/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -33,7 +34,7 @@ func testPsani(c echo.Context) error {
 	switch body.Typ {
 	case "slova":
 		var err error
-		text, err = databaze.GetVsechnySlova(int(PocetZnaku/7.5), false) // cca 8.5 znaku na slovo
+		text, err = databaze.GetVsechnySlova(int(config.PocetZnaku/7.5), false) // cca 8.5 znaku na slovo
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 		}
@@ -48,7 +49,7 @@ func testPsani(c echo.Context) error {
 		}
 
 	case "vety":
-		vety, err := databaze.GetVsechnyVety(int(PocetZnaku / 85)) // cca 85 znaku na vetu
+		vety, err := databaze.GetVsechnyVety(int(config.PocetZnaku / 85)) // cca 85 znaku na vetu
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 		}
@@ -138,7 +139,7 @@ func getCviceni(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, chyba("Cviceni neexistuje"))
 	}
 
-	text, _ := utils.GenerovatTextCviceni(pismena, vsechnyCviceni[cislo-1].Typ, id, 0, PocetZnaku)
+	text, _ := utils.GenerovatTextCviceni(pismena, vsechnyCviceni[cislo-1].Typ, id, 0, config.PocetZnaku)
 
 	u, err := databaze.GetUzivByID(id)
 	if err != nil {
@@ -275,7 +276,7 @@ func getProcvic(c echo.Context) error {
 	if typ == 8 { // anglická náhodná slova
 		nazev = "Náhodná slova"
 		podnazev = "V angličtině"
-		text, err = databaze.GetVsechnySlova(int(PocetZnaku/7.5), true) // cca 8.5 znaku na slovo
+		text, err = databaze.GetVsechnySlova(int(config.PocetZnaku/7.5), true) // cca 8.5 znaku na slovo
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, chyba(err.Error()))
 		}
@@ -408,7 +409,7 @@ func registrace(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, chyba("Uzivatel s timto emailem jiz existuje"))
 	}
 
-	if !RegexJmeno.MatchString(body.Jmeno) {
+	if !config.RegexJmeno.MatchString(body.Jmeno) {
 		return c.JSON(http.StatusBadRequest, chyba("Invalidni jmeno"))
 	}
 	if _, err := databaze.GetUzivByJmeno(body.Jmeno); err == nil { // uz existuje
@@ -690,7 +691,7 @@ func upravaUctu(c echo.Context) error {
 	case "klavesnice":
 		databaze.ZmenitKlavesnici(id, strings.ToLower(body.Hodnota))
 	case "jmeno":
-		if !RegexJmeno.MatchString(body.Hodnota) {
+		if !config.RegexJmeno.MatchString(body.Hodnota) {
 			return c.JSON(http.StatusBadRequest, chyba("Jmeno obsahuje nepovolene znaky nebo ma spatnou delku"))
 		}
 		err := databaze.PrejmenovatUziv(id, body.Hodnota)

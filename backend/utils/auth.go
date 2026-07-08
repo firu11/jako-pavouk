@@ -5,14 +5,14 @@ import (
 	"os"
 	"time"
 
+	"github.com/firu11/jako-pavouk/backend/config"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
 var (
 	privatniKlic  []byte = []byte(os.Getenv("KLIC"))
-	TokenLifetime time.Duration
-	RefreshWindow = 24 * time.Hour
+	RefreshWindow        = 24 * time.Hour
 )
 
 // obsah tokenu
@@ -49,7 +49,7 @@ func GenerovatToken(email string, id uint) (string, error) {
 		Email: email,
 		Id:    id,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenLifetime)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(config.TokenLifetime)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			Issuer:    "jakopavouk.cz",
 		},

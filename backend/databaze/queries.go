@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	mathRand "math/rand"
-	"regexp"
 	"strings"
 	"time"
 
@@ -14,11 +13,7 @@ import (
 	"github.com/rickb777/date/v2"
 )
 
-var (
-	RegexJmeno      *regexp.Regexp
-	MaxCisloZaJmeno int // 10_000
-	poslednich      int = 15
-)
+var poslednich int = 15
 
 func GetLekce(uzivID uint) ([][]Lekce, error) {
 	var lekce [][]Lekce

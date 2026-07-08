@@ -1,4 +1,4 @@
-package utils
+package middlewares
 
 import (
 	"bytes"
@@ -40,6 +40,6 @@ var RateLimiter echo.MiddlewareFunc = middleware.RateLimiterWithConfig(middlewar
 		return body.EmailNeboJmeno, nil
 	},
 	DenyHandler: func(c echo.Context, identifier string, err error) error {
-		return c.NoContent(http.StatusTeapot) //xdd
+		return c.NoContent(http.StatusTeapot) // xdd
 	},
 })

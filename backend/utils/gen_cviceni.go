@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"backend/databaze"
 	"errors"
 	"fmt"
 	"log"
@@ -10,9 +9,10 @@ import (
 	"strings"
 	"unicode"
 	"unicode/utf8"
-)
 
-var PocetPismenVeSlovu int
+	"github.com/firu11/jako-pavouk/backend/config"
+	"github.com/firu11/jako-pavouk/backend/databaze"
+)
 
 func GenerovatTextCviceni(pismena string, typ string, uzivID uint, tridaID uint, pocetZnaku float32) ([]string, error) {
 	var text []string
@@ -34,8 +34,8 @@ func GenerovatTextCviceni(pismena string, typ string, uzivID uint, tridaID uint,
 		}
 
 		var slovo strings.Builder
-		for i := 0; i < int(pocetZnaku/float32(PocetPismenVeSlovu+1)); i++ {
-			for j := 0; j < PocetPismenVeSlovu/2; j++ {
+		for i := 0; i < int(pocetZnaku/float32(config.PocetPismenVeSlovu+1)); i++ {
+			for j := 0; j < config.PocetPismenVeSlovu/2; j++ {
 				r := rand.Intn(len(pismenaRuny))
 				slovo.WriteRune(pismenaRuny[r])
 
@@ -74,8 +74,8 @@ func GenerovatTextCviceni(pismena string, typ string, uzivID uint, tridaID uint,
 		}
 
 		var slovo strings.Builder
-		for i := 0; i < int(pocetZnaku/float32(PocetPismenVeSlovu+1)); i++ {
-			for j := 0; j < PocetPismenVeSlovu; j++ {
+		for i := 0; i < int(pocetZnaku/float32(config.PocetPismenVeSlovu+1)); i++ {
+			for j := 0; j < config.PocetPismenVeSlovu; j++ {
 				r := rand.Intn(utf8.RuneCountInString(naucenaPismena)) // utf-8 jsou sus
 				slovo.WriteRune([]rune(naucenaPismena)[r])
 			}
@@ -137,7 +137,7 @@ func GenerovatTextCviceni(pismena string, typ string, uzivID uint, tridaID uint,
 
 		if pismena == "závorky" {
 			var zavorky []string = []string{"[\u005D", "()", "{}", "<>"}
-			var zavorkyLen = len(zavorky)
+			zavorkyLen := len(zavorky)
 			var i int = 0
 			var zi int = 0
 			var delka int = 0
@@ -162,7 +162,7 @@ func GenerovatTextCviceni(pismena string, typ string, uzivID uint, tridaID uint,
 			}
 		} else if pismena == "operátory" {
 			var oper []string = []string{"=", "==", "!=", "<=", ">=", "<", ">", "+", "-", "*", "/", "%", "+=", "-=", "*=", "/=", "||", "&&"}
-			var operLen = len(oper)
+			operLen := len(oper)
 			var i int = 0
 			var zi int = 0
 			var delka int = 0
