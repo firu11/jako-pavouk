@@ -1,8 +1,5 @@
-.vscode/
-.zed/
-taskfile.yaml
 .DS_Store
-.env
+.zed/
 
 backend/backend
 backend/skoly.log.csv
