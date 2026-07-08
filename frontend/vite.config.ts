@@ -1,12 +1,17 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
 
-// https://vitejs.dev/config/
 export default defineConfig({
-	plugins: [
-		vue(),
-	],
-	build: {
-		assetsInlineLimit: 0 // ⬅ disables automatic inlining
-	}
-})
+    plugins: [vue()],
+    server: {
+        proxy: {
+            '/api': {
+                target: 'http://127.0.0.1:8080',
+                changeOrigin: true,
+            },
+        },
+    },
+    build: {
+        assetsInlineLimit: 0,
+    },
+});

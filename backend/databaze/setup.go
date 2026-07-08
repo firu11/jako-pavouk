@@ -9,7 +9,7 @@ import (
 
 var DB *sql.DB
 
-func DBConnect(connStr string) {
+func Init(connStr string) {
 	var err error
 	DB, err = sql.Open("postgres", connStr)
 	if err != nil {
@@ -21,4 +21,8 @@ func DBConnect(connStr string) {
 	}
 
 	log.Println("connected to database")
+}
+
+func Close() {
+	_ = DB.Close()
 }

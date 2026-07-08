@@ -25,23 +25,21 @@ var (
 	emailConfig config.EmailConfig
 )
 
-func SetupEmaily(cfg config.EmailConfig) error {
+func SetupEmaily(cfg config.EmailConfig) {
 	emailConfig = cfg
 	if !cfg.Enabled() {
 		log.Println("email is not configured; email sending disabled")
-		return nil
+		return
 	}
 
 	var err error
 	htmlEmail, err = template.ParseFiles("./overovaci_email.html")
 	if err != nil {
-		return fmt.Errorf("failed to load email template: %w", err)
+		log.Fatalf("failed to load email template: %v", err)
 	}
 
 	dialer = gomail.NewDialer(cfg.Host, cfg.Port, cfg.From, cfg.Password)
 	dialer.SSL = true
-
-	return nil
 }
 
 func PoslatOverovaciEmail(email string, kod string) error {
