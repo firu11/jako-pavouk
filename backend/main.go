@@ -1,7 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/firu11/jako-pavouk/backend/config"
 	"github.com/firu11/jako-pavouk/backend/databaze"
@@ -9,7 +14,7 @@ import (
 	"github.com/firu11/jako-pavouk/backend/middlewares"
 	"github.com/firu11/jako-pavouk/backend/utils"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 func main() {
@@ -20,8 +25,6 @@ func main() {
 	defer databaze.Close()
 
 	e := echo.New()
-	e.HideBanner = true
-	e.HidePort = true
 
 	publicDir, err := handlers.ResolvePublicDir(cfg.PublicDir)
 	if err != nil {
@@ -38,7 +41,17 @@ func main() {
 
 	addr := cfg.Address()
 	log.Printf("starting server on %s...", addr)
-	if err := e.Start(addr); err != nil {
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	sc := echo.StartConfig{
+		Address:         addr,
+		HideBanner:      true,
+		HidePort:        true,
+		GracefulTimeout: 10 * time.Second,
+	}
+	if err := sc.Start(ctx, e); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
 }

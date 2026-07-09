@@ -8,17 +8,16 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-	"golang.org/x/time/rate"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 )
 
 var RateLimiter echo.MiddlewareFunc = middleware.RateLimiterWithConfig(middleware.RateLimiterConfig{
 	Skipper: middleware.DefaultSkipper,
 	Store: middleware.NewRateLimiterMemoryStoreWithConfig(
-		middleware.RateLimiterMemoryStoreConfig{Rate: rate.Every(time.Minute / 2), Burst: 10, ExpiresIn: 3 * time.Minute},
+		middleware.RateLimiterMemoryStoreConfig{Rate: 1.0 / 30.0, Burst: 10, ExpiresIn: 3 * time.Minute},
 	),
-	IdentifierExtractor: func(c echo.Context) (string, error) {
+	IdentifierExtractor: func(c *echo.Context) (string, error) {
 		var body struct {
 			EmailNeboJmeno string `json:"email"`
 		}
@@ -39,7 +38,7 @@ var RateLimiter echo.MiddlewareFunc = middleware.RateLimiterWithConfig(middlewar
 		log.Println("dotaz prihlaseni: " + body.EmailNeboJmeno)
 		return body.EmailNeboJmeno, nil
 	},
-	DenyHandler: func(c echo.Context, identifier string, err error) error {
+	DenyHandler: func(c *echo.Context, identifier string, err error) error {
 		return c.NoContent(http.StatusTeapot) // xdd
 	},
 })

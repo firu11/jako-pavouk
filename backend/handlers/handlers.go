@@ -14,10 +14,10 @@ import (
 	"github.com/firu11/jako-pavouk/backend/databaze"
 	"github.com/firu11/jako-pavouk/backend/utils"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
-func testPsani(c echo.Context) error {
+func testPsani(c *echo.Context) error {
 	id := c.Get("uzivID").(uint)
 
 	var body bodyTestPsani
@@ -66,12 +66,12 @@ func testPsani(c echo.Context) error {
 
 	u, err := databaze.GetUzivByID(id)
 	if err != nil {
-		return c.JSON(http.StatusOK, echo.Map{"text": text})
+		return c.JSON(http.StatusOK, map[string]any{"text": text})
 	}
-	return c.JSON(http.StatusOK, echo.Map{"text": text, "klavesnice": u.Klavesnice})
+	return c.JSON(http.StatusOK, map[string]any{"text": text, "klavesnice": u.Klavesnice})
 }
 
-func getVsechnyLekce(c echo.Context) error {
+func getVsechnyLekce(c *echo.Context) error {
 	id := c.Get("uzivID").(uint)
 
 	lekce, err := databaze.GetLekce(id)
@@ -92,14 +92,14 @@ func getVsechnyLekce(c echo.Context) error {
 			if err != sql.ErrNoRows {
 				log.Println(err)
 			}
-			return c.JSON(http.StatusOK, echo.Map{"lekce": lekce, "dokoncene": dokoncene, "dalsi_cviceni": ""})
+			return c.JSON(http.StatusOK, map[string]any{"lekce": lekce, "dokoncene": dokoncene, "dalsi_cviceni": ""})
 		}
-		return c.JSON(http.StatusOK, echo.Map{"lekce": lekce, "dokoncene": dokoncene, "dalsi_cviceni": fmt.Sprintf("/%s/%d", lekcePismena, cisloCvic)})
+		return c.JSON(http.StatusOK, map[string]any{"lekce": lekce, "dokoncene": dokoncene, "dalsi_cviceni": fmt.Sprintf("/%s/%d", lekcePismena, cisloCvic)})
 	}
-	return c.JSON(http.StatusOK, echo.Map{"lekce": lekce, "dokoncene": []int{}, "dalsi_cviceni": ""})
+	return c.JSON(http.StatusOK, map[string]any{"lekce": lekce, "dokoncene": []int{}, "dalsi_cviceni": ""})
 }
 
-func getCviceniVLekci(c echo.Context) error {
+func getCviceniVLekci(c *echo.Context) error {
 	id := c.Get("uzivID").(uint)
 	pismena, HTTPerr := utils.DecodeURL(c.Param("pismena"))
 	if HTTPerr != nil {
@@ -114,10 +114,10 @@ func getCviceniVLekci(c echo.Context) error {
 		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
-	return c.JSON(http.StatusOK, echo.Map{"cviceni": cvic, "dokoncene": doko})
+	return c.JSON(http.StatusOK, map[string]any{"cviceni": cvic, "dokoncene": doko})
 }
 
-func getCviceni(c echo.Context) error {
+func getCviceni(c *echo.Context) error {
 	id := c.Get("uzivID").(uint)
 	if id == 0 {
 		return c.NoContent(http.StatusUnauthorized)
@@ -145,10 +145,10 @@ func getCviceni(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, chyba(err.Error()))
 	}
-	return c.JSON(http.StatusOK, echo.Map{"text": text, "klavesnice": u.Klavesnice, "typ": vsechnyCviceni[cislo-1].Typ, "posledni": int(cislo-1) == len(vsechnyCviceni)-1})
+	return c.JSON(http.StatusOK, map[string]any{"text": text, "klavesnice": u.Klavesnice, "typ": vsechnyCviceni[cislo-1].Typ, "posledni": int(cislo-1) == len(vsechnyCviceni)-1})
 }
 
-func dokoncitCvic(c echo.Context) error {
+func dokoncitCvic(c *echo.Context) error {
 	id := c.Get("uzivID").(uint)
 	if id == 0 {
 		return c.NoContent(http.StatusUnauthorized)
@@ -190,7 +190,7 @@ func dokoncitCvic(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-func dokoncitProcvic(c echo.Context) error {
+func dokoncitProcvic(c *echo.Context) error {
 	id := c.Get("uzivID").(uint)
 
 	var body bodyDokoncit
@@ -224,7 +224,7 @@ func dokoncitProcvic(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-func getVsechnyProcvic(c echo.Context) error {
+func getVsechnyProcvic(c *echo.Context) error {
 	id := c.Get("uzivID").(uint)
 
 	texty, err := databaze.GetTexty()
@@ -236,7 +236,7 @@ func getVsechnyProcvic(c echo.Context) error {
 		for i := range texty {
 			texty[i].CPM = -1
 		}
-		return c.JSON(http.StatusOK, echo.Map{"texty": texty, "testPsaniCPM": -1})
+		return c.JSON(http.StatusOK, map[string]any{"texty": texty, "testPsaniCPM": -1})
 	}
 
 	rychlosti, err := databaze.GetRychlostiProcvic(id)
@@ -255,10 +255,10 @@ func getVsechnyProcvic(c echo.Context) error {
 		testPsaniCPM = rychlosti[-1]
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{"texty": texty, "testPsaniCPM": testPsaniCPM})
+	return c.JSON(http.StatusOK, map[string]any{"texty": texty, "testPsaniCPM": testPsaniCPM})
 }
 
-func getProcvic(c echo.Context) error {
+func getProcvic(c *echo.Context) error {
 	id := c.Get("uzivID").(uint)
 
 	typ, err := strconv.Atoi(c.Param("cisloProcvic")) // str -> int
@@ -298,13 +298,13 @@ func getProcvic(c echo.Context) error {
 
 	u, err := databaze.GetUzivByID(id)
 	if err != nil {
-		return c.JSON(http.StatusOK, echo.Map{"text": text, "typ": nazev, "jmeno": podnazev, "cislo": cislo})
+		return c.JSON(http.StatusOK, map[string]any{"text": text, "typ": nazev, "jmeno": podnazev, "cislo": cislo})
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{"text": text, "typ": nazev, "jmeno": podnazev, "cislo": cislo, "klavesnice": u.Klavesnice})
+	return c.JSON(http.StatusOK, map[string]any{"text": text, "typ": nazev, "jmeno": podnazev, "cislo": cislo, "klavesnice": u.Klavesnice})
 }
 
-func ulozProcvicPostup(c echo.Context) error {
+func ulozProcvicPostup(c *echo.Context) error {
 	id := c.Get("uzivID").(uint)
 	if id == 0 {
 		return c.NoContent(http.StatusUnauthorized)
@@ -328,7 +328,7 @@ func ulozProcvicPostup(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-func getProcvicPostup(c echo.Context) error {
+func getProcvicPostup(c *echo.Context) error {
 	id := c.Get("uzivID").(uint)
 	if id == 0 {
 		return c.NoContent(http.StatusUnauthorized)
@@ -348,7 +348,7 @@ func getProcvicPostup(c echo.Context) error {
 	return c.JSON(http.StatusOK, postup)
 }
 
-func overitEmail(c echo.Context) error {
+func overitEmail(c *echo.Context) error {
 	var body bodyPoslatEmail
 	if err := c.Bind(&body); err != nil {
 		return c.JSON(http.StatusBadRequest, chyba(err.Error()))
@@ -387,10 +387,10 @@ func overitEmail(c echo.Context) error {
 	}
 	go databaze.OdebratOvereni(cekajiciUziv.Email)
 	go databaze.SmazatPoLimitu()
-	return c.JSON(http.StatusOK, echo.Map{"token": token, "jmeno": cekajiciUziv.Jmeno, "email": cekajiciUziv.Email})
+	return c.JSON(http.StatusOK, map[string]any{"token": token, "jmeno": cekajiciUziv.Jmeno, "email": cekajiciUziv.Email})
 }
 
-func registrace(c echo.Context) error {
+func registrace(c *echo.Context) error {
 	var body bodyRegistrace
 
 	if err := c.Bind(&body); err != nil {
@@ -435,7 +435,7 @@ func registrace(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-func prihlaseni(c echo.Context) error {
+func prihlaseni(c *echo.Context) error {
 	var body bodyPrihlaseni
 
 	if err := c.Bind(&body); err != nil {
@@ -471,12 +471,12 @@ func prihlaseni(c echo.Context) error {
 			return c.JSON(http.StatusInternalServerError, chyba("Token se pokazil"))
 		} else {
 			trida, _ := databaze.GetTridaByUziv(uziv.ID)
-			return c.JSON(http.StatusOK, echo.Map{"token": token, "jmeno": uziv.Jmeno, "email": uziv.Email, "role": utils.GetRole(uziv.UcitelVeSkoleID, trida.ID)})
+			return c.JSON(http.StatusOK, map[string]any{"token": token, "jmeno": uziv.Jmeno, "email": uziv.Email, "role": utils.GetRole(uziv.UcitelVeSkoleID, trida.ID)})
 		}
 	}
 }
 
-func google(c echo.Context) error {
+func google(c *echo.Context) error {
 	var body bodyGoogle
 	if err := c.Bind(&body); err != nil {
 		return c.JSON(http.StatusBadRequest, chyba(err.Error()))
@@ -518,10 +518,10 @@ func google(c echo.Context) error {
 	}
 
 	trida, _ := databaze.GetTridaByUziv(uziv.ID)
-	return c.JSON(http.StatusOK, echo.Map{"token": token, "novy": novy, "jmeno": uziv.Jmeno, "email": uziv.Email, "role": utils.GetRole(uziv.UcitelVeSkoleID, trida.ID)})
+	return c.JSON(http.StatusOK, map[string]any{"token": token, "novy": novy, "jmeno": uziv.Jmeno, "email": uziv.Email, "role": utils.GetRole(uziv.UcitelVeSkoleID, trida.ID)})
 }
 
-func zmenaHesla(c echo.Context) error {
+func zmenaHesla(c *echo.Context) error {
 	var body bodyZmenaHesla
 	if err := c.Bind(&body); err != nil {
 		return c.JSON(http.StatusBadRequest, chyba(err.Error()))
@@ -551,7 +551,7 @@ func zmenaHesla(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-func overitZmenuHesla(c echo.Context) error {
+func overitZmenuHesla(c *echo.Context) error {
 	var body bodyOvereniZmenaHesla
 	if err := c.Bind(&body); err != nil {
 		return c.JSON(http.StatusBadRequest, chyba(err.Error()))
@@ -590,7 +590,7 @@ func overitZmenuHesla(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-func nastaveni(c echo.Context) error {
+func nastaveni(c *echo.Context) error {
 	id := c.Get("uzivID").(uint)
 	if id == 0 {
 		return c.NoContent(http.StatusUnauthorized)
@@ -601,7 +601,7 @@ func nastaveni(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	trida, _ := databaze.GetTridaByUziv(uziv.ID)
-	return c.JSON(http.StatusOK, echo.Map{
+	return c.JSON(http.StatusOK, map[string]any{
 		"id":         uziv.ID,
 		"email":      uziv.Email,
 		"jmeno":      uziv.Jmeno,
@@ -610,7 +610,7 @@ func nastaveni(c echo.Context) error {
 	})
 }
 
-func statistiky(c echo.Context) error {
+func statistiky(c *echo.Context) error {
 	id := c.Get("uzivID").(uint)
 	if id == 0 {
 		return c.NoContent(http.StatusUnauthorized)
@@ -635,7 +635,7 @@ func statistiky(c echo.Context) error {
 		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
-	return c.JSON(http.StatusOK, echo.Map{
+	return c.JSON(http.StatusOK, map[string]any{
 		"daystreak":        daystreak,
 		"postupVKurzu":     dokonceno,
 		"uspesnost":        presnost,
@@ -648,14 +648,14 @@ func statistiky(c echo.Context) error {
 	})
 }
 
-func testVyprseniTokenu(c echo.Context) error {
+func testVyprseniTokenu(c *echo.Context) error {
 	token := c.Request().Header.Get("Authorization")
 	if len(token) < 10 { // treba deset proste at tam neco je
 		return c.JSON(http.StatusUnauthorized, chyba(""))
 	}
 	jePotrebaVymenit, err := utils.ValidovatExpTokenu(token[7:])
 	if err != nil {
-		return c.JSON(http.StatusOK, echo.Map{"jePotrebaVymenit": true})
+		return c.JSON(http.StatusOK, map[string]any{"jePotrebaVymenit": true})
 	}
 	id := c.Get("uzivID").(uint)
 	if id == 0 {
@@ -666,10 +666,10 @@ func testVyprseniTokenu(c echo.Context) error {
 		jePotrebaVymenit = true
 	}
 	trida, _ := databaze.GetTridaByUziv(uziv.ID)
-	return c.JSON(http.StatusOK, echo.Map{"jmeno": uziv.Jmeno, "email": uziv.Email, "jePotrebaVymenit": jePotrebaVymenit, "role": utils.GetRole(uziv.UcitelVeSkoleID, trida.ID)})
+	return c.JSON(http.StatusOK, map[string]any{"jmeno": uziv.Jmeno, "email": uziv.Email, "jePotrebaVymenit": jePotrebaVymenit, "role": utils.GetRole(uziv.UcitelVeSkoleID, trida.ID)})
 }
 
-func upravaUctu(c echo.Context) error {
+func upravaUctu(c *echo.Context) error {
 	id := c.Get("uzivID").(uint)
 	if id == 0 {
 		return c.NoContent(http.StatusUnauthorized)

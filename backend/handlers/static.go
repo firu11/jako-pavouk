@@ -7,16 +7,16 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 func RegisterStaticRoutes(e *echo.Echo, publicDir string) {
 	indexPath := filepath.Join(publicDir, "index.html")
 
-	e.GET("/*", func(c echo.Context) error {
+	e.GET("/*", func(c *echo.Context) error {
 		requestPath := c.Request().URL.Path
 		if requestPath == "/api" || strings.HasPrefix(requestPath, "/api/") {
-			return echo.NewHTTPError(http.StatusNotFound)
+			return echo.NewHTTPError(http.StatusNotFound, http.StatusText(http.StatusNotFound))
 		}
 
 		cleanPath := strings.TrimPrefix(filepath.Clean(requestPath), "/")
@@ -32,7 +32,7 @@ func RegisterStaticRoutes(e *echo.Echo, publicDir string) {
 		}
 
 		if filepath.Ext(cleanPath) != "" {
-			return echo.NewHTTPError(http.StatusNotFound)
+			return echo.NewHTTPError(http.StatusNotFound, http.StatusText(http.StatusNotFound))
 		}
 
 		setIndexCacheHeaders(c)
@@ -40,11 +40,11 @@ func RegisterStaticRoutes(e *echo.Echo, publicDir string) {
 	})
 }
 
-func setIndexCacheHeaders(c echo.Context) {
+func setIndexCacheHeaders(c *echo.Context) {
 	c.Response().Header().Set(echo.HeaderCacheControl, "no-cache, no-store, must-revalidate")
 }
 
-func setStaticCacheHeaders(c echo.Context, path string) {
+func setStaticCacheHeaders(c *echo.Context, path string) {
 	if isImmutableAsset(path) {
 		c.Response().Header().Set(echo.HeaderCacheControl, "public, max-age=31536000, immutable")
 		return

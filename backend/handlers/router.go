@@ -3,7 +3,7 @@ package handlers
 import (
 	"github.com/firu11/jako-pavouk/backend/middlewares"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 // vytvoří skupinu /api a v ní všechny endpointy
@@ -37,9 +37,9 @@ func SetupRouter(c *echo.Echo) {
 	setupSkolniRouter(api)
 }
 
-func chyba(msg string) echo.Map {
+func chyba(msg string) map[string]any {
 	if msg == "" {
 		msg = "Neco se pokazilo."
 	}
-	return echo.Map{"error": msg}
+	return map[string]any{"error": msg}
 }
