@@ -21,6 +21,8 @@ func main() {
 	cfg := config.LoadEnvConfig()
 
 	utils.SetupEmaily(cfg.Email)
+	utils.SetupAuth(cfg.Auth)
+	utils.SetupGoogle(cfg.Auth)
 	databaze.Init(cfg.DatabaseURL)
 	defer databaze.Close()
 

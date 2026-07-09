@@ -16,7 +16,12 @@ type EmailConfig struct {
 	Password        string `env:"EMAIL_PASSWORD"`
 	Host            string `env:"EMAIL_HOST"`
 	Port            int    `env:"EMAIL_PORT,default=465"`
-	NotificationURL string `env:"MOBIL_NOTIFIKACE_URL"`
+	NotificationURL string `env:"NOTIFICATION_URL"`
+}
+
+type AuthConfig struct {
+	PrivateKey string `env:"PRIVATE_KEY,required"`
+	ClientID   string `env:"GOOGLE_CLIENT_ID"`
 }
 
 func (c EmailConfig) Enabled() bool {
@@ -30,6 +35,7 @@ type Config struct {
 	DatabaseURL string `env:"DATABASE_URL,required"`
 	PublicDir   string `env:"PUBLIC_DIR,default=public"` // default for docker
 	Email       EmailConfig
+	Auth        AuthConfig
 }
 
 func (c Config) Address() string {

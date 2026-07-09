@@ -2,7 +2,6 @@ package utils
 
 import (
 	"errors"
-	"os"
 	"time"
 
 	"github.com/firu11/jako-pavouk/backend/config"
@@ -11,9 +10,13 @@ import (
 )
 
 var (
-	privatniKlic  []byte = []byte(os.Getenv("KLIC"))
-	RefreshWindow        = 24 * time.Hour
+	privateKey    []byte
+	RefreshWindow = 24 * time.Hour
 )
+
+func SetupAuth(cfg config.AuthConfig) {
+	privateKey = []byte(cfg.PrivateKey)
+}
 
 // obsah tokenu
 type Data struct {
@@ -55,7 +58,7 @@ func GenerovatToken(email string, id uint) (string, error) {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, data)
-	s, err := token.SignedString(privatniKlic)
+	s, err := token.SignedString(privateKey)
 	return s, err
 }
 
@@ -66,7 +69,7 @@ func ValidovatToken(tokenString string) (bool, uint, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")
 		}
-		return privatniKlic, nil
+		return privateKey, nil
 	},
 		jwt.WithLeeway(10*time.Second),
 		jwt.WithIssuedAt(),
@@ -82,7 +85,7 @@ func ValidovatToken(tokenString string) (bool, uint, error) {
 func ValidovatExpTokenu(tokenString string) (bool, error) {
 	var data Data
 	_, err := jwt.ParseWithClaims(tokenString, &data, func(token *jwt.Token) (any, error) {
-		return privatniKlic, nil
+		return privateKey, nil
 	},
 		jwt.WithLeeway(10*time.Second),
 		jwt.WithIssuedAt(),

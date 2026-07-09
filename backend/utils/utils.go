@@ -24,7 +24,14 @@ import (
 	godiacritics "gopkg.in/Regis24GmbH/go-diacritics.v2"
 )
 
-var verifier = emailverifier.NewVerifier()
+var (
+	verifier       = emailverifier.NewVerifier()
+	googleClientID string
+)
+
+func SetupGoogle(cfg config.AuthConfig) {
+	googleClientID = cfg.ClientID
+}
 
 func ValidaceEmailu(email string) error {
 	ret, err := verifier.Verify(email)
@@ -108,11 +115,6 @@ func CheckKod(kod1 string, kod2 string) bool {
 		return false
 	}
 	return kodInt == kodInt2
-}
-
-// pošle mi na telefon notigikaci
-func MobilNotifikace(s string) {
-	http.Post(os.Getenv("MOBIL_NOTIFIKACE_URL"), "text/plain", strings.NewReader(s))
 }
 
 // počítá délku textu z pole ["slovo ", "slovo "]
@@ -229,7 +231,7 @@ func GoogleTokenNaData(token string) (string, string, error) {
 		return "", "", err
 	}
 
-	if m["aud"] != os.Getenv("GOOGLE_CLIENT_ID") {
+	if m["aud"] != googleClientID {
 		return "", "", errors.New("fake token")
 	}
 
