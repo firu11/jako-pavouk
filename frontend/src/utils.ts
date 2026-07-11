@@ -29,6 +29,22 @@ export function getToken() {
     return localStorage.getItem(tokenJmeno);
 }
 
+const formatovacDataPraha = new Intl.DateTimeFormat('cs-CZ', { timeZone: 'Europe/Prague' });
+const formatovacDneMesicePraha = new Intl.DateTimeFormat('cs-CZ', { timeZone: 'Europe/Prague', day: 'numeric', month: 'numeric' });
+
+export function formatDatumPraha(value: string | Date): string {
+    const datum = typeof value == 'string' ? new Date(value) : value;
+    return formatovacDataPraha.format(datum);
+}
+
+export function formatDenMesicPraha(value: string | Date): string {
+    const datum = typeof value == 'string' ? new Date(value) : value;
+    const parts = formatovacDneMesicePraha.formatToParts(datum);
+    const den = parts.find((part) => part.type == 'day')?.value ?? '';
+    const mesic = parts.find((part) => part.type == 'month')?.value ?? '';
+    return `${den}.${mesic}.`;
+}
+
 export const oznameni = ref([] as { text: string; typ: string }[]);
 
 export function pridatOznameni(text: string = 'Něco se pokazilo', cas: number = 4000, typ: string = 'vykricnik') {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Chart, ChartConfiguration, CategoryScale, LinearScale, LineController, PointElement, LineElement, Tooltip } from 'chart.js';
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { formatDenMesicPraha } from '../utils';
 
 interface Props {
     presnosti?: number[];
@@ -19,10 +20,9 @@ const dny = computed(() => {
     let delka = props.rychlosti.length == 0 ? 13 : props.rychlosti.length;
 
     const arr: string[] = [];
+    const ted = Date.now();
     for (let i = delka - 1; i > 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        arr.push(`${d.getDate()}.${d.getMonth() + 1}.`);
+        arr.push(formatDenMesicPraha(new Date(ted - i * 24 * 60 * 60 * 1000)));
     }
     arr.push('Dnes');
     return arr;
