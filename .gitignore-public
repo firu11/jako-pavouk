@@ -18,6 +18,9 @@ tests/test-results/
 
 # -------- proprietary :) --------
 push-to-public.sh
+haloy.yaml
+.sops.yaml
+secrets.yaml
 scripts/
 backend/*/skola*
 frontend/src/*/student

@@ -20,7 +20,7 @@ RUN go mod download
 
 COPY backend/. .
 
-RUN GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o /out/server .
+RUN go build -ldflags "-s -w" -o /out/server .
 
 
 # ----- final image -----
