@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { clone, getToken, MojeMapa, pridatOznameni, saveNastaveni } from '../utils';
 import { computed, onMounted, ref, toRaw } from 'vue';
-import axios from 'axios';
+import api from '../api';
 import Vysledek from '../components/Vysledek.vue';
 import { useHead } from '@unhead/vue';
 import Psani from '../components/Psani.vue';
@@ -46,7 +46,7 @@ const hideKlavecnice = ref(false);
 
 function get() {
     nacitamNovej.value = true;
-    axios
+    api
         .post(
             '/test-psani',
             {
@@ -161,7 +161,7 @@ async function loadAlternativy() {
 async function prodlouzit() {
     nacitamNovej.value = true;
 
-    axios
+    api
         .post(
             '/test-psani',
             {

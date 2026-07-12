@@ -4,7 +4,7 @@ import MenuLink from './components/MenuLink.vue';
 import { mobil, prihlasen, role, tokenJmeno, uziv } from './stores';
 import { getToken, oznameni, pridatOznameni } from './utils';
 import { useHead } from '@unhead/vue';
-import axios from 'axios';
+import api from './api';
 import { useRouter } from 'vue-router';
 import Tooltip from './components/Tooltip.vue';
 
@@ -20,7 +20,7 @@ const nadpisyDiv = useTemplateRef('nadpisyDiv');
 
 onMounted(() => {
     if (getToken()) {
-        axios
+        api
             .get('/token-expirace', {
                 headers: {
                     Authorization: `Bearer ${getToken()}`,

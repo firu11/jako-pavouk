@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { cislaProcvicJmeno, levelyPresnosti, levelyRychlosti, nastaveniJmeno, prihlasen, tokenJmeno } from './stores';
-import axios from 'axios';
+import api, { ApiError } from './api';
 
 export function formatovanyPismena(pismena: string | string[] | undefined): string {
     if (pismena === undefined) return '';
@@ -60,7 +60,7 @@ export function napovedaKNavigaci() {
 }
 
 export function checkTeapot(e: unknown): boolean {
-    if (axios.isAxiosError(e) && e.response?.status == 418) {
+    if (e instanceof ApiError && e.response.status == 418) {
         if (oznameni.value.length < 3) {
             pridatOznameni('Dej si čajík a vydýchej se...');
         }
@@ -204,13 +204,13 @@ export function setCisloProcvic(id: string, cisla: number[]) {
 }
 
 export function saveCisloProcvicToServer(id: string, cisla: number[]) {
-    axios.post('/uloz-procvic-postup', { cislo_textu: Number(id), cislo_kapitoly: cisla[0], cislo_slova: cisla[1] }, { headers: { Authorization: `Bearer ${getToken()}` } }).catch((e) => {
+    api.post('/uloz-procvic-postup', { cislo_textu: Number(id), cislo_kapitoly: cisla[0], cislo_slova: cisla[1] }, { headers: { Authorization: `Bearer ${getToken()}` } }).catch((e) => {
         console.log(e);
     });
 }
 
 export async function getCisloProcvicFromServer(id: string): Promise<number[]> {
-    return axios
+    return api
         .get('/procvic-postup/' + id, {
             headers: { Authorization: `Bearer ${getToken()}` },
         })
@@ -225,7 +225,7 @@ export async function getCisloProcvicFromServer(id: string): Promise<number[]> {
 
 export function postKlavesnice(klavesnice: boolean) {
     const k = klavesnice ? 'qwerty' : 'qwertz';
-    axios.post('/ucet-zmena', { zmena: 'klavesnice', hodnota: k }, { headers: { Authorization: `Bearer ${getToken()}` } }).catch((e) => {
+    api.post('/ucet-zmena', { zmena: 'klavesnice', hodnota: k }, { headers: { Authorization: `Bearer ${getToken()}` } }).catch((e) => {
         console.log(e);
     });
 }

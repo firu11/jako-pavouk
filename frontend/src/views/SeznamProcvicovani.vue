@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useHead } from '@unhead/vue';
 import { Oznacene, getToken, napovedaKNavigaci, pridatOznameni } from '../utils';
-import axios from 'axios';
+import api from '../api';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { mobil } from '../stores';
 import ObtiznostBar from '../components/ObtiznostBar.vue';
@@ -25,7 +25,7 @@ const o = new Oznacene();
 let randomCvic = 1;
 
 onMounted(() => {
-    axios
+    api
         .get('/procvic', {
             headers: {
                 Authorization: `Bearer ${getToken()}`,

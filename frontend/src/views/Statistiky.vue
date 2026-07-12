@@ -3,7 +3,7 @@ import { useHead } from '@unhead/vue';
 import { onMounted, ref, useTemplateRef } from 'vue';
 import { role } from '../stores';
 import { getToken, MojeMapa, pridatOznameni } from '../utils';
-import axios from 'axios';
+import api from '../api';
 import PrepinacTabu from '../components/PrepinacTabu.vue';
 import Tooltip from '../components/Tooltip.vue';
 import AnimaceCisla from '../components/AnimaceCisla.vue';
@@ -31,7 +31,7 @@ const napsanychPismen = ref(0);
 const prepinacTabu = useTemplateRef('prepinac-tabu');
 
 async function getInfo() {
-    axios
+    api
         .get('/statistiky', {
             headers: {
                 Authorization: `Bearer ${getToken()}`,

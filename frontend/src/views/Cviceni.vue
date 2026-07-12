@@ -3,7 +3,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { format, getToken, MojeMapa, pridatOznameni } from '../utils';
 import SipkaZpet from '../components/SipkaZpet.vue';
 import { onMounted, ref } from 'vue';
-import axios from 'axios';
+import api from '../api';
 import Vysledek from '../components/Vysledek.vue';
 import { useHead } from '@unhead/vue';
 import Psani from '../components/Psani.vue';
@@ -34,7 +34,7 @@ const nacitamNovej = ref(false);
 
 function get() {
     nacitamNovej.value = true;
-    axios
+    api
         .get('/cvic/' + encodeURIComponent(pismena) + '/' + cislo, {
             headers: {
                 Authorization: `Bearer ${getToken()}`,
@@ -86,7 +86,7 @@ function konecTextu(o: number, p: number, n: MojeMapa, d: number) {
 
 async function prodlouzit() {
     nacitamNovej.value = true;
-    axios
+    api
         .get('/cvic/' + encodeURIComponent(pismena) + '/' + cislo, {
             headers: {
                 Authorization: `Bearer ${getToken()}`,

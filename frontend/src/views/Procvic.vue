@@ -3,7 +3,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { clone, getCisloProcvic, getToken, MojeMapa, pridatOznameni, saveNastaveni, setCisloProcvic } from '../utils';
 import SipkaZpet from '../components/SipkaZpet.vue';
 import { computed, onMounted, ref, toRaw, watch, nextTick } from 'vue';
-import axios from 'axios';
+import api from '../api';
 import Vysledek from '../components/Vysledek.vue';
 import { useHead } from '@unhead/vue';
 import Psani from '../components/Psani.vue';
@@ -50,7 +50,7 @@ async function get() {
     }
     cisloKapitoly.value = cisla[0];
 
-    axios
+    api
         .get(`/procvic/${cisloTextu}/${cisla[0]}`, {
             headers: {
                 Authorization: `Bearer ${getToken()}`,
@@ -197,7 +197,7 @@ async function prodlouzit() {
     nacitamNovej.value = true;
     const cisla = await getCisloProcvic(cisloTextu);
 
-    axios
+    api
         .get(`/procvic/${cisloTextu}/${cisla[0] + 1}`, {
             headers: {
                 Authorization: `Bearer ${getToken()}`,

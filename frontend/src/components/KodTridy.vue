@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios from 'axios';
+import api from '../api';
 import { getToken, pridatOznameni } from '../utils';
 import { ref } from 'vue';
 import Tooltip from './Tooltip.vue';
@@ -25,7 +25,7 @@ function copy() {
 function zamek() {
     zamknuta.value = !zamknuta.value;
 
-    axios
+    api
         .post(
             '/skola/zmena-tridy',
             { trida_id: props.id, zmena: 'zamek' },

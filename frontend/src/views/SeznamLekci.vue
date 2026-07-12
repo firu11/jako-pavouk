@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios from 'axios';
+import api from '../api';
 import BlokLekce from '../components/BlokLekce.vue';
 import Rada from '../components/Rada.vue';
 import { onMounted, onUnmounted, ref } from 'vue';
@@ -39,7 +39,7 @@ onMounted(() => {
     nacitam.value = true;
 
     const header = getToken() ? { headers: { Authorization: `Bearer ${getToken()}` } } : {};
-    axios
+    api
         .get('/lekce', header)
         .then((response) => {
             lekce.value = response.data.lekce ?? [[], [], [], [], [], []];

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios from 'axios';
+import api from '../api';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { prihlasen, tokenJmeno, uziv, role } from '../stores';
@@ -35,7 +35,7 @@ function login(e: Event) {
     }
     if (spatnyEmail.value || spatnyHeslo.value) return; //nezkoušet ani
 
-    axios
+    api
         .post('/prihlaseni', {
             email: email.value,
             heslo: heslo.value,
@@ -75,7 +75,7 @@ function zmena() {
 }
 
 const handleLoginSuccess = (response: { credential: string }) => {
-    axios
+    api
         .post('/google', {
             access_token: response.credential,
         })

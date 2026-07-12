@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios from 'axios';
+import api from '../api';
 import { ref } from 'vue';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
 import { prihlasen, tokenJmeno, uziv } from '../stores';
@@ -54,7 +54,7 @@ function registr(e: Event) {
 
     posilame.value = true;
 
-    axios
+    api
         .post('/registrace', {
             jmeno: jmeno.value,
             email: email.value,
@@ -92,7 +92,7 @@ function overeniPost(e: Event) {
     e.preventDefault(); //aby se nerefreshla stranka
 
     if (!spatnyKod.value && kod.value.length == 5) {
-        axios
+        api
             .post('/overit-email', {
                 email: email.value,
                 kod: kod.value,
@@ -149,7 +149,7 @@ onBeforeRouteLeave(() => {
 });
 
 const handleLoginSuccess = (response: { credential: string }) => {
-    axios
+    api
         .post('/google', {
             access_token: response.credential,
         })

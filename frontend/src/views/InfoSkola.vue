@@ -2,7 +2,7 @@
 import { useHead } from '@unhead/vue';
 import { ref } from 'vue';
 import { getToken, pridatOznameni } from '../utils';
-import axios from 'axios';
+import api from '../api';
 import { prihlasen, role, uziv } from '../stores';
 
 useHead({
@@ -24,7 +24,7 @@ function potvrdit(e: Event) {
         return;
     }
     odesilame.value = true;
-    axios
+    api
         .post(
             '/skola/zapis-skoly',
             {

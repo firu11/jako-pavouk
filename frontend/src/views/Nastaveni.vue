@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios from 'axios';
+import api from '../api';
 import { useHead } from '@unhead/vue';
 import { onMounted, ref, useTemplateRef } from 'vue';
 import { getToken, pridatOznameni, postKlavesnice } from '../utils';
@@ -29,7 +29,7 @@ onMounted(() => {
 });
 
 function get() {
-    axios
+    api
         .get('/nastaveni', {
             headers: {
                 Authorization: `Bearer ${getToken()}`,
@@ -49,7 +49,7 @@ function get() {
 
 function postSmazat(e: Event) {
     e.preventDefault();
-    axios
+    api
         .post('/ucet-zmena', { zmena: 'smazat' }, { headers: { Authorization: `Bearer ${getToken()}` } })
         .then(() => {
             prihlasen.value = false;
@@ -70,7 +70,7 @@ function postSmazat(e: Event) {
 }
 
 function postJmeno() {
-    axios
+    api
         .post('/ucet-zmena', { zmena: 'jmeno', hodnota: jmenoUprava.value }, { headers: { Authorization: `Bearer ${getToken()}` } })
         .then(() => {
             get();

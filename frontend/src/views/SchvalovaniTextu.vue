@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, useTemplateRef } from 'vue';
 import TextZadani from '../components/ucitel/TextZadani.vue';
-import axios from 'axios';
+import api from '../api';
 import { getToken, pridatOznameni } from '../utils';
 
 const textovePole = useTemplateRef('textove-pole');
@@ -13,7 +13,7 @@ onMounted(() => {
 });
 
 function get() {
-    axios
+    api
         .get('/sus', {
             headers: {
                 Authorization: `Bearer ${getToken()}`,

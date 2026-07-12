@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios from 'axios';
+import api from '../api';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getCisloPochvaly, getToken, MojeMapa, napovedaKNavigaci } from '../utils';
@@ -82,7 +82,7 @@ onMounted(() => {
         let cislo = props.cislo;
         if (props.cislo == 'test-psani') cislo = '0'; // test psani
 
-        axios
+        api
             .post(
                 '/dokonceno-procvic/' + cislo,
                 {
@@ -107,7 +107,7 @@ onMounted(() => {
         // je to práce
         let id = props.cislo;
 
-        axios
+        api
             .post(
                 '/skola/dokoncit-praci/' + id,
                 {
@@ -129,7 +129,7 @@ onMounted(() => {
     }
 
     // jsme ve cviceni
-    axios
+    api
         .post(
             '/dokonceno/' + encodeURIComponent(props.pismena) + '/' + props.cislo,
             {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios from 'axios';
+import api from '../api';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { Oznacene, format, getToken, napovedaKNavigaci } from '../utils';
@@ -22,7 +22,7 @@ const o = new Oznacene();
 const prvniNedokoncene = ref(1);
 
 onMounted(() => {
-    axios
+    api
         .get('/lekce/' + encodeURIComponent(pismena), {
             headers: {
                 Authorization: `Bearer ${getToken()}`,

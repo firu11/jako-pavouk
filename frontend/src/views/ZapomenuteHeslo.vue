@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios from 'axios';
+import api from '../api';
 import { onMounted, ref } from 'vue';
 import { pridatOznameni } from '../utils';
 import { useHead } from '@unhead/vue';
@@ -42,7 +42,7 @@ function poslatEmail(e: Event) {
     if (spatnyEmail.value) return;
 
     posilame.value = true;
-    axios
+    api
         .post('/zmena-hesla', {
             email: email.value,
         })
@@ -69,7 +69,7 @@ function overitZmenu(e: Event) {
     }
     if (spatnyHeslo.value || spatnyKod.value) return;
 
-    axios
+    api
         .post('/overeni-zmeny-hesla', {
             email: email.value,
             heslo: heslo.value,
