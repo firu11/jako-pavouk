@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useHead } from '@unhead/vue';
-import { Oznacene, getToken, napovedaKNavigaci, pridatOznameni } from '../utils';
-import api from '../api';
+import { Oznacene, getToken, napovedaKNavigaci, pridatOznameni } from '@/utils';
+import api from '@/api';
 import { onMounted, onUnmounted, ref } from 'vue';
-import { mobil } from '../stores';
-import ObtiznostBar from '../components/ObtiznostBar.vue';
-import Tooltip from '../components/Tooltip.vue';
-import AnimaceCisla from '../components/AnimaceCisla.vue';
-import NovinkaTag from '../components/NovinkaTag.vue';
+import { mobil } from '@/stores';
+import ObtiznostBar from '@/components/ObtiznostBar.vue';
+import Tooltip from '@/components/Tooltip.vue';
+import AnimaceCisla from '@/components/AnimaceCisla.vue';
+import NovinkaTag from '@/components/NovinkaTag.vue';
 
 useHead({
     title: 'Procvičování',

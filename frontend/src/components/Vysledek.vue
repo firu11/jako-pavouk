@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import api from '../api';
+import api from '@/api';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getCisloPochvaly, getToken, MojeMapa, napovedaKNavigaci } from '../utils';
-import { levelyRychlosti } from '../stores';
-import Tooltip from './Tooltip.vue';
-import AnimaceCisla from '../components/AnimaceCisla.vue';
+import { getCisloPochvaly, getToken, MojeMapa, napovedaKNavigaci } from '@/utils';
+import { levelyRychlosti } from '@/stores';
+import Tooltip from '@/components/Tooltip.vue';
+import AnimaceCisla from '@/components/AnimaceCisla.vue';
 
 const emit = defineEmits(['restart']);
 

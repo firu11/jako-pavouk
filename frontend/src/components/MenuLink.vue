@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { pridatOznameni } from '../utils';
-import { mobil } from '../stores';
+import { pridatOznameni } from '@/utils';
+import { mobil } from '@/stores';
 
 defineProps<{ jmeno: string; cesta: string }>();
 

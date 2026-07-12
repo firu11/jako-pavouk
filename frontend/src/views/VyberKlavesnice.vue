@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue';
-import { pridatOznameni, postKlavesnice } from '../utils';
-import { mobil } from '../stores';
+import { pridatOznameni, postKlavesnice } from '@/utils';
+import { mobil } from '@/stores';
 import { useRoute, useRouter } from 'vue-router';
 
 const router = useRouter();

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useHead } from '@unhead/vue';
 import { onMounted, ref, useTemplateRef } from 'vue';
-import { role } from '../stores';
-import { getToken, MojeMapa, pridatOznameni } from '../utils';
-import api from '../api';
-import PrepinacTabu from '../components/PrepinacTabu.vue';
-import Tooltip from '../components/Tooltip.vue';
-import AnimaceCisla from '../components/AnimaceCisla.vue';
-import GrafStatistiky from '../components/GrafStatistiky.vue';
+import { role } from '@/stores';
+import { getToken, MojeMapa, pridatOznameni } from '@/utils';
+import api from '@/api';
+import PrepinacTabu from '@/components/PrepinacTabu.vue';
+import Tooltip from '@/components/Tooltip.vue';
+import AnimaceCisla from '@/components/AnimaceCisla.vue';
+import GrafStatistiky from '@/components/GrafStatistiky.vue';
 
 useHead({
     title: 'Statistiky',

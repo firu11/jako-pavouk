@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { getOS } from './utils';
+import { getOS } from '@/utils';
 
 export const uziv = ref({} as { jmeno: string; email: string });
 export const prihlasen = ref(false);

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue';
-import { nastaveniJmeno, prihlasen } from '../stores';
-import { saveNastaveni } from '../utils';
+import { nastaveniJmeno, prihlasen } from '@/stores';
+import { saveNastaveni } from '@/utils';
 
 const emit = defineEmits(['restart', 'toggle', 'refocus']);
 

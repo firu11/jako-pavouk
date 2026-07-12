@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import Tooltip from '../components/Tooltip.vue';
+import Tooltip from '@/components/Tooltip.vue';
 
 onMounted(() => {
     document.addEventListener('keydown', e1);

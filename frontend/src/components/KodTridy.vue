@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import api from '../api';
-import { getToken, pridatOznameni } from '../utils';
+import api from '@/api';
+import { getToken, pridatOznameni } from '@/utils';
 import { ref } from 'vue';
-import Tooltip from './Tooltip.vue';
+import Tooltip from '@/components/Tooltip.vue';
 
 const props = defineProps<{
     id: number;

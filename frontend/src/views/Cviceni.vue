@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { format, getToken, MojeMapa, pridatOznameni } from '../utils';
-import SipkaZpet from '../components/SipkaZpet.vue';
+import { format, getToken, MojeMapa, pridatOznameni } from '@/utils';
+import SipkaZpet from '@/components/SipkaZpet.vue';
 import { onMounted, ref } from 'vue';
-import api from '../api';
-import Vysledek from '../components/Vysledek.vue';
+import api from '@/api';
+import Vysledek from '@/components/Vysledek.vue';
 import { useHead } from '@unhead/vue';
-import Psani from '../components/Psani.vue';
-import { getCas } from '../stores';
+import Psani from '@/components/Psani.vue';
+import { getCas } from '@/stores';
 
 const router = useRouter();
 const route = useRoute();

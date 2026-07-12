@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref, useTemplateRef } from 'vue';
-import TextZadani from '../components/ucitel/TextZadani.vue';
-import api from '../api';
-import { getToken, pridatOznameni } from '../utils';
+import TextZadani from '@/components/ucitel/TextZadani.vue';
+import api from '@/api';
+import { getToken, pridatOznameni } from '@/utils';
 
 const textovePole = useTemplateRef('textove-pole');
 

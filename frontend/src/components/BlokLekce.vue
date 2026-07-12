@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { prihlasen } from '../stores';
-import { format } from '../utils';
+import { prihlasen } from '@/stores';
+import { format } from '@/utils';
 
 interface Props {
     pismena?: string;

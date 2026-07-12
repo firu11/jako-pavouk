@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { onUnmounted } from 'vue';
-import Klavesnice from '../components/Klavesnice.vue';
+import Klavesnice from '@/components/Klavesnice.vue';
 import { Howl } from 'howler';
-import { MojeMapa, pridatOznameni } from '../utils';
+import { MojeMapa, pridatOznameni } from '@/utils';
 import { useRoute } from 'vue-router';
 import { useHead } from '@unhead/vue';
-import Tooltip from '../components/Tooltip.vue';
-import { os } from '../stores';
+import Tooltip from '@/components/Tooltip.vue';
+import { os } from '@/stores';
 
 useHead({
     meta: [{ name: 'robots', content: 'noindex' }],

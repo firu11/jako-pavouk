@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { clone, getCisloProcvic, getToken, MojeMapa, pridatOznameni, saveNastaveni, setCisloProcvic } from '../utils';
-import SipkaZpet from '../components/SipkaZpet.vue';
+import { clone, getCisloProcvic, getToken, MojeMapa, pridatOznameni, saveNastaveni, setCisloProcvic } from '@/utils';
+import SipkaZpet from '@/components/SipkaZpet.vue';
 import { computed, onMounted, ref, toRaw, watch, nextTick } from 'vue';
-import api from '../api';
-import Vysledek from '../components/Vysledek.vue';
+import api from '@/api';
+import Vysledek from '@/components/Vysledek.vue';
 import { useHead } from '@unhead/vue';
-import Psani from '../components/Psani.vue';
-import NastaveniBtn from '../components/NastaveniBtn.vue';
-import PsaniMenu from '../components/PsaniMenu.vue';
-import { mobil, okZnaky } from '../stores';
+import Psani from '@/components/Psani.vue';
+import NastaveniBtn from '@/components/NastaveniBtn.vue';
+import PsaniMenu from '@/components/PsaniMenu.vue';
+import { mobil, okZnaky } from '@/stores';
 
 const router = useRouter();
 const route = useRoute();

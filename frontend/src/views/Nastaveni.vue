@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import api from '../api';
+import api from '@/api';
 import { useHead } from '@unhead/vue';
 import { onMounted, ref, useTemplateRef } from 'vue';
-import { getToken, pridatOznameni, postKlavesnice } from '../utils';
-import { prihlasen, uziv } from '../stores';
+import { getToken, pridatOznameni, postKlavesnice } from '@/utils';
+import { prihlasen, uziv } from '@/stores';
 import { useRouter } from 'vue-router';
-import { role } from '../stores';
+import { role } from '@/stores';
 
 useHead({
     title: 'Nastavení',

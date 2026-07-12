@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { clone, getToken, MojeMapa, pridatOznameni, saveNastaveni } from '../utils';
+import { clone, getToken, MojeMapa, pridatOznameni, saveNastaveni } from '@/utils';
 import { computed, onMounted, ref, toRaw } from 'vue';
-import api from '../api';
-import Vysledek from '../components/Vysledek.vue';
+import api from '@/api';
+import Vysledek from '@/components/Vysledek.vue';
 import { useHead } from '@unhead/vue';
-import Psani from '../components/Psani.vue';
-import { mobil, okZnaky } from '../stores';
+import Psani from '@/components/Psani.vue';
+import { mobil, okZnaky } from '@/stores';
 import { useRouter } from 'vue-router';
-import NastaveniBtn from '../components/NastaveniBtn.vue';
-import PsaniMenu from '../components/PsaniMenu.vue';
-import SipkaZpet from '../components/SipkaZpet.vue';
+import NastaveniBtn from '@/components/NastaveniBtn.vue';
+import PsaniMenu from '@/components/PsaniMenu.vue';
+import SipkaZpet from '@/components/SipkaZpet.vue';
 
 useHead({
     title: 'Test psaní',

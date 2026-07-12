@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref, useTemplateRef, watch } from 'vue';
-import MenuLink from './components/MenuLink.vue';
-import { mobil, prihlasen, role, tokenJmeno, uziv } from './stores';
-import { getToken, oznameni, pridatOznameni } from './utils';
+import MenuLink from '@/components/MenuLink.vue';
+import { mobil, prihlasen, role, tokenJmeno, uziv } from '@/stores';
+import { getToken, oznameni, pridatOznameni } from '@/utils';
 import { useHead } from '@unhead/vue';
-import api from './api';
+import api from '@/api';
 import { useRouter } from 'vue-router';
-import Tooltip from './components/Tooltip.vue';
+import Tooltip from '@/components/Tooltip.vue';
 
 useHead({
     titleTemplate: (title?: string) => (!title ? 'Psaní všemi deseti zdarma | Jako Pavouk' : `${title} | Jako Pavouk`),

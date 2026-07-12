@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useHead } from '@unhead/vue';
-import Psani from '../components/Psani.vue';
-import { pridatOznameni } from '../utils';
-import Vysledek from '../components/Vysledek.vue';
-import { mobil } from '../stores';
+import Psani from '@/components/Psani.vue';
+import { pridatOznameni } from '@/utils';
+import Vysledek from '@/components/Vysledek.vue';
+import { mobil } from '@/stores';
 
 useHead({
     title: 'První krůčky',

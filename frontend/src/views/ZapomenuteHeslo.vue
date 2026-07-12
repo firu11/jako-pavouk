@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import api from '../api';
+import api from '@/api';
 import { onMounted, ref } from 'vue';
-import { pridatOznameni } from '../utils';
+import { pridatOznameni } from '@/utils';
 import { useHead } from '@unhead/vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -145,7 +145,7 @@ function presmerovat(e: Event) {
 </template>
 
 <style scoped>
-@import '../loginRegisterForma.css';
+@import '@/loginRegisterForma.css';
 
 img {
     height: 150px !important;

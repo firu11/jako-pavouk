@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useHead } from '@unhead/vue';
 import { ref } from 'vue';
-import { getToken, pridatOznameni } from '../utils';
-import api from '../api';
-import { prihlasen, role, uziv } from '../stores';
+import { getToken, pridatOznameni } from '@/utils';
+import api from '@/api';
+import { prihlasen, role, uziv } from '@/stores';
 
 useHead({
     title: 'Systém pro školy',

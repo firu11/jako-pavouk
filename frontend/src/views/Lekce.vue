@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import api from '../api';
+import api from '@/api';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { Oznacene, format, getToken, napovedaKNavigaci } from '../utils';
-import BlokCviceni from '../components/BlokCviceni.vue';
-import SipkaZpet from '../components/SipkaZpet.vue';
+import { Oznacene, format, getToken, napovedaKNavigaci } from '@/utils';
+import BlokCviceni from '@/components/BlokCviceni.vue';
+import SipkaZpet from '@/components/SipkaZpet.vue';
 import { useHead } from '@unhead/vue';
 
 const route = useRoute().params.pismena;

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { os } from '../stores.ts';
+import { os } from '@/stores.ts';
 import {
     delkaKlavesMacOS,
     delkaKlavesWindows,
@@ -17,7 +17,7 @@ import {
     barvy,
     specialniZnakyLinuxQWERTZ,
     specialniZnakyLinuxQWERTY,
-} from '../layouts.ts';
+} from '@/layouts.ts';
 
 interface Props {
     aktivniPismeno?: string;

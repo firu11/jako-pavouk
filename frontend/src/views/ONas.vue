@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useHead } from '@unhead/vue';
 import { ref } from 'vue';
-import { pridatOznameni } from '../utils';
+import { pridatOznameni } from '@/utils';
 
 useHead({
     title: 'O nás',

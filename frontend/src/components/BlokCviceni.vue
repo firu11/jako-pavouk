@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { levelyRychlosti, prihlasen, mobil } from '../stores';
-import { pridatOznameni } from '../utils';
+import { levelyRychlosti, prihlasen, mobil } from '@/stores';
+import { pridatOznameni } from '@/utils';
 
 interface Props {
     dokonceno: boolean;

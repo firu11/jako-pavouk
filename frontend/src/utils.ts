@@ -1,6 +1,6 @@
 import { ref } from 'vue';
-import { cislaProcvicJmeno, levelyPresnosti, levelyRychlosti, nastaveniJmeno, prihlasen, tokenJmeno } from './stores';
-import api, { ApiError } from './api';
+import { cislaProcvicJmeno, levelyPresnosti, levelyRychlosti, nastaveniJmeno, prihlasen, tokenJmeno } from '@/stores';
+import api, { ApiError } from '@/api';
 
 export function formatovanyPismena(pismena: string | string[] | undefined): string {
     if (pismena === undefined) return '';

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import api from '../api';
+import api from '@/api';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { prihlasen, tokenJmeno, uziv, role } from '../stores';
-import { checkTeapot, pridatOznameni } from '../utils';
+import { prihlasen, tokenJmeno, uziv, role } from '@/stores';
+import { checkTeapot, pridatOznameni } from '@/utils';
 import { useHead } from '@unhead/vue';
 
 useHead({
@@ -118,5 +118,5 @@ const handleLoginSuccess = (response: { credential: string }) => {
 </template>
 
 <style scoped>
-@import '../loginRegisterForma.css';
+@import '@/loginRegisterForma.css';
 </style>

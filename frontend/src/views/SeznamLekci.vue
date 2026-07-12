@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import api from '../api';
-import BlokLekce from '../components/BlokLekce.vue';
-import Rada from '../components/Rada.vue';
+import api from '@/api';
+import BlokLekce from '@/components/BlokLekce.vue';
+import Rada from '@/components/Rada.vue';
 import { onMounted, onUnmounted, ref } from 'vue';
-import { Oznacene, getToken, pridatOznameni, napovedaKNavigaci } from '../utils';
+import { Oznacene, getToken, pridatOznameni, napovedaKNavigaci } from '@/utils';
 import { useHead } from '@unhead/vue';
 import { useRouter } from 'vue-router';
-import { mobil, prihlasen } from '../stores';
+import { mobil, prihlasen } from '@/stores';
 
 useHead({
     title: 'Kurz',

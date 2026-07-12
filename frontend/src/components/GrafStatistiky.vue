@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Chart, ChartConfiguration, CategoryScale, LinearScale, LineController, PointElement, LineElement, Tooltip } from 'chart.js';
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
-import { formatDenMesicPraha } from '../utils';
+import { formatDenMesicPraha } from '@/utils';
 
 interface Props {
     presnosti?: number[];

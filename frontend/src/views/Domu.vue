@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import PsaniHomePage from '../components/PsaniHomePage.vue';
+import PsaniHomePage from '@/components/PsaniHomePage.vue';
 import { useHead } from '@unhead/vue';
 import { useRouter } from 'vue-router';
-import { mobil, prihlasen } from '../stores';
+import { mobil, prihlasen } from '@/stores';
 
 const router = useRouter();
 
