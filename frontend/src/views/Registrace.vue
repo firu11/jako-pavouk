@@ -2,7 +2,7 @@
 import api from '@/api';
 import { ref } from 'vue';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
-import { prihlasen, tokenJmeno, uziv } from '@/stores';
+import { prihlasen, uziv } from '@/stores';
 import { pridatOznameni } from '@/utils';
 import { useHead } from '@unhead/vue';
 
@@ -98,7 +98,6 @@ function overeniPost(e: Event) {
                 kod: kod.value,
             })
             .then((response) => {
-                localStorage.setItem(tokenJmeno, response.data.token);
                 prihlasen.value = true;
 
                 uziv.value.email = response.data.email;
@@ -154,7 +153,6 @@ const handleLoginSuccess = (response: { credential: string }) => {
             access_token: response.credential,
         })
         .then((response) => {
-            localStorage.setItem(tokenJmeno, response.data.token);
             prihlasen.value = true;
 
             uziv.value.email = response.data.email;

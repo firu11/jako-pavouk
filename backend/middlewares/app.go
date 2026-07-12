@@ -23,7 +23,7 @@ func RegisterBasic(e *echo.Echo) {
 func AuthContext() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
-			c.Set("uzivID", utils.Autentizace(c.Request().Header.Get("Authorization")))
+			c.Set("uzivID", utils.Autentizace(utils.AuthToken(c.Request())))
 			return next(c)
 		}
 	}

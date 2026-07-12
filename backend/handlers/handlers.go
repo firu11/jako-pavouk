@@ -387,7 +387,8 @@ func overitEmail(c *echo.Context) error {
 	}
 	go databaze.OdebratOvereni(cekajiciUziv.Email)
 	go databaze.SmazatPoLimitu()
-	return c.JSON(http.StatusOK, map[string]any{"token": token, "jmeno": cekajiciUziv.Jmeno, "email": cekajiciUziv.Email})
+	setAuthCookie(c, token)
+	return c.JSON(http.StatusOK, map[string]any{"jmeno": cekajiciUziv.Jmeno, "email": cekajiciUziv.Email})
 }
 
 func registrace(c *echo.Context) error {
@@ -471,7 +472,8 @@ func prihlaseni(c *echo.Context) error {
 			return c.JSON(http.StatusInternalServerError, chyba("Token se pokazil"))
 		} else {
 			trida, _ := databaze.GetTridaByUziv(uziv.ID)
-			return c.JSON(http.StatusOK, map[string]any{"token": token, "jmeno": uziv.Jmeno, "email": uziv.Email, "role": utils.GetRole(uziv.UcitelVeSkoleID, trida.ID)})
+			setAuthCookie(c, token)
+			return c.JSON(http.StatusOK, map[string]any{"jmeno": uziv.Jmeno, "email": uziv.Email, "role": utils.GetRole(uziv.UcitelVeSkoleID, trida.ID)})
 		}
 	}
 }
@@ -518,7 +520,8 @@ func google(c *echo.Context) error {
 	}
 
 	trida, _ := databaze.GetTridaByUziv(uziv.ID)
-	return c.JSON(http.StatusOK, map[string]any{"token": token, "novy": novy, "jmeno": uziv.Jmeno, "email": uziv.Email, "role": utils.GetRole(uziv.UcitelVeSkoleID, trida.ID)})
+	setAuthCookie(c, token)
+	return c.JSON(http.StatusOK, map[string]any{"novy": novy, "jmeno": uziv.Jmeno, "email": uziv.Email, "role": utils.GetRole(uziv.UcitelVeSkoleID, trida.ID)})
 }
 
 func zmenaHesla(c *echo.Context) error {
@@ -649,11 +652,11 @@ func statistiky(c *echo.Context) error {
 }
 
 func testVyprseniTokenu(c *echo.Context) error {
-	token := c.Request().Header.Get("Authorization")
-	if len(token) < 10 { // treba deset proste at tam neco je
+	token := utils.AuthToken(c.Request())
+	if token == "" {
 		return c.JSON(http.StatusUnauthorized, chyba(""))
 	}
-	jePotrebaVymenit, err := utils.ValidovatExpTokenu(token[7:])
+	jePotrebaVymenit, err := utils.ValidovatExpTokenu(token)
 	if err != nil {
 		return c.JSON(http.StatusOK, map[string]any{"jePotrebaVymenit": true})
 	}

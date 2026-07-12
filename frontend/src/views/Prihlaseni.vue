@@ -2,7 +2,7 @@
 import api from '@/api';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { prihlasen, tokenJmeno, uziv, role } from '@/stores';
+import { prihlasen, uziv, role } from '@/stores';
 import { checkTeapot, pridatOznameni } from '@/utils';
 import { useHead } from '@unhead/vue';
 
@@ -41,7 +41,6 @@ function login(e: Event) {
             heslo: heslo.value,
         })
         .then((response) => {
-            localStorage.setItem(tokenJmeno, response.data.token);
             prihlasen.value = true;
 
             uziv.value.email = response.data.email;
@@ -80,7 +79,6 @@ const handleLoginSuccess = (response: { credential: string }) => {
             access_token: response.credential,
         })
         .then((response) => {
-            localStorage.setItem(tokenJmeno, response.data.token);
             prihlasen.value = true;
 
             uziv.value.email = response.data.email;

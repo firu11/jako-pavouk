@@ -1,13 +1,21 @@
 package handlers
 
 import (
+	"net/http"
+	"time"
+
+	"github.com/firu11/jako-pavouk/backend/config"
 	"github.com/firu11/jako-pavouk/backend/middlewares"
+	"github.com/firu11/jako-pavouk/backend/utils"
 
 	"github.com/labstack/echo/v5"
 )
 
+var secureAuthCookie bool
+
 // vytvoří skupinu /api a v ní všechny endpointy
-func SetupRouter(c *echo.Echo) {
+func SetupRouter(c *echo.Echo, production bool) {
+	secureAuthCookie = production
 	api := c.Group("/api")
 
 	api.GET("/lekce", getVsechnyLekce)
@@ -27,6 +35,7 @@ func SetupRouter(c *echo.Echo) {
 	api.POST("/zmena-hesla", zmenaHesla)
 	api.POST("/overeni-zmeny-hesla", overitZmenuHesla)
 	api.POST("/google", google)
+	api.POST("/odhlaseni", odhlaseni)
 
 	api.GET("/nastaveni", nastaveni)
 	api.GET("/statistiky", statistiky)
@@ -35,6 +44,30 @@ func SetupRouter(c *echo.Echo) {
 	api.GET("/token-expirace", testVyprseniTokenu)
 
 	setupSkolniRouter(api)
+}
+
+func setAuthCookie(c *echo.Context, token string) {
+	c.SetCookie(&http.Cookie{
+		Name:     utils.AuthCookieName,
+		Value:    token,
+		Path:     "/",
+		MaxAge:   int(config.TokenLifetime / time.Second),
+		HttpOnly: true,
+		Secure:   secureAuthCookie,
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
+func odhlaseni(c *echo.Context) error {
+	c.SetCookie(&http.Cookie{
+		Name:     utils.AuthCookieName,
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   secureAuthCookie,
+		SameSite: http.SameSiteLaxMode,
+	})
+	return c.NoContent(http.StatusNoContent)
 }
 
 func chyba(msg string) map[string]any {

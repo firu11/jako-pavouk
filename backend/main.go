@@ -39,7 +39,7 @@ func main() {
 	}
 
 	middlewares.RegisterBasic(e)
-	handlers.SetupRouter(e)
+	handlers.SetupRouter(e, cfg.Production)
 
 	addr := cfg.Address()
 	log.Printf("starting server on %s...", addr)

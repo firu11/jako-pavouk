@@ -2,7 +2,7 @@
 import { onMounted, ref, useTemplateRef, watch } from 'vue';
 import MenuLink from '@/components/MenuLink.vue';
 import { mobil, prihlasen, role, tokenJmeno, uziv } from '@/stores';
-import { getToken, oznameni, pridatOznameni } from '@/utils';
+import { oznameni, pridatOznameni } from '@/utils';
 import { useHead } from '@unhead/vue';
 import api from '@/api';
 import { useRouter } from 'vue-router';
@@ -19,34 +19,28 @@ const jmenoSpan = useTemplateRef('jmenoSpan');
 const nadpisyDiv = useTemplateRef('nadpisyDiv');
 
 onMounted(() => {
-    if (getToken()) {
-        api
-            .get('/token-expirace', {
-                headers: {
-                    Authorization: `Bearer ${getToken()}`,
-                },
-            })
-            .then((response) => {
-                role.value = response.data.role;
-                uziv.value.email = response.data.email;
-                uziv.value.jmeno = response.data.jmeno;
+    api
+        .get('/token-expirace')
+        .then((response) => {
+            role.value = response.data.role;
+            uziv.value.email = response.data.email;
+            uziv.value.jmeno = response.data.jmeno;
 
-                if (response.data.jePotrebaVymenit) {
-                    localStorage.removeItem(tokenJmeno);
-                    prihlasen.value = false;
-                    router.push('/prihlaseni');
-                    pridatOznameni('Z bezpečnostních důvodů jsme tě odhlásili ze sítě 🕸️', 8000);
-                } else {
-                    prihlasen.value = true;
-                }
-            })
-            .catch((e) => {
-                if (!(e.response && e.response.status == 418)) {
-                    console.log(e);
-                    pridatOznameni('Chyba serveru');
-                }
-            });
-    }
+            if (response.data.jePotrebaVymenit) {
+                localStorage.removeItem(tokenJmeno);
+                prihlasen.value = false;
+                router.push('/prihlaseni');
+                pridatOznameni('Z bezpečnostních důvodů jsme tě odhlásili ze sítě 🕸️', 8000);
+            } else {
+                prihlasen.value = true;
+            }
+        })
+        .catch((e) => {
+            if (!(e.response && (e.response.status == 401 || e.response.status == 418))) {
+                console.log(e);
+                pridatOznameni('Chyba serveru');
+            }
+        });
 
     window.addEventListener('resize', function () {
         mobil.value = document.body.clientWidth <= 900;
@@ -77,6 +71,7 @@ async function upravitSirkuJmena() {
 function odhlasit(e: Event) {
     zavritDialog(e);
     localStorage.removeItem(tokenJmeno);
+    api.post('/odhlaseni').catch(console.error);
     role.value = 'basic';
     prihlasen.value = false;
     router.push('/prihlaseni');

@@ -58,11 +58,10 @@ func ValidateStruct(s any) error {
 }
 
 // id = 0 znamena ze se neco pokazilo
-func Autentizace(tokenHeader string) uint {
-	if len(tokenHeader) < 7 {
+func Autentizace(token string) uint {
+	if token == "" {
 		return 0
 	}
-	var token string = tokenHeader[7:]
 	spravnej, id, err := ValidovatToken(token)
 
 	if spravnej && err == nil {

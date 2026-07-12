@@ -1,3 +1,5 @@
+import { tokenJmeno } from '@/stores';
+
 type JsonData = ReturnType<JSON['parse']>;
 
 export type RequestConfig = {
@@ -38,7 +40,9 @@ async function request<T>(method: string, url: string, data?: unknown, config: R
     }
 
     const headers = new Headers(config.headers);
-    const init: RequestInit = { method, headers };
+    const legacyToken = localStorage.getItem(tokenJmeno);
+    if (legacyToken && !headers.has('Authorization')) headers.set('Authorization', `Bearer ${legacyToken}`);
+    const init: RequestInit = { method, headers, credentials: 'same-origin' };
 
     if (data !== undefined) {
         if (data instanceof FormData || data instanceof URLSearchParams || typeof data === 'string' || data instanceof Blob) {
