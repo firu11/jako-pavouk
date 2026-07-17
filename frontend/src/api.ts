@@ -5,6 +5,7 @@ type JsonData = ReturnType<JSON['parse']>;
 export type RequestConfig = {
     headers?: HeadersInit;
     params?: Record<string, string | number | boolean | null | undefined>;
+    signal?: AbortSignal;
 };
 
 export type ApiResponse<T> = {
@@ -23,14 +24,36 @@ export class ApiError<T = unknown> extends Error {
     }
 }
 
+export function getApiErrorMessage(error: unknown): string | undefined {
+    if (!(error instanceof ApiError)) return undefined;
+
+    const data = error.response.data;
+    if (typeof data === 'string') return data;
+    if (data && typeof data === 'object' && 'error' in data) {
+        const message = (data as { error?: unknown }).error;
+        if (typeof message === 'string') return message;
+    }
+
+    return undefined;
+}
+
 async function parseResponse(response: Response): Promise<unknown> {
     if (response.status === 204) return undefined;
 
-    const contentType = response.headers.get('content-type');
-    if (contentType?.includes('application/json')) return response.json();
-
     const text = await response.text();
-    return text || undefined;
+    if (!text) return undefined;
+
+    const contentType = response.headers.get('content-type') ?? '';
+    if (contentType.includes('application/json') || contentType.includes('+json')) {
+        try {
+            return JSON.parse(text);
+        } catch {
+            if (response.ok) throw new SyntaxError(`Invalid JSON response from ${response.url}`);
+            return text;
+        }
+    }
+
+    return text;
 }
 
 async function request<T>(method: string, url: string, data?: unknown, config: RequestConfig = {}): Promise<ApiResponse<T>> {
@@ -42,7 +65,7 @@ async function request<T>(method: string, url: string, data?: unknown, config: R
     const headers = new Headers(config.headers);
     const legacyToken = localStorage.getItem(tokenJmeno);
     if (legacyToken && !headers.has('Authorization')) headers.set('Authorization', `Bearer ${legacyToken}`);
-    const init: RequestInit = { method, headers, credentials: 'same-origin' };
+    const init: RequestInit = { method, headers, credentials: 'same-origin', signal: config.signal };
 
     if (data !== undefined) {
         if (data instanceof FormData || data instanceof URLSearchParams || typeof data === 'string' || data instanceof Blob) {

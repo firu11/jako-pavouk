@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 
-let delka = 9;
+const delka = 9;
 const counter = ref(delka - 1);
-const text = ref([
+const text = [
     ['1', 'J'],
     ['2', 'a'],
     ['3', 'k'],
@@ -16,21 +16,26 @@ const text = ref([
     ['10', 'u'],
     ['11', 'k'],
     ['12', ' '],
-]);
-const viditelny = ref(text.value.slice(0, delka));
+] as const;
+const viditelny = ref(text.slice(0, delka));
+let timeout: ReturnType<typeof setTimeout> | null = null;
 
 onMounted(() => {
-    setTimeout(dalsi, 200);
+    timeout = setTimeout(dalsi, 200);
+});
+
+onUnmounted(() => {
+    if (timeout != null) clearTimeout(timeout);
 });
 
 function dalsi() {
     counter.value++;
-    if (counter.value == text.value.length) {
+    if (counter.value == text.length) {
         counter.value = 0;
     }
     viditelny.value.shift();
-    viditelny.value.push(text.value[counter.value]);
-    setTimeout(dalsi, Math.floor(Math.random() * 3) * 300 + 300);
+    viditelny.value.push(text[counter.value]);
+    timeout = setTimeout(dalsi, Math.floor(Math.random() * 3) * 300 + 300);
 }
 </script>
 

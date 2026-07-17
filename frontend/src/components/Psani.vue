@@ -223,7 +223,7 @@ function klik(e: Event) {
                 counterSpatneSvislaCara++;
                 if (counterSpatneSvislaCara % 2 == 0)
                     pridatOznameni(
-                        `Znak "|" je lehce problematický a jeho poloha se může lišit.<br>Pokud máte dvouřádkový Enter, je označená klávesa posunutá vlevo od něj.<br>Pokud jen nefunguje zvýrazněná klávesa, pravděpodobně se znak schovává vedle levého Shiftu.<br>S pozdravem, Firu.`,
+                        `Znak "|" je lehce problematický a jeho poloha se může lišit.\nPokud máte dvouřádkový Enter, je označená klávesa posunutá vlevo od něj.\nPokud jen nefunguje zvýrazněná klávesa, pravděpodobně se znak schovává vedle levého Shiftu.\nS pozdravem, Firu.`,
                         15_000,
                         'svisla-cara',
                     );

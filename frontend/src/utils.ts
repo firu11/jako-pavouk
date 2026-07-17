@@ -3,26 +3,21 @@ import { cislaProcvicJmeno, levelyPresnosti, levelyRychlosti, nastaveniJmeno, pr
 import api, { ApiError } from '@/api';
 
 export function formatovanyPismena(pismena: string | string[] | undefined): string {
-    if (pismena === undefined) return '';
-    if (pismena === '...') return pismena;
-    let p: string[];
-    if (typeof pismena == 'string') p = pismena.split('');
-    else p = pismena;
-    let vratit = '';
-    for (let i = 0; i < p.length; i++) {
-        vratit += i < p.length - 1 ? p[i] + ', ' : p[i];
-    }
-    return vratit;
+    if (pismena === undefined || pismena === '...') return pismena ?? '';
+    return (typeof pismena === 'string' ? [...pismena] : pismena).join(', ');
 }
 
-export function format(p: string): string {
-    if (p === 'zbylá diakritika') return 'Zbylá diakritika';
-    else if (p === 'velká písmena (shift)') return 'Velká písmena (Shift)';
-    else if (p === 'závorky') return 'Závorky';
-    else if (p === 'operátory') return 'Operátory';
-    else if (p === 'čísla') return 'Číslovky';
-    else if (p === 'interpunkce') return 'Interpunkce';
-    return formatovanyPismena(p);
+const formatovaneKategorie: Readonly<Record<string, string>> = {
+    'zbylá diakritika': 'Zbylá diakritika',
+    'velká písmena (shift)': 'Velká písmena (Shift)',
+    závorky: 'Závorky',
+    operátory: 'Operátory',
+    čísla: 'Číslovky',
+    interpunkce: 'Interpunkce',
+};
+
+export function format(pismena: string): string {
+    return formatovaneKategorie[pismena] ?? formatovanyPismena(pismena);
 }
 
 export function getToken() {
@@ -45,13 +40,34 @@ export function formatDenMesicPraha(value: string | Date): string {
     return `${den}.${mesic}.`;
 }
 
-export const oznameni = ref([] as { text: string; typ: string }[]);
+export type NotificationType = 'warning' | 'copy' | 'info';
 
-export function pridatOznameni(text: string = 'Něco se pokazilo', cas: number = 4000, typ: string = 'vykricnik') {
-    const obj = { text: text, typ: typ };
-    oznameni.value.push(obj);
-    setTimeout(() => {
-        oznameni.value.splice(oznameni.value.indexOf(obj), 1);
+export interface AppNotification {
+    id: number;
+    text: string;
+    type: NotificationType;
+}
+
+const notificationTypes = {
+    vykricnik: 'warning',
+    copy: 'copy',
+    'svisla-cara': 'info',
+} as const;
+
+let nextNotificationId = 0;
+export const oznameni = ref<AppNotification[]>([]);
+
+export function pridatOznameni(text = 'Něco se pokazilo', cas = 4000, typ: keyof typeof notificationTypes = 'vykricnik') {
+    const notification: AppNotification = {
+        id: nextNotificationId++,
+        text,
+        type: notificationTypes[typ],
+    };
+    oznameni.value.push(notification);
+
+    window.setTimeout(() => {
+        const index = oznameni.value.findIndex(({ id }) => id === notification.id);
+        if (index !== -1) oznameni.value.splice(index, 1);
     }, cas);
 }
 
@@ -95,33 +111,16 @@ export class Oznacene {
 }
 
 export class MojeMapa extends Map<string, number> {
-    async put(znak: string) {
-        znak = znak.toLocaleLowerCase();
-
-        const pocet = this.get(znak);
-        if (pocet === undefined) {
-            this.set(znak, 1);
-        } else {
-            this.set(znak, +pocet + 1);
-        }
+    put(znak: string) {
+        const normalized = znak.toLocaleLowerCase();
+        this.set(normalized, (this.get(normalized) ?? 0) + 1);
     }
+
     top(n: number) {
-        const nejvetsi = [] as { znak: string; pocet: number }[];
-        const pouzity = new Map<string, number>();
-        for (let i = 0; i < n; i++) {
-            const nej: { znak: string; pocet: number } = { znak: '', pocet: 0 };
-            this.forEach((pocet, znak) => {
-                if (pocet > nej.pocet && pouzity.get(znak) == undefined) {
-                    nej.znak = znak;
-                    nej.pocet = pocet;
-                }
-            });
-            if (nej.znak != '') {
-                nejvetsi.push(nej);
-                pouzity.set(nej.znak, 1);
-            }
-        }
-        return nejvetsi;
+        return [...this.entries()]
+            .sort(([, firstCount], [, secondCount]) => secondCount - firstCount)
+            .slice(0, n)
+            .map(([znak, pocet]) => ({ znak, pocet }));
     }
 }
 
@@ -162,8 +161,8 @@ export function clone<typ>(obj: typ): typ {
     return x;
 }
 
-export async function saveNastaveni(diakritika: boolean, velkaPismena: boolean, vetySlova: boolean, delka: number, klavesnice: boolean) {
-    localStorage.setItem(nastaveniJmeno, JSON.stringify({ diakritika: diakritika, velkaPismena: velkaPismena, vetySlova: vetySlova, delka: delka, klavesnice: klavesnice }));
+export function saveNastaveni(diakritika: boolean, velkaPismena: boolean, vetySlova: boolean, delka: number, klavesnice: boolean) {
+    localStorage.setItem(nastaveniJmeno, JSON.stringify({ diakritika, velkaPismena, vetySlova, delka, klavesnice }));
 }
 
 export function naJednoDesetiny(cpm: number): number {
@@ -228,20 +227,4 @@ export function postKlavesnice(klavesnice: boolean) {
     api.post('/ucet-zmena', { zmena: 'klavesnice', hodnota: k }, { headers: { Authorization: `Bearer ${getToken()}` } }).catch((e) => {
         console.log(e);
     });
-}
-
-export function getOS() {
-    const userAgent = window.navigator.userAgent;
-
-    if (/macOS|Macintosh|MacIntel|MacPPC|Mac68K|darwin/.test(userAgent)) {
-        return 'macos';
-    } else if (/Win32|Win64|Windows|WinCE/.test(userAgent)) {
-        return 'windows';
-    } else if (/Linux/.test(userAgent)) {
-        return 'linux';
-    } else if (/iPhone|iPad|iPod/.test(userAgent)) {
-        return 'ios';
-    } else if (/Android/.test(userAgent)) {
-        return 'android';
-    }
 }

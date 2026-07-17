@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Chart, ChartConfiguration, CategoryScale, LinearScale, LineController, PointElement, LineElement, Tooltip } from 'chart.js';
-import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, onMounted, onUnmounted, useTemplateRef, watch } from 'vue';
 import { formatDenMesicPraha } from '@/utils';
 
 interface Props {
@@ -12,9 +12,18 @@ const props = withDefaults(defineProps<Props>(), {
     rychlosti: () => [NaN, NaN, NaN, NaN, NaN],
 });
 
-let chart: Chart;
+Chart.register(CategoryScale, LinearScale, LineController, PointElement, LineElement, Tooltip);
+Chart.defaults.font = {
+    size: 18,
+    family: '"Montserrat", sans-serif',
+};
+
+let chart: Chart | null = null;
 const canvas = useTemplateRef<HTMLCanvasElement>('canvas');
-const neniCo = ref(false);
+const neniCo = computed(() => {
+    const hodnoty = [...props.rychlosti, ...props.presnosti];
+    return hodnoty.length > 0 && hodnoty.every((value) => Number.isNaN(value));
+});
 
 const dny = computed(() => {
     let delka = props.rychlosti.length == 0 ? 13 : props.rychlosti.length;
@@ -28,27 +37,21 @@ const dny = computed(() => {
     return arr;
 });
 
-watch(props, function () {
-    if (props.presnosti.every((v) => isNaN(v))) {
-        neniCo.value = true;
-        return;
-    }
+watch(
+    [() => props.rychlosti, () => props.presnosti],
+    () => {
+        if (chart == null) return;
 
-    chart.data.labels = dny.value;
-    chart.data.datasets[0].data = props.rychlosti;
-    chart.data.datasets[1].data = props.presnosti;
-
-    chart.update();
-});
+        chart.data.labels = dny.value;
+        chart.data.datasets[0].data = props.rychlosti;
+        chart.data.datasets[1].data = props.presnosti;
+        chart.update();
+    },
+    { deep: true },
+);
 
 onMounted(() => {
     const color = '#948aa3';
-
-    Chart.register(CategoryScale, LinearScale, LineController, PointElement, LineElement, Tooltip);
-    Chart.defaults.font = {
-        size: 18,
-        family: '"Montserrat", sans-serif',
-    };
 
     if (canvas.value == null) return;
 
@@ -60,7 +63,7 @@ onMounted(() => {
                 {
                     label: 'Rychlost (CPM)',
                     yAxisID: 'rychlost',
-                    data: props.presnosti,
+                    data: props.rychlosti,
                     borderWidth: 6,
                     tension: 0,
                     borderColor: '#FFF6',
@@ -85,11 +88,9 @@ onMounted(() => {
         },
         options: {
             onHover: (_, activeElements) => {
-                if (activeElements?.length > 0) {
-                    canvas.value!.style.cursor = 'pointer';
-                } else {
-                    canvas.value!.style.cursor = 'auto';
-                }
+                if (canvas.value == null) return;
+
+                canvas.value.style.cursor = activeElements.length > 0 ? 'pointer' : 'auto';
             },
             locale: 'cs-CZ',
             maintainAspectRatio: false,
@@ -195,6 +196,11 @@ onMounted(() => {
         },
     };
     chart = new Chart(canvas.value, options);
+});
+
+onUnmounted(() => {
+    chart?.destroy();
+    chart = null;
 });
 </script>
 <template>

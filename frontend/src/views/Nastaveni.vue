@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import api from '@/api';
+import api, { getApiErrorMessage } from '@/api';
 import { useHead } from '@unhead/vue';
 import { onMounted, ref, useTemplateRef } from 'vue';
 import { getToken, pridatOznameni, postKlavesnice } from '@/utils';
-import { prihlasen, uziv } from '@/stores';
+import { prihlasen, role, tokenJmeno, uziv } from '@/stores';
 import { useRouter } from 'vue-router';
-import { role } from '@/stores';
 
 useHead({
     title: 'Nastavení',
@@ -53,18 +52,18 @@ function postSmazat(e: Event) {
         .post('/ucet-zmena', { zmena: 'smazat' }, { headers: { Authorization: `Bearer ${getToken()}` } })
         .then(() => {
             prihlasen.value = false;
-            localStorage.removeItem('pavouk_token');
+            localStorage.removeItem(tokenJmeno);
             router.push('/prihlaseni');
             pridatOznameni('Účet byl úspěšně smazán. Pavoučí rodina by však ráda věděla, proč odcházíš...', 15000);
         })
-        .catch((err) => {
-            if (err.response?.data && err.response.data?.error === 'jsi ucitel') {
+        .catch((error: unknown) => {
+            if (getApiErrorMessage(error) === 'jsi ucitel') {
                 pridatOznameni('Učitelský účet nelze smazat...');
                 zavritDialog(e);
                 return;
             }
 
-            console.log(err);
+            console.error(error);
             pridatOznameni();
         });
 }
@@ -76,10 +75,14 @@ function postJmeno() {
             get();
             jmenoInput.value?.blur(); // lose focus
         })
-        .catch((e) => {
-            if (e.response.data?.error.search('uzivatel_jmeno_key')) {
+        .catch((error: unknown) => {
+            if (getApiErrorMessage(error)?.includes('uzivatel_jmeno_key')) {
                 pridatOznameni('Takové jméno už někdo má');
+                return;
             }
+
+            console.error(error);
+            pridatOznameni();
         });
 }
 
@@ -91,8 +94,8 @@ function zmenaJmena(e: Event) {
     if (/^[a-zA-Z0-9ěščřžýáíéůúťňďóĚŠČŘŽÝÁÍÉŮÚŤŇĎÓ_\-+*! ]{3,12}$/.test(jmenoUprava.value)) {
         postJmeno();
     } else {
-        if (jmenoUprava.value.length < 3) pridatOznameni('Jméno je moc krátké.<br>(3-12 znaků)');
-        else if (jmenoUprava.value.length > 12) pridatOznameni('Jméno je moc dlouhé.<br>(3-12 znaků)');
+        if (jmenoUprava.value.length < 3) pridatOznameni('Jméno je moc krátké.\n(3-12 znaků)');
+        else if (jmenoUprava.value.length > 12) pridatOznameni('Jméno je moc dlouhé.\n(3-12 znaků)');
         else pridatOznameni('Jméno může obsahovat jen velká a malá písmena, čísla a znaky _-+*!?');
     }
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { pridatOznameni, postKlavesnice } from '@/utils';
 import { mobil } from '@/stores';
 import { useRoute, useRouter } from 'vue-router';
@@ -9,15 +9,21 @@ const route = useRoute();
 
 const klavesnice = ref(false);
 const mameJi = ref(false);
-const rucne = ref(mobil);
-const img = ref();
+const rucne = ref(mobil.value);
+const img = useTemplateRef<HTMLImageElement>('img');
+let zoomTimeout: ReturnType<typeof setTimeout> | undefined;
+
+watch(mobil, (isMobile) => {
+    if (isMobile) vybratRucne();
+});
 
 onMounted(() => {
     document.addEventListener('keypress', click);
-    setTimeout(zoomIn, 300);
+    zoomTimeout = setTimeout(zoomIn, 300);
 });
 
 onUnmounted(() => {
+    if (zoomTimeout !== undefined) clearTimeout(zoomTimeout);
     document.removeEventListener('keypress', click);
 });
 
@@ -37,23 +43,31 @@ function click(e: KeyboardEvent) {
 
 function vybratRucne() {
     rucne.value = true;
-    img.value.style.transform = 'none';
+    if (img.value) img.value.style.transform = 'none';
+}
+
+function vybratAutomaticky() {
+    rucne.value = false;
+    zoomIn();
 }
 
 function zoomIn() {
-    if (rucne.value) return;
+    if (rucne.value || !img.value) return;
     img.value.style.transform = 'scale(1.6) translateY(36px)';
 }
 
 function zoomOut() {
-    if (rucne.value) return;
+    if (rucne.value || !img.value) return;
     img.value.style.transition = '0.8s';
     img.value.style.transform = 'none';
 }
 
 function potvrdit() {
     postKlavesnice(klavesnice.value);
-    router.push('/' + route.query['kam']);
+
+    const queryDestination = Array.isArray(route.query.kam) ? route.query.kam[0] : route.query.kam;
+    const destination = queryDestination === 'nastaveni' || queryDestination === 'statistiky' ? `/${queryDestination}` : '/';
+    void router.push(destination);
 }
 </script>
 <template>
@@ -93,7 +107,7 @@ function potvrdit() {
     </div>
 
     <p id="dole" v-if="!rucne && !mameJi && route.query['kam'] != 'nastaveni'" @click="vybratRucne">Vybrat rozložení ručně</p>
-    <p id="dole" v-else-if="!mameJi && route.query['kam'] != 'nastaveni'" @click="rucne = false">Zpět k automatickému výběru</p>
+    <p id="dole" v-else-if="!mameJi && route.query['kam'] != 'nastaveni'" @click="vybratAutomaticky">Zpět k automatickému výběru</p>
 </template>
 <style scoped>
 #tlacitka {

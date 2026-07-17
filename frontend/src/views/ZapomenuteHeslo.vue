@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import api from '@/api';
+import api, { getApiErrorMessage } from '@/api';
 import { onMounted, ref } from 'vue';
 import { pridatOznameni } from '@/utils';
 import { useHead } from '@unhead/vue';
@@ -48,16 +48,18 @@ function poslatEmail(e: Event) {
         })
         .then(() => {
             state.value = 'kod';
-            posilame.value = false;
         })
-        .catch((e) => {
-            if (e.response.data.error.toLowerCase().search('email') != -1) {
+        .catch((error: unknown) => {
+            if (getApiErrorMessage(error)?.toLowerCase().includes('email')) {
                 spatnyEmail.value = true;
                 pridatOznameni('Tenhle email ještě neznáme');
                 return;
             }
             pridatOznameni();
-            console.log(e);
+            console.error(error);
+        })
+        .finally(() => {
+            posilame.value = false;
         });
 }
 
@@ -78,12 +80,13 @@ function overitZmenu(e: Event) {
         .then(() => {
             state.value = 'konec';
         })
-        .catch((e) => {
-            console.log(e);
-            if (e.response.data.error.toLowerCase().search('kod') != -1) {
+        .catch((error: unknown) => {
+            console.error(error);
+            const message = getApiErrorMessage(error)?.toLowerCase() ?? '';
+            if (message.includes('kod')) {
                 spatnyKod.value = true;
                 pridatOznameni('Špatný kód');
-            } else if (e.response.data.error.toLowerCase().search('cas') != -1) {
+            } else if (message.includes('cas')) {
                 state.value = 'email';
                 pridatOznameni('Čas na ověření vypršel. Zkus to prosím znovu.');
             } else {

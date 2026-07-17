@@ -2,7 +2,7 @@
 import { useHead } from '@unhead/vue';
 import { ref } from 'vue';
 import { getToken, pridatOznameni } from '@/utils';
-import api from '@/api';
+import api, { getApiErrorMessage } from '@/api';
 import { prihlasen, role, uziv } from '@/stores';
 
 useHead({
@@ -42,8 +42,8 @@ function potvrdit(e: Event) {
             odeslano.value = true;
             role.value = 'ucitel';
         })
-        .catch((e) => {
-            pridatOznameni(e.response.data.error);
+        .catch((error: unknown) => {
+            pridatOznameni(getApiErrorMessage(error));
         })
         .finally(() => {
             odesilame.value = false;
@@ -53,7 +53,7 @@ function potvrdit(e: Event) {
 function chekujUdaje() {
     if (email.value && !/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/g.test(email.value))
         pridatOznameni('Špatný formát e-mailu.');
-    else if (telefon.value != '+420' && !/^\+[0-9]{6,15}$/g.test(telefon.value)) pridatOznameni('Telefon musí být ve formátu: +420123456789 <br>(předčíslí a číslo nez mezer)');
+    else if (telefon.value != '+420' && !/^\+[0-9]{6,15}$/g.test(telefon.value)) pridatOznameni('Telefon musí být ve formátu: +420123456789\n(předčíslí a číslo nez mezer)');
     else return true;
     return false;
 }

@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref, useTemplateRef, watch } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import MenuLink from '@/components/MenuLink.vue';
+import NotificationHost from '@/components/NotificationHost.vue';
+import Tooltip from '@/components/Tooltip.vue';
 import { mobil, prihlasen, role, tokenJmeno, uziv } from '@/stores';
 import { oznameni, pridatOznameni } from '@/utils';
 import { useHead } from '@unhead/vue';
-import api from '@/api';
+import api, { ApiError } from '@/api';
 import { useRouter } from 'vue-router';
-import Tooltip from '@/components/Tooltip.vue';
 
 useHead({
     titleTemplate: (title?: string) => (!title ? 'Psaní všemi deseti zdarma | Jako Pavouk' : `${title} | Jako Pavouk`),
@@ -14,59 +15,81 @@ useHead({
 
 const router = useRouter();
 const mobilMenu = ref(false);
+const sessionReady = ref(false);
 
-const jmenoSpan = useTemplateRef('jmenoSpan');
-const nadpisyDiv = useTemplateRef('nadpisyDiv');
+const jmenoSpan = useTemplateRef<HTMLElement>('jmenoSpan');
+const nadpisyDiv = useTemplateRef<HTMLElement>('nadpisyDiv');
 
-onMounted(() => {
-    api
-        .get('/token-expirace')
-        .then((response) => {
-            role.value = response.data.role;
-            uziv.value.email = response.data.email;
-            uziv.value.jmeno = response.data.jmeno;
+interface SessionResponse {
+    role: string;
+    email: string;
+    jmeno: string;
+    jePotrebaVymenit: boolean;
+}
 
-            if (response.data.jePotrebaVymenit) {
-                localStorage.removeItem(tokenJmeno);
-                prihlasen.value = false;
-                router.push('/prihlaseni');
-                pridatOznameni('Z bezpečnostních důvodů jsme tě odhlásili ze sítě 🕸️', 8000);
-            } else {
-                prihlasen.value = true;
-            }
-        })
-        .catch((e) => {
-            if (!(e.response && (e.response.status == 401 || e.response.status == 418))) {
-                console.log(e);
-                pridatOznameni('Chyba serveru');
-            }
-        });
+async function nacistRelaci() {
+    try {
+        const response = await api.get<SessionResponse>('/token-expirace');
 
-    window.addEventListener('resize', function () {
-        mobil.value = document.body.clientWidth <= 900;
-
-        if (mobil.value) {
-            window.addEventListener('scroll', function () {
-                mobilMenu.value = false;
-            });
+        if (response.data.jePotrebaVymenit) {
+            localStorage.removeItem(tokenJmeno);
+            role.value = 'basic';
+            uziv.value = { email: '', jmeno: '' };
+            prihlasen.value = false;
+            await router.push('/prihlaseni');
+            pridatOznameni('Z bezpečnostních důvodů jsme tě odhlásili ze sítě 🕸️', 8000);
+            return;
         }
-    });
-});
 
-async function upravitSirkuJmena() {
-    if (jmenoSpan.value == undefined || nadpisyDiv.value == undefined) {
-        setTimeout(upravitSirkuJmena, 10);
-        return;
-    }
-
-    let velikost = 24;
-    jmenoSpan.value.style.fontSize = `${velikost}px`;
-    while (jmenoSpan.value.clientWidth! > nadpisyDiv.value.clientWidth) {
-        velikost -= 0.5;
-        jmenoSpan.value.style.fontSize = `${velikost}px`;
-        if (velikost <= 0) break;
+        role.value = response.data.role;
+        uziv.value = { email: response.data.email, jmeno: response.data.jmeno };
+        prihlasen.value = true;
+    } catch (error) {
+        if (error instanceof ApiError && (error.response.status === 401 || error.response.status === 418)) return;
+        console.error(error);
+        pridatOznameni('Chyba serveru');
+    } finally {
+        sessionReady.value = true;
     }
 }
+
+function upravitSirkuJmena() {
+    const nameElement = jmenoSpan.value;
+    const containerElement = nadpisyDiv.value;
+    if (!nameElement || !containerElement) return;
+
+    let fontSize = 24;
+    nameElement.style.fontSize = `${fontSize}px`;
+    while (nameElement.scrollWidth > containerElement.clientWidth && fontSize > 12) {
+        fontSize -= 0.5;
+        nameElement.style.fontSize = `${fontSize}px`;
+    }
+}
+
+function naplanovatUpravuJmena() {
+    void nextTick(upravitSirkuJmena);
+}
+
+function aktualizovatViewport() {
+    mobil.value = document.body.clientWidth <= 900;
+    naplanovatUpravuJmena();
+}
+
+function zavritMobilniMenuPriScrollu() {
+    if (mobil.value) mobilMenu.value = false;
+}
+
+onMounted(() => {
+    void nacistRelaci();
+    aktualizovatViewport();
+    window.addEventListener('resize', aktualizovatViewport);
+    window.addEventListener('scroll', zavritMobilniMenuPriScrollu, { passive: true });
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', aktualizovatViewport);
+    window.removeEventListener('scroll', zavritMobilniMenuPriScrollu);
+});
 
 function odhlasit(e: Event) {
     zavritDialog(e);
@@ -91,19 +114,14 @@ function zavritDialog(e: Event) {
     dialog1.value?.close();
 }
 
-watch(
-    () => uziv.value.jmeno,
-    function () {
-        setTimeout(upravitSirkuJmena, 1);
-    },
-);
+watch(() => uziv.value.jmeno, naplanovatUpravuJmena, { flush: 'post' });
 </script>
 <template>
     <div id="menu-mobilni-btn" @click="mobilMenu = !mobilMenu">
         <img id="menuIcon" src="./assets/icony/menu.svg" alt="Menu" width="40" height="40" />
     </div>
     <header :class="{ 'mobil-hidden': !mobilMenu }">
-        <nav @click="mobilMenu = !mobilMenu">
+        <nav @click="mobilMenu = false">
             <!-- <img id="vanocni" src="./assets/vanocni.svg" alt="Vanoční světélka" /> -->
             <MenuLink jmeno="Domů" cesta="/" />
             <MenuLink jmeno="Jak psát" cesta="/jak-psat" />
@@ -148,19 +166,10 @@ watch(
         </div>
     </header>
     <main id="view">
-        <RouterView :key="$route.fullPath" />
+        <RouterView v-if="sessionReady" :key="$route.fullPath" />
     </main>
 
-    <div id="alerty">
-        <TransitionGroup name="list">
-            <div v-for="(o, i) in oznameni" class="alert" :key="i">
-                <img v-if="o.typ == 'vykricnik'" src="./assets/icony/alert.svg" alt="Vykřičník" />
-                <img v-else-if="o.typ == 'copy'" src="./assets/icony/copy.svg" alt="Zkopírováno" />
-                <img v-else-if="o.typ == 'svisla-cara'" src="./assets/icony/info.svg" alt="Oznámení" id="svisla-cara-info" />
-                <span v-html="o.text"></span>
-            </div>
-        </TransitionGroup>
-    </div>
+    <NotificationHost :notifications="oznameni" />
 
     <dialog ref="dialog1">
         <div id="dialog-kontejner">
@@ -277,63 +286,7 @@ dialog {
     align-items: center;
 }
 
-/* na tu animaci oznameni */
-.list-move {
-    transition: all 0.2s ease;
-}
 
-.list-enter-active,
-.list-leave-active {
-    transition: all 0.1s ease;
-}
-
-.list-enter-from,
-.list-leave-to {
-    opacity: 0;
-    transform: translateX(50px);
-}
-
-.list-leave-active {
-    position: absolute;
-}
-
-#alerty {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: end;
-    gap: 10px;
-    padding: 20px;
-    min-height: 100px;
-    pointer-events: none;
-    width: 100vw;
-    z-index: 1000;
-}
-
-.alert {
-    min-height: 60px;
-    background-color: var(--tmave-fialova);
-    min-width: 100px;
-    max-width: min(85%, 330px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
-    padding: 10px 20px 10px 20px;
-    gap: 15px;
-    box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.75);
-}
-
-.alert img {
-    width: 24px;
-}
-
-.alert:has(#svisla-cara-info) {
-    max-width: min(85%, 450px);
-}
 
 header {
     display: flex;

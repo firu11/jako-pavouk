@@ -1,0 +1,945 @@
+diff --git a/backend/utils/auth.go b/backend/utils/auth.go
+index a5a89b6..54bcccd 100644
+--- a/backend/utils/auth.go
++++ b/backend/utils/auth.go
+@@ -3,7 +3,6 @@ package utils
+ import (
+ 	"errors"
+ 	"net/http"
+-	"strings"
+ 	"time"
+ 
+ 	"github.com/firu11/jako-pavouk/backend/config"
+@@ -22,19 +21,12 @@ func SetupAuth(cfg config.AuthConfig) {
+ 	privateKey = []byte(cfg.PrivateKey)
+ }
+ 
+-// AuthToken prefers the HttpOnly cookie and temporarily falls back to the
+-// Authorization header while tokens from the localStorage-based client expire.
+ func AuthToken(r *http.Request) string {
+ 	if cookie, err := r.Cookie(AuthCookieName); err == nil && cookie.Value != "" {
+ 		if valid, _, err := ValidovatToken(cookie.Value); err == nil && valid {
+ 			return cookie.Value
+ 		}
+ 	}
+-
+-	header := r.Header.Get("Authorization")
+-	if token, ok := strings.CutPrefix(header, "Bearer "); ok {
+-		return token
+-	}
+ 	return ""
+ }
+ 
+diff --git a/frontend/src/App.vue b/frontend/src/App.vue
+index b57328a..1b1afaf 100644
+--- a/frontend/src/App.vue
++++ b/frontend/src/App.vue
+@@ -1,7 +1,7 @@
+ <script setup lang="ts">
+ import { onMounted, ref, useTemplateRef, watch } from 'vue';
+ import MenuLink from '@/components/MenuLink.vue';
+-import { mobil, prihlasen, role, tokenJmeno, uziv } from '@/stores';
++import { mobil, prihlasen, role, uziv } from '@/stores';
+ import { oznameni, pridatOznameni } from '@/utils';
+ import { useHead } from '@unhead/vue';
+ import api from '@/api';
+@@ -27,7 +27,6 @@ onMounted(() => {
+             uziv.value.jmeno = response.data.jmeno;
+ 
+             if (response.data.jePotrebaVymenit) {
+-                localStorage.removeItem(tokenJmeno);
+                 prihlasen.value = false;
+                 router.push('/prihlaseni');
+                 pridatOznameni('Z bezpečnostních důvodů jsme tě odhlásili ze sítě 🕸️', 8000);
+@@ -70,7 +69,6 @@ async function upravitSirkuJmena() {
+ 
+ function odhlasit(e: Event) {
+     zavritDialog(e);
+-    localStorage.removeItem(tokenJmeno);
+     api.post('/odhlaseni').catch(console.error);
+     role.value = 'basic';
+     prihlasen.value = false;
+diff --git a/frontend/src/api.ts b/frontend/src/api.ts
+index 519e4ab..beb737a 100644
+--- a/frontend/src/api.ts
++++ b/frontend/src/api.ts
+@@ -1,5 +1,3 @@
+-import { tokenJmeno } from '@/stores';
+-
+ type JsonData = ReturnType<JSON['parse']>;
+ 
+ export type RequestConfig = {
+@@ -40,8 +38,6 @@ async function request<T>(method: string, url: string, data?: unknown, config: R
+     }
+ 
+     const headers = new Headers(config.headers);
+-    const legacyToken = localStorage.getItem(tokenJmeno);
+-    if (legacyToken && !headers.has('Authorization')) headers.set('Authorization', `Bearer ${legacyToken}`);
+     const init: RequestInit = { method, headers, credentials: 'same-origin' };
+ 
+     if (data !== undefined) {
+diff --git a/frontend/src/components/KodTridy.vue b/frontend/src/components/KodTridy.vue
+index ef306f0..b4bee99 100644
+--- a/frontend/src/components/KodTridy.vue
++++ b/frontend/src/components/KodTridy.vue
+@@ -1,6 +1,6 @@
+ <script setup lang="ts">
+ import api from '@/api';
+-import { getToken, pridatOznameni } from '@/utils';
++import { pridatOznameni } from '@/utils';
+ import { ref } from 'vue';
+ import Tooltip from '@/components/Tooltip.vue';
+ 
+@@ -29,11 +29,6 @@ function zamek() {
+         .post(
+             '/skola/zmena-tridy',
+             { trida_id: props.id, zmena: 'zamek' },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .catch((e) => {
+             console.log(e);
+diff --git a/frontend/src/components/Vysledek.vue b/frontend/src/components/Vysledek.vue
+index 17d890c..07a5f10 100644
+--- a/frontend/src/components/Vysledek.vue
++++ b/frontend/src/components/Vysledek.vue
+@@ -2,7 +2,7 @@
+ import api from '@/api';
+ import { computed, onMounted, onUnmounted, ref } from 'vue';
+ import { useRoute, useRouter } from 'vue-router';
+-import { getCisloPochvaly, getToken, MojeMapa, napovedaKNavigaci } from '@/utils';
++import { getCisloPochvaly, MojeMapa, napovedaKNavigaci } from '@/utils';
+ import { levelyRychlosti } from '@/stores';
+ import Tooltip from '@/components/Tooltip.vue';
+ import AnimaceCisla from '@/components/AnimaceCisla.vue';
+@@ -91,11 +91,6 @@ onMounted(() => {
+                     delkaTextu: props.delkaTextu,
+                     nejcastejsiChyby: Object.fromEntries(props.nejcastejsiChyby),
+                 },
+-                {
+-                    headers: {
+-                        Authorization: `Bearer ${getToken()}`,
+-                    },
+-                },
+             )
+             .catch(function (e) {
+                 console.log(e);
+@@ -116,11 +111,6 @@ onMounted(() => {
+                     delkaTextu: props.delkaTextu,
+                     nejcastejsiChyby: Object.fromEntries(props.nejcastejsiChyby),
+                 },
+-                {
+-                    headers: {
+-                        Authorization: `Bearer ${getToken()}`,
+-                    },
+-                },
+             )
+             .catch(function (e) {
+                 console.log(e);
+@@ -138,11 +128,6 @@ onMounted(() => {
+                 delkaTextu: props.delkaTextu,
+                 nejcastejsiChyby: Object.fromEntries(props.nejcastejsiChyby),
+             },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .catch(function (e) {
+             console.log(e);
+diff --git a/frontend/src/components/ucitel/HodnoticiTabulka.vue b/frontend/src/components/ucitel/HodnoticiTabulka.vue
+index fb15510..c32bf12 100644
+--- a/frontend/src/components/ucitel/HodnoticiTabulka.vue
++++ b/frontend/src/components/ucitel/HodnoticiTabulka.vue
+@@ -2,7 +2,6 @@
+ import { onMounted, ref } from 'vue';
+ import { pridatOznameni } from '@/utils';
+ import api from '@/api';
+-import { getToken } from '@/utils';
+ 
+ export type Tabulka = {
+     hodnoceni1: number;
+@@ -64,11 +63,6 @@ function postZmena() {
+                 hodnoceni3: rychlosti.value[2],
+                 hodnoceni4: rychlosti.value[3],
+             },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .catch((e) => {
+             console.log(e);
+diff --git a/frontend/src/components/ucitel/NastaveniTridy.vue b/frontend/src/components/ucitel/NastaveniTridy.vue
+index b4c28cd..29cc909 100644
+--- a/frontend/src/components/ucitel/NastaveniTridy.vue
++++ b/frontend/src/components/ucitel/NastaveniTridy.vue
+@@ -1,6 +1,6 @@
+ <script setup lang="ts">
+ import { onMounted, ref, computed, useTemplateRef } from 'vue';
+-import { getToken, pridatOznameni } from '@/utils';
++import { pridatOznameni } from '@/utils';
+ import { moznostiRocnik, moznostiTrida, moznostiSkupina } from '@/stores';
+ import api from '@/api';
+ import { useRouter } from 'vue-router';
+@@ -58,11 +58,6 @@ function postSmazat(e: Event) {
+         .post(
+             '/skola/zmena-tridy',
+             { trida_id: props.trida.id, zmena: 'smazat' },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .then(() => {
+             router.push('/skola');
+@@ -81,11 +76,6 @@ function postKlavesnice(e: Event) {
+         .post(
+             '/skola/zmena-tridy',
+             { trida_id: props.trida.id, zmena: 'klavesnice', hodnota: klavesniceUprava.value ? 'qwerty' : 'qwertz' },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .then(() => {
+             emit('refresh');
+diff --git a/frontend/src/components/ucitel/PraceBlok.vue b/frontend/src/components/ucitel/PraceBlok.vue
+index 38f7ef4..ba4eb5a 100644
+--- a/frontend/src/components/ucitel/PraceBlok.vue
++++ b/frontend/src/components/ucitel/PraceBlok.vue
+@@ -1,6 +1,6 @@
+ <script setup lang="ts">
+ import api from '@/api';
+-import { formatDatumPraha, getToken, pridatOznameni, naJednoDesetiny } from '@/utils';
++import { formatDatumPraha, pridatOznameni, naJednoDesetiny } from '@/utils';
+ import { ref } from 'vue';
+ import Tooltip from '@/components/Tooltip.vue';
+ import { mobil } from '@/stores';
+@@ -24,11 +24,7 @@ function smazatPraci() {
+     }
+ 
+     api
+-        .delete('/skola/smazat-praci/' + props.prace.id, {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .delete('/skola/smazat-praci/' + props.prace.id)
+         .then(() => {
+             emit('reload');
+             pridatOznameni('Práce byla smazána.');
+diff --git a/frontend/src/components/ucitel/SeznamUcitelu.vue b/frontend/src/components/ucitel/SeznamUcitelu.vue
+index b3b10a0..dd9e06a 100644
+--- a/frontend/src/components/ucitel/SeznamUcitelu.vue
++++ b/frontend/src/components/ucitel/SeznamUcitelu.vue
+@@ -1,6 +1,6 @@
+ <script setup lang="ts">
+ import api from '@/api';
+-import { getToken, pridatOznameni } from '@/utils';
++import { pridatOznameni } from '@/utils';
+ import { onMounted, ref, useTemplateRef } from 'vue';
+ import { role, uziv } from '@/stores';
+ import { useRouter } from 'vue-router';
+@@ -12,11 +12,7 @@ onMounted(get);
+ 
+ function get() {
+     api
+-        .get('/skola/ucitele', {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get('/skola/ucitele')
+         .then((response) => {
+             ucitele.value = response.data ?? [];
+         })
+@@ -48,11 +44,6 @@ function smazatUcitele(e: Event) {
+         .post(
+             '/skola/upravit-ucitele',
+             { email: email.value, akce: 'smazat' },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .then(() => {
+             if (email.value === uziv.value.email) {
+diff --git a/frontend/src/components/ucitel/ZadaniPrace.vue b/frontend/src/components/ucitel/ZadaniPrace.vue
+index 688fc02..7bf678a 100644
+--- a/frontend/src/components/ucitel/ZadaniPrace.vue
++++ b/frontend/src/components/ucitel/ZadaniPrace.vue
+@@ -2,7 +2,7 @@
+ import { computed, onMounted, ref, useTemplateRef } from 'vue';
+ import TextZadani from '@/components/ucitel/TextZadani.vue';
+ import api from '@/api';
+-import { getToken, pridatOznameni, format } from '@/utils';
++import { pridatOznameni, format } from '@/utils';
+ import Tooltip from '@/components/Tooltip.vue';
+ import HodnoticiTabulka, { Tabulka } from '@/components/ucitel/HodnoticiTabulka.vue';
+ import NovinkaTag from '@/components/NovinkaTag.vue';
+@@ -73,11 +73,6 @@ function getText() {
+                 trida_id: props.tridaID,
+                 delka: odhadovanaDelkaTextu.value == -1 ? 239 : odhadovanaDelkaTextu.value,
+             },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .then((response) => {
+             if (textovePole.value?.text.length != 0 && textovePole.value?.text[textovePole.value?.text.length - 1] != ' ') textovePole.value!.text += ' ';
+@@ -109,11 +104,6 @@ function pridatPraci() {
+                 text: textovePole.value!.text,
+                 hodnocena: hodnocena.value,
+             },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .then(() => {
+             emit('zadano');
+diff --git a/frontend/src/stores.ts b/frontend/src/stores.ts
+index fe342f8..f6eb95e 100644
+--- a/frontend/src/stores.ts
++++ b/frontend/src/stores.ts
+@@ -4,7 +4,6 @@ import { getOS } from '@/utils';
+ export const uziv = ref({} as { jmeno: string; email: string });
+ export const prihlasen = ref(false);
+ export const role = ref('basic');
+-export const tokenJmeno = 'pavouk_token';
+ export const nastaveniJmeno = 'pavouk_nastaveni_psani';
+ export const cislaProcvicJmeno = 'pavouk_procvic_';
+ export const levelyRychlosti = [30, 60, 90];
+diff --git a/frontend/src/utils.ts b/frontend/src/utils.ts
+index f41ccfd..9050400 100644
+--- a/frontend/src/utils.ts
++++ b/frontend/src/utils.ts
+@@ -1,5 +1,5 @@
+ import { ref } from 'vue';
+-import { cislaProcvicJmeno, levelyPresnosti, levelyRychlosti, nastaveniJmeno, prihlasen, tokenJmeno } from '@/stores';
++import { cislaProcvicJmeno, levelyPresnosti, levelyRychlosti, nastaveniJmeno, prihlasen } from '@/stores';
+ import api, { ApiError } from '@/api';
+ 
+ export function formatovanyPismena(pismena: string | string[] | undefined): string {
+@@ -25,10 +25,6 @@ export function format(p: string): string {
+     return formatovanyPismena(p);
+ }
+ 
+-export function getToken() {
+-    return localStorage.getItem(tokenJmeno);
+-}
+-
+ const formatovacDataPraha = new Intl.DateTimeFormat('cs-CZ', { timeZone: 'Europe/Prague' });
+ const formatovacDneMesicePraha = new Intl.DateTimeFormat('cs-CZ', { timeZone: 'Europe/Prague', day: 'numeric', month: 'numeric' });
+ 
+@@ -204,16 +200,14 @@ export function setCisloProcvic(id: string, cisla: number[]) {
+ }
+ 
+ export function saveCisloProcvicToServer(id: string, cisla: number[]) {
+-    api.post('/uloz-procvic-postup', { cislo_textu: Number(id), cislo_kapitoly: cisla[0], cislo_slova: cisla[1] }, { headers: { Authorization: `Bearer ${getToken()}` } }).catch((e) => {
++    api.post('/uloz-procvic-postup', { cislo_textu: Number(id), cislo_kapitoly: cisla[0], cislo_slova: cisla[1] }).catch((e) => {
+         console.log(e);
+     });
+ }
+ 
+ export async function getCisloProcvicFromServer(id: string): Promise<number[]> {
+     return api
+-        .get('/procvic-postup/' + id, {
+-            headers: { Authorization: `Bearer ${getToken()}` },
+-        })
++        .get('/procvic-postup/' + id)
+         .then((response) => {
+             return response.data as number[];
+         })
+@@ -225,7 +219,7 @@ export async function getCisloProcvicFromServer(id: string): Promise<number[]> {
+ 
+ export function postKlavesnice(klavesnice: boolean) {
+     const k = klavesnice ? 'qwerty' : 'qwertz';
+-    api.post('/ucet-zmena', { zmena: 'klavesnice', hodnota: k }, { headers: { Authorization: `Bearer ${getToken()}` } }).catch((e) => {
++    api.post('/ucet-zmena', { zmena: 'klavesnice', hodnota: k }).catch((e) => {
+         console.log(e);
+     });
+ }
+diff --git a/frontend/src/views/Cviceni.vue b/frontend/src/views/Cviceni.vue
+index d4d11ab..955fc16 100644
+--- a/frontend/src/views/Cviceni.vue
++++ b/frontend/src/views/Cviceni.vue
+@@ -1,6 +1,6 @@
+ <script setup lang="ts">
+ import { useRoute, useRouter } from 'vue-router';
+-import { format, getToken, MojeMapa, pridatOznameni } from '@/utils';
++import { format, MojeMapa, pridatOznameni } from '@/utils';
+ import SipkaZpet from '@/components/SipkaZpet.vue';
+ import { onMounted, ref } from 'vue';
+ import api from '@/api';
+@@ -35,11 +35,7 @@ const nacitamNovej = ref(false);
+ function get() {
+     nacitamNovej.value = true;
+     api
+-        .get('/cvic/' + encodeURIComponent(pismena) + '/' + cislo, {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get('/cvic/' + encodeURIComponent(pismena) + '/' + cislo)
+         .then((response) => {
+             response.data.text.forEach((slovo: string, i: number) => {
+                 text.value.push([]);
+@@ -87,11 +83,7 @@ function konecTextu(o: number, p: number, n: MojeMapa, d: number) {
+ async function prodlouzit() {
+     nacitamNovej.value = true;
+     api
+-        .get('/cvic/' + encodeURIComponent(pismena) + '/' + cislo, {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get('/cvic/' + encodeURIComponent(pismena) + '/' + cislo)
+         .then((response) => {
+             let pocetSlov = text.value.length;
+             response.data.text.forEach((slovo: string, i: number) => {
+diff --git a/frontend/src/views/InfoSkola.vue b/frontend/src/views/InfoSkola.vue
+index ac77478..68d366b 100644
+--- a/frontend/src/views/InfoSkola.vue
++++ b/frontend/src/views/InfoSkola.vue
+@@ -1,7 +1,7 @@
+ <script setup lang="ts">
+ import { useHead } from '@unhead/vue';
+ import { ref } from 'vue';
+-import { getToken, pridatOznameni } from '@/utils';
++import { pridatOznameni } from '@/utils';
+ import api from '@/api';
+ import { prihlasen, role, uziv } from '@/stores';
+ 
+@@ -32,11 +32,6 @@ function potvrdit(e: Event) {
+                 kontaktni_email: email.value,
+                 kontaktni_telefon: telefon.value,
+             },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .then(() => {
+             odeslano.value = true;
+diff --git a/frontend/src/views/Lekce.vue b/frontend/src/views/Lekce.vue
+index 22d97e3..2d830d3 100644
+--- a/frontend/src/views/Lekce.vue
++++ b/frontend/src/views/Lekce.vue
+@@ -2,7 +2,7 @@
+ import api from '@/api';
+ import { onMounted, onUnmounted, ref } from 'vue';
+ import { useRouter, useRoute } from 'vue-router';
+-import { Oznacene, format, getToken, napovedaKNavigaci } from '@/utils';
++import { Oznacene, format, napovedaKNavigaci } from '@/utils';
+ import BlokCviceni from '@/components/BlokCviceni.vue';
+ import SipkaZpet from '@/components/SipkaZpet.vue';
+ import { useHead } from '@unhead/vue';
+@@ -23,11 +23,7 @@ const prvniNedokoncene = ref(1);
+ 
+ onMounted(() => {
+     api
+-        .get('/lekce/' + encodeURIComponent(pismena), {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get('/lekce/' + encodeURIComponent(pismena))
+         .then((response) => {
+             if (response.data.cviceni === null) {
+                 router.push('/404');
+diff --git a/frontend/src/views/Nastaveni.vue b/frontend/src/views/Nastaveni.vue
+index 9899813..7a0a22c 100644
+--- a/frontend/src/views/Nastaveni.vue
++++ b/frontend/src/views/Nastaveni.vue
+@@ -2,7 +2,7 @@
+ import api from '@/api';
+ import { useHead } from '@unhead/vue';
+ import { onMounted, ref, useTemplateRef } from 'vue';
+-import { getToken, pridatOznameni, postKlavesnice } from '@/utils';
++import { pridatOznameni, postKlavesnice } from '@/utils';
+ import { prihlasen, uziv } from '@/stores';
+ import { useRouter } from 'vue-router';
+ import { role } from '@/stores';
+@@ -30,11 +30,7 @@ onMounted(() => {
+ 
+ function get() {
+     api
+-        .get('/nastaveni', {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get('/nastaveni')
+         .then((resp) => {
+             info.value = resp.data ?? {};
+             klavesniceUprava.value = info.value.klavesnice == 'qwerty';
+@@ -50,10 +46,9 @@ function get() {
+ function postSmazat(e: Event) {
+     e.preventDefault();
+     api
+-        .post('/ucet-zmena', { zmena: 'smazat' }, { headers: { Authorization: `Bearer ${getToken()}` } })
++        .post('/ucet-zmena', { zmena: 'smazat' })
+         .then(() => {
+             prihlasen.value = false;
+-            localStorage.removeItem('pavouk_token');
+             router.push('/prihlaseni');
+             pridatOznameni('Účet byl úspěšně smazán. Pavoučí rodina by však ráda věděla, proč odcházíš...', 15000);
+         })
+@@ -71,7 +66,7 @@ function postSmazat(e: Event) {
+ 
+ function postJmeno() {
+     api
+-        .post('/ucet-zmena', { zmena: 'jmeno', hodnota: jmenoUprava.value }, { headers: { Authorization: `Bearer ${getToken()}` } })
++        .post('/ucet-zmena', { zmena: 'jmeno', hodnota: jmenoUprava.value })
+         .then(() => {
+             get();
+             jmenoInput.value?.blur(); // lose focus
+diff --git a/frontend/src/views/Procvic.vue b/frontend/src/views/Procvic.vue
+index c80306d..7aec7b6 100644
+--- a/frontend/src/views/Procvic.vue
++++ b/frontend/src/views/Procvic.vue
+@@ -1,6 +1,6 @@
+ <script setup lang="ts">
+ import { useRoute, useRouter } from 'vue-router';
+-import { clone, getCisloProcvic, getToken, MojeMapa, pridatOznameni, saveNastaveni, setCisloProcvic } from '@/utils';
++import { clone, getCisloProcvic, MojeMapa, pridatOznameni, saveNastaveni, setCisloProcvic } from '@/utils';
+ import SipkaZpet from '@/components/SipkaZpet.vue';
+ import { computed, onMounted, ref, toRaw, watch, nextTick } from 'vue';
+ import api from '@/api';
+@@ -51,11 +51,7 @@ async function get() {
+     cisloKapitoly.value = cisla[0];
+ 
+     api
+-        .get(`/procvic/${cisloTextu}/${cisla[0]}`, {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get(`/procvic/${cisloTextu}/${cisla[0]}`)
+         .then((response) => {
+             if (cisla[1] > response.data.text.length - 1) {
+                 console.log('prekrocili jsme');
+@@ -198,11 +194,7 @@ async function prodlouzit() {
+     const cisla = await getCisloProcvic(cisloTextu);
+ 
+     api
+-        .get(`/procvic/${cisloTextu}/${cisla[0] + 1}`, {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get(`/procvic/${cisloTextu}/${cisla[0] + 1}`)
+         .then((response) => {
+             if (menuRef.value == null) return;
+             if (!menuRef.value.diakritika && !menuRef.value.velkaPismena) {
+diff --git a/frontend/src/views/SchvalovaniTextu.vue b/frontend/src/views/SchvalovaniTextu.vue
+index 084c48f..3924c7d 100644
+--- a/frontend/src/views/SchvalovaniTextu.vue
++++ b/frontend/src/views/SchvalovaniTextu.vue
+@@ -2,7 +2,7 @@
+ import { onMounted, ref, useTemplateRef } from 'vue';
+ import TextZadani from '@/components/ucitel/TextZadani.vue';
+ import api from '@/api';
+-import { getToken, pridatOznameni } from '@/utils';
++import { pridatOznameni } from '@/utils';
+ 
+ const textovePole = useTemplateRef('textove-pole');
+ 
+@@ -14,11 +14,7 @@ onMounted(() => {
+ 
+ function get() {
+     api
+-        .get('/sus', {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get('/sus')
+         .then((resp) => {
+             textovePole.value!.text = resp.data.text;
+         })
+diff --git a/frontend/src/views/SeznamLekci.vue b/frontend/src/views/SeznamLekci.vue
+index a26c688..9f25ef5 100644
+--- a/frontend/src/views/SeznamLekci.vue
++++ b/frontend/src/views/SeznamLekci.vue
+@@ -3,7 +3,7 @@ import api from '@/api';
+ import BlokLekce from '@/components/BlokLekce.vue';
+ import Rada from '@/components/Rada.vue';
+ import { onMounted, onUnmounted, ref } from 'vue';
+-import { Oznacene, getToken, pridatOznameni, napovedaKNavigaci } from '@/utils';
++import { Oznacene, pridatOznameni, napovedaKNavigaci } from '@/utils';
+ import { useHead } from '@unhead/vue';
+ import { useRouter } from 'vue-router';
+ import { mobil, prihlasen } from '@/stores';
+@@ -38,9 +38,8 @@ const nacitam = ref(false);
+ onMounted(() => {
+     nacitam.value = true;
+ 
+-    const header = getToken() ? { headers: { Authorization: `Bearer ${getToken()}` } } : {};
+     api
+-        .get('/lekce', header)
++        .get('/lekce')
+         .then((response) => {
+             lekce.value = response.data.lekce ?? [[], [], [], [], [], []];
+             dokoncene.value = response.data.dokoncene ?? [];
+diff --git a/frontend/src/views/SeznamProcvicovani.vue b/frontend/src/views/SeznamProcvicovani.vue
+index c84ff61..fd53c65 100644
+--- a/frontend/src/views/SeznamProcvicovani.vue
++++ b/frontend/src/views/SeznamProcvicovani.vue
+@@ -1,6 +1,6 @@
+ <script setup lang="ts">
+ import { useHead } from '@unhead/vue';
+-import { Oznacene, getToken, napovedaKNavigaci, pridatOznameni } from '@/utils';
++import { Oznacene, napovedaKNavigaci, pridatOznameni } from '@/utils';
+ import api from '@/api';
+ import { onMounted, onUnmounted, ref } from 'vue';
+ import { mobil } from '@/stores';
+@@ -26,11 +26,7 @@ let randomCvic = 1;
+ 
+ onMounted(() => {
+     api
+-        .get('/procvic', {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get('/procvic')
+         .then((response) => {
+             response.data.texty.forEach((txt: { id: number; jmeno: string; cpm: number; kategorie: string; obtiznost: number }) => {
+                 let a = texty.value.get(txt.kategorie);
+diff --git a/frontend/src/views/Statistiky.vue b/frontend/src/views/Statistiky.vue
+index 744e890..d1f4832 100644
+--- a/frontend/src/views/Statistiky.vue
++++ b/frontend/src/views/Statistiky.vue
+@@ -2,7 +2,7 @@
+ import { useHead } from '@unhead/vue';
+ import { onMounted, ref, useTemplateRef } from 'vue';
+ import { role } from '@/stores';
+-import { getToken, MojeMapa, pridatOznameni } from '@/utils';
++import { MojeMapa, pridatOznameni } from '@/utils';
+ import api from '@/api';
+ import PrepinacTabu from '@/components/PrepinacTabu.vue';
+ import Tooltip from '@/components/Tooltip.vue';
+@@ -32,11 +32,7 @@ const prepinacTabu = useTemplateRef('prepinac-tabu');
+ 
+ async function getInfo() {
+     api
+-        .get('/statistiky', {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get('/statistiky')
+         .then((resp) => {
+             info.value = {
+                 ...resp.data,
+diff --git a/frontend/src/views/TestPsani.vue b/frontend/src/views/TestPsani.vue
+index 8c15ad2..3306702 100644
+--- a/frontend/src/views/TestPsani.vue
++++ b/frontend/src/views/TestPsani.vue
+@@ -1,5 +1,5 @@
+ <script setup lang="ts">
+-import { clone, getToken, MojeMapa, pridatOznameni, saveNastaveni } from '@/utils';
++import { clone, MojeMapa, pridatOznameni, saveNastaveni } from '@/utils';
+ import { computed, onMounted, ref, toRaw } from 'vue';
+ import api from '@/api';
+ import Vysledek from '@/components/Vysledek.vue';
+@@ -52,11 +52,6 @@ function get() {
+             {
+                 typ: menuRef.value.typ ? 'vety' : 'slova',
+             },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .then((response) => {
+             response.data.text.forEach((slovo: string, i: number) => {
+@@ -167,11 +162,6 @@ async function prodlouzit() {
+             {
+                 typ: menuRef.value.typ ? 'vety' : 'slova',
+             },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .then((response) => {
+             if (menuRef.value == null) return;
+diff --git a/frontend/src/views/student/Prace.vue b/frontend/src/views/student/Prace.vue
+index 689c275..25bad37 100644
+--- a/frontend/src/views/student/Prace.vue
++++ b/frontend/src/views/student/Prace.vue
+@@ -1,6 +1,6 @@
+ <script setup lang="ts">
+ import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';
+-import { getToken, MojeMapa, pridatOznameni } from '@/utils';
++import { MojeMapa, pridatOznameni } from '@/utils';
+ import { onMounted, ref } from 'vue';
+ import api from '@/api';
+ import Vysledek from '@/components/Vysledek.vue';
+@@ -34,11 +34,7 @@ const rawText = ref([] as string[]);
+ function get() {
+     nacitamNovej.value = true;
+     api
+-        .get('/skola/get-praci/' + cislo, {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get('/skola/get-praci/' + cislo)
+         .then((response) => {
+             rawText.value = response.data.text ?? [];
+ 
+diff --git a/frontend/src/views/student/Trida.vue b/frontend/src/views/student/Trida.vue
+index e0aa36c..7a2330f 100644
+--- a/frontend/src/views/student/Trida.vue
++++ b/frontend/src/views/student/Trida.vue
+@@ -1,6 +1,6 @@
+ <script setup lang="ts">
+ import api from '@/api';
+-import { formatDatumPraha, getToken, pridatOznameni, naJednoDesetiny } from '@/utils';
++import { formatDatumPraha, pridatOznameni, naJednoDesetiny } from '@/utils';
+ import { computed, onMounted, ref } from 'vue';
+ import { useHead } from '@unhead/vue';
+ import { mobil, role } from '@/stores';
+@@ -32,11 +32,7 @@ onMounted(() => {
+ function get() {
+     nacitam.value = true;
+     api
+-        .get('/skola/trida', {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get('/skola/trida')
+         .then((response) => {
+             trida.value = response.data.trida;
+             klavesniceStudenta.value = response.data.klavesnice;
+@@ -102,7 +98,7 @@ const zprava = computed(() => {
+ function zmenaKlavesnice() {
+     if (dobraKlavesnice.value) return;
+     api
+-        .post('/ucet-zmena', { zmena: 'klavesnice', hodnota: trida.value.klavesnice }, { headers: { Authorization: `Bearer ${getToken()}` } })
++        .post('/ucet-zmena', { zmena: 'klavesnice', hodnota: trida.value.klavesnice })
+         .then(() => {
+             praceDoko.value = [];
+             praceNove.value = [];
+diff --git a/frontend/src/views/student/Zapis.vue b/frontend/src/views/student/Zapis.vue
+index 17019d8..f5ca333 100644
+--- a/frontend/src/views/student/Zapis.vue
++++ b/frontend/src/views/student/Zapis.vue
+@@ -1,7 +1,7 @@
+ <script setup lang="ts">
+ import { onMounted, ref } from 'vue';
+ import { useRoute, useRouter } from 'vue-router';
+-import { getToken, pridatOznameni } from '@/utils';
++import { pridatOznameni } from '@/utils';
+ import api from '@/api';
+ import { prihlasen, role } from '@/stores';
+ 
+@@ -30,11 +30,7 @@ function potvrditKod(e: Event) {
+         return;
+     }
+     api
+-        .get('/skola/test-tridy/' + kod.value, {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get('/skola/test-tridy/' + kod.value)
+         .then(() => {
+             state.value = 'jmeno';
+         })
+@@ -60,15 +56,7 @@ function zapsatSe(e: Event) {
+         return;
+     }
+     api
+-        .post(
+-            '/skola/zapis',
+-            { kod: kod.value, jmeno: jmeno.value },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+-        )
++        .post('/skola/zapis', { kod: kod.value, jmeno: jmeno.value })
+         .then(() => {
+             router.push('/trida');
+             role.value = 'student';
+diff --git a/frontend/src/views/ucitel/SeznamTrid.vue b/frontend/src/views/ucitel/SeznamTrid.vue
+index 7f70cbe..9ce41b0 100644
+--- a/frontend/src/views/ucitel/SeznamTrid.vue
++++ b/frontend/src/views/ucitel/SeznamTrid.vue
+@@ -1,7 +1,7 @@
+ <script setup lang="ts">
+ import api from '@/api';
+ import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+-import { getToken, pridatOznameni, oznameni } from '@/utils';
++import { pridatOznameni, oznameni } from '@/utils';
+ import { moznostiRocnik, moznostiTrida, moznostiSkupina, prihlasen } from '@/stores';
+ import { useHead } from '@unhead/vue';
+ import { useRouter } from 'vue-router';
+@@ -28,7 +28,7 @@ useHead({
+ });
+ 
+ onMounted(() => {
+-    if (!prihlasen.value && getToken() == null) {
++    if (!prihlasen.value) {
+         router.push('/');
+     }
+     get();
+@@ -42,11 +42,7 @@ onUnmounted(() => {
+ 
+ function get() {
+     api
+-        .get('/skola/tridy', {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get('/skola/tridy')
+         .then((response) => {
+             if (!response.data.skola) {
+                 pridatOznameni('Něco se pokazilo');
+@@ -105,11 +101,6 @@ function vytvorit(e: Event) {
+         .post(
+             '/skola/create-trida',
+             { jmeno: `${rocnik.value}${trida.value}${skupina.value != '-' ? ' ￨ ' + skupina.value : ''}` },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .then(() => {
+             pridavani.value = false;
+@@ -130,11 +121,6 @@ function pridatUcitele(e: Event) {
+         .post(
+             '/skola/upravit-ucitele',
+             { email: pridatEmail.value, akce: 'pridat' },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .then(() => {
+             pridavani.value = false;
+diff --git a/frontend/src/views/ucitel/Trida.vue b/frontend/src/views/ucitel/Trida.vue
+index 14d2959..e82c476 100644
+--- a/frontend/src/views/ucitel/Trida.vue
++++ b/frontend/src/views/ucitel/Trida.vue
+@@ -2,7 +2,7 @@
+ import api from '@/api';
+ import { onMounted, ref, computed, onUnmounted, useTemplateRef, watch } from 'vue';
+ import { useRoute, useRouter } from 'vue-router';
+-import { formatDatumPraha, getToken, pridatOznameni, naJednoDesetiny } from '@/utils';
++import { formatDatumPraha, pridatOznameni, naJednoDesetiny } from '@/utils';
+ import SipkaZpet from '@/components/SipkaZpet.vue';
+ import ZadaniPrace from '@/components/ucitel/ZadaniPrace.vue';
+ import { useHead } from '@unhead/vue';
+@@ -71,11 +71,7 @@ onUnmounted(() => {
+ 
+ function get() {
+     api
+-        .get('/skola/trida/' + id, {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get('/skola/trida/' + id)
+         .then((response) => {
+             trida.value = response.data.trida;
+             studenti.value = response.data.studenti ?? [];
+@@ -157,11 +153,7 @@ function select(id: number) {
+     nacitamStudenta.value = true;
+ 
+     api
+-        .get('/skola/student/' + id, {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get('/skola/student/' + id)
+         .then((response) => {
+             studentOznacenej.value = response.data.student;
+ 
+@@ -197,11 +189,6 @@ function zmenaJmena(e: Event) {
+         .post(
+             '/skola/student',
+             { jmeno: jmenoUprava.value, id: selectnutej.value },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .then(() => {
+             upravaStudenta.value = false;
+@@ -227,11 +214,6 @@ function zmenaStudentTridy(e: Event) {
+         .post(
+             '/skola/student',
+             { trida_id: parseInt(studentTridaZmena.value), id: selectnutej.value },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .then(() => {
+             upravaStudenta.value = false;
+@@ -254,11 +236,6 @@ function prejmenovatTridu(e: Event, novyJmeno: string) {
+         .post(
+             '/skola/zmena-tridy',
+             { trida_id: trida.value.id, zmena: 'jmeno', hodnota: novyJmeno },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .catch((e) => {
+             console.log(e);
+@@ -285,11 +262,6 @@ function zadatDoJineTridy() {
+                 trida_id: copyTrida.value,
+                 text: prace.value[copyPraciIndex.value].text,
+             },
+-            {
+-                headers: {
+-                    Authorization: `Bearer ${getToken()}`,
+-                },
+-            },
+         )
+         .then(() => {
+             if (copyTrida.value == trida.value.id) get();
+@@ -322,11 +294,7 @@ watch(copyPraciIndex, () => {
+ 
+ function getVysledkyStudentuVPraci(id: number) {
+     api
+-        .get('/skola/get-statistiky-prace/' + id, {
+-            headers: {
+-                Authorization: `Bearer ${getToken()}`,
+-            },
+-        })
++        .get('/skola/get-statistiky-prace/' + id)
+         .then((response) => {
+             const s: Array<Zak> = response.data.studenti;
+             if (s == null) return;

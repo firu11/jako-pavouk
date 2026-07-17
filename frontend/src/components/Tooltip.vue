@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { onUnmounted, ref, useTemplateRef, watch } from 'vue';
-import { onMounted } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 
 interface Props {
-    zprava: string;
+    zprava?: string;
     sirka: number;
     xOffset?: number;
     yOffset?: number;
@@ -12,6 +11,7 @@ interface Props {
     hoverDelay?: string;
 }
 const props = withDefaults(defineProps<Props>(), {
+    zprava: '',
     xOffset: 0,
     yOffset: 0,
     vzdalenost: 15,
@@ -19,68 +19,63 @@ const props = withDefaults(defineProps<Props>(), {
     hoverDelay: '0.4s',
 });
 
-const obsah = useTemplateRef('obsah');
-const tip = useTemplateRef('tip');
-const y = ref(props.vzdalenost + document.documentElement.scrollTop);
+const wrapper = useTemplateRef<HTMLElement>('wrapper');
+const obsah = useTemplateRef<HTMLElement>('obsah');
+const x = ref(0);
+const y = ref(props.vzdalenost);
+let delayedRecalculation: ReturnType<typeof setTimeout> | undefined;
+let resizeObserver: ResizeObserver | undefined;
+
+function recalculate() {
+    if (wrapper.value == null || obsah.value == null) return;
+
+    const wrapperRect = wrapper.value.getBoundingClientRect();
+    const contentRect = obsah.value.getBoundingClientRect();
+    const maxLeft = Math.max(12, document.documentElement.clientWidth - props.sirka - 12);
+    const viewportLeft = Math.min(Math.max(contentRect.left + contentRect.width / 2 - props.sirka / 2 + props.vzdalenostX, 12), maxLeft);
+
+    x.value = viewportLeft - wrapperRect.left;
+    y.value = contentRect.bottom - wrapperRect.top + props.vzdalenost;
+}
 
 onMounted(() => {
-    recalc();
-    recalcTipY();
-    setTimeout(recalcTipY, 100);
-    window.addEventListener('resize', recalc);
+    recalculate();
+    delayedRecalculation = setTimeout(recalculate, 100);
+    window.addEventListener('resize', recalculate);
+
+    if (typeof ResizeObserver !== 'undefined' && obsah.value) {
+        resizeObserver = new ResizeObserver(recalculate);
+        resizeObserver.observe(obsah.value);
+    }
 });
 
 onUnmounted(() => {
-    window.removeEventListener('resize', recalc);
+    if (delayedRecalculation !== undefined) clearTimeout(delayedRecalculation);
+    resizeObserver?.disconnect();
+    window.removeEventListener('resize', recalculate);
 });
 
-function getPageTopLeft(el: Element) {
-    var rect = el.getBoundingClientRect();
-    var docEl = document.documentElement;
-    return {
-        left: rect.left + (window.scrollX || docEl.scrollLeft || 0),
-        top: rect.top + (window.scrollY || docEl.scrollTop || 0),
-    };
-}
-
-function recalcTipY() {
-    if (obsah.value == null) return;
-    y.value = obsah.value.getBoundingClientRect().bottom + props.vzdalenost;
-}
-
-function recalc() {
-    if (tip.value == null) return;
-    tip.value.style.removeProperty('left');
-    tip.value.style.removeProperty('right');
-
-    let left = getPageTopLeft(tip.value).left + props.vzdalenostX + props.xOffset;
-    if (left + props.sirka! > document.body.clientWidth) {
-        tip.value.style.right = `12px`;
-    } else {
-        if (obsah.value == null || typeof obsah.value.getBoundingClientRect !== 'function') {
-            tip.value.style.left = `${props.vzdalenostX + document.documentElement.scrollLeft}px`;
-        } else if (props.xOffset == 0 && props.vzdalenostX == 0) {
-            return; // nevim co to dělá no nic
-        } else {
-            tip.value.style.left = `${obsah.value.getBoundingClientRect().left + obsah.value.getBoundingClientRect().width / 2 - props.sirka! / 2 + props.vzdalenostX}px`;
-        }
-    }
-}
-
-watch(obsah, recalc);
+watch(
+    () => [props.zprava, props.sirka, props.vzdalenost, props.vzdalenostX, props.xOffset, props.yOffset],
+    () => void nextTick(recalculate),
+);
 </script>
 
 <template>
-    <div id="wrap">
-        <div id="obsah" ref="obsah" :style="{ top: `${props.yOffset}px`, left: `${props.xOffset}px` }">
+    <div ref="wrapper" class="tooltip-wrapper">
+        <div ref="obsah" class="tooltip-trigger" :style="{ top: `${props.yOffset}px`, left: `${props.xOffset}px` }">
             <slot />
         </div>
-        <div id="tooltip" :style="{ top: `${y}px`, width: `${props.sirka == null ? obsah!.getBoundingClientRect().width * 2.2 : props.sirka}px` }" v-html="zprava" ref="tip" />
+        <div class="tooltip" :style="{ top: `${y}px`, left: `${x}px`, width: `${props.sirka}px` }">
+            <slot name="content">
+                <span v-html="props.zprava"></span>
+            </slot>
+        </div>
     </div>
 </template>
 
 <style scoped>
-#tooltip {
+.tooltip {
     opacity: 0%;
     background-color: black;
     color: white;
@@ -96,17 +91,18 @@ watch(obsah, recalc);
     transition: 0.1s opacity;
 }
 
-#obsah:hover ~ #tooltip {
+.tooltip-trigger:hover ~ .tooltip {
     opacity: 100%;
     transition-delay: v-bind('props.hoverDelay');
 }
 
-#obsah {
+.tooltip-trigger {
     position: relative;
     cursor: help;
 }
 
-#wrap {
+.tooltip-wrapper {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;

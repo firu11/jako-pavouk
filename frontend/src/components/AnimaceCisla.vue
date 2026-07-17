@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 interface Props {
     cislo: number;
@@ -10,40 +10,48 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const zobrazeneCislo = ref('0');
-const jedenFrame = 1000 / 60; // fps
 const dobaTrvani = 1400;
-let puvodniCislo = 0;
+let animationFrame: number | null = null;
 
-let counter = 0;
+watch([() => props.cislo, () => props.desetinaMista], animace);
 
-const celkemFramu = Math.ceil(dobaTrvani / jedenFrame);
+onMounted(animace);
 
-onMounted(() => {
-    animace();
-    setTimeout(() => {
-        watch(props, () => {
-            clearInterval(counter);
-            animace();
-        });
-    }, 300);
+onUnmounted(() => {
+    zrusAnimaci();
 });
 
 function animace() {
-    let frame = 0;
+    zrusAnimaci();
 
-    if (zobrazeneCislo.value != '') puvodniCislo = parseInt(zobrazeneCislo.value);
+    const zobrazenaHodnota = Number.parseFloat(zobrazeneCislo.value);
+    const puvodniCislo = Number.isNaN(zobrazenaHodnota) ? 0 : zobrazenaHodnota;
+    const ciloveCislo = props.cislo;
+    const desetinaMista = props.desetinaMista;
+    let zacatek: number | null = null;
 
-    counter = setInterval(() => {
-        frame++;
+    const vykresliFrame = (cas: number) => {
+        zacatek ??= cas;
+        const t = Math.min((cas - zacatek) / dobaTrvani, 1);
+        const prubeh = Math.sqrt(1 - Math.pow(t - 1, 6));
 
-        let t = frame / celkemFramu;
-        zobrazeneCislo.value = transform(Math.sqrt(1 - Math.pow(t - 1, 6)), puvodniCislo, props.cislo).toFixed(props.desetinaMista);
+        zobrazeneCislo.value = transform(prubeh, puvodniCislo, ciloveCislo).toFixed(desetinaMista);
 
-        if (frame === celkemFramu) {
-            clearInterval(counter);
-            puvodniCislo = props.cislo;
+        if (t < 1) {
+            animationFrame = requestAnimationFrame(vykresliFrame);
+        } else {
+            animationFrame = null;
         }
-    }, jedenFrame);
+    };
+
+    animationFrame = requestAnimationFrame(vykresliFrame);
+}
+
+function zrusAnimaci() {
+    if (animationFrame == null) return;
+
+    cancelAnimationFrame(animationFrame);
+    animationFrame = null;
 }
 
 function transform(x: number, a: number, b: number) {

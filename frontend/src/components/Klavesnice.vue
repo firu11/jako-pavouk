@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from 'vue';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { os } from '@/stores.ts';
 import {
@@ -26,89 +26,92 @@ interface Props {
     cekame: boolean;
     fullHide: boolean;
 }
+
 const props = withDefaults(defineProps<Props>(), {
     aktivniPismeno: '',
 });
 
-const cesta = useRoute().path.split('/');
+const route = useRoute();
+const zobrazitZakladniPozici = computed(() => route.path.split('/')[1] !== 'prvni-psani');
 
-const znakySeShiftem: Map<string, boolean> = new Map();
-const schema = ref([] as string[][]);
-let delkaKlaves: { [id: string]: number } = {};
-let prstoklad: Map<string, string> = new Map();
-let specialniZnaky: Map<string, string[]> = new Map();
+const schema = computed(() => {
+    let zakladniSchema: string[][];
 
-if (os.value === 'windows') {
-    schema.value = schemaWindows;
-    delkaKlaves = delkaKlavesWindows;
-} else if (os.value === 'macos') {
-    schema.value = schemaMacOS;
-    delkaKlaves = delkaKlavesMacOS;
-} else if (os.value === 'linux') {
-    schema.value = schemaLinux;
-    delkaKlaves = delkaKlavesWindows;
-} else {
-    schema.value = schemaWindows;
-    delkaKlaves = delkaKlavesWindows;
+    if (os.value === 'macos') zakladniSchema = schemaMacOS;
+    else if (os.value === 'linux') zakladniSchema = schemaLinux;
+    else zakladniSchema = schemaWindows;
 
-    console.log('CO TO MÁŠ ZA SYSTÉM BRO');
-}
+    const result = zakladniSchema.map((radek) => [...radek]);
+    const qwerty = props.typ === 'qwerty';
 
-prstoklad = calcPrstoklad();
+    result[1][6] = qwerty ? 'Y' : 'Z';
+    if (os.value === 'macos') result[3][2] = qwerty ? 'Z' : 'Y';
+    else if (os.value === 'windows' || os.value === 'linux') result[3][1] = qwerty ? 'Z' : 'Y';
+
+    return result;
+});
+
+const delkaKlaves = computed(() => (os.value === 'macos' ? delkaKlavesMacOS : delkaKlavesWindows));
+
+const specialniZnaky = computed(() => {
+    let result: Map<string, string[]>;
+
+    if (os.value === 'windows') result = props.typ === 'qwerty' ? specialniZnakyWindowsQWERTY : specialniZnakyWindowsQWERTZ;
+    else if (os.value === 'macos') result = specialniZnakyMacOS;
+    else if (os.value === 'linux') result = props.typ === 'qwerty' ? specialniZnakyLinuxQWERTY : specialniZnakyLinuxQWERTZ;
+    else result = new Map();
+
+    return result;
+});
+
+const prstoklad = computed(() => {
+    let zakladniPrstoklad: { [id: string]: string[] };
+
+    if (os.value === 'macos') zakladniPrstoklad = prstokladMacOS;
+    else if (os.value === 'linux') zakladniPrstoklad = prstokladLinux;
+    else zakladniPrstoklad = prstokladWindows;
+
+    const result = new Map<string, string>();
+    for (const [prst, klavesy] of Object.entries(zakladniPrstoklad)) {
+        for (const klavesa of klavesy) result.set(klavesa, prst);
+    }
+
+    if (props.typ === 'qwerty') {
+        result.set('Y', 'P_Ukaz');
+        result.set('Z', 'L_Mali');
+    } else {
+        result.set('Z', 'P_Ukaz');
+        result.set('Y', 'L_Mali');
+    }
+
+    return result;
+});
+
+const znakySeShiftem = computed(() => {
+    const result = new Set<string>();
+
+    for (const radek of schema.value) {
+        for (const klavesa of radek) {
+            const prvniZnakVKlavese = klavesa.charAt(0);
+            if (/^\d$/.test(prvniZnakVKlavese)) continue;
+            if (prvniZnakVKlavese === ' ' || prvniZnakVKlavese === '∧') continue;
+            if (klavesa.length === 2) result.add(prvniZnakVKlavese);
+        }
+    }
+
+    specialniZnaky.value.forEach((klavesy, znak) => {
+        if (klavesy.includes('Shift')) result.add(znak);
+    });
+
+    return result;
+});
 
 const oznacenyPrst = computed(() => {
-    prstoklad.forEach((prst, tlacitko) => {
+    for (const [tlacitko, prst] of prstoklad.value) {
         if (oznacene(tlacitko)) return prst;
-    });
+    }
     return '';
 });
-
-onMounted(() => {
-    prohoditKlavesnici(props.typ!);
-    calculateZnakySeShiftem();
-});
-
-watch(
-    () => props.typ,
-    (ted) => {
-        prohoditKlavesnici(ted!);
-        calculateZnakySeShiftem();
-    },
-);
-
-function prohoditKlavesnici(rozlozeni: string) {
-    if (rozlozeni === 'qwerty') {
-        schema.value[1][6] = 'Y';
-        if (os.value === 'windows') {
-            schema.value[3][1] = 'Z';
-            specialniZnaky = specialniZnakyWindowsQWERTY;
-        } else if (os.value === 'macos') {
-            schema.value[3][2] = 'Z';
-            specialniZnaky = specialniZnakyMacOS;
-        } else if (os.value === 'linux') {
-            schema.value = schemaLinux;
-            specialniZnaky = specialniZnakyLinuxQWERTY;
-            schema.value[3][1] = 'Z';
-        }
-        prstoklad.set('Y', 'P_Ukaz');
-        prstoklad.set('Z', 'L_Mali');
-    } else {
-        schema.value[1][6] = 'Z';
-        if (os.value === 'windows') {
-            schema.value[3][1] = 'Y';
-            specialniZnaky = specialniZnakyWindowsQWERTZ;
-        } else if (os.value === 'macos') {
-            schema.value[3][2] = 'Y';
-            specialniZnaky = specialniZnakyMacOS;
-        } else if (os.value === 'linux') {
-            schema.value = schemaLinux;
-            specialniZnaky = specialniZnakyLinuxQWERTZ;
-            schema.value[3][1] = 'Y';
-        }
-        prstoklad.set('Z', 'P_Ukaz');
-        prstoklad.set('Y', 'L_Mali');
-    }
-}
 
 function tlacPismeno(cislo: number, tlacitko: string) {
     try {
@@ -155,9 +158,9 @@ function oznacene(tlacitko: string) {
             if (tlacitko === 'ˇ´') return true;
         }
     }
-    if (specialniZnaky.has(props.aktivniPismeno)) {
+    if (specialniZnaky.value.has(props.aktivniPismeno)) {
         // speciální znaky, které potřebují speciální kombinaci
-        const potrebnaTlacitka = specialniZnaky.get(props.aktivniPismeno)!;
+        const potrebnaTlacitka = specialniZnaky.value.get(props.aktivniPismeno)!;
         for (let i = 0; i < potrebnaTlacitka.length; i++) {
             if (tlacitko == potrebnaTlacitka[i]) {
                 return true;
@@ -170,71 +173,38 @@ function oznacene(tlacitko: string) {
 
 function barva(tlacitko: string) {
     if (tlacitko === 'Shift' || tlacitko === 'Shift1' || tlacitko === 'Shift2') return barvy.get('P_Mali');
-    if (!specialniZnaky.has(props.aktivniPismeno) && tlacitko === '⌥') return '';
-    if (specialniZnaky.has(props.aktivniPismeno) && (tlacitko === 'Ctrl' || tlacitko === 'Alt' || tlacitko === 'AltGr')) {
-        const tlacitka = specialniZnaky.get(props.aktivniPismeno)!;
+    if (!specialniZnaky.value.has(props.aktivniPismeno) && tlacitko === '⌥') return '';
+    if (specialniZnaky.value.has(props.aktivniPismeno) && (tlacitko === 'Ctrl' || tlacitko === 'Alt' || tlacitko === 'AltGr')) {
+        const tlacitka = specialniZnaky.value.get(props.aktivniPismeno)!;
         if (!tlacitka?.includes(tlacitko)) return '';
     }
-    if (!specialniZnaky.has(props.aktivniPismeno) && (tlacitko === 'Ctrl' || tlacitko === 'Alt' || tlacitko === 'AltGr')) return '';
+    if (!specialniZnaky.value.has(props.aktivniPismeno) && (tlacitko === 'Ctrl' || tlacitko === 'Alt' || tlacitko === 'AltGr')) return '';
 
-    const prst: string = prstoklad.get(tlacitko) || '';
+    const prst: string = prstoklad.value.get(tlacitko) || '';
     return barvy.get(prst);
 }
 
 function delkaTlacitka(tlacitko: string) {
-    if (delkaKlaves[tlacitko] === undefined) {
+    if (delkaKlaves.value[tlacitko] === undefined) {
         return 0;
     }
-    return delkaKlaves[tlacitko];
-}
-
-function calculateZnakySeShiftem() {
-    znakySeShiftem.clear();
-    for (let r = 0; r < schema.value.length; r++) {
-        for (let s = 0; s < schema.value[r].length; s++) {
-            const klavesa = schema.value[r][s];
-            const prvniZnakVKlavese = klavesa.charAt(0);
-            if (/^\d$/.test(prvniZnakVKlavese)) continue;
-            if (prvniZnakVKlavese === ' ' || prvniZnakVKlavese === '∧') continue;
-            if (klavesa.length == 2) znakySeShiftem.set(klavesa.charAt(0), true);
-        }
-    }
-
-    specialniZnaky.forEach((klavesy, znak) => {
-        if (klavesy.includes('Shift')) znakySeShiftem.set(znak, true);
-    });
-}
-
-function calcPrstoklad(): Map<string, string> {
-    const result = new Map<string, string>();
-    let x: { [id: string]: string[] };
-
-    if (os.value === 'windows') x = prstokladWindows;
-    else if (os.value === 'macos') x = prstokladMacOS;
-    else if (os.value === 'linux') x = prstokladLinux;
-    else x = prstokladWindows;
-
-    for (let prst in x) {
-        for (let i = 0; i < x[prst].length; i++) {
-            result.set(x[prst][i], prst);
-        }
-    }
-    return result;
+    return delkaKlaves.value[tlacitko];
 }
 
 function potrebujeShift(pismeno: string) {
     if (/^\d$/.test(pismeno)) return true; // cisla
     const pismenoBezDiakritiky = pismeno.normalize('NFD').replace(/\p{Diacritic}/gu, '');
     if (/^[A-Z]$/.test(pismenoBezDiakritiky)) return true; // velká písmena (i ty co mají diakritiku)
-    if (znakySeShiftem.has(pismeno)) return true;
+    if (znakySeShiftem.value.has(pismeno)) return true;
     if ('ťňď'.includes(pismeno)) return true;
+    return false;
 }
 </script>
 
 <template>
     <div :class="{ hide: fullHide }" id="wraper">
         <div id="klavesnice" :class="{ rozmazany: props.rozmazat, 'rozmazany-min': props.cekame && !props.rozmazat }">
-            <div :class="{}" class="radek" v-for="(radek, i) in schema" :key="i">
+            <div class="radek" v-for="(radek, i) in schema" :key="i">
                 <div
                     v-for="tlacitko in radek"
                     :key="tlacitko"
@@ -255,7 +225,7 @@ function potrebujeShift(pismeno: string) {
             </div>
         </div>
 
-        <div v-if="cesta[1] != 'prvni-psani'" id="zakladni-pozice" :style="{ opacity: props.cekame && !props.rozmazat ? 1 : 0, left: os === 'macos' ? '98px' : '92px' }">
+        <div v-if="zobrazitZakladniPozici" id="zakladni-pozice" :style="{ opacity: props.cekame && !props.rozmazat ? 1 : 0, left: os === 'macos' ? '98px' : '92px' }">
             <div
                 v-for="tlacitko in ['A', 'S', 'D', 'F', 'J', 'K', 'L', '&quot;ů']"
                 :key="tlacitko"
