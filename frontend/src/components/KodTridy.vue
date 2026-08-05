@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import api from '@/api';
-import { getToken, pridatOznameni } from '@/utils';
+import { pridatOznameni } from '@/utils';
 import { ref } from 'vue';
 import Tooltip from '@/components/Tooltip.vue';
 
@@ -29,11 +29,6 @@ function zamek() {
         .post(
             '/skola/zmena-tridy',
             { trida_id: props.id, zmena: 'zamek' },
-            {
-                headers: {
-                    Authorization: `Bearer ${getToken()}`,
-                },
-            },
         )
         .catch((e) => {
             console.log(e);

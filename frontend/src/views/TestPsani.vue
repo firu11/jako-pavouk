@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { clone, getToken, MojeMapa, pridatOznameni, saveNastaveni } from '@/utils';
+import { clone, MojeMapa, pridatOznameni, saveNastaveni } from '@/utils';
 import { computed, onMounted, ref, toRaw } from 'vue';
 import api from '@/api';
 import Vysledek from '@/components/Vysledek.vue';
@@ -51,11 +51,6 @@ function get() {
             '/test-psani',
             {
                 typ: menuRef.value.typ ? 'vety' : 'slova',
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${getToken()}`,
-                },
             },
         )
         .then((response) => {
@@ -166,11 +161,6 @@ async function prodlouzit() {
             '/test-psani',
             {
                 typ: menuRef.value.typ ? 'vety' : 'slova',
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${getToken()}`,
-                },
             },
         )
         .then((response) => {

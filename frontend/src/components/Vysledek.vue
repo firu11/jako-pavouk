@@ -2,7 +2,7 @@
 import api from '@/api';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getCisloPochvaly, getToken, MojeMapa, napovedaKNavigaci } from '@/utils';
+import { getCisloPochvaly, MojeMapa, napovedaKNavigaci } from '@/utils';
 import { levelyRychlosti } from '@/stores';
 import Tooltip from '@/components/Tooltip.vue';
 import AnimaceCisla from '@/components/AnimaceCisla.vue';
@@ -91,11 +91,6 @@ onMounted(() => {
                     delkaTextu: props.delkaTextu,
                     nejcastejsiChyby: Object.fromEntries(props.nejcastejsiChyby),
                 },
-                {
-                    headers: {
-                        Authorization: `Bearer ${getToken()}`,
-                    },
-                },
             )
             .catch(function (e) {
                 console.log(e);
@@ -116,11 +111,6 @@ onMounted(() => {
                     delkaTextu: props.delkaTextu,
                     nejcastejsiChyby: Object.fromEntries(props.nejcastejsiChyby),
                 },
-                {
-                    headers: {
-                        Authorization: `Bearer ${getToken()}`,
-                    },
-                },
             )
             .catch(function (e) {
                 console.log(e);
@@ -137,11 +127,6 @@ onMounted(() => {
                 cas: props.cas,
                 delkaTextu: props.delkaTextu,
                 nejcastejsiChyby: Object.fromEntries(props.nejcastejsiChyby),
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${getToken()}`,
-                },
             },
         )
         .catch(function (e) {

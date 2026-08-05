@@ -2,7 +2,7 @@
 import { onMounted, ref, useTemplateRef } from 'vue';
 import TextZadani from '@/components/ucitel/TextZadani.vue';
 import api from '@/api';
-import { getToken, pridatOznameni } from '@/utils';
+import { pridatOznameni } from '@/utils';
 
 const textovePole = useTemplateRef('textove-pole');
 
@@ -14,11 +14,7 @@ onMounted(() => {
 
 function get() {
     api
-        .get('/sus', {
-            headers: {
-                Authorization: `Bearer ${getToken()}`,
-            },
-        })
+        .get('/sus')
         .then((resp) => {
             textovePole.value!.text = resp.data.text;
         })

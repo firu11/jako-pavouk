@@ -2,7 +2,7 @@
 import { useHead } from '@unhead/vue';
 import { onMounted, ref, useTemplateRef } from 'vue';
 import { role } from '@/stores';
-import { getToken, MojeMapa, pridatOznameni } from '@/utils';
+import { MojeMapa, pridatOznameni } from '@/utils';
 import api from '@/api';
 import PrepinacTabu from '@/components/PrepinacTabu.vue';
 import Tooltip from '@/components/Tooltip.vue';
@@ -32,11 +32,7 @@ const prepinacTabu = useTemplateRef('prepinac-tabu');
 
 async function getInfo() {
     api
-        .get('/statistiky', {
-            headers: {
-                Authorization: `Bearer ${getToken()}`,
-            },
-        })
+        .get('/statistiky')
         .then((resp) => {
             info.value = {
                 ...resp.data,

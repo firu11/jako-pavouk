@@ -3,7 +3,7 @@ import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vu
 import MenuLink from '@/components/MenuLink.vue';
 import NotificationHost from '@/components/NotificationHost.vue';
 import Tooltip from '@/components/Tooltip.vue';
-import { mobil, prihlasen, role, tokenJmeno, uziv } from '@/stores';
+import { mobil, prihlasen, role, uziv } from '@/stores';
 import { oznameni, pridatOznameni } from '@/utils';
 import { useHead } from '@unhead/vue';
 import api, { ApiError } from '@/api';
@@ -32,7 +32,6 @@ async function nacistRelaci() {
         const response = await api.get<SessionResponse>('/token-expirace');
 
         if (response.data.jePotrebaVymenit) {
-            localStorage.removeItem(tokenJmeno);
             role.value = 'basic';
             uziv.value = { email: '', jmeno: '' };
             prihlasen.value = false;
@@ -91,16 +90,19 @@ onUnmounted(() => {
     window.removeEventListener('scroll', zavritMobilniMenuPriScrollu);
 });
 
-function odhlasit(e: Event) {
+async function odhlasit(e: Event) {
     zavritDialog(e);
-    localStorage.removeItem(tokenJmeno);
-    api.post('/odhlaseni').catch(console.error);
-    role.value = 'basic';
-    prihlasen.value = false;
-    router.push('/prihlaseni');
 
-    uziv.value.email = '';
-    uziv.value.jmeno = '';
+    try {
+        await api.post('/odhlaseni');
+        role.value = 'basic';
+        prihlasen.value = false;
+        uziv.value = { email: '', jmeno: '' };
+        await router.push('/prihlaseni');
+    } catch (error) {
+        console.error(error);
+        pridatOznameni('Odhlášení se nepodařilo. Zkus to prosím znovu.');
+    }
 }
 
 const dialog1 = useTemplateRef('dialog1');
@@ -285,8 +287,6 @@ dialog {
     width: 100%;
     align-items: center;
 }
-
-
 
 header {
     display: flex;

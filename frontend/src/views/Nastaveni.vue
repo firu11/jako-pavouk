@@ -2,8 +2,8 @@
 import api, { getApiErrorMessage } from '@/api';
 import { useHead } from '@unhead/vue';
 import { onMounted, ref, useTemplateRef } from 'vue';
-import { getToken, pridatOznameni, postKlavesnice } from '@/utils';
-import { prihlasen, role, tokenJmeno, uziv } from '@/stores';
+import { pridatOznameni, postKlavesnice } from '@/utils';
+import { prihlasen, role, uziv } from '@/stores';
 import { useRouter } from 'vue-router';
 
 useHead({
@@ -28,12 +28,7 @@ onMounted(() => {
 });
 
 function get() {
-    api
-        .get('/nastaveni', {
-            headers: {
-                Authorization: `Bearer ${getToken()}`,
-            },
-        })
+    api.get('/nastaveni')
         .then((resp) => {
             info.value = resp.data ?? {};
             klavesniceUprava.value = info.value.klavesnice == 'qwerty';
@@ -48,11 +43,9 @@ function get() {
 
 function postSmazat(e: Event) {
     e.preventDefault();
-    api
-        .post('/ucet-zmena', { zmena: 'smazat' }, { headers: { Authorization: `Bearer ${getToken()}` } })
+    api.post('/ucet-zmena', { zmena: 'smazat' })
         .then(() => {
             prihlasen.value = false;
-            localStorage.removeItem(tokenJmeno);
             router.push('/prihlaseni');
             pridatOznameni('Účet byl úspěšně smazán. Pavoučí rodina by však ráda věděla, proč odcházíš...', 15000);
         })
@@ -69,8 +62,7 @@ function postSmazat(e: Event) {
 }
 
 function postJmeno() {
-    api
-        .post('/ucet-zmena', { zmena: 'jmeno', hodnota: jmenoUprava.value }, { headers: { Authorization: `Bearer ${getToken()}` } })
+    api.post('/ucet-zmena', { zmena: 'jmeno', hodnota: jmenoUprava.value })
         .then(() => {
             get();
             jmenoInput.value?.blur(); // lose focus

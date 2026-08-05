@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useHead } from '@unhead/vue';
-import { Oznacene, getToken, napovedaKNavigaci, pridatOznameni } from '@/utils';
+import { Oznacene, napovedaKNavigaci, pridatOznameni } from '@/utils';
 import api from '@/api';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { mobil } from '@/stores';
@@ -26,11 +26,7 @@ let randomCvic = 1;
 
 onMounted(() => {
     api
-        .get('/procvic', {
-            headers: {
-                Authorization: `Bearer ${getToken()}`,
-            },
-        })
+        .get('/procvic')
         .then((response) => {
             response.data.texty.forEach((txt: { id: number; jmeno: string; cpm: number; kategorie: string; obtiznost: number }) => {
                 let a = texty.value.get(txt.kategorie);

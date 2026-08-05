@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { clone, getCisloProcvic, getToken, MojeMapa, pridatOznameni, saveNastaveni, setCisloProcvic } from '@/utils';
+import { clone, getCisloProcvic, MojeMapa, pridatOznameni, saveNastaveni, setCisloProcvic } from '@/utils';
 import SipkaZpet from '@/components/SipkaZpet.vue';
 import { computed, onMounted, ref, toRaw, watch, nextTick } from 'vue';
 import api from '@/api';
@@ -51,11 +51,7 @@ async function get() {
     cisloKapitoly.value = cisla[0];
 
     api
-        .get(`/procvic/${cisloTextu}/${cisla[0]}`, {
-            headers: {
-                Authorization: `Bearer ${getToken()}`,
-            },
-        })
+        .get(`/procvic/${cisloTextu}/${cisla[0]}`)
         .then((response) => {
             if (cisla[1] > response.data.text.length - 1) {
                 console.log('prekrocili jsme');
@@ -198,11 +194,7 @@ async function prodlouzit() {
     const cisla = await getCisloProcvic(cisloTextu);
 
     api
-        .get(`/procvic/${cisloTextu}/${cisla[0] + 1}`, {
-            headers: {
-                Authorization: `Bearer ${getToken()}`,
-            },
-        })
+        .get(`/procvic/${cisloTextu}/${cisla[0] + 1}`)
         .then((response) => {
             if (menuRef.value == null) return;
             if (!menuRef.value.diakritika && !menuRef.value.velkaPismena) {

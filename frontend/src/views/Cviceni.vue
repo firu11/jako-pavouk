@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { format, getToken, MojeMapa, pridatOznameni } from '@/utils';
+import { format, MojeMapa, pridatOznameni } from '@/utils';
 import SipkaZpet from '@/components/SipkaZpet.vue';
 import { onMounted, ref } from 'vue';
 import api from '@/api';
@@ -35,11 +35,7 @@ const nacitamNovej = ref(false);
 function get() {
     nacitamNovej.value = true;
     api
-        .get('/cvic/' + encodeURIComponent(pismena) + '/' + cislo, {
-            headers: {
-                Authorization: `Bearer ${getToken()}`,
-            },
-        })
+        .get('/cvic/' + encodeURIComponent(pismena) + '/' + cislo)
         .then((response) => {
             response.data.text.forEach((slovo: string, i: number) => {
                 text.value.push([]);
@@ -87,11 +83,7 @@ function konecTextu(o: number, p: number, n: MojeMapa, d: number) {
 async function prodlouzit() {
     nacitamNovej.value = true;
     api
-        .get('/cvic/' + encodeURIComponent(pismena) + '/' + cislo, {
-            headers: {
-                Authorization: `Bearer ${getToken()}`,
-            },
-        })
+        .get('/cvic/' + encodeURIComponent(pismena) + '/' + cislo)
         .then((response) => {
             let pocetSlov = text.value.length;
             response.data.text.forEach((slovo: string, i: number) => {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useHead } from '@unhead/vue';
 import { ref } from 'vue';
-import { getToken, pridatOznameni } from '@/utils';
+import { pridatOznameni } from '@/utils';
 import api, { getApiErrorMessage } from '@/api';
 import { prihlasen, role, uziv } from '@/stores';
 
@@ -24,20 +24,11 @@ function potvrdit(e: Event) {
         return;
     }
     odesilame.value = true;
-    api
-        .post(
-            '/skola/zapis-skoly',
-            {
-                jmeno_skoly: skola.value,
-                kontaktni_email: email.value,
-                kontaktni_telefon: telefon.value,
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${getToken()}`,
-                },
-            },
-        )
+    api.post('/skola/zapis-skoly', {
+        jmeno_skoly: skola.value,
+        kontaktni_email: email.value,
+        kontaktni_telefon: telefon.value,
+    })
         .then(() => {
             odeslano.value = true;
             role.value = 'ucitel';

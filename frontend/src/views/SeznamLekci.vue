@@ -3,7 +3,7 @@ import api from '@/api';
 import BlokLekce from '@/components/BlokLekce.vue';
 import Rada from '@/components/Rada.vue';
 import { onMounted, onUnmounted, ref } from 'vue';
-import { Oznacene, getToken, pridatOznameni, napovedaKNavigaci } from '@/utils';
+import { Oznacene, pridatOznameni, napovedaKNavigaci } from '@/utils';
 import { useHead } from '@unhead/vue';
 import { useRouter } from 'vue-router';
 import { mobil, prihlasen } from '@/stores';
@@ -38,9 +38,8 @@ const nacitam = ref(false);
 onMounted(() => {
     nacitam.value = true;
 
-    const header = getToken() ? { headers: { Authorization: `Bearer ${getToken()}` } } : {};
     api
-        .get('/lekce', header)
+        .get('/lekce')
         .then((response) => {
             lekce.value = response.data.lekce ?? [[], [], [], [], [], []];
             dokoncene.value = response.data.dokoncene ?? [];

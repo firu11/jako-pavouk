@@ -4,7 +4,7 @@ import { getOperatingSystem } from '@/platform';
 export const uziv = ref({ jmeno: '', email: '' });
 export const prihlasen = ref(false);
 export const role = ref('basic');
-export const tokenJmeno = 'pavouk_token';
+
 export const nastaveniJmeno = 'pavouk_nastaveni_psani';
 export const cislaProcvicJmeno = 'pavouk_procvic_';
 export const levelyRychlosti = [30, 60, 90] as const;

@@ -3,7 +3,6 @@ package utils
 import (
 	"errors"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/firu11/jako-pavouk/backend/config"
@@ -22,18 +21,11 @@ func SetupAuth(cfg config.AuthConfig) {
 	privateKey = []byte(cfg.PrivateKey)
 }
 
-// AuthToken prefers the HttpOnly cookie and temporarily falls back to the
-// Authorization header while tokens from the localStorage-based client expire.
 func AuthToken(r *http.Request) string {
 	if cookie, err := r.Cookie(AuthCookieName); err == nil && cookie.Value != "" {
 		if valid, _, err := ValidovatToken(cookie.Value); err == nil && valid {
 			return cookie.Value
 		}
-	}
-
-	header := r.Header.Get("Authorization")
-	if token, ok := strings.CutPrefix(header, "Bearer "); ok {
-		return token
 	}
 	return ""
 }
