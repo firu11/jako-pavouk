@@ -101,7 +101,8 @@ watch(
     cursor: help;
 }
 
-.tooltip-wrapper {
+/* The repeated class keeps parent scoped selectors such as `.blok div` from overriding the component's layout. */
+.tooltip-wrapper.tooltip-wrapper {
     position: relative;
     display: flex;
     flex-direction: column;
