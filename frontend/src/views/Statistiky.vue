@@ -10,7 +10,7 @@ import AnimaceCisla from '@/components/AnimaceCisla.vue';
 import GrafStatistiky from '@/components/GrafStatistiky.vue';
 
 useHead({
-    title: 'Statistiky',
+    title: 'Statistiky'
 });
 
 const info = ref({
@@ -23,6 +23,8 @@ const info = ref({
     nejcastejsiChyby: new Map<string, number>(),
     rychlosti: [] as number[],
     presnosti: [] as number[],
+    percentilRychlosti: -1,
+    percentilPresnosti: -1
 });
 const nejcastejsiChyby = ref([] as { znak: string; pocet: number }[]);
 const cas = ref(0);
@@ -31,8 +33,7 @@ const napsanychPismen = ref(0);
 const prepinacTabu = useTemplateRef('prepinac-tabu');
 
 async function getInfo() {
-    api
-        .get('/statistiky')
+    api.get('/statistiky')
         .then((resp) => {
             info.value = {
                 ...resp.data,
@@ -41,6 +42,8 @@ async function getInfo() {
                 rychlosti: resp.data.rychlosti ?? [],
                 presnosti: resp.data.presnosti ?? [],
                 nejcastejsiChyby: resp.data.nejcastejsiChyby ?? {},
+                percentilRychlosti: resp.data.percentilRychlosti ?? -1,
+                percentilPresnosti: resp.data.percentilPresnosti ?? -1
             };
             nejcastejsiChyby.value = new MojeMapa(Object.entries(info.value.nejcastejsiChyby)).top(6);
 
@@ -129,6 +132,7 @@ onMounted(() => {
                 <span v-else class="popis">
                     Rychlost:<br />
                     <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.rychlost)" /> CPM
+                    <span v-if="info.percentilRychlosti >= 0" class="percentil">Lepší než {{ info.percentilRychlosti }} % pavouků</span>
                 </span>
             </Tooltip>
         </div>
@@ -140,6 +144,7 @@ onMounted(() => {
                     <span v-else class="popis">
                         Přesnost:<br />
                         <AnimaceCisla class="cislo" :cislo="zaokrouhlit(info.uspesnost)" /> %
+                        <span v-if="info.percentilPresnosti >= 0" class="percentil">Lepší než {{ info.percentilPresnosti }} % pavouků</span>
                     </span>
                 </Tooltip>
             </div>
@@ -181,7 +186,7 @@ onMounted(() => {
             :taby="[
                 ['celkem', 'Celkem'],
                 ['dva tydny', 'Dva týdny'],
-                ['dnes', 'Dnes'],
+                ['dnes', 'Dnes']
             ]"
             default-tab="celkem"
             ref="prepinac-tabu"
@@ -284,7 +289,7 @@ onMounted(() => {
     grid-column-start: 2;
     gap: 0;
     justify-content: space-between;
-    min-height: 230px;
+    min-height: 250px;
 }
 
 #chyby h2 {
@@ -309,6 +314,16 @@ onMounted(() => {
     font-size: 15pt;
 }
 
+.percentil {
+    display: block;
+    margin-top: 1px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.2;
+    opacity: 0.8;
+    white-space: nowrap;
+}
+
 .cislo {
     font-size: 28pt;
     font-weight: 480;
@@ -331,7 +346,7 @@ onMounted(() => {
     align-items: center;
     width: 320px;
     background-color: var(--tmave-fialova);
-    height: 105px;
+    height: 115px;
     transition-duration: 0.2s;
     padding: 10px;
     gap: 10px;
@@ -360,7 +375,7 @@ onMounted(() => {
     transition-duration: 0.2s;
     padding: 0 50px 0 20px;
     gap: 10px;
-    max-height: 100px;
+    max-height: 110px;
 }
 
 #nadpisy h1 {
@@ -474,7 +489,7 @@ onMounted(() => {
 @media screen and (max-width: 730px) {
     .blok {
         width: 320px;
-        height: 105px;
+        height: 115px;
     }
 
     #mini > .blok {

@@ -250,12 +250,15 @@ func GetVsechnyJmenaUziv() ([]string, error) {
 }
 
 func SmazatUzivatele(id uint) error {
-	result, err := DB.Exec(`UPDATE uzivatel u SET smazany = TRUE WHERE u.id = $1 AND NOT EXISTS (SELECT 1 FROM ucitel c WHERE c.uziv_id = u.id);`, id)
-	rowsAffected, _ := result.RowsAffected()
-	if rowsAffected == 0 {
+	var smazano int
+	err := DB.QueryRow(`WITH smazany AS (UPDATE uzivatel u SET smazany = TRUE WHERE u.id = $1 AND NOT EXISTS (SELECT 1 FROM ucitel c WHERE c.uziv_id = u.id) RETURNING u.id), smazane_statistiky AS (DELETE FROM statistiky_uzivatelu WHERE uziv_id IN (SELECT id FROM smazany)) SELECT COUNT(*) FROM smazany;`, id).Scan(&smazano)
+	if err != nil {
+		return err
+	}
+	if smazano == 0 {
 		return errors.New("ucitel")
 	}
-	return err
+	return nil
 }
 
 func ZmenitKlavesnici(id uint, novaKlavesnice string) error {
@@ -321,6 +324,15 @@ func GetUdaje(uzivID uint) (float32, float32, map[string]int, [3]int, [3]int, er
 	return presnost, rychlost, chybyPismenka, cas, napsanychPismen, nil
 }
 
+func GetPercentily(uzivID uint, rychlost, presnost float32) (int, int, error) {
+	var percentilRychlosti, percentilPresnosti int
+	err := DB.QueryRow(`SELECT COALESCE(ROUND(COUNT(*) FILTER (WHERE rychlost < $2) * 100.0 / NULLIF(COUNT(*), 0))::INTEGER, -1), COALESCE(ROUND(COUNT(*) FILTER (WHERE presnost < $3) * 100.0 / NULLIF(COUNT(*), 0))::INTEGER, -1) FROM statistiky_uzivatelu WHERE uziv_id <> $1;`, uzivID, rychlost, presnost).Scan(&percentilRychlosti, &percentilPresnosti)
+	if err != nil {
+		return -1, -1, err
+	}
+	return percentilRychlosti, percentilPresnosti, nil
+}
+
 func GetUdajeProGraf(uzivID uint) ([13]float32, [13]float32, error) {
 	var rychlosti [13]float32
 	var presnosti [13]float32
@@ -331,18 +343,21 @@ func GetUdajeProGraf(uzivID uint) ([13]float32, [13]float32, error) {
 	}
 	defer rows.Close()
 
-	for i := range 13 {
-		rows.Next()
+	i := 0
+	for rows.Next() {
+		if i >= len(rychlosti) {
+			break
+		}
 
 		var rychlost, presnost float32
 		var datum date.Date
-		err := rows.Scan(&datum, &rychlost, &presnost)
-		if err != nil {
+		if err := rows.Scan(&datum, &rychlost, &presnost); err != nil {
 			return rychlosti, presnosti, err
 		}
 
 		rychlosti[i] = rychlost
 		presnosti[i] = presnost
+		i++
 	}
 	return rychlosti, presnosti, nil
 }
@@ -362,25 +377,63 @@ func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
 
 	var uzivID uint
 	// kdyby náhodou uživatel už byl dříve zaregistrovaný, smažu všechen jeho progres pomocí WITH x2 a resetnu vsechny sloupce
-	err := DB.QueryRow(`WITH id_uzivatele AS ( SELECT id FROM uzivatel WHERE email = $1 ), d AS ( UPDATE dokoncene SET uziv_id = NULL WHERE uziv_id = ( SELECT id FROM id_uzivatele ) ), dp AS ( UPDATE dokoncene_procvic SET uziv_id = NULL WHERE uziv_id = ( SELECT id FROM id_uzivatele ) ), ds AS ( UPDATE dokoncena_prace SET student_id = NULL WHERE student_id = ( SELECT id FROM id_uzivatele ) ) INSERT INTO uzivatel (email, jmeno, heslo) VALUES ($1, $2, $3) ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email, jmeno = EXCLUDED.jmeno, heslo = EXCLUDED.heslo, klavesnice = DEFAULT, datum = DEFAULT, skolni_jmeno = DEFAULT, smazany = DEFAULT RETURNING id;`, email, jmeno, hesloHash).Scan(&uzivID)
+	err := DB.QueryRow(`WITH id_uzivatele AS ( SELECT id FROM uzivatel WHERE email = $1 ), d AS ( UPDATE dokoncene SET uziv_id = NULL WHERE uziv_id = ( SELECT id FROM id_uzivatele ) ), dp AS ( UPDATE dokoncene_procvic SET uziv_id = NULL WHERE uziv_id = ( SELECT id FROM id_uzivatele ) ), ds AS ( UPDATE dokoncena_prace SET student_id = NULL WHERE student_id = ( SELECT id FROM id_uzivatele ) ), s AS ( DELETE FROM statistiky_uzivatelu WHERE uziv_id = ( SELECT id FROM id_uzivatele ) ) INSERT INTO uzivatel (email, jmeno, heslo) VALUES ($1, $2, $3) ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email, jmeno = EXCLUDED.jmeno, heslo = EXCLUDED.heslo, klavesnice = DEFAULT, datum = DEFAULT, skolni_jmeno = DEFAULT, smazany = DEFAULT RETURNING id;`, email, jmeno, hesloHash).Scan(&uzivID)
 	if err != nil {
 		return 0, err
 	}
 	return uzivID, nil
 }
 
-func PridatDokonceneCvic(cvicID, uzivID uint, neopravene int, cas int, delkaTextu int, chybyPismenka map[string]int) error {
-	chybyPismenkaJSON, err := json.Marshal(chybyPismenka)
-	if err != nil {
-		return errors.New("konverze mapy chyb na json se nepovedla")
-	}
-	// ignoruje duplicitní inserty které jsou méně než 10s od sebe. po 10s už povoluje doplicity
-	_, err = DB.Exec(`WITH recent AS (SELECT 1 FROM dokoncene WHERE uziv_id = $1 AND cviceni_id = $2 AND neopravene = $3 AND cas = $4 AND delka_textu = $5 AND now() - datum <= interval '10 seconds' LIMIT 1) INSERT INTO dokoncene (uziv_id, cviceni_id, neopravene, cas, delka_textu, chyby_pismenka) SELECT $1, $2, $3, $4, $5, $6 WHERE NOT EXISTS (SELECT 1 FROM recent);`, uzivID, cvicID, neopravene, cas, delkaTextu, chybyPismenkaJSON)
+func aktualizovatStatistikyUzivatele(tx *sql.Tx, uzivID uint) error {
+	_, err := tx.Exec(`WITH poslednich_100 AS ( SELECT *, COALESCE((SELECT SUM(value::NUMERIC) FROM jsonb_each_text(chyby_pismenka)), 0) AS opravene FROM ( (SELECT neopravene, delka_textu, cas, datum, chyby_pismenka FROM dokoncene WHERE uziv_id = $1 ORDER BY datum DESC LIMIT 100) UNION ALL (SELECT neopravene, delka_textu, cas, datum, chyby_pismenka FROM dokoncene_procvic WHERE uziv_id = $1 ORDER BY datum DESC LIMIT 100) ) AS kandidati ORDER BY datum DESC LIMIT 100 ), vypoctene AS ( SELECT $1::INTEGER AS uziv_id, GREATEST(((SUM(delka_textu) - 10 * SUM(neopravene)) / GREATEST(SUM(cas)::NUMERIC, 1)) * 60, 0) AS rychlost, ((SUM(delka_textu) - SUM(neopravene) - SUM(opravene)) / GREATEST(SUM(delka_textu)::NUMERIC, 1)) * 100 AS presnost FROM poslednich_100 HAVING COUNT(*) > 0 ), ulozene AS ( INSERT INTO statistiky_uzivatelu (uziv_id, rychlost, presnost) SELECT uziv_id, rychlost, presnost FROM vypoctene WHERE TRUE ON CONFLICT (uziv_id) DO UPDATE SET rychlost = EXCLUDED.rychlost, presnost = EXCLUDED.presnost, aktualizovano = NOW() RETURNING uziv_id ) DELETE FROM statistiky_uzivatelu WHERE uziv_id = $1 AND NOT EXISTS (SELECT 1 FROM vypoctene) AND NOT EXISTS (SELECT 1 FROM ulozene);`, uzivID)
 	return err
 }
 
-func PridatDokonceneProcvic(procvicID, uzivID uint, neopravene int, cas int, delkaTextu int, chybyPismenka map[string]int) error {
+// AktualizovatStatistikyUzivatele přepočítá snapshot z posledních 100 aktivit
+func AktualizovatStatistikyUzivatele(uzivID uint) error {
+	tx, err := DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := zamknoutUzivatele(tx, uzivID); err != nil {
+		return err
+	}
+	if err := aktualizovatStatistikyUzivatele(tx, uzivID); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+func zamknoutUzivatele(tx *sql.Tx, uzivID uint) error {
+	var id uint
+	return tx.QueryRow(`SELECT id FROM uzivatel WHERE id = $1 FOR UPDATE;`, uzivID).Scan(&id)
+}
+
+func PridatDokonceneCvic(cvicID, uzivID uint, neopravene int, cas int, delkaTextu int, chybyPismenka map[string]int) (bool, error) {
 	chybyPismenkaJSON, err := json.Marshal(chybyPismenka)
+	if err != nil {
+		return false, errors.New("konverze mapy chyb na json se nepovedla")
+	}
+
+	// ignoruje duplicitní inserty které jsou méně než 10s od sebe. po 10s už povoluje doplicity
+	result, err := DB.Exec(`WITH recent AS (SELECT 1 FROM dokoncene WHERE uziv_id = $1 AND cviceni_id = $2 AND neopravene = $3 AND cas = $4 AND delka_textu = $5 AND now() - datum <= interval '10 seconds' LIMIT 1) INSERT INTO dokoncene (uziv_id, cviceni_id, neopravene, cas, delka_textu, chyby_pismenka) SELECT $1, $2, $3, $4, $5, $6 WHERE NOT EXISTS (SELECT 1 FROM recent);`, uzivID, cvicID, neopravene, cas, delkaTextu, chybyPismenkaJSON)
+	if err != nil {
+		return false, err
+	}
+	vlozeno, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	return vlozeno > 0, nil
+}
+
+func PridatDokonceneProcvic(procvicID, uzivID uint, neopravene int, cas int, delkaTextu int, chybyPismenka map[string]int) (bool, error) {
+	chybyPismenkaJSON, err := json.Marshal(chybyPismenka)
+	if err != nil {
+		return false, errors.New("konverze mapy chyb na json se nepovedla")
+	}
 
 	// pokud je procvic 0 neboli je to test psaní, vložim NULL
 	procvicCislo := sql.NullString{}
@@ -391,16 +444,42 @@ func PridatDokonceneProcvic(procvicID, uzivID uint, neopravene int, cas int, del
 	if uzivID == 0 {
 		id = sql.NullInt32{}
 	}
+
+	result, err := DB.Exec(`WITH recent AS (SELECT 1 FROM dokoncene_procvic WHERE uziv_id = $1 AND typ_textu = $2 AND neopravene = $3 AND cas = $4 AND delka_textu = $5 AND now() - datum <= interval '10 seconds' LIMIT 1) INSERT INTO dokoncene_procvic (uziv_id, typ_textu, neopravene, cas, delka_textu, chyby_pismenka) SELECT $1, $2, $3, $4, $5, $6 WHERE NOT EXISTS (SELECT 1 FROM recent);`, id, procvicCislo, neopravene, cas, delkaTextu, chybyPismenkaJSON)
 	if err != nil {
-		return errors.New("konverze mapy chyb na json se nepovedla")
+		return false, err
 	}
-	_, err = DB.Exec(`WITH recent AS (SELECT 1 FROM dokoncene_procvic WHERE uziv_id = $1 AND typ_textu = $2 AND neopravene = $3 AND cas = $4 AND delka_textu = $5 AND now() - datum <= interval '10 seconds' LIMIT 1) INSERT INTO dokoncene_procvic (uziv_id, typ_textu, neopravene, cas, delka_textu, chyby_pismenka) SELECT $1, $2, $3, $4, $5, $6 WHERE NOT EXISTS (SELECT 1 FROM recent);`, id, procvicCislo, neopravene, cas, delkaTextu, chybyPismenkaJSON)
-	return err
+	vlozeno, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	return vlozeno > 0, nil
 }
 
 func OdebratDokonceneCvic(cvicID uint, uzivID uint) error {
-	_, err := DB.Exec(`DELETE FROM dokoncene WHERE uziv_id = $1 AND cviceni_id = $2;`, uzivID, cvicID)
-	return err
+	tx, err := DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := zamknoutUzivatele(tx, uzivID); err != nil {
+		return err
+	}
+	result, err := tx.Exec(`DELETE FROM dokoncene WHERE uziv_id = $1 AND cviceni_id = $2;`, uzivID, cvicID)
+	if err != nil {
+		return err
+	}
+	smazano, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if smazano > 0 {
+		if err := aktualizovatStatistikyUzivatele(tx, uzivID); err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
 }
 
 func GetVsechnySlova(pocet int, anglicky bool) ([]string, error) {

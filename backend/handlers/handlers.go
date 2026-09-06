@@ -148,6 +148,12 @@ func getCviceni(c *echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]any{"text": text, "klavesnice": u.Klavesnice, "typ": vsechnyCviceni[cislo-1].Typ, "posledni": int(cislo-1) == len(vsechnyCviceni)-1})
 }
 
+func aktualizovatStatistikyUzivatele(id uint) {
+	if err := databaze.AktualizovatStatistikyUzivatele(id); err != nil {
+		log.Printf("nepodařilo se aktualizovat statistiky uživatele %d: %v", id, err)
+	}
+}
+
 func dokoncitCvic(c *echo.Context) error {
 	id := c.Get("uzivID").(uint)
 	if id == 0 {
@@ -182,10 +188,13 @@ func dokoncitCvic(c *echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	err = databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.Preklepy, body.Cas, body.DelkaTextu, body.NejcastejsiChyby)
+	vlozeno, err := databaze.PridatDokonceneCvic(uint(vsechnyCviceni[cislo-1].ID), id, body.Preklepy, body.Cas, body.DelkaTextu, body.NejcastejsiChyby)
 	if err != nil {
 		log.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+	if vlozeno {
+		go aktualizovatStatistikyUzivatele(id)
 	}
 	return c.NoContent(http.StatusOK)
 }
@@ -216,10 +225,13 @@ func dokoncitProcvic(c *echo.Context) error {
 		log.Print("Takovy procvicovani neni")
 		return c.NoContent(http.StatusBadRequest)
 	}
-	err = databaze.PridatDokonceneProcvic(uint(cislo), id, body.Preklepy, body.Cas, body.DelkaTextu, body.NejcastejsiChyby)
+	vlozeno, err := databaze.PridatDokonceneProcvic(uint(cislo), id, body.Preklepy, body.Cas, body.DelkaTextu, body.NejcastejsiChyby)
 	if err != nil {
 		log.Println(err)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
+	}
+	if vlozeno && id != 0 {
+		go aktualizovatStatistikyUzivatele(id)
 	}
 	return c.NoContent(http.StatusOK)
 }
@@ -628,9 +640,17 @@ func statistiky(c *echo.Context) error {
 		log.Print(err, 2)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
+	percentilRychlosti, percentilPresnosti := -1, -1
+	if napsanychPismen[2] > 0 {
+		percentilRychlosti, percentilPresnosti, err = databaze.GetPercentily(id, rychlost, presnost)
+		if err != nil {
+			log.Print(err, 3)
+			return c.JSON(http.StatusInternalServerError, chyba(""))
+		}
+	}
 	dokonceno, err := databaze.DokonceneProcento(id)
 	if err != nil {
-		log.Print(err, 3)
+		log.Print(err, 4)
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	rychlosti, presnosti, err := databaze.GetUdajeProGraf(id)
@@ -639,15 +659,17 @@ func statistiky(c *echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	return c.JSON(http.StatusOK, map[string]any{
-		"daystreak":        daystreak,
-		"postupVKurzu":     dokonceno,
-		"uspesnost":        presnost,
-		"rychlost":         rychlost,
-		"cas":              cas,
-		"nejcastejsiChyby": chybyPismenka,
-		"napsanychPismen":  napsanychPismen,
-		"rychlosti":        rychlosti,
-		"presnosti":        presnosti,
+		"daystreak":          daystreak,
+		"postupVKurzu":       dokonceno,
+		"uspesnost":          presnost,
+		"rychlost":           rychlost,
+		"cas":                cas,
+		"nejcastejsiChyby":   chybyPismenka,
+		"napsanychPismen":    napsanychPismen,
+		"rychlosti":          rychlosti,
+		"presnosti":          presnosti,
+		"percentilRychlosti": percentilRychlosti,
+		"percentilPresnosti": percentilPresnosti,
 	})
 }
 
