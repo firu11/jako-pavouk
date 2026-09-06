@@ -46,6 +46,9 @@ func GetLekce(uzivID uint) ([][]Lekce, error) {
 			lekce[skup] = append(lekce[skup], jednaLekce)
 		}
 	}
+	if err := rows.Err(); err != nil {
+		return lekce, err
+	}
 	lekce = append(lekce, skupina)
 	return lekce, nil
 }
@@ -142,7 +145,7 @@ func GetDokonceneCvicVLekci(uzivID uint, lekceID uint, pismena string) ([]Cvic, 
 		cviceniIDs = append(cviceniIDs, Cvic{id, cpm})
 	}
 
-	return cviceniIDs, nil
+	return cviceniIDs, rows.Err()
 }
 
 func GetRychlostiProcvic(uzivID uint) (map[int]float32, error) {
@@ -165,7 +168,7 @@ func GetRychlostiProcvic(uzivID uint) (map[int]float32, error) {
 		rychlosti[int(id.Int16)-1] = cpm
 	}
 
-	return rychlosti, nil
+	return rychlosti, rows.Err()
 }
 
 func GetLekceIDbyPismena(pismena string) (uint, error) {
@@ -299,7 +302,7 @@ func GetDaystreak(uzivID uint) (int, error) {
 		}
 	}
 
-	return daystreak, nil
+	return daystreak, rows.Err()
 }
 
 /*                          presnost,  cpm,  chybyPismenka,  cas, napsanychPismen */
@@ -359,7 +362,7 @@ func GetUdajeProGraf(uzivID uint) ([13]float32, [13]float32, error) {
 		presnosti[i] = presnost
 		i++
 	}
-	return rychlosti, presnosti, nil
+	return rychlosti, presnosti, rows.Err()
 }
 
 func DokonceneProcento(uzivID uint) (float32, error) {
@@ -510,7 +513,7 @@ func GetVsechnySlova(pocet int, anglicky bool) ([]string, error) {
 		}
 		vysledek = append(vysledek, slovo)
 	}
-	return vysledek, nil
+	return vysledek, rows.Err()
 }
 
 func GetVsechnyVety(pocet int) ([]string, error) {
@@ -532,7 +535,7 @@ func GetVsechnyVety(pocet int) ([]string, error) {
 		}
 		vysledek = append(vysledek, veta)
 	}
-	return vysledek, nil
+	return vysledek, rows.Err()
 }
 
 func GetSlovaProLekci(uzivID uint, pismena string, pocet int, tridaID uint) ([]string, error) {
@@ -567,7 +570,7 @@ func GetSlovaProLekci(uzivID uint, pismena string, pocet int, tridaID uint) ([]s
 		}
 		vysledek = append(vysledek, slovo)
 	}
-	return vysledek, nil
+	return vysledek, rows.Err()
 }
 
 func GetProgramatorSlova() ([]string, error) {
@@ -589,7 +592,7 @@ func GetProgramatorSlova() ([]string, error) {
 		slova = append(slova, slovo)
 	}
 
-	return slova, nil
+	return slova, rows.Err()
 }
 
 func GetNaucenaPismena(uzivID uint, pismena string, tridaID uint) (string, error) {
@@ -618,7 +621,7 @@ func GetNaucenaPismena(uzivID uint, pismena string, tridaID uint) (string, error
 		vysledek.WriteString(pismenaJedny)
 	}
 
-	return vysledek.String(), nil
+	return vysledek.String(), rows.Err()
 }
 
 func CreateNeoverenyUziv(email, hesloHASH, jmeno, kod string, cas int64) error {
