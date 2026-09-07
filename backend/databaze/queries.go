@@ -10,10 +10,22 @@ import (
 	"time"
 
 	"github.com/blockloop/scan/v2"
+	"github.com/lib/pq"
 	"github.com/rickb777/date/v2"
 )
 
-var poslednich int = 15
+var (
+	poslednich       = 15
+	ErrJmenoObsazeno = errors.New("Uzivatel s timto jmenem jiz existuje")
+)
+
+func chybaJmena(err error) error {
+	var pqErr *pq.Error
+	if errors.As(err, &pqErr) && pqErr.Code == "23505" && (pqErr.Constraint == "uzivatel_jmeno_key" || pqErr.Constraint == "uzivatel_jmeno_active_key") {
+		return ErrJmenoObsazeno
+	}
+	return err
+}
 
 func GetLekce(uzivID uint) ([][]Lekce, error) {
 	var lekce [][]Lekce
@@ -271,7 +283,7 @@ func ZmenitKlavesnici(id uint, novaKlavesnice string) error {
 
 func PrejmenovatUziv(id uint, noveJmeno string) error {
 	_, err := DB.Exec(`UPDATE uzivatel SET jmeno = $1 WHERE id = $2;`, noveJmeno, id)
-	return err // buď nil nebo error
+	return chybaJmena(err)
 }
 
 func GetDaystreak(uzivID uint) (int, error) {
@@ -382,7 +394,7 @@ func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
 	// kdyby náhodou uživatel už byl dříve zaregistrovaný, smažu všechen jeho progres pomocí WITH x2 a resetnu vsechny sloupce
 	err := DB.QueryRow(`WITH id_uzivatele AS ( SELECT id FROM uzivatel WHERE email = $1 ), d AS ( UPDATE dokoncene SET uziv_id = NULL WHERE uziv_id = ( SELECT id FROM id_uzivatele ) ), dp AS ( UPDATE dokoncene_procvic SET uziv_id = NULL WHERE uziv_id = ( SELECT id FROM id_uzivatele ) ), ds AS ( UPDATE dokoncena_prace SET student_id = NULL WHERE student_id = ( SELECT id FROM id_uzivatele ) ), s AS ( DELETE FROM statistiky_uzivatelu WHERE uziv_id = ( SELECT id FROM id_uzivatele ) ) INSERT INTO uzivatel (email, jmeno, heslo) VALUES ($1, $2, $3) ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email, jmeno = EXCLUDED.jmeno, heslo = EXCLUDED.heslo, klavesnice = DEFAULT, datum = DEFAULT, skolni_jmeno = DEFAULT, smazany = DEFAULT RETURNING id;`, email, jmeno, hesloHash).Scan(&uzivID)
 	if err != nil {
-		return 0, err
+		return 0, chybaJmena(err)
 	}
 	return uzivID, nil
 }

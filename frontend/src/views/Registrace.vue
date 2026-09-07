@@ -113,6 +113,10 @@ function overeniPost(e: Event) {
                     kod.value = '';
                     pridatOznameni('Čas pro ověření vypršel. Zkus to prosím znovu.');
                     overeni.value = false;
+                } else if (e.response.data.error.search('jmenem') != -1) {
+                    spatnyJmeno.value = true;
+                    overeni.value = false;
+                    pridatOznameni('Uživatel s tímto jménem už existuje.');
                 } else pridatOznameni();
             });
     } else {

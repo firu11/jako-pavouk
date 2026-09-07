@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -388,9 +389,12 @@ func overitEmail(c *echo.Context) error {
 	}
 
 	uzivID, err := databaze.CreateUziv(cekajiciUziv.Email, cekajiciUziv.Heslo, cekajiciUziv.Jmeno)
+	if errors.Is(err, databaze.ErrJmenoObsazeno) {
+		return c.JSON(http.StatusConflict, chyba(err.Error()))
+	}
 	if err != nil {
-		log.Println(err, uzivID)
-		return c.JSON(http.StatusBadRequest, chyba(err.Error()))
+		log.Println(err)
+		return c.JSON(http.StatusInternalServerError, chyba(""))
 	}
 	token, err := utils.GenerovatToken(body.Email, uzivID)
 	if err != nil {
@@ -512,8 +516,12 @@ func google(c *echo.Context) error {
 	if err != nil { // neexistuje
 		novy = true
 		id, err := databaze.CreateUziv(email, "google", jmeno)
+		if errors.Is(err, databaze.ErrJmenoObsazeno) {
+			return c.JSON(http.StatusConflict, chyba(err.Error()))
+		}
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, chyba(err.Error()))
+			log.Println(err)
+			return c.JSON(http.StatusInternalServerError, chyba(""))
 		}
 		token, err = utils.GenerovatToken(email, id)
 		if err != nil {
@@ -720,8 +728,12 @@ func upravaUctu(c *echo.Context) error {
 			return c.JSON(http.StatusBadRequest, chyba("Jmeno obsahuje nepovolene znaky nebo ma spatnou delku"))
 		}
 		err := databaze.PrejmenovatUziv(id, body.Hodnota)
+		if errors.Is(err, databaze.ErrJmenoObsazeno) {
+			return c.JSON(http.StatusConflict, chyba(err.Error()))
+		}
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, chyba(err.Error()))
+			log.Println(err)
+			return c.JSON(http.StatusInternalServerError, chyba(""))
 		}
 	default:
 		return c.JSON(http.StatusBadRequest, chyba("prázdný request"))

@@ -68,7 +68,7 @@ function postJmeno() {
             jmenoInput.value?.blur(); // lose focus
         })
         .catch((error: unknown) => {
-            if (getApiErrorMessage(error)?.includes('uzivatel_jmeno_key')) {
+            if (getApiErrorMessage(error) === 'Uzivatel s timto jmenem jiz existuje') {
                 pridatOznameni('Takové jméno už někdo má');
                 return;
             }
