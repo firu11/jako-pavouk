@@ -266,7 +266,7 @@ func GetVsechnyJmenaUziv() ([]string, error) {
 
 func SmazatUzivatele(id uint) error {
 	var smazano int
-	err := DB.QueryRow(`WITH smazany AS (UPDATE uzivatel u SET smazany = TRUE WHERE u.id = $1 AND NOT EXISTS (SELECT 1 FROM ucitel c WHERE c.uziv_id = u.id) RETURNING u.id), smazane_statistiky AS (DELETE FROM statistiky_uzivatelu WHERE uziv_id IN (SELECT id FROM smazany)) SELECT COUNT(*) FROM smazany;`, id).Scan(&smazano)
+	err := DB.QueryRow(`WITH smazany AS (UPDATE uzivatel u SET smazany = TRUE, email = CONCAT('__deleted__', u.id, '__', u.email) WHERE u.id = $1 AND NOT EXISTS (SELECT 1 FROM ucitel c WHERE c.uziv_id = u.id AND c.smazany IS NOT TRUE) RETURNING u.id) SELECT COUNT(*) FROM smazany;`, id).Scan(&smazano)
 	if err != nil {
 		return err
 	}
@@ -391,8 +391,7 @@ func CreateUziv(email string, hesloHash string, jmeno string) (uint, error) {
 	email = strings.ToLower(email)
 
 	var uzivID uint
-	// kdyby náhodou uživatel už byl dříve zaregistrovaný, smažu všechen jeho progres pomocí WITH x2 a resetnu vsechny sloupce
-	err := DB.QueryRow(`WITH id_uzivatele AS ( SELECT id FROM uzivatel WHERE email = $1 ), d AS ( UPDATE dokoncene SET uziv_id = NULL WHERE uziv_id = ( SELECT id FROM id_uzivatele ) ), dp AS ( UPDATE dokoncene_procvic SET uziv_id = NULL WHERE uziv_id = ( SELECT id FROM id_uzivatele ) ), ds AS ( UPDATE dokoncena_prace SET student_id = NULL WHERE student_id = ( SELECT id FROM id_uzivatele ) ), s AS ( DELETE FROM statistiky_uzivatelu WHERE uziv_id = ( SELECT id FROM id_uzivatele ) ) INSERT INTO uzivatel (email, jmeno, heslo) VALUES ($1, $2, $3) ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email, jmeno = EXCLUDED.jmeno, heslo = EXCLUDED.heslo, klavesnice = DEFAULT, datum = DEFAULT, skolni_jmeno = DEFAULT, smazany = DEFAULT RETURNING id;`, email, jmeno, hesloHash).Scan(&uzivID)
+	err := DB.QueryRow(`INSERT INTO uzivatel (email, jmeno, heslo) VALUES ($1, $2, $3) RETURNING id;`, email, jmeno, hesloHash).Scan(&uzivID)
 	if err != nil {
 		return 0, chybaJmena(err)
 	}
